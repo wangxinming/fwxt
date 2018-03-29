@@ -12,3 +12,5 @@ spring:
     url: jdbc:sqlserver://127.0.0.1:1433;DatabaseName=oa
     username: sa
     password: 123456
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
