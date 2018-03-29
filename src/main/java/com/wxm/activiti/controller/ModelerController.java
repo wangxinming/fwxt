@@ -20,7 +20,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
- * Created by liuruijie on 2017/4/20.
  * 模型管理
  */
 @RestController

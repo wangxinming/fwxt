@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by liuruijie on 2017/4/20.
  */
 @RestController
 @RequestMapping("deployments")
