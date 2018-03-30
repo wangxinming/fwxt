@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>模型管理</title>
+    <link rel="stylesheet" type="text/css" href="lib/datables/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/datables/DataTables-1.10.16/css/dataTables.bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-3.3.7-dist/css/bootstrap.css"/>
 </head>
 <body>
+<!--<table border="1"  id="table_id_example"  class="table table-striped table-bordered border-force" />-->
+<table id="table_id_example" class="display" width="90%"></table>
 
 <form action="batchImport" target="" id="uploadForm" method="post" enctype="multipart/form-data">
     　　<input id="file" type="file" accept=".doc,.docx" name="file" value="选择word文档"/>
     　　<input type="submit" name="submit" id="submit" value="保存" />
 </form>
+
+
 
 <div id="top">
 </div>
@@ -74,11 +81,14 @@
     {{/each}}
     </script>
 </table>
-<script src="/lib/js/jquery-1.10.2.min.js"></script>
-<script src="/lib/js/jquery.cookie.js"></script>
-<script src="/js/ajax-util.js"></script>
-<script src="/lib/js/template.js"></script>
 
+<script type="text/javascript" src="lib/js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="lib/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/ajax-util.js"></script>
+<script type="text/javascript" src="lib/js/template.js"></script>
+<script type="text/javascript" src="lib/datables/datatables."></script>
+<script type="text/javascript" src="lib/datables/DataTables-1.10.16/js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/datables/DataTables-1.10.16/js/jquery.dataTables.min.js"></script>
 <script>
 $(function() {
     AJAX.GET("/models", null
@@ -93,6 +103,106 @@ $(function() {
                 $("#deployment-list").html(html);
             });
 })
+
+var dataSet = [
+    ['Trident','InternetInternet Internet Internet Internet Internet Internet Internet Internet Internet Internet Internet Internet Explorer 4.0','Win 95+','4','X'],
+    ['Trident','Internet Explorer 5.0','Win 95+','5','C'],
+    ['Trident','Internet Explorer 5.5','Win 95+','5.5','A'],
+    ['Trident','Internet Explorer 6','Win 98+','6','A'],
+    ['Trident','Internet Explorer 7','Win XP SP2+','7','A'],
+    ['Trident','AOL browser (AOL desktop)','Win XP','6','A'],
+    ['Gecko','Firefox 1.0','Win 98+ / OSX.2+','1.7','A'],
+    ['Gecko','Firefox 1.5','Win 98+ / OSX.2+','1.8','A'],
+    ['Gecko','Firefox 2.0','Win 98+ / OSX.2+','1.8','A'],
+    ['Gecko','Firefox 3.0','Win 2k+ / OSX.3+','1.9','A'],
+    ['Gecko','Camino 1.0','OSX.2+','1.8','A'],
+    ['Gecko','Camino 1.5','OSX.3+','1.8','A'],
+    ['Gecko','Netscape 7.2','Win 95+ / Mac OS 8.6-9.2','1.7','A'],
+    ['Gecko','Netscape Browser 8','Win 98SE+','1.7','A'],
+    ['Gecko','Netscape Navigator 9','Win 98+ / OSX.2+','1.8','A'],
+    ['Gecko','Mozilla 1.0','Win 95+ / OSX.1+',1,'A'],
+    ['Gecko','Mozilla 1.1','Win 95+ / OSX.1+',1.1,'A'],
+    ['Gecko','Mozilla 1.2','Win 95+ / OSX.1+',1.2,'A'],
+    ['Gecko','Mozilla 1.3','Win 95+ / OSX.1+',1.3,'A'],
+    ['Gecko','Mozilla 1.4','Win 95+ / OSX.1+',1.4,'A'],
+    ['Gecko','Mozilla 1.5','Win 95+ / OSX.1+',1.5,'A'],
+    ['Gecko','Mozilla 1.6','Win 95+ / OSX.1+',1.6,'A'],
+    ['Gecko','Mozilla 1.7','Win 98+ / OSX.1+',1.7,'A'],
+    ['Gecko','Mozilla 1.8','Win 98+ / OSX.1+',1.8,'A'],
+    ['Gecko','Seamonkey 1.1','Win 98+ / OSX.2+','1.8','A'],
+    ['Gecko','Epiphany 2.20','Gnome','1.8','A'],
+    ['Webkit','Safari 1.2','OSX.3','125.5','A'],
+    ['Webkit','Safari 1.3','OSX.3','312.8','A'],
+    ['Webkit','Safari 2.0','OSX.4+','419.3','A'],
+    ['Webkit','Safari 3.0','OSX.4+','522.1','A'],
+    ['Webkit','OmniWeb 5.5','OSX.4+','420','A'],
+    ['Webkit','iPod Touch / iPhone','iPod','420.1','A'],
+    ['Webkit','S60','S60','413','A'],
+    ['Presto','Opera 7.0','Win 95+ / OSX.1+','-','A'],
+    ['Presto','Opera 7.5','Win 95+ / OSX.2+','-','A'],
+    ['Presto','Opera 8.0','Win 95+ / OSX.2+','-','A'],
+    ['Presto','Opera 8.5','Win 95+ / OSX.2+','-','A'],
+    ['Presto','Opera 9.0','Win 95+ / OSX.3+','-','A'],
+    ['Presto','Opera 9.2','Win 88+ / OSX.3+','-','A'],
+    ['Presto','Opera 9.5','Win 88+ / OSX.3+','-','A'],
+    ['Presto','Opera for Wii','Wii','-','A'],
+    ['Presto','Nokia N800','N800','-','A'],
+    ['Presto','Nintendo DS browser','Nintendo DS','8.5','C/A<sup>1</sup>'],
+    ['KHTML','Konqureror 3.1','KDE 3.1','3.1','C'],
+    ['KHTML','Konqureror 3.3','KDE 3.3','3.3','A'],
+    ['KHTML','Konqureror 3.5','KDE 3.5','3.5','A'],
+    ['Tasman','Internet Explorer 4.5','Mac OS 8-9','-','X'],
+    ['Tasman','Internet Explorer 5.1','Mac OS 7.6-9','1','C'],
+    ['Tasman','Internet Explorer 5.2','Mac OS 8-X','1','C'],
+    ['Misc','NetFront 3.1','Embedded devices','-','C'],
+    ['Misc','NetFront 3.4','Embedded devices','-','A'],
+    ['Misc','Dillo 0.8','Embedded devices','-','X'],
+    ['Misc','Links','Text only','-','X'],
+    ['Misc','Lynx','Text only','-','X'],
+    ['Misc','IE Mobile','Windows Mobile 6','-','C'],
+    ['Misc','PSP browser','PSP','-','C'],
+    ['Other browsers','All others','-','-','U']
+];
+$(document).ready( function () {
+    $('#table_id_example').DataTable(
+        {
+            "data": dataSet,
+            "columns": [
+                { "title": "引擎" , "sWidth" : "30%" },
+                { "title": "浏览器" , "sWidth" : "10%"},
+                { "title": "平台" , "sWidth" : "20%" },
+                { "title": "版本", "class": "center" , "sWidth" : "20%"},
+                { "title": "等级", "class": "center" , "sWidth" : "20%"}
+            ],
+            "bPaginate": true, //开关，是否显示分页器
+            "bServerSide": false,//服务器端分页
+            "bSort": false, //开关，是否启用各列具有按列排序的功能
+            "bSortClasses": false,
+            "bFilter": false, //开关，是否启用客户端过滤器
+            "bAutoWidth": false, //自动设置宽度关闭
+            "aoColumnDefs" : [ {
+                sDefaultContent : '',
+                aTargets : [ '_all' ]
+            } ],
+            "oLanguage": {
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "对不起，查询不到相关数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                "sInfoFiltered": "数据表中共为 _MAX_ 条记录",
+                "sInfoEmpty" : "显示0到0条记录",
+                "sSearch": "搜索",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            } //多语言配置
+        });
+});
 </script>
+
 </body>
 </html>

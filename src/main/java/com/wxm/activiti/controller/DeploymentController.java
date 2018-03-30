@@ -47,7 +47,8 @@ public class DeploymentController implements RestServiceController<Deployment, S
 
     @Override
     public Object deleteOne(@PathVariable("id") String id) {
-        repositoryService.deleteDeployment(id);
+        //级联删除
+        repositoryService.deleteDeployment(id,true);
         return ToWeb.buildResult().refresh();
     }
 

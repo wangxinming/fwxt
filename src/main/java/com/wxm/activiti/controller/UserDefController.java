@@ -53,10 +53,15 @@ public class UserDefController {
                     formProperties.put(key.split("_")[1], entry.getValue()[0]);
                 }
             }
-            String key = "ser";
+            String key = "new-process";
             ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(key);
             String pId = processInstance.getId();
-
+            System.out.println("流程梳理所属流程定义id："
+                    + processInstance.getProcessDefinitionId());
+            System.out.println("流程实例的id：" + processInstance.getProcessInstanceId());
+            System.out.println("流程实例的执行id：" + processInstance.getId());
+            System.out.println("流程当前的活动（结点）id：" + processInstance.getActivityId());
+            System.out.println("业务标识：" + processInstance.getBusinessKey());
         }catch (Exception e){
 
         }
