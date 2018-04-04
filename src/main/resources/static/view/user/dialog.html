@@ -1,0 +1,16 @@
+<!--<div class="modal fade" id="pageDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" aria-hidden="true">-->
+<div class="modal fade" id="{{dialog.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">{{dialog.title}}</h4>
+            </div>
+            <div class="modal-body" ng-transclude></div>
+            <div class="modal-footer" ng-hide="dialog.hiddenButton">
+                <button type="button" class="btn btn-primary" ng-click="dialog.save()"> {{dialog.buttonText==null?"确定":dialog.buttonText}}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>

@@ -36,7 +36,7 @@ public class ModelerController implements RestServiceController<Model, String>{
      * @return
      * @throws UnsupportedEncodingException
      */
-    @PostMapping("newModel")
+    @GetMapping("newModel")
     public Object newModel() throws UnsupportedEncodingException {
         //初始化一个空模型
         Model model = repositoryService.newModel();

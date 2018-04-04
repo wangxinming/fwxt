@@ -63,7 +63,8 @@ __ajax = function(url, data, success, type ,contentType){
         dataType:"json",
         data:data,
         success:function(result){
-            success(simpleSuccess(result));
+            window.open(result.redirectUrl,"_blank");
+            // success(simpleSuccess(result));
         }
     };
     //如果需要token校验

@@ -1,0 +1,41 @@
+.tab-content {
+    height: 265px;
+    overflow: auto;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0px;
+}
+
+#eventDetailDialog .dialog-con .row {
+    margin-top: 15px;
+}
+
+#eventDetailDialog .dialog-con .detail-label {
+    float: left;
+    height: 28px;
+    line-height: 28px;
+}
+
+#eventDetailDialog .dialog-con .detail-content {
+    float: left;
+    padding: 3px;
+    border: 1px solid #CCC;
+    width: 200px;
+    height: 28px
+}
+
+.nowrap {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.fa-check-circle.Black {
+    color: #000 !important;
+}
+
+.fa-check-circle.Black:hover {
+    color: #000 !important;
+}

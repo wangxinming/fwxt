@@ -1,0 +1,31 @@
+#my-ajax-view{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 2000px;
+    z-index: 1050;
+    background: none repeat-x scroll 50% 50% rgb(170, 170, 170);
+    opacity: 0.3;
+    display: none;
+}
+
+#my-ajax-view-center{
+    z-index: 1051;
+    display: none;
+}
+
+.loading{
+  z-index: 9999!important;
+}
+
+.loading img{
+    position:fixed;
+    left:50%;
+    top:50%;
+    margin-left:-19px;
+    margin-top:-19px;
+    width:38px;
+    height: 38px;
+    z-index: 1052
+}

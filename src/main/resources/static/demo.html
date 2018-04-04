@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="webPortal" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="webPortal" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="webPortal" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="webPortal" class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content="Draggabble Widget Boxes & Containers" name="description">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0" name="viewport">
+
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="pragma" content="no-cache">
+
+    <!-- base -->
+
+    <!-- ace -->
+    <link rel="stylesheet" type="text/css" href="lib/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="lib/assets/css/ace-fonts.css" />
+    <link rel="stylesheet" href="lib/assets/css/ace.min.css" />
+    <link rel="stylesheet" href="lib/assets/css/ace-rtl.min.css" />
+    <link rel="stylesheet" href="lib/assets/css/ace-skins.min.css" />
+    <script src="lib/assets/js/ace-extra.min.js"></script>
+    <link href="lib/bootstrap/css/bootstrap.min.css"  type="text/css" rel="stylesheet"/>
+
+    <!-- ng-grid -->
+    <link rel="stylesheet" type="text/css" href="lib/angular/ng-grid.min.css">
+
+    <link rel="stylesheet" type="text/css" href="lib/angular/ui/jquery.bigcolorpicker.css">
+    <!-- new common & widget style  -->
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+    <link rel="stylesheet" type="text/css" href="css/global.css">
+
+    <link rel="stylesheet" type="text/css" href="lib/datatables/style/datatable.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/treegrid/treeGrid.css"/>
+
+    <link rel="stylesheet" type="text/css" href="template/loading/style/loading.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/toastr/toaster.min.css" />
+    <link rel="stylesheet" type="text/css" href="lib/select2/select2.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/select2/select2-bootstrap.css"/>
+</head>
+
+<!--< data-spy="scroll" data-target=".navbar" data-offset="100">-->
+<!--<div class="navbar navbar-inverse navbar-fixed-top">-->
+
+    <!--<div class="navbar-inner">-->
+        <!--&lt;!&ndash;<a class="navbar-brand" href="index.html">&ndash;&gt;-->
+            <!--&lt;!&ndash;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&ndash;&gt;-->
+            <!--&lt;!&ndash;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&ndash;&gt;-->
+            <!--&lt;!&ndash;ID生成系统&ndash;&gt;-->
+        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+        <!--<div class="hor-menu hidden-sm hidden-xs">-->
+
+            <!--<ul class="nav navbar-nav">-->
+                <!--<li >-->
+                    <!--<a href="demo.html">-->
+                        <!--ID管理-->
+                    <!--</a>-->
+                <!--</li>-->
+                <!--<li >-->
+                    <!--<a href="#/addproperty" >-->
+                        <!--配置项管理-->
+                    <!--</a>-->
+                <!--</li>-->
+                <!--<li style="display: none" id="userli">-->
+                    <!--<a href="#/usermanage" >-->
+                        <!--用户管理-->
+                    <!--</a>-->
+                <!--</li>-->
+            <!--</ul>-->
+        <!--</div>-->
+
+    <!--</div>-->
+<!--</div>-->
+
+<!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+<br/><br/><br/>
+
+<br/><br/><br/>
+
+<div ng-view></div>
+<div my-loading class="loading"></div>
+<div modal-confirm settings="confirm"></div>
+<toaster-container></toaster-container>
+<!-- In production use:
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+-->
+
+<!--angular-->
+<script src="lib/angular/jquery.min.js"></script>
+<script src="lib/angular/jquery.form.js"></script>
+<script src="lib/angular/angular.min.js"></script>
+<script src="lib/angular/angular-route.min.js"></script>
+<script src="lib/angular/angular-resource.min.js"></script>
+<script src="lib/angular/angular-animate.min.js"></script>
+<script src="lib/bootstrap/js/bootstrap.js"></script>
+
+<script src="getUserName.js"></script>
+<script src="lib/angular/jquery.cookie.js"></script>
+<script src="app.js"></script>
+<script src="js/user/user.js"></script>
+<script src="https://cdn.bootcss.com/angular.js/1.5.0-beta.0/angular-sanitize.min.js"></script>
+<script type="text/javascript" src="js/ajax-util.js"></script>
+<!--部署模块-->
+<script src="js/deployment/deployment.js"></script>
+<!--data-table-->
+<script src="lib/datatables/jquery.dataTables.min.js"></script>
+<script src="lib/datatables/datatables.sort.plungin.js"></script>
+<script src="lib/datatables/datatables.directive.js"></script>
+<script src="lib/assets/js/jquery.dataTables.bootstrap.js"></script>
+<script src="lib/treegrid/tree-grid-directive.js"></script>
+
+<!-- checklist -->
+<script src="lib/checklist/checklist.directive.js"></script>
+<!-- jquery-ui -->
+<script src="lib/jquery-ui/jquery-ui-1.10.3.full.min.js"></script>
+<!-- app -->
+<script src="js/util/services.js"></script>
+<script src="template/loading/loading.js"></script>
+<script src="lib/toastr/toaster.min.js"></script>
+<script src="lib/select2/select2.min.js"></script>
+
+
+</body>
+<script>
+
+</script>
+</html>

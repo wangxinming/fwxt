@@ -1,0 +1,96 @@
+.white {color: #FFFFFF;}
+.black {color: #000000;}
+.red {color: #D9534F;}
+.green {color: #55B255;}
+.blue {color: #478FCA;}
+.gray{color:#333}
+.be{color: #bebebe}
+
+.f12{font-size:12px;}
+.fb12{font-size:12px;font-weight: bold;}
+.f14{font-size:14px;}
+.fb14{font-size:14px;font-weight: bold;}
+.f28{font-size:28px;}
+.fb28{font-size:28px;font-weight: bold;}
+
+.mt5{margin-top: 5px;}
+.mb5{margin-bottom: 5px;}
+.mt10{margin-top: 10px;}
+.mb10{margin-bottom: 10px;}
+.mt20{margin-top: 20px;}
+.mb20{margin-bottom: 20px;}
+.ml10{margin-left: 10px;}
+.mr10{margin-right: 10px;}
+.m15{margin:15px;}
+
+.pt5{padding-top:5px;}
+.pb5{padding-bottom:5px;}
+.pt10{padding-top:10px;}
+.pb10{padding-bottom:10px;}
+
+.left{float:left;}
+.right{float:right;}
+.cl{clear:both;}
+
+.dn{display:none;}
+.di{display:inline-block;}
+.pr{position:relative;}
+.pa{position:absolute}
+.tc{text-align:center;}
+.vt{vertical-align: top;}
+.vm{vertical-align: middle;}
+.vb{vertical-align: bottom;}
+.tr{text-align:right;}
+.oa{overflow:auto;}
+.brn{border-radius:0;}
+.cp{cursor: pointer;}
+
+.lh28{height: 28px;line-height: 28px;}
+.lh34{height: 34px;line-height: 34px;}
+.lh42{height: 42px;line-height: 42px;}
+
+.gap150{display: inline-block;width: 150px;}
+
+.border-radius{border-radius:4px!important;}
+
+.fa{cursor: pointer;}
+.fa[disabled]{
+    opacity: 0.5!important;
+    cursor: not-allowed;
+    pointer-events:none;
+}
+
+a{cursor:pointer;}
+a:hover{text-decoration:none;}
+
+ul,li{
+    list-style: none;
+    margin:0;
+}
+label{font-size:12px;}
+i{margin-right:2px;margin-left: 2px;}
+
+/*form  begin*/
+textarea,
+select,
+input[type="text"],
+input[type="password"],
+input[readonly] {
+    height: 28px;
+    line-height: 28px;
+    border: 1px solid #ccc!important;
+    background: #fff!important;
+    font-size: 12px!important;
+}
+textarea:hover,
+select:hover,
+input:hover,
+input[readonly]:hover,
+textarea:focus,
+select:focus,
+input:focus,
+input[readonly]:focus {
+    border-color: #3276b1!important;
+    background: #fff!important;
+}
+/*form  end*/

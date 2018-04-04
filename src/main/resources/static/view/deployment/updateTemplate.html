@@ -1,0 +1,78 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<div dialog info="pageDialog" data="addPage.data" class="ldialog">
+    <div class="portlet-body form">
+        <form class="form-horizontal" role="form">
+            <div class="form-body">
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">平台<span class="required">*</span></label>
+                    <div class="col-md-9">
+                        <select  class="form-control" ng-class="{false: 'has-error'}[pfCheck]" ng-model="addPage.data.pf.description" required  ng-options="(optiontype.id+'_'+optiontype.name) as optiontype.name for optiontype in pfModel | filter: { flag: '1'}">
+                        </select>
+
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">功能<span class="required">*</span></label>
+                    <div class="col-md-9">
+                        <select  class="form-control" ng-class="{false: 'has-error'}[fmCheck]" ng-model="addPage.data.fm.description" required   ng-options="(optiontype.id+'_'+optiontype.name) as optiontype.name for optiontype in fmModel | filter: { flag: '1'}">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">页面名称<span class="required">*</span></label>
+                    <div class="col-md-9">
+                        <select  class="form-control" ng-class="{false: 'has-error'}[pageNameCheck]" ng-model="addPage.data.pageName.description" required   ng-options="(optiontype.id+'_'+optiontype.name) as optiontype.name for optiontype in pnModel | filter: { flag: '1'}">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">热区事件名<span class="required">*</span></label>
+                    <div class="col-md-9">
+                        <select  class="form-control" ng-class="{false: 'has-error'}[reCheck]" ng-model="addPage.data.re.description" required   ng-options="(optiontype.id+'_'+optiontype.name) as optiontype.name for optiontype in reModel | filter: { flag: '1'}">
+                        </select>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">热区功能名<span class="required">*</span></label>
+                    <div class="col-md-9">
+                        <select  class="form-control" ng-class="{false: 'has-error'}[rfCheck]" ng-model="addPage.data.rf.description"    ng-options="(optiontype.id+'_'+optiontype.name) as optiontype.name for optiontype in rfModel | filter: { flag: '1'}">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">埋点所在路径</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control"  ng-model="addPage.data.locPath" >
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">埋点指向路径</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control"  ng-model="addPage.data.locUrl" >
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">备注</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control"  ng-model="addPage.data.des" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">截图</label>
+                    <div class="col-md-9">
+                        <input type="file" class="form-control"  ng-model="addPage.data.imagepath" disabled>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>

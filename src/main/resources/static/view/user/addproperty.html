@@ -1,0 +1,131 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<div class="portlet box ">
+
+    <div class="portlet-body form">
+        <!-- BEGIN FORM-->
+
+        <form action="#" class="form-horizontal">
+            <div class="form-body">
+                <div class="form-group" ng-init="zfFlag='作废'">
+                    <label  class="col-md-4 control-label">平台</label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                          <input type="text" class="form-control" ng-model="pfText" my-enter="pageProperty.addPf()">
+                          <span class="input-group-btn">
+						    <button class="btn blue"  type="button"  ng-show="userLevel.indexOf('add')!=-1" ng-click="pageProperty.addPf()">新增</button>
+					      </span>
+                           <span class="input-group-btn">
+						    <button class="btn blue"  type="button"  ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('pf','0')">作废</button>
+					      </span>
+                            <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('pf','1')">恢复</button>
+					      </span>
+                        </div>
+                        <select multiple class="form-control" ng-model="pfMultiple" >
+
+                            <option ng-repeat="op in pfModel|filter:pfText|filter:cancelFilter" ng-value="{{op.id}}"   >
+                                {{op.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-4 control-label">功能模块</label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" ng-model="fmText" my-enter="pageProperty.addFm()">
+                          <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('add')!=-1"  ng-click="pageProperty.addFm()">新增</button>
+					      </span>
+                           <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('fm','0')">作废</button>
+					      </span>
+                            <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('fm','1')">恢复</button>
+					      </span>
+                        </div>
+
+
+                        <select multiple class="form-control"  ng-model="fmMultiple">
+                            <option ng-repeat="op in fmModel|filter:fmText|filter:cancelFilter" value="{{op.id}}"    >
+                                {{op.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-4 control-label">页面名称</label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" ng-model="pnText" my-enter="pageProperty.addPn()">
+                          <span class="input-group-btn">
+						    <button class="btn blue"  type="button"  ng-show="userLevel.indexOf('add')!=-1" ng-click="pageProperty.addPn()">新增</button>
+					      </span>
+                           <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('pn','0')">作废</button>
+					      </span>
+                            <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('pn','1')">恢复</button>
+					      </span>
+                        </div>
+                        <select multiple class="form-control"  ng-model="pnMultiple">
+                            <option ng-repeat="op in pnModel|filter:pnText|filter:cancelFilter" value="{{op.id}}"    >
+                                {{op.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-4 control-label">热区事件名</label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" ng-model="reText" my-enter="pageProperty.addRe()">
+                          <span class="input-group-btn">
+						    <button class="btn blue"  type="button"  ng-show="userLevel.indexOf('add')!=-1" ng-click="pageProperty.addRe()">新增</button>
+					      </span>
+                           <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('re','0')">作废</button>
+					      </span>
+                            <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('re','1')">恢复</button>
+					      </span>
+                        </div>
+                        <select multiple class="form-control"  ng-model="reMultiple">
+                            <option ng-repeat="op in reModel|filter:reText|filter:cancelFilter" value="{{op.id}}"    >
+                                {{op.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-4 control-label">热区功能名</label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" ng-model="rfText" my-enter="pageProperty.addRf()">
+                          <span class="input-group-btn">
+						    <button class="btn blue"  type="button"  ng-show="userLevel.indexOf('add')!=-1" ng-click="pageProperty.addRf()">新增</button>
+					      </span>
+                           <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('rf','0')">作废</button>
+					      </span>
+                            <span class="input-group-btn">
+						    <button class="btn blue"  type="button" ng-show="userLevel.indexOf('update')!=-1" ng-click="pageProperty.updateFlag('rf','1')">恢复</button>
+					      </span>
+                        </div>
+                        <select multiple class="form-control"  ng-model="rfMultiple">
+                            <option ng-repeat="op in rfModel|filter:rfText|filter:cancelFilter" value="{{op.id}}"   >
+                                {{op.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+        <!-- END FORM-->
+    </div>
+</div>

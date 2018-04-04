@@ -1,0 +1,104 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+    font-size: 12px;
+   /* background: -moz-linear-gradient(top, #5e8fc9, #ecf1f9);
+    background: -webkit-gradient(linear,top,from(#5e8fc9),to(#ecf1f9));
+    background: -webkit-linear-gradient(top, #5e8fc9, #ecf1f9);
+    background: -o-linear-gradient(top, #5e8fc9, #ecf1f9);
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#5e8fc9, endColorstr=#ecf1f9);*//*IE<9>*//*
+    -ms-filter:"progid:DXImageTransform.Microsoft.gradient (GradientType=0, startColorstr=#5e8fc9, endColorstr=#ecf1f9)";*//*IE8+*/
+    background:url("../../img/login/bg.png") repeat-x #ecf1f9;
+}
+.main{
+  background:url("../../img/login/main-bg.png") no-repeat top center;
+}
+ .login-div {
+  left:50%;
+  top: 50%;
+  margin-left:-220px;
+  margin-top:-239px;
+  width: 440px;
+  height: 478px;
+  position: fixed;
+}
+.form{
+    border-radius: 6px;
+    background: #fff;
+    padding: 30px;
+    opacity: 0.8;
+}
+.login-div .login-title{
+    background:url("../../img/login/logo.png") no-repeat;
+    width: 374px;
+    height: 108px;
+ }
+.login-div .login-content{
+    border:1px solid #fff;
+    border-radius: 6px;
+    margin-top: 24px;
+}
+
+.row-content{
+    margin-bottom: 28px;
+}
+ .login-div div .input-row {
+  padding-left: 45px;
+  border:1px solid #ccc;
+  width:330px;
+  height: 40px;
+  font-size: 12px;
+}
+.input-row:hover,.input-row:focus{
+  border:1px solid #1f90c8;
+}
+ .login-div div .error {
+  margin-top: 5px;
+}
+ .login-div div span {
+  color: #FFFFFF;
+}
+.login-div .btn-div{
+  height:40px;
+}
+.login-div div .btn{
+    width: 100px;
+    height: 36px;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 2px;
+    float: right;
+}
+ .login-div div .login-btn {
+  background: #1f90c8;
+  margin-right: 10px;
+}
+
+.login-div div .cancel-btn {
+    background: #333;
+}
+
+.login-div .input-label{
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.input-img{
+    font-size: 14px;
+    height: 40px;
+    width: 40px;
+    background: #f4f4f4;
+    margin-bottom: 0;
+    position: relative;
+    top: 41px;
+    left: 1px;
+    line-height: 40px;
+    text-align: center;
+    border-right: 1px solid #ccc;
+}
+.input-content{
+    margin-top: -40px;
+}

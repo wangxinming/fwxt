@@ -67,7 +67,45 @@ public class Word2Html {
 
         return outputFile;
     }
-
+//    public static File office2pdf(File inputFile) {
+//        OfficeManager officeManager = null;
+//        try {
+////            if (inputFilePath==null||inputFilePath.trim().length()<=0) {
+////                System.out.println("输入文件地址为空，转换终止!");
+////                return null;
+////            }
+////            File inputFile = new File(inputFilePath);
+////
+////            //转换后的文件路径
+////            String outputFilePath_end=getOutputFilePath(inputFilePath);
+//
+//            if (!inputFile.exists()) {
+//                System.out.println("输入文件不存在，转换终止!");
+//                return null;
+//            }
+//
+//            //获取OpenOffice的安装路劲
+//            officeManager = getOfficeManager();
+//
+//            //连接OpenOffice
+//            OfficeDocumentConverter converter=new OfficeDocumentConverter(officeManager);
+//
+//            //转换并返回转换后的文件对象
+//            return converterFile(inputFile,outputFilePath_end,inputFilePath,converter);
+//
+//        } catch (Exception e) {
+//            System.out.println("转化出错!");
+//            e.printStackTrace();
+//        } finally {
+//
+//            if (officeManager != null) {
+//
+//                //停止openOffice
+//                officeManager.stop();
+//            }
+//        }
+//        return null;
+//    }
     /**
      * 使Office2003-2007全部格式的文档(.doc|.docx|.xls|.xlsx|.ppt|.pptx) 转化为html文件
      * @param inputFilePath 源文件路径，如："D:/论坛.docx"

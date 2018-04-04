@@ -1,0 +1,65 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<div dialog info="pageDialog" data="addPage.data" class="ldialog">
+
+    <div class="portlet-body form">
+        <form class="form-horizontal" role="form">
+            <div class="form-body">
+                <tr>
+                    <td class="row-lable"> 模板名称 </td>
+                    <td>
+                        <input type="text" id="templateName" ng-model="pageDialog.model.name" name="name" ng-maxlength="20"
+                                required ng-pattern="/^[A-Za-z]+$/">
+                        <span class="required">*</span>
+                        <div class="required" ng-show="form.name.$dirty && form.name.$invalid">
+                            <span ng-show="form.name.$error.required">此项不能为空.</span>
+                            <span ng-show="!form.name.$error.required && form.name.$error.maxlength">超出长度限制.</span>
+                            <span ng-show="!form.name.$error.required && !form.name.$error.maxlength && form.name.$error.pattern">只能输入英文字母.</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row-lable"> 模板描述 </td>
+                    <td>
+                        <input type="text" id="templateDes" ng-model="pageDialog.model.des" name="des" ng-maxlength="20"
+                               required ng-pattern="/^[A-Za-z]+$/">
+                        <span class="required">*</span>
+                        <div class="required" ng-show="form.name.$dirty && form.name.$invalid">
+                            <span ng-show="form.name.$error.required">此项不能为空.</span>
+                            <span ng-show="!form.name.$error.required && form.name.$error.maxlength">超出长度限制.</span>
+                            <span ng-show="!form.name.$error.required && !form.name.$error.maxlength && form.name.$error.pattern">只能输入英文字母.</span>
+                        </div>
+                    </td>
+                </tr>
+
+                <!--<tr>-->
+                    <!--<td class="row-lable"> 模板内容 </td>-->
+                    <!--<td>-->
+                        <!--<textarea type="text" id="htmlTemplateText" ng-model="pageDialog.model.html" name="html" ng-maxlength="20"-->
+                                  <!--required ng-pattern="/^[A-Za-z]+$/"></textarea>>-->
+                        <!--<span class="required">*</span>-->
+                        <!--<div class="required" ng-show="form.name.$dirty && form.name.$invalid">-->
+                            <!--<span ng-show="form.name.$error.required">此项不能为空.</span>-->
+                            <!--<span ng-show="!form.name.$error.required && form.name.$error.maxlength">超出长度限制.</span>-->
+                            <!--<span ng-show="!form.name.$error.required && !form.name.$error.maxlength && form.name.$error.pattern">只能输入英文字母.</span>-->
+                        <!--</div>-->
+                    <!--</td>-->
+                <!--</tr>-->
+
+                <div class="form-group">
+                    <!--<form action="batchImport" target="" id="uploadForm" method="post" enctype="multipart/form-data">-->
+                    <!--　　<input id="file" type="file" accept=".doc,.docx" name="file" value="选择word文档"/>-->
+                    <!--　　<input type="submit" name="submit" id="submit" value="保存" />-->
+                    <!--</form>-->
+
+                    <textarea rows="50" cols="30" id="htmlTemplateText"></textarea>
+                    <button class="btn blue" ng-click="loadHtml()" type="button">结果演示</button>
+                    <div id="htmlTemplate"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>

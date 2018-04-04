@@ -1,0 +1,47 @@
+<div class="portlet box ">
+    <label  class="col-md-3 control-label"></label>
+    <button class="btn blue" ng-click="replaceDiv()" type="button">绘制流程</button>
+    <!--<div class="col-md-6 ">-->
+    <!--<div class="list_button" >-->
+    <!--<div class="input-group">-->
+    <!--<input type="text" class="form-control" ng-model="key" placeholder="关键字模糊查询">-->
+    <!--<span class="input-group-btn">-->
+    <!--<button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>-->
+    <!--</span>-->
+    <button type="button" class="btn" ng-click="listPage.action.add()" ng-show="userLevel.indexOf('add')!=-1">新增</button>
+    <!--</div>-->
+    <!--</div>-->
+    <!--</div>-->
+
+    <!--<div>-->
+    <!--<form action="/workflow/process/process" method="get">-->
+    <!--<p>First name: <input type="text" name="fname" /></p>-->
+    <!--<p>Last name: <input type="text" name="lname" /></p>-->
+    <!--<input type="submit" value="Submit" />-->
+    <!--</form>-->
+    <!--</div>-->
+    <!--<a ng-href="/models/newModel">绘制流程</a>-->
+    <form action="batchImport" target="" id="uploadForm" method="post" enctype="multipart/form-data">
+        　　<input id="file" type="file" accept=".doc,.docx" name="file" value="选择word文档"/>
+        　　<input type="submit" name="submit" id="submit" value="保存" />
+    </form>
+
+    <!--<form target="" id="uploadForm" method="post" enctype="multipart/form-data" name="uploadForm">-->
+        <!--　　<input id="file" type="file" accept=".doc,.docx" name="file" value="选择word文档"/>-->
+        <!--　　<input type="submit" name="submit" id="submit" ng-click="uploadTemplate()" value="解析模板" />-->
+    <!--</form>-->
+    <!--<form method="post" enctype="multipart/form-data">-->
+        <!--<input type="file" id="fileName" name="fileName"  style=";width: 180px;"/>-->
+        <!--<input type="button" style="width:70px;"  onclick="uploadFile()" value="上传文件">-->
+    <!--</form>-->
+    <!--<button class="btn blue" ng-click="uploadTemplate()" type="button">解析模板</button>-->
+
+    <!--<textarea rows="50" cols="30" id="htmlTemplateText">-->
+    <!--</textarea>-->
+    <!--<button class="btn blue" ng-click="loadHtml()" type="button">结果演示</button>-->
+    <!--<div id="htmlTemplate"></div>-->
+
+    <!--<button class="btn blue" ng-click="commitTemplate()" type="button">提交转换结果</button>-->
+    <table jq-table="listPage.settings" class="table"></table>
+    <div ng-include src="'view/deployment/uploadAdd.html'"></div>
+</div>
