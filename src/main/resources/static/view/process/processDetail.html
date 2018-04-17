@@ -1,0 +1,32 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<div dialog info="pageDialogDetail" data="addPageDetail.data" class="ldialog">
+            <div>
+                <img style="width: 100%" ng-src="{{hash}}"/>
+            </div>
+            <div id="htmlTemplate"></div>
+            <div>
+                <table width="100%">
+                    <!--<tr>-->
+                        <!--<th>流程名称</th>-->
+                        <!--<th>请求标题</th>-->
+                        <!--<th>创建人</th>-->
+                        <!--<th>申请日期</th>-->
+                        <!--<th>当前结点</th>-->
+                    <!--</tr>-->
+
+                    <tr ng-repeat="x in details">
+                        <td>{{ x.name }}</td>
+                        <td>{{ x.name }}</td>
+                        <td>{{ x.name }}</td>
+                        <td>{{ x.createTime | date:"yyyy-MM-dd HH:mm:ss"}}</td>
+                        <td>{{ x.description }}</td>
+                    </tr>
+                </table>
+            </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    </div>
+</div>

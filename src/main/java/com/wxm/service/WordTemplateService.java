@@ -24,19 +24,44 @@ public class WordTemplateService {
     public List<WordEntity> queryHtmlTemplate(){
         return wordTemplate.queryHtmlTemplate();
     }
-    public int insert(Timestamp timeStamp, String html){
-        return wordTemplate.insert(timeStamp,html);
-    }
     public int insert(WordEntity wordEntity){
-        return wordTemplate.insertWordEntity(wordEntity);
+        return wordTemplate.insert(wordEntity);
     }
+
+    public void updateHtml(WordEntity wordEntity){
+        wordTemplate.updateHtml(wordEntity);
+    }
+//    public int insert(WordEntity wordEntity){
+//        return wordTemplate.insertWordEntity(wordEntity);
+//    }
     public void delete(int id){
         wordTemplate.delete(id);
+    }
+    public void removeRelationByTmpId(int tmpId){
+        wordTemplate.removeRelationByTmpId(tmpId);
     }
     public void update(WordEntity wordEntity){
         wordTemplate.update(wordEntity);
     }
     public int count(){
         return wordTemplate.count();
+    }
+
+    public WordEntity queryInfoRel(String name){
+        return wordTemplate.queryInfoRel(name);
+    }
+    public int coutRelByDID(String dID){
+        return wordTemplate.coutRelByDID(dID);
+    }
+
+    public int updateRelation(String dID,int rID){
+        return wordTemplate.updateRelation(dID,rID);
+    }
+    public int insertRel(String dID,int rID){
+        return wordTemplate.insertRel(dID,rID);
+    }
+
+    public int removeRelation(int id){
+        return wordTemplate.removeRelation(id);
     }
 }

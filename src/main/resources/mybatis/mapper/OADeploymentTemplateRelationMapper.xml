@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OADeploymentTemplateRelationMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OADeploymentTemplateRelation" >
+    <id column="RELATION_ID" property="relationId" jdbcType="INTEGER" />
+    <result column="RELATION_DEPLOYMENTID" property="relationDeploymentid" jdbcType="NVARCHAR" />
+    <result column="RELATION_TEMPLATEID" property="relationTemplateid" jdbcType="INTEGER" />
+    <result column="RELATION_CREATETIME" property="relationCreatetime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    RELATION_ID, RELATION_DEPLOYMENTID, RELATION_TEMPLATEID, RELATION_CREATETIME
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from OA_DEPLOYMENT_TEMPLATE_RELATION
+    where RELATION_ID = #{relationId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByDeploymentId" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List" />
+    from OA_DEPLOYMENT_TEMPLATE_RELATION
+    where RELATION_DEPLOYMENTID = #{deploymentId,jdbcType=NVARCHAR}
+  </select>
+
+  <select id="coutRelByDeploymentId" resultType="java.lang.Integer">
+    SELECT count(*) from OA_DEPLOYMENT_TEMPLATE_RELATION where RELATION_DEPLOYMENTID =  #{deployment,jdbcType=NVARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_DEPLOYMENT_TEMPLATE_RELATION
+    where RELATION_ID = #{relationId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OADeploymentTemplateRelation" useGeneratedKeys="true"  keyProperty = "relationId" keyColumn = "RELATION_ID">
+    insert into OA_DEPLOYMENT_TEMPLATE_RELATION (RELATION_ID, RELATION_DEPLOYMENTID, 
+      RELATION_TEMPLATEID, RELATION_CREATETIME)
+    values (#{relationId,jdbcType=INTEGER}, #{relationDeploymentid,jdbcType=NVARCHAR}, 
+      #{relationTemplateid,jdbcType=INTEGER}, #{relationCreatetime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OADeploymentTemplateRelation" useGeneratedKeys="true"  keyProperty = "relationId" keyColumn = "RELATION_ID">
+    insert into OA_DEPLOYMENT_TEMPLATE_RELATION
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="relationId != null" >
+        RELATION_ID,
+      </if>
+      <if test="relationDeploymentid != null" >
+        RELATION_DEPLOYMENTID,
+      </if>
+      <if test="relationTemplateid != null" >
+        RELATION_TEMPLATEID,
+      </if>
+      <if test="relationCreatetime != null" >
+        RELATION_CREATETIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="relationId != null" >
+        #{relationId,jdbcType=INTEGER},
+      </if>
+      <if test="relationDeploymentid != null" >
+        #{relationDeploymentid,jdbcType=NVARCHAR},
+      </if>
+      <if test="relationTemplateid != null" >
+        #{relationTemplateid,jdbcType=INTEGER},
+      </if>
+      <if test="relationCreatetime != null" >
+        #{relationCreatetime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OADeploymentTemplateRelation" >
+    update OA_DEPLOYMENT_TEMPLATE_RELATION
+    <set >
+      <if test="relationDeploymentid != null" >
+        RELATION_DEPLOYMENTID = #{relationDeploymentid,jdbcType=NVARCHAR},
+      </if>
+      <if test="relationTemplateid != null" >
+        RELATION_TEMPLATEID = #{relationTemplateid,jdbcType=INTEGER},
+      </if>
+      <if test="relationCreatetime != null" >
+        RELATION_CREATETIME = #{relationCreatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where RELATION_ID = #{relationId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OADeploymentTemplateRelation" >
+    update OA_DEPLOYMENT_TEMPLATE_RELATION
+    set RELATION_DEPLOYMENTID = #{relationDeploymentid,jdbcType=NVARCHAR},
+      RELATION_TEMPLATEID = #{relationTemplateid,jdbcType=INTEGER},
+      RELATION_CREATETIME = #{relationCreatetime,jdbcType=TIMESTAMP}
+    where RELATION_ID = #{relationId,jdbcType=INTEGER}
+  </update>
+</mapper>

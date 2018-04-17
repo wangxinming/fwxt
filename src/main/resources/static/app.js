@@ -10,7 +10,11 @@
         'jk.loading',
         'toaster',
         'webportal.user',
-        'deployment'
+        'deployment',
+        'systemheader',
+        "audit",
+        "report",
+        'process'
     ])
         .directive('modalConfirm', function() {
             return {
@@ -125,7 +129,43 @@
 
                 angular.element('#' + $rootScope.confirm.id).modal('show');
             };
-        }]);
+        }])
+
+        .config(['$httpProvider', function ($httpProvider) {
+            $httpProvider.interceptors.push("interceptor");
+        }]).factory('interceptor', function ($q, $rootScope) {
+        return {
+            'request': function (config) {
+                if (!new RegExp("html$").test(config.url)) {
+                    config.url = config.url + '?r=' + new Date().getTime();
+                }
+                return config || $q.when(config);
+            },
+            'response': function (response) {
+                return response || $q.when(response);
+            },
+            'responseError': function (e) {
+                var info = "";
+                if (e.data && e.data.message) {
+                    info = e.data.message;
+                } else if (e.status == 0) {
+                    info = "服务器无法访问";
+                } else {
+                    info = "未知错误";
+                }
+                if (info && info != "") {
+                    if (info.indexOf("用户未登录") > -1 || info.indexOf("数据库异常") > -1) {
+                        jQuery.cookie("wxm_url", window.location.href);
+                        location.href = "./login.html";
+                    } else {
+                        $rootScope.$alert(info, "alarm");
+                    }
+                }
+                return $q.reject(e);
+            }
+        };
+        //用户系统信息提示 控制器
+    });
 
         // .config(['$routeProvider', function($routeProvider) {
         //     $routeProvider.when('/addproperty', {

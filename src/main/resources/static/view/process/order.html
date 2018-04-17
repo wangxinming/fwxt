@@ -1,0 +1,12 @@
+<div class="portlet box"  style="top: 100px;">
+    <form id="orderFormInfo" method="POST">
+    <!--<form id="" action="/workflow/process/start" method="POST">-->
+        <input type="text" style="display:none" name="id" id="wordId"/>
+        <input type="text" style="display:none" name="processInstanceId" id="processInstanceId"/>
+        <input type="submit" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
+        <input type="submit" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
+        <input type="submit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="返回退回人" />
+        <div id="orderForm"></div>
+    </form>
+    <div class="col-md-6 " id="approvalList"></div>
+</div>

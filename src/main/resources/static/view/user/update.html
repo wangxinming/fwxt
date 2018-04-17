@@ -1,0 +1,33 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<div dialog info="pageDialogUpdate" data="addPageUpdate.data" class="ldialog">
+
+    <div class="portlet-body form">
+        <form class="form-horizontal" role="form">
+            <div class="form-body">
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">原有密码</label>
+                    <div class="col-md-9">
+                        <input type="password" class="form-control"  id="userPsw" ng-model="addPageUpdate.data.userPwd" placeholder="原有密码" ng-maxlength="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">新密码</label>
+                    <div class="col-md-9">
+                    <input type="password" class="form-control"  ng-model="addPageUpdate.data.userPwdNew" placeholder="新密码" ng-maxlength="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">新密码确认</label>
+                    <div class="col-md-9">
+                        <input type="password" class="form-control"  ng-model="addPageUpdate.data.userPwdRenew" placeholder="新密码确认" ng-maxlength="100">
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+</div>

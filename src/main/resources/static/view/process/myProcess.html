@@ -1,0 +1,17 @@
+<div class="portlet box"  style="top: 100px;position: fixed;">
+    <label  class="col-md-3 control-label"></label>
+    <!--<div class="col-md-6 ">-->
+        <!--<div class="list_button" >-->
+            <!--<div class="input-group">-->
+                <!--<input type="text" class="form-control" ng-model="key" placeholder="关键字模糊查询">-->
+                <!--<span class="input-group-btn">-->
+						<!--<button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>-->
+					<!--</span>-->
+                <!--<button type="button" class="btn" ng-click="listPage.action.add()" ng-show="userLevel.indexOf('add')!=-1">编辑</button>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <table jq-table="listPage.settings" class="table"></table>
+</div>
+<div ng-include src="'view/process/pendingAdd.html'"></div>
+<div ng-include src="'view/process/processDetail.html'"></div>

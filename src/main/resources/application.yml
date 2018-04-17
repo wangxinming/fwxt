@@ -14,3 +14,13 @@ spring:
     password: 123456
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  mail:
+    host: smtp.163.com1
+    port: 251
+    username: wangxinming1000@163.com
+    password: aszcM146
+mybatis:
+  config-locations: classpath:mybatis/mybatis-config.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
+contract.template.path: F:\tmp\oa\
+openoffice.org.path: C:/Program Files (x86)/OpenOffice 4

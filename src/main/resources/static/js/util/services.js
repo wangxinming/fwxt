@@ -205,7 +205,7 @@
                     }
                 }
                 return fmt;
-            }
+            };
 
             this.formatSimpleDate = function(t){
                 var d=	new Date();

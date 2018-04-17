@@ -1,20 +1,20 @@
 package com.wxm.controller;
 
-import com.wxm.entity.AjaxRes;
-import com.wxm.entity.Process;
-import com.wxm.entity.ProcessDef;
-import com.wxm.entity.Userdef;
+import com.wxm.entity.*;
+import com.wxm.model.OAAudit;
+import com.wxm.model.OAUser;
+import com.wxm.service.AuditService;
+import com.wxm.service.UserService;
+import com.wxm.util.Md5Utils;
+import org.activiti.bpmn.converter.EndEventXMLConverter;
 import org.activiti.engine.*;
 import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.User;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -32,11 +32,18 @@ public class UserDefController {
     @Autowired
     private RepositoryService repositoryService;
     @Autowired
-    FormService formService;
+    private FormService formService;
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private AuditService auditService;
 
     @RequestMapping(value = "/processList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
-    public Object processList(HttpServletRequest request){
+    public Object processList(HttpServletRequest request) throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new Exception("用户未登录");
         List<ProcessDef> processDefList = new LinkedList<>();
         List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery()//创建一个流程定义查询
                 /*指定查询条件,where条件*/
@@ -76,20 +83,98 @@ public class UserDefController {
         Group group = identityService.newGroup("新用户ID");
         identityService.saveGroup(group);
     }
-
-    public void createUser(){
-        User user = identityService.newUser("1");
-        identityService.saveUser(user);
+    @RequestMapping(value = "/create",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object createUser(@RequestBody OAUser oaUser, HttpServletRequest request)throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new Exception("用户未登录");
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("新建用户 %s",oaUser.getUserName())));
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try {
+            oaUser.setUserPwd(Md5Utils.getMd5(oaUser.getUserPwd()));
+            userService.create(oaUser);
+        }catch (Exception e){
+            result.put("result", "failed");
+        }
+        return result;
     }
 
+    //修改密码
+    @RequestMapping(value = "/updatePassword",method = {RequestMethod.POST},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object updatePassword(HttpServletRequest request,@RequestBody Map map)throws  Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new Exception("用户未登录");
 
+        String oldPassword = map.get("userPwd").toString();
+        String newPassword = map.get("userPwdNew").toString();
+        String userId = map.get("userId").toString();
+
+//        auditService.audit(new OAAudit(loginUser.getName(),String.format("修改密码 %s",oaUser.getUserName())));
+        Map<String, Object> result = new HashMap<>();
+        try {
+            result.put("result", "failed");
+            OAUser oaUser = userService.getUserById(Integer.parseInt(userId));
+            if(oaUser.getUserPwd().equals(Md5Utils.getMd5(oldPassword))){
+                result.put("result", "success");
+                oaUser.setUserPwd(Md5Utils.getMd5(newPassword));
+                userService.update(oaUser);
+            }
+        }catch (Exception e){
+            result.put("result", "failed");
+        }
+        return result;
+    }
+    //更新用户信息
+    @RequestMapping(value = "/update",method = {RequestMethod.POST},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object updateUser(@RequestBody OAUser oaUser,HttpServletRequest request)throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new Exception("用户未登录");
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("更新用户 %s",oaUser.getUserName())));
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try {
+            userService.update(oaUser);
+        }catch (Exception e){
+            result.put("result", "failed");
+        }
+        return result;
+    }
+
+    //通过USR_ID获取USER信息
+    @RequestMapping(value = "/userInfo",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object getUserInfo(@RequestParam(value = "userId", required=true) Integer userId,HttpServletRequest request)throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new Exception("用户未登录");
+        return userService.getUserById(userId);
+    }
+    @RequestMapping(value = "/userList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object userList(HttpServletRequest request)throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new Exception("用户未登录");
+        List<com.wxm.entity.User> list = new LinkedList<>();
+        String offset = request.getParameter("offset");
+        String limit = request.getParameter("limit");
+        String userName = request.getParameter("userName");
+        if(StringUtils.isBlank(userName)){
+            userName = null;
+        }
+        return userService.getUserList(Integer.parseInt(offset),Integer.parseInt(limit),userName);
+    }
     /**
      * 启动流程
      */
 
     @RequestMapping(value = "start", method = RequestMethod.POST)
     @ResponseBody
-    public AjaxRes startWorkflow(Userdef o, HttpServletRequest request) {
+    public AjaxRes startWorkflow(Userdef o, HttpServletRequest request) throws Exception{
+
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new Exception("用户未登录");
         AjaxRes ar =  new AjaxRes();
         try{
             Map<String, String> formProperties = new HashMap<String, String>();
@@ -119,10 +204,4 @@ public class UserDefController {
         }
         return ar;
     }
-
-    /*
-    * 查询流程
-    * */
-
-
 }

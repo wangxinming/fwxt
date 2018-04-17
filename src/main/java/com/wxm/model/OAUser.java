@@ -1,0 +1,153 @@
+package com.wxm.model;
+
+
+import java.util.Date;
+
+public class OAUser {
+    private Integer userId;
+
+    private String userName;
+
+    private String userMobile;
+
+    private String userEmail;
+
+    private String userPwd;
+
+    private String userCompany;
+
+    private String userDepartment;
+
+    private String userPosition;
+
+    private String userAddress;
+
+    private String userPostcode;
+
+    private String userWeixin;
+
+    private Integer userStatus;
+
+    private Date userCreatetime;
+
+    public OAUser(){
+
+    }
+    public OAUser(String userName){
+        this.userName = userName;
+        userAddress="";
+        userCompany="";
+        userCreatetime= new Date(System.currentTimeMillis());
+        userDepartment="";
+        userEmail = "";
+        userMobile="";
+        userPosition = "";
+        userPwd = "";
+        userStatus = 1;
+        userWeixin ="";
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName == null ? null : userName.trim();
+    }
+
+    public String getUserMobile() {
+        return userMobile;
+    }
+
+    public void setUserMobile(String userMobile) {
+        this.userMobile = userMobile == null ? null : userMobile.trim();
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail == null ? null : userEmail.trim();
+    }
+
+    public String getUserPwd() {
+        return userPwd;
+    }
+
+    public void setUserPwd(String userPwd) {
+        this.userPwd = userPwd == null ? null : userPwd.trim();
+    }
+
+    public String getUserCompany() {
+        return userCompany;
+    }
+
+    public void setUserCompany(String userCompany) {
+        this.userCompany = userCompany == null ? null : userCompany.trim();
+    }
+
+    public String getUserDepartment() {
+        return userDepartment;
+    }
+
+    public void setUserDepartment(String userDepartment) {
+        this.userDepartment = userDepartment == null ? null : userDepartment.trim();
+    }
+
+    public String getUserPosition() {
+        return userPosition;
+    }
+
+    public void setUserPosition(String userPosition) {
+        this.userPosition = userPosition == null ? null : userPosition.trim();
+    }
+
+    public String getUserAddress() {
+        return userAddress;
+    }
+
+    public void setUserAddress(String userAddress) {
+        this.userAddress = userAddress == null ? null : userAddress.trim();
+    }
+
+    public String getUserPostcode() {
+        return userPostcode;
+    }
+
+    public void setUserPostcode(String userPostcode) {
+        this.userPostcode = userPostcode == null ? null : userPostcode.trim();
+    }
+
+    public String getUserWeixin() {
+        return userWeixin;
+    }
+
+    public void setUserWeixin(String userWeixin) {
+        this.userWeixin = userWeixin == null ? null : userWeixin.trim();
+    }
+
+    public Integer getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(Integer userStatus) {
+        this.userStatus = userStatus;
+    }
+
+    public Date getUserCreatetime() {
+        return userCreatetime;
+    }
+
+    public void setUserCreatetime(Date userCreatetime) {
+        this.userCreatetime = userCreatetime;
+    }
+}

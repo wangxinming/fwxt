@@ -5,6 +5,7 @@ import java.util.Date;
 public class TaskInfo {
     private String id;//任务ID
     private String name;//任务名称
+    private String title;//任务名称
     private String assignee;//任务的办理人
     private Date timestamp; //任务的创建时间
     private String processInstanceId;//流程实例ID
@@ -16,6 +17,9 @@ public class TaskInfo {
     }
     public void setName(String name){
         this.name = name;
+    }
+    public void setTitle(String title){
+        this.title = title;
     }
     public void setAssignee(String assignee){
         this.assignee = assignee;
@@ -37,6 +41,12 @@ public class TaskInfo {
     }
     public String getName(){
         return name;
+    }
+    public Date getTimestamp(){
+        return timestamp;
+    }
+    public String getTitle(){
+        return title;
     }
     public String getAssignee(){
         return assignee;

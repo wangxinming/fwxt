@@ -28,195 +28,174 @@
         }])
         .factory('user.loader', function($resource){
             return $resource(web_path+'/:id', {}, {
-                uploadWordTemplate: {method: 'POST', url: "/batchImport", isArray: false,enctype:'multipart/form-data'},
+                uploadWordTemplate: {method: 'POST', url: "template/batchImport", isArray: false,enctype:'multipart/form-data'},
+                //拒绝任务
+                rejectTask: {method:'POST',url:"/workflow/process/reject", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //恢复任务
+                resumeTask: {method:'POST',url:"/workflow/process/jump", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //提交表单任务，创建工作流
+                commitFormTask: {method:'POST',url:"/workflow/process/start", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 deployment: {method:'GET',url:"/api/deployments/deploymentList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 getTemplateHtml: {method:'GET',url:"/api/deployments/html", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                getTemplateHtmlHistory: {method:'GET',url:"/api/deployments/htmlHistory", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 commitTemplateHtml: {method:'POST',url:"/api/deployments/commitHtml", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 modeler: {method:'GET',url:"/api/deployments/modelerList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
+                //更新模板关系表
+                updateTemRelation: {method:'POST',url:"/api/deployments/updateTemRelation", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //增加用户
+                addUser: {method:'PUT',url:"/user/create", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //用户列表
+                userList: {method:'GET',url:"/user/userList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取用户信息
+                userInfo: {method:'GET',url:"/user/userInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新用户
+                updatePassword: {method:'POST',url:"/user/updatePassword", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新用户
+                userUpdate: {method:'POST',url:"/user/update", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //上传文件
                 uploadFile: {method:'GET',url:"/api/deployments/uploadFile", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取上传文件详情
                 uploadFileInfo: {method:'GET',url:"/api/deployments/uploadFileInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
+                //获取当前任务列表
+                getTaskPending: {method:'GET',url:"/workflow/process/process", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取我发起的申请
+                getMyTask: {method:'GET',url:"/workflow/process/myTask", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取历史完成任务列表
+                getTaskCompleted: {method:'GET',url:"/workflow/process/processHistory", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取字段列表
+                getFieldList: {method:'GET',url:"template/fieldList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //保存表单字段信息
+                saveForm: {method:'POST',url:"template/updateFieldInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //完成工作流任务
+                completedTask: {method:'POST',url:"/workflow/process/complete", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //保存上传word文档
                 saveUploadFileInfo: {method:'POST',url:"/api/deployments/saveUploadFile", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
+                //获取发布流程列表
                 query: {method:'GET',url:"/api/deployments/list", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                queryOperations: {method:'GET',url:web_path +"/user/getOperationInfos", isArray: false},
-                updatePropertyFlag: {method:'POST',url:web_path +"/user/updatePropertyFlag", isArray: false},
-                get: {method: 'GET', url: web_path + "/user/guid", isArray: false},
-                reloadOperationInfos: {method: 'GET', url:  web_path +"/user/reloadOperationInfos", isArray: true},
-                add: {method: "POST", url: web_path + "/user/guid", isArray: false},
-                addPf: {method: "POST", url:web_path +"/user/addPf", isArray: false},
-                addRe: {method: "POST", url:web_path +"/user/addRe", isArray: false},
-                addFm: {method: "POST", url:web_path +"/user/addFm", isArray: false},
-                addRf: {method: "POST", url:web_path +"/user/addRf", isArray: false},
-                addPn: {method: "POST", url:web_path +"/user/addPn", isArray: false},
-                edit: {method: "PUT", url: web_path + "/user/guid/:id", isArray: false},
-                remove: {method: "DELETE", url: web_path + "/user/guid", isArray: false},
-                removeModeler: {method: "DELETE", url:  "/api/deployments/removeModeler", isArray: false},
 
+                //获取word模板以及部署流程关联列表
+                //审计信息列表
+                auditList: {method:'GET',url:"/audit/auditList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                //删除word模板
+                removeWordTemplate: {method: "DELETE", url:  "template/deleteWordTemplate", isArray: false},
+
+                //删除word模板
+                removeModeler: {method: "DELETE", url:  "/api/deployments/removeModeler", isArray: false},
+                //增加部署流程，关联word模板
+                updateDeployment2Word: {method: "POST", url: "/user/addPn", isArray: false},
+                //删除部署流程
                 removeDeployment: {method: "DELETE", url:  "/api/deployments/remove", isArray: false},
-                deployDeployment: {method: "POST", url:  "/api/deployments/publish", isArray: false},
-                getUsers: {method: 'GET', url: web_path + "/userManage/getUsers", isArray: true},
-                getUserLevel: {method: 'GET', url: web_path + "/userManage/getUserLevel", isArray: false},
-                updateUser: {method: 'POST', url: web_path + "/userManage/updateUser", isArray: false},
+                //获取word模板列表
+                getTemplateList: {method: "GET", url:  "template/templateList", isArray: false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取word模板列表,所有
+                getTemplateListTotal: {method: "GET", url:  "template/templateListTotal", isArray: false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                //部署流程
+                deployDeployment: {method: "POST", url:  "/api/deployments/publish", isArray: false}
             });
         })
-        .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $rootScope,loader,Util,Tools,Loading,toaster) {
-            $scope.cancelFilter = function (value){
-                if (!value) return '';
-
-                if(value.flag=='0'){
-                    if(value.name.lastIndexOf(")")<0){
-                        value.name+="(已作废)"
+        .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $scope.pageDialogUpdate=Tools.dialog({
+                id:"pageDialogUpdate",
+                title:"修改密码",
+                hiddenButton:false,
+                save:function() {
+                        if($scope.addPageUpdate.data.userPwdNew != $scope.addPageUpdate.data.userPwdRenew){
+                            $scope.addPageUpdate.data.userPwdNew = "";
+                            $scope.addPageUpdate.data.userPwdRenew = "";
+                            toaster.pop('failed', "", "新密码不一致");
+                            return;
+                        }
+                        if($scope.addPageUpdate.data.userPwd == $scope.addPageUpdate.data.userPwdRenew){
+                            $scope.addPageUpdate.data.userPwdNew = "";
+                            $scope.addPageUpdate.data.userPwdRenew = "";
+                            toaster.pop('failed', "", "新密码和老密码不能一样");
+                        }
+                        Loading.show();
+                        loader.updatePassword($scope.addPageUpdate.data,function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                                $scope.addPage.init();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
                     }
+            });
+            $scope.addPageUpdate={
+                init:function(){
+                    $scope.addPageUpdate.data={userStatus:true}
+                },
+                data: {
+                    userStatus:true
                 }
-                return value ;
             };
-            $scope.pageID = {};
-            // $scope.userLevel = document.getElementById("userLevel").value;
 
-            $scope.menuState = {
-                show : false
-            };
 
             $scope.pageDialog=Tools.dialog({
                 id:"pageDialog",
-                title:"新增",
+                title:"新增用户",
                 hiddenButton:false,
-                save:function(){
-                    $scope.addPage.data.createrName = document.getElementById("userName").value;
-                    var pfde = $scope.addPage.data.pf.description;
-                    if(!pfde){
-                        $scope.pfCheck=false;
-                        return;
-                    }else{
-                        $scope.pfCheck=true;
-                    }
-                    var pfdes = pfde.split("_");
-                    $scope.addPage.data.pf.id=pfdes[0];
-                    $scope.addPage.data.pf.name=pfdes[1];
-                    var fmde = $scope.addPage.data.fm.description;
-                    if(!fmde){
-                        $scope.fmCheck=false;
-                        return;
-                    }else{
-                        $scope.fmCheck=true;
-                    }
-                    var fmdes = fmde.split("_");
-                    $scope.addPage.data.fm.id=fmdes[0];
-                    $scope.addPage.data.fm.name=fmdes[1];
-                    var pageNamede = $scope.addPage.data.pageName.description;
-                    if(!pageNamede){
-                        $scope.pageNameCheck=false;
-                        return;
-                    }else{
-                        $scope.pageNameCheck=true;
-                    }
-                    var pageNamedes = pageNamede.split("_");
-                    $scope.addPage.data.pageName.id=pageNamedes[0];
-                    $scope.addPage.data.pageName.name=pageNamedes[1];
+                save:function() {
+                    if ($scope.pageDialog.title === "新增用户") {
+                        Loading.show();
+                        $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
+                        loader.addUser($scope.addPage.data,function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
 
-                    var rede = $scope.addPage.data.re.description;
-                    if(!rede){
-                        $scope.reCheck=false;
-                        return;
-                    }else{
-                        $scope.reCheck=true;
+                    } else if ($scope.pageDialog.title === "修改用户") {
+                        Loading.show();
+                        $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
+                        loader.userUpdate($scope.addPage.data,function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                                $scope.addPage.init();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
                     }
-                    var redes = rede.split("_");
-                    $scope.addPage.data.re.id=redes[0];
-                    $scope.addPage.data.re.name=redes[1];
-                    var rfde = $scope.addPage.data.rf.description;
-                    if(!rfde){
-                        $scope.rfCheck=false;
-                        return;
-                    }else{
-                        $scope.rfCheck=true;
-                    }
-                    var rfdes = rfde.split("_");
-                    $scope.addPage.data.rf.id=rfdes[0];
-                    $scope.addPage.data.rf.name=rfdes[1];
-
-                    Loading.show();
-                    loader.add($scope.addPage.data,function(data){
-                        if(data.result=="success"){
-                            Loading.hide();
-                            toaster.pop('success', "", "操作成功");
-                            $scope.listPage.settings.reload();
-                            $scope.pageDialog.hide();
-                        }else{
-                            Loading.hide();
-                            toaster.pop('warning', "", data.msg);
-                        }
-                    })
-
                 }
             });
             $scope.addPage={
+                init:function(){
+                    $scope.addPage.data={userStatus:true}
+                },
                 data: {
-                    id: 0,
-                    // guid:"",
-                    // des:"",
-                    // createrName:"",
-                    // pf: {
-                    //     id: 0,
-                    //     name: "",
-                    //     description: ""
-                    // },
-                    // fm: {
-                    //     id: 0,
-                    //     name: "",
-                    //     description: ""
-                    // },
-                    // re: {
-                    //     id: 0,
-                    //     name: "",
-                    //     description: ""
-                    // },
-                    // rf: {
-                    //     id: 0,
-                    //     name: "",
-                    //     description: ""
-                    // },
-                    // pageName: {
-                    //     id: 0,
-                    //     name: "",
-                    //     description: ""
-                    // },
-                    // user: {
-                    //     id: 0,
-                    //     name: "",
-                    //     description: ""
-                    // },
-                    process:{
-                        id:0,
-                        limit:0,
-                        offset:10
-                    },
-                    limit: 20, //每页条数(即取多少条数据)
-                    offset: 0, //从第几条数据开始取
-                    orderBy: "updated",//排序字段
-                    orderByType: "desc" //排序顺序
+                    userStatus:true
                 }
             };
             $scope.searchPage = {
+                data: {
+                    id: 0,
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0 //从第几条数据开始取
+
+                },
                 init: function () {
                     $scope.searchPage.data = {
-//                        level: [2, 3, 4, 5, 6],
-
-                        // key:"",
-                        process:{
-                            id:0,
-                            limit:0,
-                            offset:10
-                        },
-                        id:1,
-                        limit: 20, //每页条数(即取多少条数据)
-                        offset: 0, //从第几条数据开始取
-                        orderBy: "updated",//排序字段
-                        orderByType: "desc" //排序顺序
+                        id:0,
+                        limit: 10, //每页条数(即取多少条数据)
+                        offset: 0 //从第几条数据开始取
                     }
-
                 },
                 action:{
                     search:function () {
@@ -224,219 +203,7 @@
                     }
                 }
             };
-            $scope.pageProperty={
-                // createBy : document.getElementById("userName").value,
-                checkNameExist: function (name,arr) {
-                    if(arr.length==0){
-                        return false;
-                    }
-                    for (var i = 0; i < arr.length; i++) {
-                        if(name == arr[i].name){
-                            return true;
-                        }
-                    }
-                    return false;
-                },
-                isCancel: function (name,arr,flag) {
 
-                    for (var i = 0; i < arr.length; i++) {
-                        if(name == arr[i].id){
-                            if(arr[i].flag==flag){
-                                return true;
-                            }else{
-                                return false;
-                            }
-                        }
-                    }
-                    return false;
-                },
-                addPf: function () {
-                    var name = $scope.pfText;
-                    if($scope.pfText==''){
-                        return ;
-                    }
-                    var isExist = $scope.pageProperty.checkNameExist(name,$scope.pfModel);
-                    if(isExist){
-                        toaster.pop('warning', "", "该名称已存在");
-                        return ;
-                    }
-
-                    loader.addPf({'name':name,'createBy':$scope.pageProperty.createBy},{},function(data){
-                        if(data.result=="success"){
-                            toaster.pop('success', "", "操作成功");
-                            $scope.pfText='';
-                            loader.reloadOperationInfos({'type':'pf'},function(data){
-                                $scope.pfModel = data;
-                            })
-                        }
-                    })
-                },
-                addFm: function () {
-                    var name = $scope.fmText;
-
-
-                    if($scope.fmText==''){
-                        return ;
-                    }
-                    var isExist = $scope.pageProperty.checkNameExist(name,$scope.fmModel);
-                    if(isExist){
-
-                        toaster.pop('warning', "", "该名称已存在");
-                        return ;
-                    }
-                    loader.addFm({'name':name,'createBy':$scope.pageProperty.createBy},{},function(data){
-                        if(data.result=="success"){
-                            toaster.pop('success', "", "操作成功");
-                            $scope.fmText='';
-                            loader.reloadOperationInfos({'type':'fm'},function(data){
-                                $scope.fmModel = data;
-                            })
-                        }
-                    })
-                },
-                addPn: function () {
-                    var name = $scope.pnText;
-
-                    if($scope.pnText==''){
-                        return ;
-                    }
-                    var isExist = $scope.pageProperty.checkNameExist(name,$scope.pnModel);
-                    if(isExist){
-                        toaster.pop('warning', "", "该名称已存在");
-                        return ;
-                    }
-                    loader.addPn({'name':name,'createBy':$scope.pageProperty.createBy},{},function(data){
-                        if(data.result=="success"){
-                            toaster.pop('success', "", "操作成功");
-                            $scope.pnText='';
-                            loader.reloadOperationInfos({'type':'pn'},function(data){
-                                $scope.pnModel = data;
-                            })
-                        }
-                    })
-                },
-                addRe: function () {
-                    var name = $scope.reText;
-
-
-                    if($scope.reText==''){
-                        return ;
-                    }
-                    var isExist = $scope.pageProperty.checkNameExist(name,$scope.reModel);
-                    if(isExist){
-                        toaster.pop('warning', "", "该名称已存在");
-                        return ;
-                    }
-                    loader.addRe({'name':name,'createBy':$scope.pageProperty.createBy},{},function(data){
-                        if(data.result=="success"){
-                            toaster.pop('success', "", "操作成功");
-                            $scope.reText='';
-                            loader.reloadOperationInfos({'type':'re'},function(data){
-                                $scope.reModel = data;
-                            })
-                        }
-                    })
-                },
-                addRf: function () {
-                    var name = $scope.rfText;
-
-                    if($scope.rfText==''){
-                        return ;
-                    }
-                    var isExist = $scope.pageProperty.checkNameExist(name,$scope.rfModel);
-                    if(isExist){
-                        toaster.pop('warning', "", "该名称已存在");
-                        return ;
-                    }
-                    loader.addRf({'name':name,'createBy':$scope.pageProperty.createBy},{},function(data){
-                        if(data.result=="success"){
-                            toaster.pop('success', "", "操作成功");
-                            $scope.rfText='';
-                            loader.reloadOperationInfos({'type':'rf'},function(data){
-                                $scope.rfModel = data;
-                            })
-                        }
-                    })
-                },
-
-                updateFlag: function (type,flag) {
-
-                    var ids = '';
-
-                    if(type=='rf'){
-                        ids =  $scope.rfMultiple;
-
-                        if(!ids||($scope.pageProperty.isCancel(ids,$scope.rfModel,flag))){
-                            return;
-                        }
-                    }else  if(type=='re'){
-                        ids =  $scope.reMultiple;
-                        if(!ids||($scope.pageProperty.isCancel(ids,$scope.reModel,flag))){
-
-                            return;
-                        }
-                    }else  if(type=='pn'){
-                        ids =  $scope.pnMultiple;
-                        if(!ids||($scope.pageProperty.isCancel(ids,$scope.pnModel,flag))){
-
-                            return;
-                        }
-                    }else  if(type=='fm'){
-                        ids =  $scope.fmMultiple;
-                        if(!ids||($scope.pageProperty.isCancel(ids,$scope.fmModel,flag))){
-
-                            return;
-                        }
-                    }else  if(type=='pf'){
-                        ids =  $scope.pfMultiple;
-                        if(!ids||($scope.pageProperty.isCancel(ids,$scope.pfModel,flag))){
-
-                            return;
-                        }
-                    }
-
-                    loader.updatePropertyFlag({'type':type,'flag':flag,'id':ids,'updateBy':$scope.pageProperty.createBy},{}, function(data){
-                        if(data.result=="success"){
-                            toaster.pop('success', "", "操作成功");
-                            loader.reloadOperationInfos({'type':type},function(data){
-                                if(type=='rf'){
-                                    $scope.rfModel = data;
-                                    $scope.rfMultiple="";
-                                }else  if(type=='re'){
-                                    $scope.reModel = data;
-                                    $scope.reMultiple="";
-                                }else  if(type=='pn'){
-                                    $scope.pnModel = data;
-                                    $scope.pnMultiple="";
-                                }else  if(type=='fm'){
-                                    $scope.fmModel = data;
-                                    $scope.fmMultiple="";
-                                }else  if(type=='pf'){
-                                    $scope.pfModel = data;
-                                    $scope.pfMultiple="";
-                                }
-
-                            })
-                        }
-                    })
-                }
-
-            };
-            $scope.pnModel=[];
-            $scope.fmModel=[];
-            $scope.pfModel=[];
-            $scope.reModel=[];
-            $scope.rfModel=[];
-            // $scope.pfModel =[{"id":1,"name":"pf1","description":null,"flag":"1"},{"id":2,"name":"pf0","description":null,"flag":"0"}];
-            $scope.getSelectInfo  = function(){
-                loader.queryOperations(null, function (data) {
-                    $scope.pnModel =data.pnList;
-                    $scope.fmModel =data.fmList;
-                    $scope.pfModel =data.pfList;
-                    $scope.reModel =data.reList;
-                    $scope.rfModel =data.rfList;
-                })
-            };
             $scope.listPage = {
                 data: [],
                 checkedList: [],
@@ -445,7 +212,52 @@
                 ready: false,
                 action:{
                     add: function () {
+                        $scope.pageDialog.title = "新增用户";
                         $scope.pageDialog.show();
+                        $scope.addPage.init();
+                    },
+                    update: function (id) {
+                        $scope.pageDialogUpdate.title = "修改密码";
+                        $scope.addPageUpdate.data.userId = id;
+                        $scope.pageDialogUpdate.show();
+                    },
+                    edit: function (id) {
+                        $scope.pageDialog.title = "修改用户";
+                        Loading.show();
+                        // $timeout(function(){
+                            loader.userInfo({"userId":id},{},function (data) {
+                                $scope.addPage.data.userId = data.userId;
+                                $scope.addPage.data.userName = data.userName;
+                                $scope.addPage.data.userMobile = data.userMobile;
+                                $scope.addPage.data.userEmail = data.userEmail;
+                                $scope.addPage.data.userCompany = data.userCompany;
+                                $scope.addPage.data.userDepartment = data.userDepartment;
+                                $scope.addPage.data.userPosition = data.userPosition;
+                                $scope.addPage.data.userAddress = data.userAddress;
+                                $scope.addPage.data.userPostcode = data.userPostcode;
+                                $scope.addPage.data.userWeixin = data.userWeixin;
+                                $scope.addPage.data.userStatus = data.userStatus===1?true:false;
+                                Loading.hide();
+                                // $('#userName').attr("disabled","disabled");
+                                $scope.pageDialog.show();
+                                // $scope.addPage.init();
+                            })
+                        // },500);
+                    },
+                    active: function (active,userId,userName) {
+                        Loading.show();
+                        loader.userUpdate({"userId":userId,"userStatus":active==true?1:0,"userName":userName},function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+
                     },
                     remove:function (id) {
                         $rootScope.$confirm("确定要删除吗？", function () {
@@ -461,101 +273,90 @@
                         }, '删除');
                     },
                     search: function (search, fnCallback) {
-                        var k = ''==$scope.key? 'NULL' : $scope.key;
-                        // $scope.searchPage.data.key =k;
-                        $scope.searchPage.data.offset =search.offset;
-                        loader.query($scope.searchPage.data, function (data) {
+                        $scope.searchPage.data.offset = search.offset;
+                        loader.userList($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
                         })
                     }
                 }
             };
+            var resolve = function (mData, type, full) {
+                if (mData == 1) {
+                    return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
+                } else if (mData == 0) {
+                    return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
+                } else {
+                    return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
+                }
+            };
             $scope.listPage.settings = {
+                pageSize:10,
                 reload: null,
                 getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
                 columns: [
-
                     {
-                        sTitle: "ID",
-                        mData: "id",
-                        mRender: function (mData, type, full) {
-                            var s =  '<input  value="'+mData+'"  onClick="javascript:this.select()" class="tableReadOnlyInput">';
-                            return s;
-                        }
-                    },
-                    {
-                        sTitle: "流程名称",
-                        mData: "name",
+                        sTitle: "用户名称",
+                        mData: "userName",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
-                        sTitle: "流程key",
-                        mData: "key",
+                        sTitle: "邮箱",
+                        mData: "userEmail",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
 
                     {
-                        sTitle: "版本",
-                        mData: "version",
+                        sTitle: "手机",
+                        mData: "userMobile",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
-                        sTitle: "资源bpmn文件",
-                        mData: "resourceName",
+                        sTitle: "创建时间",
+                        mData: "userCreatetime",
                         mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
+                            if(!mData){
+                                return "";
+                            }
+                            return Util.formatSimpleDate(mData);
                         }
                     },
                     {
-                        sTitle: "资源png文件",
-                        mData: "diagramResourceName",
+                        sTitle: "状态",
+                        mData: "userStatus",
                         mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
+                            return resolve(mData, type, full);
                         }
                     },
-                    {
-                        sTitle: "部署对象ID",
-                        mData: "deploymentId",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
-                    // {
-                    //     sTitle: "时间",
-                    //     mData: "limit",
-                    //     mRender: function (mData, type, full) {
-                    //         if(!mData){
-                    //             return "";
-                    //         }
-                    //         return Util.formatSimpleDate(mData);
-                    //     }
-                    // },
                     {
                         sTitle: "操作",
-                        mData:"id",
+                        mData:"userId",
                         mRender:function(mData,type,full) {
+                            return '<i title="编辑" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                                    '<i title="修改密码" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-user" ng-click="listPage.action.update(\'' + mData +'\')"> </i>' +
+                                    '<i title="'+(full.userStatus==0?'停用':'启用')+'" class="'+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.userStatus==0?'false':'true')+',\''+mData+'\',\''+full.userName+'\')"></i>';
+                                    // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
-                            return '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,7]}  //第 0,10列不可排序
+                    {bSortable: false, aTargets: [0,5]},  //第 0,10列不可排序
+                    { sWidth: "15%", aTargets: [ 0,2,5 ] },
+                    { sWidth: "20%", aTargets: [ 1,3 ] },
+                    { sWidth: "10%", aTargets: [ 4 ] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
                 ]  //定义默认排序列为第8列倒序
             };
-
-
             $scope.searchPage.init();
             $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
                 if (newVal) {
@@ -566,14 +367,9 @@
                     }
                 }
             }, false);
-
             $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
                 $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
             }, true);
-
-
-            $scope.getSelectInfo();
-
         }]) .controller('userManagerController', ['$scope','user.loader','Loading','toaster',function($scope,loader,Loading,toaster) {
 
         $scope.userLevel = document.getElementById("userLevel").value;

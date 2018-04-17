@@ -1,0 +1,51 @@
+<!doctype html>
+<html ng-app="login">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="lib/fontawesome/css/font-awesome.min.css">
+    <link href="css/login/login.css" rel="stylesheet" type="text/css"/>
+    <script src="lib/angular/jquery.min.js"></script>
+    <script src="lib/angular/angular.min.js"></script>
+    <script src="js/login/login.js"></script>
+    <script src="lib/angular/angular-resource.min.js"></script>
+    <script src="lib/angular/jquery.cookie.js"></script>
+</head>
+<body>
+<div class="main">
+    <div class="login-div">
+        <div class="login-title"></div>
+        <div class="login-content">
+            <form class="form" name="loginForm" ng-controller="loginController" novalidate >
+                <div class="row-content">
+                    <div class="input-label">用户名</div>
+                    <div class="input-content">
+                        <div class="input-img"><i class="fa fa-user"></i></div>
+                        <input id="username" name="userName"  class="input-row" type="text" ng-model="user.userName" placeholder="用户名"  ng-keypress="submit($event)" required/>
+                        <div class="error" ng-show="loginForm.userName.$dirty && loginForm.userName.$invalid">
+                            <small class="error" ng-show="loginForm.userName.$error.required">用户名不能为空</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-content">
+                    <div class="input-label">密码</div>
+                    <div class="input-content">
+                        <div class="input-img"><i class="fa fa-key"></i></div>
+                        <input id="password" name="password"  class="input-row" type="password" ng-model="user.password" placeholder="密码" required ng-keypress="submit($event)"/>
+                        <div class="error" ng-show="loginForm.password.$dirty && loginForm.password.$invalid">
+                            <small class="error" ng-show="loginForm.password.$error.required">密码不能为空</small>
+                        </div>
+                    </div>
+                </div>
+                <!--                <div>
+                                    <input type="checkbox"/> <span>记住我</span>
+                                </div>-->
+                <div class="btn-div">
+                    <input type="reset"  class="btn cancel-btn" value="重置"/>
+                    <input type="button" ng-click="login()" class="btn login-btn" value="登录"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

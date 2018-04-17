@@ -38,6 +38,9 @@ public class HtmlProcess {
                 .replaceAll(
                         "<([^>]*)(?:lang|LANG|class|CLASS|style|STYLE|size|SIZE|face|FACE|[ovwxpOVWXP]:\\w+)=(?:'[^']*'|\"\"[^\"\"]*\"\"|[^>]+)([^>]*)>",
                         "<$1$2>");
+
+        // 删除</U><U>
+        htmlStr = htmlStr.replaceAll("</U><U>","");
         return htmlStr;
     }
     public static void main(String[] args){

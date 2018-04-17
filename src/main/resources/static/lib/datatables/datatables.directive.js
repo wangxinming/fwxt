@@ -149,7 +149,7 @@ angular.module('dataTablesDirective', [])
             var rowsName = "rows";
             var countName = "total";
             var paging = true;
-            var pageSize = 20;
+            var pageSize = 10;
             if(settings.rowsName){
                 rowsName = settings.rowsName;
             }

@@ -1,0 +1,20 @@
+<div class="system-nav" ng-controller="systembarController">
+    <div id="header">
+        <!--<img src="lib/dnt-angular-ui/systemheader/style/title.png" class="left">-->
+        <!--<img src="lib/dnt-angular-ui/systemheader/style/top-right.gif" class="right">-->
+    </div>
+    <div id="user-nav" class="navbar">
+        <ul class="nav">
+            <li class="dropdown">
+                <a data-toggle="dropdown">
+                    <i class="fa fa-user"></i>
+                    <span class="text">{{loginUser.realName}}</span>
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a ng-click="logout();">退出</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>

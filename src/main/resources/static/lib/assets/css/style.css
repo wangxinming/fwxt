@@ -1247,6 +1247,8 @@ Input icons
 Portlets
 ***/
 .portlet  {
+  position: fixed;
+  top: 100px;
   clear: both;
   margin-top: 0px;
   margin-bottom: 25px;

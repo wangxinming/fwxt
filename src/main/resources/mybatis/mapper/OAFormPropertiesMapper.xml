@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OAFormPropertiesMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OAFormProperties" >
+    <id column="PROPERTIES_ID" property="propertiesId" jdbcType="INTEGER" />
+    <result column="TEMPLATE_ID" property="templateId" jdbcType="INTEGER" />
+    <result column="FIELD_NAME" property="fieldName" jdbcType="NVARCHAR" />
+    <result column="FIELD_MD5" property="fieldMd5" jdbcType="NVARCHAR" />
+    <result column="FIELD_TYPE" property="fieldType" jdbcType="NVARCHAR" />
+    <result column="FIELD_VALID" property="fieldValid" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="BaseResultMapTemplateName" type="com.wxm.model.OAFormProperties" >
+    <id column="PROPERTIES_ID" property="propertiesId" jdbcType="INTEGER" />
+    <result column="TEMPLATE_ID" property="templateId" jdbcType="INTEGER" />
+    <result column="FIELD_NAME" property="fieldName" jdbcType="NVARCHAR" />
+    <result column="TEMPLATE_NAME" property="templateName" jdbcType="NVARCHAR" />
+    <result column="FIELD_MD5" property="fieldMd5" jdbcType="NVARCHAR" />
+    <result column="FIELD_TYPE" property="fieldType" jdbcType="NVARCHAR" />
+    <result column="FIELD_VALID" property="fieldValid" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    PROPERTIES_ID, TEMPLATE_ID, FIELD_NAME,FIELD_MD5, FIELD_TYPE, FIELD_VALID, CREATE_TIME
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from OA_FORM_PROPERTIES
+    where PROPERTIES_ID = #{propertiesId,jdbcType=INTEGER}
+  </select>
+  <select id="list" resultMap="BaseResultMapTemplateName">
+    select top ${limit} *,template.TEMPLATE_NAME from OA_FORM_PROPERTIES properties,OA_CONTRACT_TEMPLATE template where PROPERTIES_ID not
+    in(select top ${offset} PROPERTIES_ID from OA_FORM_PROPERTIES  where 1=1
+    <if test="templateName != null">
+      AND properties.TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE where TEMPLATE_NAME like CONCAT('%',#{templateName},'%' ))
+    </if>
+    ORDER BY properties.PROPERTIES_ID ASC)
+    <if test="templateName != null" >
+      AND properties.TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE where TEMPLATE_NAME like CONCAT('%',#{templateName},'%' ))
+    </if>
+     AND properties.TEMPLATE_ID = template.TEMPLATE_ID ORDER BY properties.PROPERTIES_ID
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    SELECT  count(*)
+    from OA_FORM_PROPERTIES where 1=1
+    <if test="templateName != null" >
+      AND TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE where TEMPLATE_NAME like CONCAT('%',#{templateName},'%' ))
+    </if>
+  </select>
+<select id="listByTemplateId" resultMap="BaseResultMap">
+    SELECT
+  <include refid="Base_Column_List" />
+  from OA_FORM_PROPERTIES
+  where TEMPLATE_ID = #{templateId,jdbcType=INTEGER}
+</select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_FORM_PROPERTIES
+    where PROPERTIES_ID = #{propertiesId,jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteByTemplateId" parameterType="java.lang.Integer">
+    DELETE FROM OA_FORM_PROPERTIES where TEMPLATE_ID = #{templateId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OAFormProperties" useGeneratedKeys="true"  keyProperty = "propertiesId" keyColumn = "PROPERTIES_ID">
+    insert into OA_FORM_PROPERTIES (PROPERTIES_ID, TEMPLATE_ID, FIELD_NAME, FIELD_MD5
+      FIELD_TYPE, FIELD_VALID, CREATE_TIME
+      )
+    values (#{propertiesId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{fieldName,jdbcType=NVARCHAR}, #{FIELD_MD5,jdbcType=NVARCHAR},
+      #{fieldType,jdbcType=NVARCHAR}, #{fieldValid,jdbcType=NVARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OAFormProperties" useGeneratedKeys="true"  keyProperty = "propertiesId" keyColumn = "PROPERTIES_ID">
+    insert into OA_FORM_PROPERTIES
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="propertiesId != null" >
+        PROPERTIES_ID,
+      </if>
+      <if test="templateId != null" >
+        TEMPLATE_ID,
+      </if>
+      <if test="fieldName != null" >
+        FIELD_NAME,
+      </if>
+      <if test="fieldMd5 != null" >
+        FIELD_MD5,
+      </if>
+      <if test="fieldType != null" >
+        FIELD_TYPE,
+      </if>
+      <if test="fieldValid != null" >
+        FIELD_VALID,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="propertiesId != null" >
+        #{propertiesId,jdbcType=INTEGER},
+      </if>
+      <if test="templateId != null" >
+        #{templateId,jdbcType=INTEGER},
+      </if>
+      <if test="fieldName != null" >
+        #{fieldName,jdbcType=NVARCHAR},
+      </if>
+      <if test="fieldMd5 != null" >
+        #{fieldMd5,jdbcType=NVARCHAR},
+      </if>
+      <if test="fieldType != null" >
+        #{fieldType,jdbcType=NVARCHAR},
+      </if>
+      <if test="fieldValid != null" >
+        #{fieldValid,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAFormProperties" >
+    update OA_FORM_PROPERTIES
+    <set >
+      <if test="templateId != null" >
+        TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
+      </if>
+      <if test="fieldName != null" >
+        FIELD_NAME = #{fieldName,jdbcType=NVARCHAR},
+      </if>
+      <if test="fieldMd5 != null" >
+        FIELD_Md5 = #{fieldMd5,jdbcType=NVARCHAR},
+      </if>
+      <if test="fieldType != null" >
+        FIELD_TYPE = #{fieldType,jdbcType=NVARCHAR},
+      </if>
+      <if test="fieldValid != null" >
+        FIELD_VALID = #{fieldValid,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where PROPERTIES_ID = #{propertiesId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAFormProperties" >
+    update OA_FORM_PROPERTIES
+    set TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
+      FIELD_NAME = #{fieldName,jdbcType=NVARCHAR},
+      FIELD_Md5 = #{fieldMd5,jdbcType=NVARCHAR},
+      FIELD_TYPE = #{fieldType,jdbcType=NVARCHAR},
+      FIELD_VALID = #{fieldValid,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where PROPERTIES_ID = #{propertiesId,jdbcType=INTEGER}
+  </update>
+</mapper>

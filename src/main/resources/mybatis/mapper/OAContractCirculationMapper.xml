@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OAContractCirculationMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OAContractCirculation" >
+    <id column="CONTRACT_ID" property="contractId" jdbcType="INTEGER" />
+    <result column="TEMPLATE_ID" property="templateId" jdbcType="INTEGER" />
+    <result column="PROCESSINSTANCE_ID" property="processInstanceId" jdbcType="NVARCHAR" />
+    <result column="CONTRACT_NAME" property="contractName" jdbcType="NVARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="CONTRACT_STATUS" property="contractStatus" jdbcType="NVARCHAR" />
+    <result column="DESCRIPTION" property="description" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.wxm.model.OAContractCirculationWithBLOBs" extends="BaseResultMap" >
+    <result column="CONTRACT_HTML" property="contractHtml" jdbcType="LONGVARCHAR" />
+    <result column="CONTRACT_PDF" property="contractPdf" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    CONTRACT_ID, TEMPLATE_ID,PROCESSINSTANCE_ID, CONTRACT_NAME, USER_ID, CONTRACT_STATUS, DESCRIPTION, CREATE_TIME
+  </sql>
+  <sql id="Blob_Column_List" >
+    CONTRACT_HTML, CONTRACT_PDF
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from OA_CONTRACT_CIRCULATION
+    where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
+  </select>
+  <select id="selectByProcessInstanceId"  resultMap="ResultMapWithBLOBs" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from OA_CONTRACT_CIRCULATION
+    where PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_CONTRACT_CIRCULATION
+    where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
+    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID, PROCESSINSTANCE_ID,CONTRACT_NAME,
+      USER_ID, CONTRACT_STATUS, DESCRIPTION, 
+      CREATE_TIME, CONTRACT_HTML, CONTRACT_PDF
+      )
+    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=NVARCHAR},#{PROCESSINSTANCE_ID,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},
+      #{userId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" >
+    insert into OA_CONTRACT_CIRCULATION
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="contractId != null" >
+        CONTRACT_ID,
+      </if>
+      <if test="templateId != null" >
+        TEMPLATE_ID,
+      </if>
+      <if test="processInstanceId != null" >
+        PROCESSINSTANCE_ID,
+      </if>
+
+      <if test="contractName != null" >
+        CONTRACT_NAME,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="contractStatus != null" >
+        CONTRACT_STATUS,
+      </if>
+      <if test="description != null" >
+        DESCRIPTION,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="contractHtml != null" >
+        CONTRACT_HTML,
+      </if>
+      <if test="contractPdf != null" >
+        CONTRACT_PDF,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="contractId != null" >
+        #{contractId,jdbcType=INTEGER},
+      </if>
+      <if test="templateId != null" >
+        #{templateId,jdbcType=NVARCHAR},
+      </if>
+      <if test="processInstanceId != null" >
+        #{processInstanceId,jdbcType=NVARCHAR},
+      </if>
+      <if test="contractName != null" >
+        #{contractName,jdbcType=NVARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="contractStatus != null" >
+        #{contractStatus,jdbcType=NVARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="contractHtml != null" >
+        #{contractHtml,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="contractPdf != null" >
+        #{contractPdf,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
+    update OA_CONTRACT_CIRCULATION
+    <set >
+      <if test="templateId != null" >
+        TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
+      </if>
+      <if test="processInstanceId != null" >
+        PROCESSINSTANCE_ID=#{processInstanceId,jdbcType=NVARCHAR},
+      </if>
+      <if test="contractName != null" >
+        CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="contractStatus != null" >
+        CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
+      </if>
+      <if test="description != null" >
+        DESCRIPTION = #{description,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="contractHtml != null" >
+        CONTRACT_HTML = #{contractHtml,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="contractPdf != null" >
+        CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" >
+    update OA_CONTRACT_CIRCULATION
+    set TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
+      PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
+      CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      USER_ID = #{userId,jdbcType=INTEGER},
+      CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
+      DESCRIPTION = #{description,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      CONTRACT_HTML = #{contractHtml,jdbcType=LONGVARCHAR},
+      CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARCHAR}
+    where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAContractCirculation" >
+    update OA_CONTRACT_CIRCULATION
+    set TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
+      PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
+      CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      USER_ID = #{userId,jdbcType=INTEGER},
+      CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
+      DESCRIPTION = #{description,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
+  </update>
+</mapper>

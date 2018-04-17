@@ -1,6 +1,7 @@
 package com.wxm.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.wxm.model.OAContractTemplate;
 import org.activiti.rest.common.util.DateToStringSerializer;
 
 import java.util.Date;
@@ -11,6 +12,14 @@ public class Deployment {
     private Date deploymentTime;//部署时间
     private String category;//
     private String tenantId;//
+    private OAContractTemplate oaContractTemplate;
+
+    public void setOAContractTemplate(OAContractTemplate oaContractTemplate){
+        this.oaContractTemplate = oaContractTemplate;
+    }
+    public OAContractTemplate getOAContractTemplate() {
+        return oaContractTemplate;
+    }
 
     public String getId() {
         return id;

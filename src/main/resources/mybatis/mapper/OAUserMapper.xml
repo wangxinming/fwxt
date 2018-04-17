@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OAUserMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OAUser" >
+    <id column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="USER_NAME" property="userName" jdbcType="NVARCHAR" />
+    <result column="USER_MOBILE" property="userMobile" jdbcType="NVARCHAR" />
+    <result column="USER_EMAIL" property="userEmail" jdbcType="NVARCHAR" />
+    <result column="USER_PWD" property="userPwd" jdbcType="NVARCHAR" />
+    <result column="USER_COMPANY" property="userCompany" jdbcType="NVARCHAR" />
+    <result column="USER_DEPARTMENT" property="userDepartment" jdbcType="NVARCHAR" />
+    <result column="USER_POSITION" property="userPosition" jdbcType="NVARCHAR" />
+    <result column="USER_ADDRESS" property="userAddress" jdbcType="NVARCHAR" />
+    <result column="USER_POSTCODE" property="userPostcode" jdbcType="NVARCHAR" />
+    <result column="USER_WEIXIN" property="userWeixin" jdbcType="NVARCHAR" />
+    <result column="USER_STATUS" property="userStatus" jdbcType="INTEGER" />
+    <result column="USER_CREATETIME" property="userCreatetime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    USER_ID, USER_NAME, USER_MOBILE, USER_EMAIL, USER_PWD, USER_COMPANY, USER_DEPARTMENT, 
+    USER_POSITION, USER_ADDRESS, USER_POSTCODE, USER_WEIXIN, USER_STATUS, USER_CREATETIME
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from OA_USER
+    where USER_ID = #{userId,jdbcType=INTEGER}
+  </select>
+  <select id="selectByName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from OA_USER
+    where USER_NAME = #{userName,jdbcType=NVARCHAR}
+  </select>
+
+
+  <select id="list" resultMap="BaseResultMap">
+    select top ${limit} * from OA_USER where USER_ID not
+    in(select top ${offset} USER_ID from OA_USER  where 1=1
+    <if test="userName != null">
+      AND USER_NAME like CONCAT('%',#{userName},'%' )
+    </if>
+    ORDER BY USER_ID ASC)
+    <if test="userName != null" >
+      AND USER_NAME like CONCAT('%',#{userName},'%' )
+    </if>
+    ORDER BY USER_ID
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    SELECT  count(*)
+    from OA_USER where 1=1
+    <if test="userName != null" >
+      AND USER_NAME like CONCAT('%',#{userName},'%' )
+    </if>
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_USER
+    where USER_ID = #{userId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OAUser" >
+    insert into OA_USER (USER_ID, USER_NAME, USER_MOBILE, 
+      USER_EMAIL, USER_PWD, USER_COMPANY, 
+      USER_DEPARTMENT, USER_POSITION, USER_ADDRESS, 
+      USER_POSTCODE, USER_WEIXIN, USER_STATUS, 
+      USER_CREATETIME)
+    values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=NVARCHAR}, #{userMobile,jdbcType=NVARCHAR}, 
+      #{userEmail,jdbcType=NVARCHAR}, #{userPwd,jdbcType=NVARCHAR}, #{userCompany,jdbcType=NVARCHAR}, 
+      #{userDepartment,jdbcType=NVARCHAR}, #{userPosition,jdbcType=NVARCHAR}, #{userAddress,jdbcType=NVARCHAR}, 
+      #{userPostcode,jdbcType=NVARCHAR}, #{userWeixin,jdbcType=NVARCHAR}, #{userStatus,jdbcType=INTEGER}, 
+      #{userCreatetime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OAUser" useGeneratedKeys="true"  keyProperty = "userId" keyColumn = "USER_ID">
+    insert into OA_USER
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="userMobile != null" >
+        USER_MOBILE,
+      </if>
+      <if test="userEmail != null" >
+        USER_EMAIL,
+      </if>
+      <if test="userPwd != null" >
+        USER_PWD,
+      </if>
+      <if test="userCompany != null" >
+        USER_COMPANY,
+      </if>
+      <if test="userDepartment != null" >
+        USER_DEPARTMENT,
+      </if>
+      <if test="userPosition != null" >
+        USER_POSITION,
+      </if>
+      <if test="userAddress != null" >
+        USER_ADDRESS,
+      </if>
+      <if test="userPostcode != null" >
+        USER_POSTCODE,
+      </if>
+      <if test="userWeixin != null" >
+        USER_WEIXIN,
+      </if>
+      <if test="userStatus != null" >
+        USER_STATUS,
+      </if>
+      <if test="userCreatetime != null" >
+        USER_CREATETIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=NVARCHAR},
+      </if>
+      <if test="userMobile != null" >
+        #{userMobile,jdbcType=NVARCHAR},
+      </if>
+      <if test="userEmail != null" >
+        #{userEmail,jdbcType=NVARCHAR},
+      </if>
+      <if test="userPwd != null" >
+        #{userPwd,jdbcType=NVARCHAR},
+      </if>
+      <if test="userCompany != null" >
+        #{userCompany,jdbcType=NVARCHAR},
+      </if>
+      <if test="userDepartment != null" >
+        #{userDepartment,jdbcType=NVARCHAR},
+      </if>
+      <if test="userPosition != null" >
+        #{userPosition,jdbcType=NVARCHAR},
+      </if>
+      <if test="userAddress != null" >
+        #{userAddress,jdbcType=NVARCHAR},
+      </if>
+      <if test="userPostcode != null" >
+        #{userPostcode,jdbcType=NVARCHAR},
+      </if>
+      <if test="userWeixin != null" >
+        #{userWeixin,jdbcType=NVARCHAR},
+      </if>
+      <if test="userStatus != null" >
+        #{userStatus,jdbcType=INTEGER},
+      </if>
+      <if test="userCreatetime != null" >
+        #{userCreatetime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAUser" >
+    update OA_USER
+    <set >
+      <if test="userName != null" >
+        USER_NAME = #{userName,jdbcType=NVARCHAR},
+      </if>
+      <if test="userMobile != null" >
+        USER_MOBILE = #{userMobile,jdbcType=NVARCHAR},
+      </if>
+      <if test="userEmail != null" >
+        USER_EMAIL = #{userEmail,jdbcType=NVARCHAR},
+      </if>
+      <if test="userPwd != null" >
+        USER_PWD = #{userPwd,jdbcType=NVARCHAR},
+      </if>
+      <if test="userCompany != null" >
+        USER_COMPANY = #{userCompany,jdbcType=NVARCHAR},
+      </if>
+      <if test="userDepartment != null" >
+        USER_DEPARTMENT = #{userDepartment,jdbcType=NVARCHAR},
+      </if>
+      <if test="userPosition != null" >
+        USER_POSITION = #{userPosition,jdbcType=NVARCHAR},
+      </if>
+      <if test="userAddress != null" >
+        USER_ADDRESS = #{userAddress,jdbcType=NVARCHAR},
+      </if>
+      <if test="userPostcode != null" >
+        USER_POSTCODE = #{userPostcode,jdbcType=NVARCHAR},
+      </if>
+      <if test="userWeixin != null" >
+        USER_WEIXIN = #{userWeixin,jdbcType=NVARCHAR},
+      </if>
+      <if test="userStatus != null" >
+        USER_STATUS = #{userStatus,jdbcType=INTEGER},
+      </if>
+      <if test="userCreatetime != null" >
+        USER_CREATETIME = #{userCreatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where USER_ID = #{userId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAUser" >
+    update OA_USER
+    set USER_NAME = #{userName,jdbcType=NVARCHAR},
+      USER_MOBILE = #{userMobile,jdbcType=NVARCHAR},
+      USER_EMAIL = #{userEmail,jdbcType=NVARCHAR},
+      USER_PWD = #{userPwd,jdbcType=NVARCHAR},
+      USER_COMPANY = #{userCompany,jdbcType=NVARCHAR},
+      USER_DEPARTMENT = #{userDepartment,jdbcType=NVARCHAR},
+      USER_POSITION = #{userPosition,jdbcType=NVARCHAR},
+      USER_ADDRESS = #{userAddress,jdbcType=NVARCHAR},
+      USER_POSTCODE = #{userPostcode,jdbcType=NVARCHAR},
+      USER_WEIXIN = #{userWeixin,jdbcType=NVARCHAR},
+      USER_STATUS = #{userStatus,jdbcType=INTEGER},
+      USER_CREATETIME = #{userCreatetime,jdbcType=TIMESTAMP}
+    where USER_ID = #{userId,jdbcType=INTEGER}
+  </update>
+</mapper>
