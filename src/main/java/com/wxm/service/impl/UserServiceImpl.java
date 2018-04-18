@@ -60,7 +60,9 @@ public class UserServiceImpl implements UserService {
         oaUserMapper.updateByPrimaryKeySelective(oaUser);
         oaUser.setUserPwd(null);
         oaUser.setUserCreatetime(null);
-        org.activiti.engine.identity.User user = identityService.createUserQuery().userId(oaUser.getUserName()).userFirstName(oaUser.getUserId().toString()).singleResult();
+        org.activiti.engine.identity.User user = identityService.createUserQuery().
+                userId(oaUser.getUserName()).
+                userFirstName(oaUser.getUserId().toString()).singleResult();
         if(null != user) {
             user.setPassword(oaUser.getUserPwd());
             identityService.saveUser(user);

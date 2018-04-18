@@ -8,6 +8,7 @@ import com.wxm.service.*;
 import com.wxm.util.PropertyUtil;
 import com.wxm.util.ValidType;
 import com.wxm.util.Word2Html;
+import com.wxm.util.exception.OAException;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.FlowElement;
@@ -26,12 +27,16 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.Task;
 import org.activiti.image.ProcessDiagramGenerator;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.XMLInputFactory;
@@ -43,6 +48,7 @@ import java.util.*;
 @RestController
 @RequestMapping(value = "/workflow/process/")
 public class ProcessController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessController.class);
     @Autowired
     private RepositoryService repositoryService;
     @Autowired
@@ -50,16 +56,9 @@ public class ProcessController {
     @Autowired
     private RuntimeService runtimeService;
     @Autowired
-    private FormService formService;
-    @Autowired
     private IdentityService identityService;
-//    @Autowired
-//    private WordTemplateFieldService wordTemplateFieldService;
     @Autowired
     private HistoryService historyService;
-
-//    @Autowired
-//    private WordTemplateService wordTemplateService;
     @Autowired
     private ProcessEngineConfiguration processEngineConfiguration;
 
@@ -84,10 +83,27 @@ public class ProcessController {
     @Autowired
     private TaskProcessService taskProcessService;
 
+    @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public Object download(
+            @RequestParam(value = "processId", required = false, defaultValue = "") String processId,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processId);
+        byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf().getBytes();
+        response.setContentType("application/x-download");
+        String codedfilename = MimeUtility.encodeText(oaContractCirculationWithBLOBs.getContractName()+".pdf", "UTF-8", "B");
+        response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
+        response.setContentLength(bytes.length);
+        response.getOutputStream().write(bytes);
+        return null;
+    }
+
     @RequestMapping("/queryProPlan")
     public void queryProPlan(HttpServletRequest request,HttpServletResponse response) throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         String taskID = request.getParameter("TaskId");
         String processInstanceId = "";
 
@@ -134,7 +150,7 @@ public class ProcessController {
     @ResponseBody
     public Object jump(HttpServletRequest request,@RequestBody Map<String,String> map)throws  Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         Map<String, Object> result = new HashMap<>();
         String processInstanceId = map.get("processInstanceId");
         String info = "";
@@ -198,7 +214,7 @@ public class ProcessController {
     @ResponseBody
     public Object reject(HttpServletRequest request)throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         String taskId = request.getParameter("id");
@@ -237,7 +253,7 @@ public class ProcessController {
     @ResponseBody
     public Object start(HttpServletRequest request, HttpServletResponse response,@RequestBody Map<String,String> map) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         String info = "";
@@ -357,7 +373,7 @@ public class ProcessController {
     @ResponseBody
     public Object complete(HttpServletRequest request)throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         String taskId = request.getParameter("id");
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
 //利用任务对象，获取流程实例id
@@ -426,7 +442,7 @@ public class ProcessController {
     @ResponseBody
     public void ProcessDef(HttpServletRequest request) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         long size = repositoryService.createProcessDefinitionQuery().count();
         List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery()
                 .orderByProcessDefinitionVersion().asc()
@@ -450,7 +466,7 @@ public class ProcessController {
     @ResponseBody
     public Object findTaskByName(@PathVariable(value = "user", required = false) String user, HttpServletRequest request)throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         List<TaskInfo> taskInfos = new LinkedList<>();
         List<Task> list = taskService.createTaskQuery()// 创建任务查询对象
                 .taskAssignee(loginUser.getName())// 指定个人认为查询，指定办理人
@@ -491,7 +507,7 @@ public class ProcessController {
                                         HttpServletRequest request)throws Exception {
 
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         List<TaskInfo> taskInfos = new LinkedList<>();
         List<HistoricProcessInstance> listProcess = historyService.createHistoricProcessInstanceQuery().finished()
                 .variableValueEquals("user",loginUser.getName())
@@ -576,7 +592,7 @@ public class ProcessController {
     @ResponseBody
     public Object getMyTask(HttpServletRequest request) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         List<ProInstance> processInstanceList = new LinkedList<>();
         List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
 //                .variableValueEquals("user",loginUser.getName())
@@ -654,7 +670,7 @@ public class ProcessController {
     public Object getRecord(@PathVariable(value = "id",required = false) String taskId,
                             HttpServletRequest request,HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
         taskId = "42503";
         List<TaskComment> taskCommentList = new LinkedList<>();
         List<Comment> list = new ArrayList<>();

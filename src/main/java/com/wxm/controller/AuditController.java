@@ -3,7 +3,10 @@ package com.wxm.controller;
 import com.wxm.mapper.OAAuditMapper;
 import com.wxm.model.OAAudit;
 import com.wxm.service.AuditService;
+import com.wxm.util.exception.OAException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("audit/")
 public class AuditController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuditController.class);
     @Autowired
     private AuditService auditService;
 
@@ -31,7 +35,11 @@ public class AuditController {
                            @RequestParam(value = "endTime", required = true) String endTime
                            )throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new Exception("用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
         Date start=null,end=null;
         if(StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)){
             start = null;
@@ -41,17 +49,15 @@ public class AuditController {
                 SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 start = time.parse(startTime);
                 end = time.parse(endTime);
+                if(StringUtils.isBlank(userName)){
+                    userName = null;
+                }
+                result.put("rows",auditService.list(offset,limit,userName,start,end));
+                result.put("total",auditService.count(userName,start,end));
             }catch (Exception e){
-                start = null;
-                end = null;
+                LOGGER.error("参数异常",e);
             }
         }
-        Map<String, Object> result = new HashMap<>();
-        if(StringUtils.isBlank(userName)){
-            userName = null;
-        }
-        result.put("rows",auditService.list(offset,limit,userName,start,end));
-        result.put("total",auditService.count(userName,start,end));
         return result;
     }
 }

@@ -118,8 +118,8 @@
                                 Loading.hide();
                                 toaster.pop('success', "", "操作成功");
                                 $scope.listPage.settings.reload();
-                                $scope.pageDialog.hide();
-                                $scope.addPage.init();
+                                $scope.pageDialogUpdate.hide();
+                                $scope.addPageUpdate.init();
                             }else{
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
@@ -151,6 +151,7 @@
                                 toaster.pop('success', "", "操作成功");
                                 $scope.listPage.settings.reload();
                                 $scope.pageDialog.hide();
+
                             }else{
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
@@ -213,6 +214,7 @@
                 action:{
                     add: function () {
                         $scope.pageDialog.title = "新增用户";
+                        $("#formPassword")[0].style.display = 'inherit';
                         $scope.pageDialog.show();
                         $scope.addPage.init();
                     },
@@ -223,6 +225,7 @@
                     },
                     edit: function (id) {
                         $scope.pageDialog.title = "修改用户";
+                        $("#formPassword")[0].style.display = 'none';
                         Loading.show();
                         // $timeout(function(){
                             loader.userInfo({"userId":id},{},function (data) {
@@ -340,7 +343,7 @@
                         mRender:function(mData,type,full) {
                             return '<i title="编辑" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
                                     '<i title="修改密码" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-user" ng-click="listPage.action.update(\'' + mData +'\')"> </i>' +
-                                    '<i title="'+(full.userStatus==0?'停用':'启用')+'" class="'+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.userStatus==0?'false':'true')+',\''+mData+'\',\''+full.userName+'\')"></i>';
+                                    '<i title="'+(full.userStatus==1?'停用':'启用')+'" class="'+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.userStatus==1?'false':'true')+',\''+mData+'\',\''+full.userName+'\')"></i>';
                                     // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }

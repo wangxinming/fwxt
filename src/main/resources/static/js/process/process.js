@@ -392,6 +392,9 @@
                 users: [],
                 ready: false,
                 action:{
+                    down: function (processId) {
+                        window.open("/workflow/process/download?processId="+processId);
+                    },
                     detail: function (id) {
                         $scope.pageDialogDetail.title = "查看详情";
                         // Loading.show();
@@ -503,50 +506,12 @@
                             return Util.formatSimpleDate(mData);
                         }
                     },
-                    //
-                    // {
-                    //     sTitle: "版本",
-                    //     mData: "version",
-                    //     mRender: function (mData, type, full) {
-                    //         return Util.str2Html(mData);
-                    //     }
-                    // },
-                    // {
-                    //     sTitle: "资源bpmn文件",
-                    //     mData: "resourceName",
-                    //     mRender: function (mData, type, full) {
-                    //         return Util.str2Html(mData);
-                    //     }
-                    // },
-                    // {
-                    //     sTitle: "资源png文件",
-                    //     mData: "diagramResourceName",
-                    //     mRender: function (mData, type, full) {
-                    //         return Util.str2Html(mData);
-                    //     }
-                    // },
-                    // {
-                    //     sTitle: "部署对象ID",
-                    //     mData: "deploymentId",
-                    //     mRender: function (mData, type, full) {
-                    //         return Util.str2Html(mData);
-                    //     }
-                    // },
-                    // {
-                    //     sTitle: "时间",
-                    //     mData: "limit",
-                    //     mRender: function (mData, type, full) {
-                    //         if(!mData){
-                    //             return "";
-                    //         }
-                    //         return Util.formatSimpleDate(mData);
-                    //     }
-                    // },
                     {
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="详情" class="fa fa-list-alt" ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></i>';
+                            return '<i title="详情" class="fa fa-list-alt" ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></i>'+
+                                     '<i class="fa fa-download" title="下载" ng-click="listPage.action.down(\'' + mData + '\')"></i>';
                                 // '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }
