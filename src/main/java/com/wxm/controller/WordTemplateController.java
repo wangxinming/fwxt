@@ -173,17 +173,17 @@ public class WordTemplateController {
             concactTemplateService.insert(oaContractTemplate);
 
             int id = oaContractTemplate.getTemplateId();
-            Pattern pattern = Pattern.compile("<U>([\\s\\S]*?)</U>");
+            Pattern pattern = Pattern.compile("@@([\\s\\S]*?)!!");
             Matcher matcher = pattern.matcher(htmlStr);
 
-            String before = "<input type=\"text\" style=\"border-bottom: 1px solid #dbdbdb;border-top:0px;border-left:0px;border-right:0px;\" name=\"";
+            String before = "<input type=\"text\" style=\"border:none;border-bottom:1px solid #000;\" name=\"";
             String end = "\"/>";
             while(matcher.find()) {
                 String tmp = matcher.group();
                 OAFormProperties oaFormProperties = new OAFormProperties();
-                String var = tmp.substring(5,tmp.indexOf("%%"));
+                String var = tmp.substring(2,tmp.indexOf("%%"));
                 String type = tmp.substring(tmp.indexOf("%%")+2,tmp.indexOf("##"));
-                String length = tmp.substring(tmp.indexOf("##")+2,tmp.indexOf("</"));
+                String length = tmp.substring(tmp.indexOf("##")+2,tmp.indexOf("!!"));
                 int start = matcher.start();
                 String name = "name_" + Md5Utils.getMd5(String.format("%s%s%s%s",var,type,length,start));
                 oaFormProperties.setFieldName(var);
@@ -201,6 +201,6 @@ public class WordTemplateController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return response;
+        return "";
     }
 }

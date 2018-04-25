@@ -18,8 +18,14 @@
                     <div class="col-md-9">
                         <!--<select  class="form-control" ng-class="{false: 'has-error'}[pfCheck]" ng-model="description" required  ng-options="item.id as item.name for item in sites | filter: { flag: '1'}">-->
                         <select  class="form-control"  ng-model="addPage.data.approvalStatus"  ng-options="item.status as item.name for item in approvalItems ">
-                            <option value=""> --- 请选择 --- </option>
+                            <!--<option value=""> -&#45;&#45; 请选择 -&#45;&#45; </option>-->
                         </select>
+                    </div>
+                </div>
+                <div ng-hide="addPage.data.approvalStatus==1" class="form-group">
+                    <label  class="col-md-3 control-label">原因</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control"  ng-model="addPage.data.cause" value="" />
                     </div>
                 </div>
             </div>

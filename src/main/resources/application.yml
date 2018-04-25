@@ -19,6 +19,7 @@ spring:
     port: 251
     username: wangxinming1000@163.com
     password: aszcM146
+    enable: false
 mybatis:
   config-locations: classpath:mybatis/mybatis-config.xml
   mapper-locations: classpath:mybatis/mapper/*.xml

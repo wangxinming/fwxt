@@ -117,6 +117,23 @@
                 var path = $location.path();
                 angular.element('#' + $rootScope.confirm.id).modal('hide');
                 $rootScope.currentView = path.substring(1, path.length);
+                if($rootScope.currentView == "user" || $rootScope.currentView == "audit"){
+                    if (!$("#user").parent().hasClass("active")) {
+                        $("#user").trigger("click");
+                    }
+                }else if($rootScope.currentView == "modeler" || $rootScope.currentView == "upload" || $rootScope.currentView == "form" || $rootScope.currentView == "deployment"){
+                    if (!$("#deployment").parent().hasClass("active")) {
+                        $("#deployment").trigger("click");
+                    }
+                }else if($rootScope.currentView == "process" || $rootScope.currentView == "myProcess"  || $rootScope.currentView == "initiator"){
+                    if (!$("#process").parent().hasClass("active")) {
+                        $("#process").trigger("click");
+                    }
+                }else if($rootScope.currentView == "pending" || $rootScope.currentView == "complete"){
+                    if (!$("#shenpi").parent().hasClass("active")) {
+                        $("#shenpi").trigger("click");
+                    }
+                }
                 $(".modal-backdrop").hide();
             });
             $rootScope.confirm = {id: "myconfirm", info: "", save: function () {
@@ -129,8 +146,29 @@
 
                 angular.element('#' + $rootScope.confirm.id).modal('show');
             };
+
+            $rootScope.$alert = function (info, level) {
+                if (null != info.code && info.code == 18 && info.name == "SecurityError"){
+                    return;
+                } else if (null == info.code && info.name == "TypeError" && info.message.indexOf("indexOf") > 0){
+                    info = "上传文件未找到，请查看上传文件位置！";
+                }
+                if(level)$rootScope.alert.level=level;
+                else $rootScope.alert.level="info";
+                $rootScope.alert.info = info;
+                if (!$rootScope.$$phase) {
+                    $rootScope.$apply();
+                }
+                angular.element('#' + $rootScope.alert.id).modal('show');
+            };
         }])
-        .config(['$httpProvider', function ($httpProvider) {
+        .config(['$httpProvider','$routeProvider', function ($httpProvider,$routeProvider) {
+            $routeProvider.when('/user', {
+                templateUrl: 'view/user/user.html',
+                controller: 'user.controller'
+            });
+            $routeProvider.otherwise({redirectTo: '/user'});
+
             $httpProvider.interceptors.push("interceptor");}])
         .factory('interceptor', function ($q, $rootScope) {
             return {

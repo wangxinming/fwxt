@@ -136,15 +136,15 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="编辑" class="fa fa-pencil fa-fw" ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.update(\'' + mData + '\')"></i>' +
-                                    '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>' +
-                                    '<i title="发布" class="fa fa-cog fa-fw" ng-show=userLevel.indexOf("publish")!=-1  ng-click="listPage.action.publish(\'' + mData + '\')"></i>';
+                            return '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil fa-fw"  ng-click="listPage.action.update(\'' + mData + '\')"></i>' +
+                                    '<i title="删除" ng-hide="loginUserMenuMap[currentView]" class="fa fa-trash-o"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>' +
+                                    '<i title="发布" ng-hide="loginUserMenuMap[currentView]" class="fa fa-cog fa-fw" ng-click="listPage.action.publish(\'' + mData + '\')"></i>';
                         }
                     }
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,3]}  //第 0,10列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3]}  //第 0,10列不可排序
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -242,12 +242,7 @@
             $scope.addPage={
                 data: {
                     id: 0,
-                    process:{
-                        id:0,
-                        limit:0,
-                        offset:10
-                    },
-                    limit: 20, //每页条数(即取多少条数据)
+                    limit: 10, //每页条数(即取多少条数据)
                     offset: 0, //从第几条数据开始取
                     orderBy: "updated",//排序字段
                     orderByType: "desc" //排序顺序
@@ -256,11 +251,6 @@
             $scope.searchPage = {
                 init: function () {
                     $scope.searchPage.data = {
-                        process:{
-                            id:0,
-                            limit:10,
-                            offset:0
-                        },
                         id:1,
                         limit: 10, //每页条数(即取多少条数据)
                         offset: 0, //从第几条数据开始取
@@ -378,15 +368,15 @@
                         sTitle: "操作",
                         mData:"templateId",
                         mRender:function(mData,type,full) {
-                            return '<i title="编辑" class="fa fa-pencil fa-fw" ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.update(\'' + mData + '\')"></i>' +
-                                '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>'
+                            return '<i title="编辑" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')"></i>' +
+                                '<i title="删除" class="fa fa-trash-o" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>'
                                 // '<i title="发布" class="fa fa-cog fa-fw" ng-show=userLevel.indexOf("publish")!=-1  ng-click="listPage.action.publish(\'' + mData + '\')"></i>';
                         }
                     }
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,3]}  //第 0,10列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3]}  //第 0,10列不可排序
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -435,11 +425,6 @@
             $scope.addPage={
                 data: {
                     id: 0,
-                    process:{
-                        id:0,
-                        limit:10,
-                        offset:0
-                    },
                     limit: 10, //每页条数(即取多少条数据)
                     offset: 0, //从第几条数据开始取
                     orderBy: "updated",//排序字段
@@ -450,11 +435,6 @@
             $scope.searchPage = {
                 init: function () {
                     $scope.searchPage.data = {
-                        process:{
-                            id:0,
-                            limit:10,
-                            offset:0
-                        },
                         id:1,
                         limit: 10, //每页条数(即取多少条数据)
                         offset: 0, //从第几条数据开始取
@@ -574,14 +554,14 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="关联模板" class="fa fa-pencil fa-fw" ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.edit(\'' + full.id  +'\','+ full.oacontractTemplate.templateId +',\''+ full.oacontractTemplate.templateName+ '\')"></i>' +
-                                    '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+                            return '<i title="关联模板" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + full.id  +'\','+ full.oacontractTemplate.templateId +',\''+ full.oacontractTemplate.templateName+ '\')"></i>' +
+                                    '<i title="删除" class="fa fa-trash-o" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,3]}  //第 0,3列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3]}  //第 0,3列不可排序
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]

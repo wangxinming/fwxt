@@ -8,9 +8,9 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan({"com.wxm","org.activiti"})
 @MapperScan("com.wxm.mapper")
-public class SpringBootWithActivitiApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringBootWithActivitiApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 }

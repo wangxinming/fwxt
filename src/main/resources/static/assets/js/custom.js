@@ -1,5 +1,9 @@
  jQuery(function($) {
-        
+         var userName = jQuery.cookie("userName");
+         if(userName){
+             $("#loginInfo").html("欢迎 "+userName +" 登录系统");
+         }
+
         $(".sidebar-dropdown > a").click(function(){
 	        $(".sidebar-submenu").slideUp(250);
         	if ($(this).parent().hasClass("active")){

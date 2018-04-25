@@ -7,6 +7,15 @@ public class TaskComment {
     private String name;
     private String description;
     private Date createTime;
+    private String content;
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getContent() {
+        return content;
+    }
 
     public void setName(String name){
         this.name = name;

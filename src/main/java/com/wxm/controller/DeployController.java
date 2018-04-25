@@ -79,14 +79,16 @@ public class DeployController {
         try{
             String dID = request.getParameter("dID");
             String rID = request.getParameter("rID");
-            int count = oaDeploymentTemplateService.coutRelByDeploymentId(dID);
-            OADeploymentTemplateRelation oaDeploymentTemplateRelation = new OADeploymentTemplateRelation();
-            if(count > 0){
+//            int count = oaDeploymentTemplateService.coutRelByDeploymentId(dID);
+            OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(dID);
+//            OADeploymentTemplateRelation oaDeploymentTemplateRelation = new OADeploymentTemplateRelation();
+            if(oaDeploymentTemplateRelation != null ){
                 oaDeploymentTemplateRelation.setRelationTemplateid(Integer.parseInt(rID));
                 oaDeploymentTemplateRelation.setRelationDeploymentid(dID);
                 oaDeploymentTemplateService.update(oaDeploymentTemplateRelation);
                 auditService.audit(new OAAudit(loginUser.getName(),String.format("修改模板关系")));
             }else{
+                oaDeploymentTemplateRelation = new OADeploymentTemplateRelation();
                 oaDeploymentTemplateRelation.setRelationCreatetime(new Date());
                 oaDeploymentTemplateRelation.setRelationDeploymentid(dID);
                 oaDeploymentTemplateRelation.setRelationTemplateid(Integer.parseInt(rID));
@@ -173,6 +175,17 @@ public class DeployController {
                 tmp_id = oaDeploymentTemplateRelation.getRelationTemplateid();
             } else {
                 tmp_id = Integer.parseInt(template_id);
+            }
+            result.put("showCommit", true);
+            if(null != processInstanceId) {
+                ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+                Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
+                Object object = taskService.getVariable(task.getId(), "taskDefinitionKey");
+                if (object == null || StringUtils.isBlank(object.toString())) {
+                    result.put("showCommit", true);
+                } else {
+                    result.put("showCommit", false);
+                }
             }
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(tmp_id);
             if (StringUtils.isNotBlank(processInstanceId)) {
@@ -303,6 +316,7 @@ public class DeployController {
     public Object htmlHistory(HttpServletRequest request) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
+        //历史遗留
         String processInstanceId = request.getParameter("taskId");
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
@@ -334,7 +348,11 @@ public class DeployController {
                 if(taskList1.size() >0) {
                     for (Comment comment : taskList1) {
                         TaskComment taskComment = new TaskComment();
-                        taskComment.setName(task1.getAssignee());
+                        if(task1.getAssignee() == null){
+                            taskComment.setName(comment.getUserId());
+                        }else {
+                            taskComment.setName(task1.getAssignee());
+                        }
                         taskComment.setCreateTime(comment.getTime());
                         taskComment.setDescription(comment.getFullMessage());
                         taskCommentList.add(taskComment);
@@ -396,7 +414,11 @@ public class DeployController {
                 if(taskList1.size() >0) {
                     for (Comment comment : taskList1) {
                         TaskComment taskComment = new TaskComment();
-                        taskComment.setName(historicActivityInstance.getAssignee());
+                        if(StringUtils.isBlank(comment.getUserId())) {
+                            taskComment.setName(historicActivityInstance.getAssignee());
+                        }else{
+                            taskComment.setName(comment.getUserId());
+                        }
                         taskComment.setCreateTime(comment.getTime());
                         taskComment.setDescription(comment.getFullMessage());
                         taskCommentList.add(taskComment);
@@ -433,6 +455,7 @@ public class DeployController {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
         List<Deployment> deployments = repositoryService.createDeploymentQuery()
+                .orderByDeploymenTime().desc()
                 .listPage(offset, limit);
         long count = repositoryService.createDeploymentQuery().count();
         List<com.wxm.entity.Deployment> list = new ArrayList<>();
@@ -466,7 +489,7 @@ public class DeployController {
                           @RequestParam(value = "limit", defaultValue = "10", required = true) Integer limit) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
-        List<Model> list = repositoryService.createModelQuery().listPage(offset, limit);
+        List<Model> list = repositoryService.createModelQuery().orderByCreateTime().desc().listPage(offset, limit);
         long count = repositoryService.createModelQuery().count();
         Map<String, Object> result = new HashMap<>();
         result.put("rows",list);

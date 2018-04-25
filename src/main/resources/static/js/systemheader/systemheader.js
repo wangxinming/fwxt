@@ -5,7 +5,7 @@
     systemheader.factory('LoginService',['$resource',function(resource){
         return resource('',{},{
             getLoginUser:{url:api_path+'loginUser',method:'GET',isArray:false},
-            loginMenus:{url:api_path+'loginMenus',method:'GET',isArray:true},
+            loginMenus:{url:'/user/loginMenus',method:'GET',isArray:true},
             isLogin:{url:api_path+'isLogin',method:'GET',isArray:false},
             logout:{url:api_path+'logout',method:'GET',isArray:false}
         });

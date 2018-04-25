@@ -1,134 +1,61 @@
-if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports === exports){
-    module.exports = 'highcharts-ng';
-}
-
 (function () {
     'use strict';
     /*global angular: false, Highcharts: false */
 
-
     angular.module('highcharts-ng', [])
-        .provider('highchartsNG', highchartsNGProvider)
-        .directive('highchart', ['highchartsNG', '$timeout', highchart]);
+        .factory('highchartsNGUtils', highchartsNGUtils)
+        .directive('highchart', ['highchartsNGUtils', highchart]);
 
-    function highchartsNGProvider(){
-        var modules = [];
-        var basePath = false;
-        var lazyLoad = false;
+    function highchartsNGUtils() {
+
         return {
-            HIGHCHART: 'highcharts.js',
-            HIGHSTOCK: 'stock/highstock.js',
-            basePath: function (p) {
-                basePath = p;
+
+            //IE8 support
+            indexOf: function (arr, find, i /*opt*/) {
+                if (i === undefined) i = 0;
+                if (i < 0) i += arr.length;
+                if (i < 0) i = 0;
+                for (var n = arr.length; i < n; i++)
+                    if (i in arr && arr[i] === find)
+                        return i;
+                return -1;
             },
-            lazyLoad: function (list) {
-                if (list === undefined) {
-                    modules = [this.HIGHCHART];
+
+            prependMethod: function (obj, method, func) {
+                var original = obj[method];
+                obj[method] = function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    func.apply(this, args);
+                    if (original) {
+                        return original.apply(this, args);
+                    } else {
+                        return;
+                    }
+
+                };
+            },
+
+            deepExtend: function deepExtend(destination, source) {
+                //Slightly strange behaviour in edge cases (e.g. passing in non objects)
+                //But does the job for current use cases.
+                if (angular.isArray(source)) {
+                    destination = angular.isArray(destination) ? destination : [];
+                    for (var i = 0; i < source.length; i++) {
+                        destination[i] = deepExtend(destination[i] || {}, source[i]);
+                    }
+                } else if (angular.isObject(source)) {
+                    for (var property in source) {
+                        destination[property] = deepExtend(destination[property] || {}, source[property]);
+                    }
                 } else {
-                    modules = list;
+                    destination = source;
                 }
-                lazyLoad = true;
-            },
-            $get: ['$q', '$window', function ($q, $window) {
-                if (!basePath) {
-                    basePath = (window.location.protocol === 'https:' ? 'https' : 'http') + '://code.highcharts.com/';
-                }
-                return highchartsNG($q, $window, basePath, modules);
-            }]
-        };
-    }
-
-    //IE8 support
-    function indexOf(arr, find, i /*opt*/) {
-        if (i === undefined) i = 0;
-        if (i < 0) i += arr.length;
-        if (i < 0) i = 0;
-        for (var n = arr.length; i < n; i++)
-            if (i in arr && arr[i] === find)
-                return i;
-        return -1;
-    }
-
-    function prependMethod(obj, method, func) {
-        var original = obj[method];
-        obj[method] = function () {
-            var args = Array.prototype.slice.call(arguments);
-            func.apply(this, args);
-            if (original) {
-                return original.apply(this, args);
-            } else {
-                return;
-            }
-
-        };
-    }
-
-    function deepExtend(destination, source) {
-        //Slightly strange behaviour in edge cases (e.g. passing in non objects)
-        //But does the job for current use cases.
-        if (angular.isArray(source)) {
-            destination = angular.isArray(destination) ? destination : [];
-            for (var i = 0; i < source.length; i++) {
-                destination[i] = deepExtend(destination[i] || {}, source[i]);
-            }
-        } else if (angular.isObject(source)) {
-            destination = angular.isObject(destination) ? destination : {};
-            for (var property in source) {
-                destination[property] = deepExtend(destination[property] || {}, source[property]);
-            }
-        } else {
-            destination = source;
-        }
-        return destination;
-    }
-
-    function highchartsNG($q, $window, basePath, modules) {
-        var highchartsProm;
-
-        function loadScript(path) {
-            return $q(function(resolve){
-                var s = document.createElement('script');
-                s.type = 'text/javascript';
-                s.src = path;
-                s.onload = resolve;
-                document.getElementsByTagName('body')[0].appendChild(s);
-            });
-        }
-
-        function getHighcharts() {
-            if (typeof $window.Highcharts !== 'undefined') {
-                return $q.when($window.Highcharts);
-            }
-            var prom = $q.when();
-            angular.forEach(modules, function(s) {
-                prom = prom.then(function() {
-                    return loadScript(basePath + s);
-                });
-            });
-
-            return prom.then(function() {
-                return $window.Highcharts;
-            });
-        }
-
-        function getHighchartsOnce() {
-            if(!highchartsProm) {
-                highchartsProm = getHighcharts();
-            }
-            return highchartsProm;
-        }
-
-        return {
-            getHighcharts: getHighchartsOnce,
-            ready: function ready(callback, thisArg) {
-                getHighchartsOnce().then(function() {
-                    callback.call(thisArg);
-                });
+                return destination;
             }
         };
     }
 
-    function highchart(highchartsNGUtils, $timeout) {
+    function highchart(highchartsNGUtils) {
 
         // acceptable shared state
         var seriesId = 0;
@@ -145,11 +72,6 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
 
         // immutable
         var axisNames = [ 'xAxis', 'yAxis' ];
-        var chartTypeMap = {
-            'stock': 'StockChart',
-            'map':   'Map',
-            'chart': 'Chart'
-        };
 
         var getMergedOptions = function (scope, element, config) {
             var mergedOptions = {};
@@ -162,19 +84,12 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                 subtitle: {},
                 series: [],
                 credits: {},
-                tooltip:{},
                 plotOptions: {},
-                navigator: {enabled: false},
-                xAxis: {
-                    events: {}
-                },
-                yAxis: {
-                    events: {}
-                }
+                navigator: {enabled: false}
             };
 
             if (config.options) {
-                mergedOptions = deepExtend(defaultOptions, config.options);
+                mergedOptions = highchartsNGUtils.deepExtend(defaultOptions, config.options);
             } else {
                 mergedOptions = defaultOptions;
             }
@@ -182,12 +97,12 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
 
             angular.forEach(axisNames, function(axisName) {
                 if(angular.isDefined(config[axisName])) {
-                    mergedOptions[axisName] = deepExtend(mergedOptions[axisName] || {}, config[axisName]);
+                    mergedOptions[axisName] = angular.copy(config[axisName]);
 
                     if(angular.isDefined(config[axisName].currentMin) ||
                         angular.isDefined(config[axisName].currentMax)) {
 
-                        prependMethod(mergedOptions.chart.events, 'selection', function(e){
+                        highchartsNGUtils.prependMethod(mergedOptions.chart.events, 'selection', function(e){
                             var thisChart = this;
                             if (e[axisName]) {
                                 scope.$apply(function () {
@@ -203,19 +118,9 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                             }
                         });
 
-                        prependMethod(mergedOptions.chart.events, 'addSeries', function(e){
+                        highchartsNGUtils.prependMethod(mergedOptions.chart.events, 'addSeries', function(e){
                             scope.config[axisName].currentMin = this[axisName][0].min || scope.config[axisName].currentMin;
                             scope.config[axisName].currentMax = this[axisName][0].max || scope.config[axisName].currentMax;
-                        });
-                        prependMethod(mergedOptions[axisName].events, 'setExtremes', function (e) {
-                            if (e.trigger && e.trigger !== 'zoom') { // zoom trigger is handled by selection event
-                                $timeout(function () {
-                                    scope.config[axisName].currentMin = e.min;
-                                    scope.config[axisName].currentMax = e.max;
-                                    scope.config[axisName].min = e.min; // set min and max to adjust scrollbar/navigator
-                                    scope.config[axisName].max = e.max;
-                                }, 0);
-                            }
                         });
                     }
                 }
@@ -244,11 +149,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
         var updateZoom = function (axis, modelAxis) {
             var extremes = axis.getExtremes();
             if(modelAxis.currentMin !== extremes.dataMin || modelAxis.currentMax !== extremes.dataMax) {
-                if (axis.setExtremes) {
-                    axis.setExtremes(modelAxis.currentMin, modelAxis.currentMax, false);
-                } else {
-                    axis.detachedsetExtremes(modelAxis.currentMin, modelAxis.currentMax, false);
-                }
+                axis.setExtremes(modelAxis.currentMin, modelAxis.currentMax, false);
             }
         };
 
@@ -259,19 +160,10 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
         };
 
         var chartOptionsWithoutEasyOptions = function (options) {
-            return angular.extend(
-                deepExtend({}, options),
-                { data: null, visible: null }
-            );
+            return angular.extend({}, options, {data: null, visible: null});
         };
 
-        var getChartType = function(scope) {
-            if (scope.config === undefined) return 'Chart';
-            return chartTypeMap[('' + scope.config.chartType).toLowerCase()] ||
-                (scope.config.useHighStocks ? 'StockChart' : 'Chart');
-        };
-
-        var res = {
+        return {
             restrict: 'EAC',
             replace: true,
             template: '<div></div>',
@@ -279,29 +171,27 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                 config: '=',
                 disableDataWatch: '='
             },
-            link: function (Highcharts, scope, element, attrs) {
+            link: function (scope, element, attrs) {
                 // We keep some chart-specific variables here as a closure
                 // instead of storing them on 'scope'.
 
                 // prevSeriesOptions is maintained by processSeries
                 var prevSeriesOptions = {};
-                // chart is maintained by initChart
-                var chart = false;
 
-                var processSeries = function(series, seriesOld) {
+                var processSeries = function(series) {
                     var i;
                     var ids = [];
 
                     if(series) {
                         var setIds = ensureIds(series);
-                        if(setIds && !scope.disableDataWatch) {
+                        if(setIds) {
                             //If we have set some ids this will trigger another digest cycle.
                             //In this scenario just return early and let the next cycle take care of changes
                             return false;
                         }
 
                         //Find series to add or update
-                        angular.forEach(series, function(s, idx) {
+                        angular.forEach(series, function(s) {
                             ids.push(s.id);
                             var chartSeries = chart.get(s.id);
                             if (chartSeries) {
@@ -311,37 +201,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                                     if (s.visible !== undefined && chartSeries.visible !== s.visible) {
                                         chartSeries.setVisible(s.visible, false);
                                     }
-
-                                    // Make sure the current series index can be accessed in seriesOld
-                                    if (idx < seriesOld.length) {
-                                        var sOld = seriesOld[idx];
-                                        var sCopy = angular.copy(sOld);
-
-                                        // Get the latest data point from the new series
-                                        var ptNew = s.data[s.data.length - 1];
-
-                                        // Check if the new and old series are identical with the latest data point added
-                                        // If so, call addPoint without shifting
-                                        sCopy.data.push(ptNew);
-                                        if (angular.equals(sCopy, s)) {
-                                            chartSeries.addPoint(ptNew, false);
-                                        }
-
-                                        // Check if the data change was a push and shift operation
-                                        // If so, call addPoint WITH shifting
-                                        else {
-                                            sCopy.data.shift();
-                                            if (angular.equals(sCopy, s)) {
-                                                chartSeries.addPoint(ptNew, false, true);
-                                            }
-                                            else {
-                                                chartSeries.setData(angular.copy(s.data), false);
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        chartSeries.setData(angular.copy(s.data), false);
-                                    }
+                                    chartSeries.setData(angular.copy(s.data), false);
                                 }
                             } else {
                                 chart.addSeries(angular.copy(s), false);
@@ -372,7 +232,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                     //Now remove any missing series
                     for(i = chart.series.length - 1; i >= 0; i--) {
                         var s = chart.series[i];
-                        if (s.options.id !== 'highcharts-navigator-series' && indexOf(ids, s.options.id) < 0) {
+                        if (s.options.id !== 'highcharts-navigator-series' && highchartsNGUtils.indexOf(ids, s.options.id) < 0) {
                             s.remove(false);
                         }
                     }
@@ -380,16 +240,17 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                     return true;
                 };
 
+                // chart is maintained by initChart
+                var chart = false;
                 var initChart = function() {
                     if (chart) chart.destroy();
                     prevSeriesOptions = {};
                     var config = scope.config || {};
                     var mergedOptions = getMergedOptions(scope, element, config);
                     var func = config.func || undefined;
-                    var chartType = getChartType(scope);
-
-                    chart = new Highcharts[chartType](mergedOptions, func);
-
+                    chart = config.useHighStocks ?
+                        new Highcharts.StockChart(mergedOptions, func) :
+                        new Highcharts.Chart(mergedOptions, func);
                     for (var i = 0; i < axisNames.length; i++) {
                         if (config[axisNames[i]]) {
                             processExtremes(chart, config[axisNames[i]], axisNames[i]);
@@ -398,9 +259,6 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                     if(config.loading) {
                         chart.showLoading();
                     }
-                    config.getHighcharts = function() {
-                        return chart;
-                    };
 
                 };
                 initChart();
@@ -413,7 +271,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                     });
                 } else {
                     scope.$watch('config.series', function (newSeries, oldSeries) {
-                        var needsRedraw = processSeries(newSeries, oldSeries);
+                        var needsRedraw = processSeries(newSeries);
                         if(needsRedraw) {
                             chart.redraw();
                         }
@@ -430,16 +288,11 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
 
                 scope.$watch('config.loading', function (loading) {
                     if(loading) {
-                        chart.showLoading(loading === true ? null : loading);
+                        chart.showLoading();
                     } else {
                         chart.hideLoading();
                     }
                 });
-                scope.$watch('config.noData', function (noData) {
-                    if(scope.config && scope.config.loading) {
-                        chart.showLoading(noData);
-                    }
-                }, true);
 
                 scope.$watch('config.credits.enabled', function (enabled) {
                     if (enabled) {
@@ -449,36 +302,19 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                     }
                 });
 
-                scope.$watch(getChartType, function (chartType, oldChartType) {
-                    if (chartType === oldChartType) return;
+                scope.$watch('config.useHighStocks', function (useHighStocks, oldUseHighStocks) {
+                    if(useHighStocks === oldUseHighStocks) return;
                     initChart();
                 });
 
                 angular.forEach(axisNames, function(axisName) {
-                    scope.$watch('config.' + axisName, function(newAxes) {
-                        if (!newAxes) {
-                            return;
-                        }
-
-                        if (angular.isArray(newAxes)) {
-
-                            for (var axisIndex = 0; axisIndex < newAxes.length; axisIndex++) {
-                                var axis = newAxes[axisIndex];
-
-                                if (axisIndex < chart[axisName].length) {
-                                    chart[axisName][axisIndex].update(axis, false);
-                                    updateZoom(chart[axisName][axisIndex], angular.copy(axis));
-                                }
-
-                            }
-
-                        } else {
-                            // update single axis
+                    scope.$watch('config.' + axisName, function (newAxes, oldAxes) {
+                        if (newAxes === oldAxes) return;
+                        if(newAxes) {
                             chart[axisName][0].update(newAxes, false);
                             updateZoom(chart[axisName][0], angular.copy(newAxes));
+                            chart.redraw();
                         }
-
-                        chart.redraw();
                     }, true);
                 });
                 scope.$watch('config.options', function (newOptions, oldOptions, scope) {
@@ -492,7 +328,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
                 scope.$watch('config.size', function (newSize, oldSize) {
                     if(newSize === oldSize) return;
                     if(newSize) {
-                        chart.setSize(newSize.width || chart.chartWidth, newSize.height || chart.chartHeight);
+                        chart.setSize(newSize.width || undefined, newSize.height || undefined);
                     }
                 }, true);
 
@@ -502,13 +338,8 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
 
                 scope.$on('$destroy', function() {
                     if (chart) {
-                        try{
-                            chart.destroy();
-                        }catch(ex){
-                            // fail silently as highcharts will throw exception if element doesn't exist
-                        }
-
-                        $timeout(function(){
+                        chart.destroy();
+                        setTimeout(function(){
                             element.remove();
                         }, 0);
                     }
@@ -516,15 +347,6 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
 
             }
         };
-
-        var oldLink = res.link;
-        res.link = function(scope, element, attrs){
-            highchartsNGUtils
-                .getHighcharts()
-                .then(function(Highcharts) {
-                    oldLink.call(this, Highcharts, scope, element, attrs);
-                });
-        };
-        return res;
     }
+
 }());

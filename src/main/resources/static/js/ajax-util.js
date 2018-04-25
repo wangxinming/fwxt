@@ -9,7 +9,10 @@ web_status = {
     NO_LOGIN : "003",
     NO_PRIVILEGE : "004"
 };
-
+function logoutUser() {
+    jQuery.cookie("userName",null);
+    window.location.href="/login.html";
+}
 function getQueryString(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
     var r = window.location.search.substr(1).match(reg);

@@ -13,7 +13,7 @@
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.wxm.model.OAContractCirculationWithBLOBs" extends="BaseResultMap" >
     <result column="CONTRACT_HTML" property="contractHtml" jdbcType="LONGVARCHAR" />
-    <result column="CONTRACT_PDF" property="contractPdf" jdbcType="LONGVARCHAR" />
+    <result column="CONTRACT_PDF" property="contractPdf" jdbcType="LONGVARBINARY" />
   </resultMap>
   <sql id="Base_Column_List" >
     CONTRACT_ID, TEMPLATE_ID,PROCESSINSTANCE_ID, CONTRACT_NAME, USER_ID, CONTRACT_STATUS, DESCRIPTION, CREATE_TIME
@@ -48,7 +48,7 @@
       )
     values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=NVARCHAR},#{PROCESSINSTANCE_ID,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},
       #{userId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARCHAR}
+      #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" >
@@ -115,7 +115,7 @@
         #{contractHtml,jdbcType=LONGVARCHAR},
       </if>
       <if test="contractPdf != null" >
-        #{contractPdf,jdbcType=LONGVARCHAR},
+        #{contractPdf,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -147,7 +147,7 @@
         CONTRACT_HTML = #{contractHtml,jdbcType=LONGVARCHAR},
       </if>
       <if test="contractPdf != null" >
-        CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARCHAR},
+        CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARBINARY},
       </if>
     </set>
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
@@ -162,7 +162,7 @@
       DESCRIPTION = #{description,jdbcType=NVARCHAR},
       CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
       CONTRACT_HTML = #{contractHtml,jdbcType=LONGVARCHAR},
-      CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARCHAR}
+      CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARBINARY}
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAContractCirculation" >

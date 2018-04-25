@@ -12,19 +12,21 @@
         });
     }]);
 
-    login.controller("loginController",["$scope","LoginService",function($scope,LoginService){
+    login.controller("loginController",["$scope", '$rootScope',"LoginService",function($scope,$rootScope,LoginService){
+
         $scope.login = function() {
             $scope.error1=null;
             $scope.error2=null;
             if ($scope.loginForm.$valid) {
                 LoginService.login($scope.user,{},function(data){
                     if(data.result=="success"){
+                        jQuery.cookie("userName",$scope.user.userName);
                         var url=jQuery.cookie("wxm_url");
                         if(url){
                             jQuery.cookie("wxm_url",null);
                             location.href=url;
                         }else{
-                            location.href="./demo.html#/user";
+                            location.href="./index.html#/user";
                         }
                     }else{
                         if(data.msg && data.msg.indexOf("用户")>-1){

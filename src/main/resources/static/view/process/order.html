@@ -3,9 +3,9 @@
     <!--<form id="" action="/workflow/process/start" method="POST">-->
         <input type="text" style="display:none" name="id" id="wordId"/>
         <input type="text" style="display:none" name="processInstanceId" id="processInstanceId"/>
-        <input type="submit" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
-        <input type="submit" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
-        <input type="submit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="返回退回人" />
+        <input type="submit" ng-hide="loginUserMenuMap[currentView]" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
+        <input type="submit" ng-hide="loginUserMenuMap[currentView]" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
+        <input type="submit" ng-hide="showCommit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="回到上次审批人" />
         <div id="orderForm"></div>
     </form>
     <div class="col-md-6 " id="approvalList"></div>

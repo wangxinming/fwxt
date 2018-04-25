@@ -5,10 +5,10 @@
 <div dialog info="pageDialog" data="addPage.data" class="ldialog">
 
     <div class="portlet-body form">
-        <form class="form-horizontal" role="form">
+        <form class="form-horizontal" role="form" id="addForm">
             <div class="form-body">
                 <div class="form-group">
-                    <label  class="col-md-3 control-label">用户名字</label>
+                    <label  class="col-md-3 control-label">用户名称</label>
                     <div class="col-md-9">
                         <input type="text" class="form-control" name="userName" id="userName" ng-model="addPage.data.userName" placeholder="用户名字" maxlength="20">
                         <div class="required" ng-show="form.userName.$dirty && form.userName.$invalid">
@@ -39,7 +39,7 @@
                     <label  class="col-md-3 control-label">邮箱</label>
                     <div class="col-md-9">
                         <input type="text" class="form-control"  name="userEmail" ng-model="addPage.data.userEmail" placeholder="邮箱" maxlength="20">
-                        <div class="required">
+                        <div class="required" ng-show="form.userEmail.$dirty && form.userEmail.$invalid">
                             <span ng-show="form.userEmail.$error.email">邮箱地址格式错误.</span>
                             <span ng-show="!form.userEmail.$error.email && form.email.$error.maxlength">超出长度限制.</span>
                         </div>

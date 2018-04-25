@@ -7,7 +7,7 @@
                 <span class="input-group-btn">
 						<button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>
 					</span>
-                <button type="button" class="btn" ng-click="listPage.action.add()" ng-show="userLevel.indexOf('add')!=-1">编辑</button>
+                <button type="button" class="btn" ng-click="listPage.action.add()" ng-hide="loginUserMenuMap[currentView]">编辑</button>
             </div>
         </div>
 

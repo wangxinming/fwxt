@@ -31,7 +31,7 @@ body {
     opacity: 0.8;
 }
 .login-div .login-title{
-    background:url("../../img/login/logo.png") no-repeat;
+    /*background:url("../../img/login/logo.png") no-repeat;*/
     width: 374px;
     height: 108px;
  }

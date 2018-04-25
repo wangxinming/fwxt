@@ -19,14 +19,14 @@
         <if test="startTime != null" >
           AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND CREATE_TIME<![CDATA[ <= ]]> #{endTime}
         </if>
-          ORDER BY AUDIT_ID ASC)
+          ORDER BY CREATE_TIME DESC )
         <if test="userName != null" >
             AND USER_NAME like CONCAT('%',#{userName},'%' )
         </if>
         <if test="startTime != null" >
             AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME<![CDATA[ <= ]]> #{endTime}
         </if>
-        ORDER BY AUDIT_ID
+        ORDER BY CREATE_TIME DESC
     </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 

@@ -20,4 +20,12 @@ public class MailTest {
         mailSender.send(message);
     }
 
+    @Test
+    public void stringBuilderTest(){
+        StringBuilder sb = new StringBuilder("<input name=\"name_1324324\">");
+        int size = sb.indexOf("name_1324324");
+        size +="name_1324324".length();
+        sb.insert(size+1," value=\"hello\"");
+    }
+
 }

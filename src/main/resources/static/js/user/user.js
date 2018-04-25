@@ -58,8 +58,11 @@
                 uploadFileInfo: {method:'GET',url:"/api/deployments/uploadFileInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取当前任务列表
                 getTaskPending: {method:'GET',url:"/workflow/process/process", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //获取我发起的申请
+                //获取我发起的申请，草稿
                 getMyTask: {method:'GET',url:"/workflow/process/myTask", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                //获取我提交发起的申请
+                commitedTask: {method:'GET',url:"/workflow/process/commitedTask", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取历史完成任务列表
                 getTaskCompleted: {method:'GET',url:"/workflow/process/processHistory", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取字段列表
@@ -90,12 +93,47 @@
                 getTemplateList: {method: "GET", url:  "template/templateList", isArray: false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取word模板列表,所有
                 getTemplateListTotal: {method: "GET", url:  "template/templateListTotal", isArray: false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
+                //登录菜单
+                loginMenus:{url:'/user/loginMenus',method:'GET',isArray:true},
                 //部署流程
                 deployDeployment: {method: "POST", url:  "/api/deployments/publish", isArray: false}
             });
         })
         .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $rootScope.loginUserMenuMap={};
+            var foreachMenus=function(menus){
+                for(var i=0;i<menus.length;i++){
+                    var menu=menus[i];
+                    $rootScope.loginUserMenuMap[menu.code]=!menu.permission;
+                    // if(menu.children.length>0){
+                    //     foreachMenus(menu.children);
+                    // }
+                }
+            };
+
+            loader.loginMenus(function(data) {
+                // $rootScope.loginUser=data;
+                // $rootScope.isLogin=true;
+                foreachMenus(data);
+            });
+
+            $scope.pageDialogDetail=Tools.dialog({
+                id:"pageDialogDetail",
+                title:"查看详情",
+                hiddenButton:true,
+                save:function() {
+
+                }
+            });
+            $scope.addPageDetail = {
+                init:function(){
+                    $scope.addPageUpdate.data={userStatus:true}
+                },
+                data: {
+                    userStatus:true
+                }
+            };
+
             $scope.pageDialogUpdate=Tools.dialog({
                 id:"pageDialogUpdate",
                 title:"修改密码",
@@ -247,6 +285,28 @@
                             })
                         // },500);
                     },
+                    detail:function (id) {
+                        $scope.pageDialogDetail.title = "用户详情";
+                        Loading.show();
+                        // $timeout(function(){
+                        loader.userInfo({"userId":id},{},function (data) {
+                            $scope.addPageDetail.data.userId = data.userId;
+                            $scope.addPageDetail.data.userName = data.userName;
+                            $scope.addPageDetail.data.userMobile = data.userMobile;
+                            $scope.addPageDetail.data.userEmail = data.userEmail;
+                            $scope.addPageDetail.data.userCompany = data.userCompany;
+                            $scope.addPageDetail.data.userDepartment = data.userDepartment;
+                            $scope.addPageDetail.data.userPosition = data.userPosition;
+                            $scope.addPageDetail.data.userAddress = data.userAddress;
+                            $scope.addPageDetail.data.userPostcode = data.userPostcode;
+                            $scope.addPageDetail.data.userWeixin = data.userWeixin;
+                            $scope.addPageDetail.data.userStatus = data.userStatus===1?true:false;
+                            Loading.hide();
+                            // $('#userName').attr("disabled","disabled");
+                            $scope.pageDialogDetail.show();
+                            // $scope.addPage.init();
+                        })
+                    },
                     active: function (active,userId,userName) {
                         Loading.show();
                         loader.userUpdate({"userId":userId,"userStatus":active==true?1:0,"userName":userName},function(data){
@@ -284,6 +344,12 @@
                     }
                 }
             };
+
+            $scope.submit = function(e) {
+                if(e.keyCode=="13"){
+                    $scope.searchPage.action.search();
+                }
+            };
             var resolve = function (mData, type, full) {
                 if (mData == 1) {
                     return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
@@ -293,6 +359,8 @@
                     return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
                 }
             };
+
+
             $scope.listPage.settings = {
                 pageSize:10,
                 reload: null,
@@ -306,7 +374,7 @@
                         }
                     },
                     {
-                        sTitle: "邮箱",
+                        sTitle: "电子邮箱",
                         mData: "userEmail",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
@@ -314,7 +382,7 @@
                     },
 
                     {
-                        sTitle: "手机",
+                        sTitle: "手机号码",
                         mData: "userMobile",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
@@ -341,9 +409,10 @@
                         sTitle: "操作",
                         mData:"userId",
                         mRender:function(mData,type,full) {
-                            return '<i title="编辑" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
-                                    '<i title="修改密码" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-user" ng-click="listPage.action.update(\'' + mData +'\')"> </i>' +
-                                    '<i title="'+(full.userStatus==1?'停用':'启用')+'" class="'+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.userStatus==1?'false':'true')+',\''+mData+'\',\''+full.userName+'\')"></i>';
+                            return  '<i title="详情" class="fa fa-info" ng-click="listPage.action.detail(\'' + mData +'\')"> </i>' +
+                                    '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                                    '<i title="修改密码" ng-hide="loginUserMenuMap[currentView]" class="fa fa-user" ng-click="listPage.action.update(\'' + mData +'\')"> </i>' +
+                                    '<i title="'+(full.userStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.userStatus==1?'false':'true')+',\''+mData+'\',\''+full.userName+'\')"></i>';
                                     // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
@@ -351,7 +420,7 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,5]},  //第 0,10列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
                     { sWidth: "15%", aTargets: [ 0,2,5 ] },
                     { sWidth: "20%", aTargets: [ 1,3 ] },
                     { sWidth: "10%", aTargets: [ 4 ] }

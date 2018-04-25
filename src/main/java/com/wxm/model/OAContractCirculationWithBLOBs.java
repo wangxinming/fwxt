@@ -3,7 +3,7 @@ package com.wxm.model;
 public class OAContractCirculationWithBLOBs extends OAContractCirculation {
     private String contractHtml;
 
-    private String contractPdf;
+    private byte[] contractPdf;
 
     public String getContractHtml() {
         return contractHtml;
@@ -13,11 +13,11 @@ public class OAContractCirculationWithBLOBs extends OAContractCirculation {
         this.contractHtml = contractHtml == null ? null : contractHtml.trim();
     }
 
-    public String getContractPdf() {
+    public byte[] getContractPdf() {
         return contractPdf;
     }
 
-    public void setContractPdf(String contractPdf) {
-        this.contractPdf = contractPdf == null ? null : contractPdf.trim();
+    public void setContractPdf(byte[] contractPdf) {
+        this.contractPdf = contractPdf;
     }
 }

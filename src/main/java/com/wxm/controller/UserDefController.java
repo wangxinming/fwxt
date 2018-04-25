@@ -43,9 +43,72 @@ public class UserDefController {
     @Autowired
     private AuditService auditService;
 
+    @RequestMapping(value = "/loginMenus",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object loginMenus(HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        List<Menu> list = new LinkedList<>();
+        if(loginUser.getName().equals("admin")){
+            Menu menu = new Menu("user","用户界面",true);
+            list.add(menu);
+            menu = new Menu("audit","审计界面",true);
+            list.add(menu);
+            menu = new Menu("modeler","流程设计界面",true);
+            list.add(menu);
+            menu = new Menu("upload","合同模板界面",true);
+            list.add(menu);
+            menu = new Menu("form","表单项界面",true);
+            list.add(menu);
+            menu = new Menu("deployment","部署界面",true);
+            list.add(menu);
+            menu = new Menu("process","流程申请",false);
+            list.add(menu);
+            menu = new Menu("myProcess","我的申请",false);
+            list.add(menu);
+            menu = new Menu("pending","待办任务",false);
+            list.add(menu);
+            menu = new Menu("complete","已办任务",false);
+            list.add(menu);
+            menu = new Menu("report","报表",true);
+            list.add(menu);
+
+
+        }else{
+            Menu menu = new Menu("user","用户界面",false);
+            list.add(menu);
+            menu = new Menu("audit","审计界面",true);
+            list.add(menu);
+            menu = new Menu("modeler","流程设计界面",false);
+            list.add(menu);
+            menu = new Menu("upload","合同模板界面",false);
+            list.add(menu);
+            menu = new Menu("form","表单项界面",false);
+            list.add(menu);
+            menu = new Menu("deployment","部署界面",false);
+            list.add(menu);
+            menu = new Menu("process","流程申请",true);
+            list.add(menu);
+            menu = new Menu("myProcess","我的申请",true);
+            list.add(menu);
+            menu = new Menu("pending","待办任务",true);
+            list.add(menu);
+            menu = new Menu("complete","已办任务",true);
+            list.add(menu);
+            menu = new Menu("report","报表",true);
+            list.add(menu);
+        }
+        return list;
+
+    }
     @RequestMapping(value = "/processList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
-    public Object processList(HttpServletRequest request) throws OAException{
+    public Object processList(HttpServletRequest request,
+                              @RequestParam(value = "offset", required = true) int offset,
+                              @RequestParam(value = "limit", required = true) int limit
+                              ) throws OAException{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
         List<ProcessDef> processDefList = new LinkedList<>();
@@ -58,7 +121,7 @@ public class UserDefController {
                 /*排序*/
                 .orderByProcessDefinitionVersion().asc()//按照版本的升序排列
                 //.orderByProcessDefinitionName().desc()//按照流程定义的名称降序排列
-                .list();//返回一个集合列表，封装流程定义
+                .listPage(offset,limit);//返回一个集合列表，封装流程定义
         if (list != null && list.size() > 0) {
             for (ProcessDefinition processDefinition : list) {
                 ProcessDef processDef = new ProcessDef();

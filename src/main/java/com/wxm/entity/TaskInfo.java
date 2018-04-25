@@ -6,6 +6,7 @@ public class TaskInfo {
     private String id;//任务ID
     private String name;//任务名称
     private String title;//任务名称
+    private String starter;//任务发起人
     private String assignee;//任务的办理人
     private Date timestamp; //任务的创建时间
     private String processInstanceId;//流程实例ID
@@ -59,5 +60,13 @@ public class TaskInfo {
     }
     public String getProcessDefinitionId(){
         return processDefinitionId;
+    }
+
+    public String getStarter() {
+        return starter;
+    }
+
+    public void setStarter(String starter) {
+        this.starter = starter;
     }
 }

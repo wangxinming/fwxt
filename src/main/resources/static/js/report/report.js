@@ -12,61 +12,215 @@
                 controller: 'report.controller'
             });
         }])
-        .controller('report.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $rootScope,loader,Util,Tools,Loading,toaster) {
+        .controller('report.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
             $scope.chartSeries =  [{
-                name: 'Hestavollane',
-                data: [4.3, 5.1, 4.3, 5.2, 5.4, 4.7, 3.5, 4.1, 5.6, 7.4, 6.9, 7.1,
-                    7.9, 7.9, 7.5, 6.7, 7.7, 7.7, 7.4, 7.0, 7.1, 5.8, 5.9, 7.4,
-                    8.2, 8.5, 9.4, 8.1, 10.9, 10.4, 10.9, 12.4, 12.1, 9.5, 7.5,
-                    7.1, 7.5, 8.1, 6.8, 3.4, 2.1, 1.9, 2.8, 2.9, 1.3, 4.4, 4.2,
-                    3.0, 3.0]
-            }, {
-                name: 'Voll',
-                data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.3, 0.0,
-                    0.0, 0.4, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                    0.0, 0.6, 1.2, 1.7, 0.7, 2.9, 4.1, 2.6, 3.7, 3.9, 1.7, 2.3,
-                    3.0, 3.3, 4.8, 5.0, 4.8, 5.0, 3.2, 2.0, 0.9, 0.4, 0.3, 0.5, 0.4]
+                type: 'pie',
+                name: '浏览器访问量占比',
+                data: [
+                    ['Firefox',   45.0],
+                    ['IE',       26.8],
+                    {
+                        name: 'Chrome',
+                        y: 12.8
+                        // sliced: true, // 突出显示这个点（扇区），用于强调。
+                    },
+                    ['Safari',    8.5],
+                    ['Opera',     6.2],
+                    ['其他',   0.7]
+                ]
             }];
-            $scope.chartConfigColoum = {
+
+            $scope.chartSeriesColumn =  [{
+                type: 'bubble',
+                name: '浏览器访问量占比',
+                lineWidth: 0,
+                data: [
+                    ['Firefox',   45.0],
+                    ['IE',       26.8],
+                    {
+                        name: 'Chrome',
+                        y: 12.8
+                        // sliced: true, // 突出显示这个点（扇区），用于强调。
+                    },
+                    ['Safari',    8.5],
+                    ['Opera',     6.2],
+                    ['其他',   0.7]
+                ]
+            }];
+            $scope.total = 100;
+            $scope.search = function () {
+                $scope.total++;
+                $scope.chartSeries =  [{
+                    type: 'pie',
+                    name: '浏览器访问量占比',
+                    data: [
+                        ['Firefox',   $scope.total],
+                        ['IE',       21.8],
+                        {
+                            name: 'Chrome',
+                            y: 12.8,
+                            sliced: true, // 突出显示这个点（扇区），用于强调。
+                        },
+                        ['Safari',    8.5],
+                        ['Opera',     6.2],
+                        ['其他',   0.7]
+                    ]
+                }];
+            }
+            $scope.chartConfigPie = {
                 options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
                     chart: {
-                        type: 'column'
-                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        type: 'pie',
+                        margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
-                        spline: {
-                            marker: {
-                                enabled: false
-                            }
-                        },
-                        column: {
-                            stacking: 'normal',
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
                             dataLabels: {
-                                enabled: false,
-                                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'red'
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f}',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            },
+                            point: {                  // 每个扇区是数据点对象，所以事件应该写在 point 下面
+                                events: {
+                                    // 鼠标滑过是，突出当前扇区
+                                    mouseOver: function() {
+                                        this.slice();
+                                    },
+                                    // 鼠标移出时，收回突出显示
+                                    mouseOut: function() {
+                                        this.slice();
+                                    },
+                                    // 默认是点击突出，这里屏蔽掉
+                                    click: function() {
+                                        return false;
+                                    }
+                                }
                             }
                         }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        enabled: false
                     }
                 },
-                yAxis: {
-                    title: {
-                        text: '包数'
-                    }
-                },
-                legend:{
-                    align:'right'
+                legend: {
+                    enabled: false
                 },
                 series: $scope.chartSeries,
                 title: {
-                    text: '实时流量'
-                },
-                credits: {
-                    enabled: false
-                },
-                loading: false,
-                size: {height:300}
+                    text: '工单'
+                }
             };
+            $scope.chartConfigColumn = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'bubble',
+                        plotBorderWidth: 1,
+                        zoomType: 'xy'
+                    }
+                },
+                xAxis:{
+                    gridLineWidth: 1
+                },
+                yAxis:{
+                    startOnTick: false,
+                    endOnTick: false
+                },
+                title:{
+                    text: '工单分布图'
+                },
+                series:[{
+                    data: [
+                        [9, 81, 63],
+                        [98, 5, 89],
+                        [51, 50, 73],
+                        [41, 22, 14],
+                        [58, 24, 20],
+                        [78, 37, 34],
+                        [55, 56, 53],
+                        [18, 45, 70],
+                        [42, 44, 28],
+                        [3, 52, 59],
+                        [31, 18, 97],
+                        [79, 91, 63],
+                        [93, 23, 23],
+                        [44, 83, 22]
+                    ],
+                    marker: {
+                        fillColor: {
+                            radialGradient: { cx: 0.4, cy: 0.3, r: 0.7 },
+                            stops: [
+                                [0, 'rgba(255,255,255,0.5)'],
+                                [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0.5).get('rgba')]
+                            ]
+                        }
+                    }
+                }, {
+                    data: [
+                        [42, 38, 20],
+                        [6, 18, 1],
+                        [1, 93, 55],
+                        [57, 2, 90],
+                        [80, 76, 22],
+                        [11, 74, 96],
+                        [88, 56, 10],
+                        [30, 47, 49],
+                        [57, 62, 98],
+                        [4, 16, 16],
+                        [46, 10, 11],
+                        [22, 87, 89],
+                        [57, 91, 82],
+                        [45, 15, 98]
+                    ],
+                    marker: {
+                        fillColor: {
+                            radialGradient: { cx: 0.4, cy: 0.3, r: 0.7 },
+                            stops: [
+                                [0, 'rgba(255,255,255,0.5)'],
+                                [1, Highcharts.Color(Highcharts.getOptions().colors[1]).setOpacity(0.5).get('rgba')]
+                            ]
+                        }
+                    }
+                }
+                ]
+            // options: {
+                //     exporting: {
+                //         // 是否允许导出
+                //         enabled: false
+                //     },
+                //     chart: {
+                //         type: 'bubble',
+                //         zoomType: 'xy'
+                //     }
+                // },
+                //
+                // title:{
+                //     text: 'Highcharts bubbles with radial gradient fill'
+                // },
+                // series:[{
+                //     data: [[97, 36, 79], [94, 74, 60], [68, 76, 58], [64, 87, 56], [68, 27, 73], [74, 99, 42], [7, 93, 87], [51, 69, 40], [38, 23, 33], [57, 86, 31]]
+                // }, {
+                //     data: [[25, 10, 87], [2, 75, 59], [11, 54, 8], [86, 55, 93], [5, 3, 58], [90, 63, 44], [91, 33, 17], [97, 3, 56], [15, 67, 48], [54, 25, 81]]
+                // }, {
+                //     data: [[47, 47, 21], [20, 12, 4], [6, 76, 91], [38, 30, 60], [57, 98, 64], [61, 17, 80], [83, 60, 13], [67, 78, 75], [64, 12, 10], [30, 77, 82]]
+                // }]
 
+            };
+            // $scope.chartConfigColoum.series.push({"data": $scope.chartSeries });
             $scope.pageDialog=Tools.dialog({
                 id:"pageDialog",
                 title:"新增用户",
@@ -105,187 +259,27 @@
             $scope.addPage={
                 data: {
                     id: 0,
-                    process:{
-                        id:0,
-                        limit:0,
-                        offset:10
-                    },
-                    limit: 20, //每页条数(即取多少条数据)
+                    limit: 10, //每页条数(即取多少条数据)
                     offset: 0, //从第几条数据开始取
                     orderBy: "updated",//排序字段
                     orderByType: "desc" //排序顺序
                 }
             };
-            $scope.searchPage = {
-                init: function () {
-                    $scope.searchPage.data = {
-                        process:{
-                            id:0,
-                            limit:0,
-                            offset:10
-                        },
-                        id:1,
-                        limit: 20, //每页条数(即取多少条数据)
-                        offset: 0, //从第几条数据开始取
-                        orderBy: "updated",//排序字段
-                        orderByType: "desc" //排序顺序
-                    }
 
+            var current = new Date();
+
+            $scope.searchPage = {
+                data:{
+                    startTime: $filter('date')(new Date(current.getTime() - 30 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss')
                 },
                 action:{
                     search:function () {
-                        $scope.listPage.settings.reload(true);
+
+                        //TODO
                     }
                 }
             };
-            $scope.listPage = {
-                data: [],
-                checkedList: [],
-                checkAllRow: false,
-                users: [],
-                ready: false,
-                action:{
-                    add: function () {
-                        $scope.pageDialog.show();
-                    },
-                    edit: function (name,mobile,email) {
-                        $scope.pageDialog.title = "修改用户";
-                        $scope.addPage.data.name = name;
-                        $scope.addPage.data.mobile = mobile;
-                        $scope.addPage.data.email = email;
-                        $('#userName').attr("disabled","disabled");
-                        $scope.pageDialog.show();
-                    },
-                    active: function (active,name,mobile) {
-                        //TODO 更新激活状态
-                        Loading.show();
-                        loader.userUpdate({"mobile":mobile,"name":name,"active":active},{},function(data){
-                            if(data.result=="success"){
-                                Loading.hide();
-                                toaster.pop('success', "", "操作成功");
-                                $scope.listPage.settings.reload();
-                                $scope.pageDialog.hide();
-                            }else{
-                                Loading.hide();
-                                toaster.pop('warning', "", data.msg);
-                            }
-                        })
-
-                    },
-                    remove:function (id) {
-                        $rootScope.$confirm("确定要删除吗？", function () {
-                            Loading.show();
-                            loader.remove({'id': id}, {}, function (data) {
-                                if (data.result == "success") {
-                                    Loading.hide();
-                                    $scope.listPage.settings.reload(true);
-                                }
-                            }, function (error) {
-                                Loading.hide();
-                            });
-                        }, '删除');
-                    },
-                    search: function (search, fnCallback) {
-                        var k = ''==$scope.key? 'NULL' : $scope.key;
-                        // $scope.searchPage.data.key =k;
-                        $scope.searchPage.data.offset =search.offset;
-                        loader.userList($scope.searchPage.data, function (data) {
-                            $scope.listPage.data = data.rows;
-                            fnCallback(data);
-                        })
-                    }
-                }
-            };
-            var resolve = function (mData, type, full) {
-                if (mData == true) {
-                    return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
-                } else if (mData == false) {
-                    return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
-                } else {
-                    return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
-                }
-            };
-            $scope.listPage.settings = {
-                reload: null,
-                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
-                columns: [
-                    {
-                        sTitle: "用户名称",
-                        mData: "name",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
-                    {
-                        sTitle: "邮箱",
-                        mData: "email",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
-
-                    {
-                        sTitle: "手机",
-                        mData: "mobile",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
-                    {
-                        sTitle: "创建时间",
-                        mData: "createTime",
-                        mRender: function (mData, type, full) {
-                            if(!mData){
-                                return "";
-                            }
-                            return Util.formatSimpleDate(mData);
-                        }
-                    },
-                    {
-                        sTitle: "状态",
-                        mData: "active",
-                        mRender: function (mData, type, full) {
-                            return resolve(mData, type, full);
-                        }
-                    },
-                    {
-                        sTitle: "操作",
-                        mData:"name",
-                        mRender:function(mData,type,full) {
-                            return '<i title="编辑" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData + '\',\''+full.mobile+'\',\''+full.email+'\')"> </i>' +
-                                '<i title="'+(full.active?'停用':'启用')+'" class="'+(full.active?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.active?'false':'true')+',\''+mData+'\',\''+full.mobile+'\')"></i>';
-                            // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
-
-                        }
-                    }
-
-                ], //定义列的形式,mRender可返回html
-                columnDefs: [
-                    {bSortable: false, aTargets: [0,5]},  //第 0,10列不可排序
-                    { sWidth: "15%", aTargets: [ 0,2,5 ] },
-                    { sWidth: "20%", aTargets: [ 1,3 ] },
-                    { sWidth: "10%", aTargets: [ 4 ] }
-                ], //定义列的约束
-                defaultOrderBy: [
-                    [1, "desc"]
-                ]  //定义默认排序列为第8列倒序
-            };
-
-
-            $scope.searchPage.init();
-            $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
-                if (newVal) {
-                    $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
-                } else {
-                    if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
-                        $scope.listPage.checkedList = [];
-                    }
-                }
-            }, false);
-            $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
-                $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
-            }, true);
-
         }]);
 
 })(angular);
