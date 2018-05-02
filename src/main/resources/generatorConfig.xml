@@ -37,12 +37,14 @@
         </javaClientGenerator>
         <!--生成对应表及类名-->
 
-        <!--<table tableName="OA_AUDITBAK" domainObjectName="OAAuditBak" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>-->
+        <!--<table tableName="OA_AUDIT" domainObjectName="OAAuditBak" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>-->
         <!--<table tableName="OA_AUDIT" domainObjectName="OAAudit" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
         <!--<table tableName="OA_USER" domainObjectName="OAUser" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
         <!--<table tableName="OA_CONTRACT_TEMPLATE" domainObjectName="OAContractTemplate" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
         <!--<table tableName="OA_DEPLOYMENT_TEMPLATE_RELATION" domainObjectName="OADeploymentTemplateRelation" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
         <!--<table tableName="OA_FORM_PROPERTIES" domainObjectName="OAFormProperties" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
-        <table tableName="OA_CONTRACT_CIRCULATION" domainObjectName="Temp" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
+        <!--<table tableName="OA_CONTRACT_CIRCULATION" domainObjectName="OAContractCirculation" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+        <table tableName="OA_ORGANIZATION" domainObjectName="OAOrganization" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
+
     </context>
 </generatorConfiguration>

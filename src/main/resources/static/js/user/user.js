@@ -5,13 +5,256 @@
 //    var web_path = "./data/user";
     var web_path = "/api";
     'use strict';
-    angular.module('webportal.user', ['ngRoute','ngResource','dataTablesDirective','util.services','checkListDirective','toaster'])
+    angular.module('webportal.user', ['ngRoute','ngResource','dataTablesDirective','util.services','checkListDirective','toaster','zTreeDirective'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/user', {
                 templateUrl: 'view/user/user.html',
                 controller: 'user.controller'
+            })
+            .when('/dashboard', {
+                    templateUrl: 'view/user/dashboard.html',
+                    controller: 'dashboard.controller'
+            })
+            .when('/group', {
+                templateUrl: 'view/user/group.html',
+                controller: 'group.controller'
             });
         }])
+
+        .directive('editZtree',["$compile","$timeout","Util",function($compile,$timeout,Util){
+            return {
+                link:function(scope, element, attrs) {
+                    var ztreeId=attrs.id;
+                    var ztreeData=Util.getValue(attrs.editZtree,scope);
+                    var zTreeOnClick=function(event, treeId, treeNode){
+                        if(treeNode.id && treeNode.id>0){
+                            ztreeData.active(treeNode);
+                        }
+                    };
+                    var settings={
+                        view: {
+                            addHoverDom: function(treeId, treeNode){
+                                var sObj = angular.element("#" + treeNode.tId + "_a");
+                                if (angular.element("#addBtn_"+treeNode.tId).length==0 && (treeNode.isJF==null || treeNode.isJF==false)){
+                                    var add =$("<span class='button add' id='addBtn_" + treeNode.tId
+                                        + "' title='添加节点' onfocus='this.blur();'></span>");
+                                    sObj.append(add);
+                                    add.bind("click", function(){
+                                        ztreeData.add(treeNode);
+                                    });
+                                };
+
+                                if (angular.element("#editBtn_"+treeNode.tId).length==0 && (treeNode.delete==null || treeNode.delete==false)){
+                                    var edit =$("<span class='button edit' id='editBtn_" + treeNode.tId
+                                        + "' title='编辑节点' onfocus='this.blur();'></span>");
+                                    sObj.append(edit);
+                                    edit.bind("click", function(){
+                                        ztreeData.edit(treeNode);
+                                    });
+                                };
+
+                                if (angular.element("#removeBtn_"+treeNode.tId).length==0 && (treeNode.delete==null || treeNode.delete==false)){
+                                    var remove =$("<span class='button remove' id='removeBtn_" + treeNode.tId
+                                        + "' title='删除节点' onfocus='this.blur();'></span>");
+                                    sObj.append(remove);
+                                    remove.bind("click", function(){
+                                        ztreeData.remove(treeNode);
+                                    });
+                                };
+                            },
+                            removeHoverDom:function(treeId, treeNode){
+                                angular.element("#addBtn_"+treeNode.tId).unbind().remove();
+                                angular.element("#editBtn_"+treeNode.tId).unbind().remove();
+                                angular.element("#removeBtn_"+treeNode.tId).unbind().remove();
+                            },
+                            selectedMulti: false
+                        },
+                        callback: {
+                            onClick:zTreeOnClick
+                        }
+                    };
+                    var initData=function(){
+                        ztreeData=Util.getValue(attrs.editZtree,scope);
+                        if(ztreeData.hideButton){
+                            settings.view={};
+                        }
+                        if(ztreeData.settingData){
+                            settings.data=ztreeData.settingData;
+                        }
+                        var treeObj =angular.element.fn.zTree.init(angular.element("#"+attrs.id), settings,ztreeData.data);
+                        //treeObj.expandAll(true);
+                        var nodes=treeObj.getNodes();
+
+                        treeObj.selectNode(treeObj.getNodes()[0]);
+                        if(treeObj.getNodes()[0]){
+                            ztreeData.active(treeObj.getNodes()[0]);
+                        }
+
+                        if(nodes.length>0)treeObj.expandNode(nodes[0]);
+
+                    };
+                    return scope.$watch(attrs.editZtree,function(){
+                        $timeout(initData,200);
+                    },true);
+                }
+            };
+        }])
+        .directive('userZtree',["Util", function(Util) {
+        return {
+            restrict: 'AE',
+            transclude:false,
+            link: function(scope, element, attrs) {
+                var ztreeData=Util.getValue(attrs.userZtree,scope);
+                var on_treeData_change=function(){
+                    var setting = {
+                        view: {
+                            selectedMulti: true
+                        },
+                        data:ztreeData.settingData?ztreeData.settingData:{},
+                        callback: {
+                            beforeClick: function(treeId, treeNode){
+                                if(ztreeData.crossParent==null){
+                                    if(treeNode.isParent){
+                                        return false;
+                                    }
+                                }
+                                click(treeNode);
+                                return true;
+                            },
+                            onClick:function(event, treeId, treeNode){
+                                var zTree =angular.element.fn.zTree.getZTreeObj(ztreeData.treeId)
+                                zTree .checkNode(treeNode, !treeNode.checked, true, true);
+//                                zTree.checkNode(treeNode, true, true);
+                            },
+                            beforeAsync:function(){
+                                return true;
+                            },
+                            onCheck:function(event, treeId, treeNode){
+                                check();
+                            },
+                            onExpand:function(event, treeId, treeNode){
+                                if(ztreeData.onExpand){
+                                    ztreeData.onExpand(treeNode)
+                                }
+                            },
+                            onAsyncSuccess:function(event, treeId, treeNode, msg) {
+                                if(ztreeData.checked){
+                                    var zTree =angular.element.fn.zTree.getZTreeObj(ztreeData.treeId);
+                                    zTree.checkAllNodes(false);
+                                    var ids=ztreeData.checked.split(",");
+                                    for(var i=0;i<ids.length;i++){
+                                        var node =zTree.getNodeByParam("id",ids[i], null);
+                                        if(node){
+                                            zTree.checkNode(node, true,true);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    if(ztreeData.checkbox=="all"){
+                        var checkAccessories=function(treeNode, btn) {
+                            var r = document.getElementsByName("radio_"+treeNode.id);
+                            if(r.length>0){
+                                var checkedRadio = getCheckedRadio("radio_"+treeNode.id);
+                                if (btn.attr("checked")) {
+                                    if (!checkedRadio) {
+                                        $("#radio_" + treeNode.children[0].id).attr("checked", true);
+                                    }
+                                } else {
+                                    if (!checkedRadio)
+                                        checkedRadio.attr("checked", false);
+                                }
+                            }else{
+                                if (btn.attr("checked")) {
+                                    $(":checkbox[name='checkbox_"+treeNode.id+"']").attr("checked", true);
+                                } else {
+                                    $(":checkbox[name='checkbox_"+treeNode.id+"']").removeAttr("checked");
+                                }
+                                $(":checkbox[name='checkbox_"+treeNode.id+"']").each(function(){
+                                    $(this).change();
+                                });
+                            }
+                        };
+                        var checkBrand=function(treeNode, btn) {
+                            if (btn.attr("checked")) {
+                                var pObj = $("#checkbox_" + treeNode.getParentNode().id);
+                                if (!pObj.attr("checked")) {
+                                    pObj.attr("checked", true);
+                                }
+                            }
+                        };
+                        var getCheckedRadio=function (radioName) {
+                            var r = document.getElementsByName(radioName);
+                            for(var i=0; i<r.length; i++)    {
+                                if(r[i].checked)    {
+                                    return $(r[i]);
+                                }
+                            }
+                            return null;
+                        };
+
+                        setting.view ={
+                            addDiyDom: function(treeId, treeNode) {
+                                var aObj = $("#" + treeNode.tId + "_a");
+                                if (treeNode.level != ztreeData.level) {
+                                    var pid=0;
+                                    if(treeNode.getParentNode()){
+                                        pid=treeNode.getParentNode().id;
+                                    }
+                                    var editStr = "<input type='checkbox' class='checkboxBtn' id='checkbox_" +treeNode.id+ "' name='checkbox_"+pid+"' onfocus='this.blur();'></input>";
+                                    aObj.before(editStr);
+                                    var btn = $("#checkbox_"+treeNode.id);
+                                    if (btn) btn.bind("change", function() {checkAccessories(treeNode, btn);});
+                                } else if (treeNode.level == ztreeData.level) {
+                                    var editStr = "<input type='radio' class='radioBtn' id='radio_" +treeNode.id+ "' name='radio_"+treeNode.getParentNode().id+"' onfocus='this.blur();'></input>";
+                                    aObj.before(editStr);
+                                    var btn = $("#radio_"+treeNode.id);
+                                    if (btn) btn.bind("click", function() {checkBrand(treeNode, btn);});
+                                }
+                            }
+                        };
+                    }else if(ztreeData.checkbox){
+                        setting.check={
+                            enable: true,
+                            chkboxType: ztreeData.checkType?ztreeData.checkType:{"Y" : "s", "N" : "ps"},
+                            chkStyle :ztreeData.checkbox=='radio'?'radio':'checkbox'
+                        };
+                        if(ztreeData.checkbox=='radio'){
+                            setting.check.radioType="all";
+                        }
+                    }
+                    var treeobj=angular.element.fn.zTree.init(angular.element("#"+ztreeData.treeId), setting,ztreeData.data);
+                    if(ztreeData.selectReport){
+                        var node=treeobj.getNodesByParam("key", ztreeData.selectReport, null);
+                        if(node){
+                            var pnode=treeobj.getNodeByTId(node[0].parentTId);
+                            treeobj.expandNode(pnode, true, true, true);
+                            treeobj.checkNode(node, true, true);
+                            treeobj.selectNode(node,false);
+                            treeobj.refresh();
+                        }
+                    }
+
+
+
+                };
+                var click=function(node){
+                    if(ztreeData.treeClick){
+                        ztreeData.treeClick(node);
+                    }
+                };
+                var check=function(){
+                    if(ztreeData.onCheck){
+                        var treeObj = angular.element.fn.zTree.getZTreeObj(ztreeData.treeId);
+                        var nodes =treeObj.getCheckedNodes(true);
+                        ztreeData.onCheck(nodes);
+                    }
+                };
+                return scope.$watch(attrs.userZtree, on_treeData_change, true);
+            }
+        };
+    }])
         .directive('dialog',['Util',function(Util) {
             return {
                 restrict: 'AE',
@@ -48,6 +291,9 @@
                 userList: {method:'GET',url:"/user/userList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取用户信息
                 userInfo: {method:'GET',url:"/user/userInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                //获取首页数据
+                dashboard: {method:'GET',url:"/workflow/process/dashboard", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新用户
                 updatePassword: {method:'POST',url:"/user/updatePassword", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新用户
@@ -99,23 +345,449 @@
                 deployDeployment: {method: "POST", url:  "/api/deployments/publish", isArray: false}
             });
         })
-        .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
-            $rootScope.loginUserMenuMap={};
-            var foreachMenus=function(menus){
-                for(var i=0;i<menus.length;i++){
-                    var menu=menus[i];
-                    $rootScope.loginUserMenuMap[menu.code]=!menu.permission;
-                    // if(menu.children.length>0){
-                    //     foreachMenus(menu.children);
-                    // }
+        .controller('dashboard.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $scope.dashBoard = function () {
+                Loading.show();
+                loader.dashboard({},function (data) {
+                    if(data.result == 'success'){
+                        $('#myPending').text(data.myPending);
+                        $('#myComplete').text(data.myComplete);
+                        $('#initiator').text(data.initiator);
+                    }
+                    Loading.hide();
+                })
+            };
+            $scope.dashBoard();
+
+        }])
+        .controller('group.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $scope.pageDialog=Tools.dialog({
+                id:"pageDialog",
+                title:"新增组织",
+                hiddenButton:false,
+                save:function() {
+                    if ($scope.pageDialog.title === "新增用户") {
+                        Loading.show();
+                        $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
+                        loader.addUser($scope.addPage.data,function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+
+                    } else if ($scope.pageDialog.title === "修改用户") {
+                        Loading.show();
+                        $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
+                        loader.userUpdate($scope.addPage.data,function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                                $scope.addPage.init();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }
+                }
+            });
+            $scope.addPage={
+                init:function(){
+                    $scope.addPage.data={userStatus:true}
+                },
+                data: {
+                    userStatus:true
+                }
+            };
+            $scope.searchPage = {
+                data: {
+                    id: 0,
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        id:0,
+                        limit: 10, //每页条数(即取多少条数据)
+                        offset: 0 //从第几条数据开始取
+                    }
+                },
+                action:{
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
                 }
             };
 
-            loader.loginMenus(function(data) {
-                // $rootScope.loginUser=data;
-                // $rootScope.isLogin=true;
-                foreachMenus(data);
-            });
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    add: function () {
+                        $scope.pageDialog.title = "新增用户";
+                        $("#formPassword")[0].style.display = 'inherit';
+                        $scope.pageDialog.show();
+                        $scope.addPage.init();
+                    },
+                    update: function (id) {
+                        $scope.pageDialogUpdate.title = "修改密码";
+                        $scope.addPageUpdate.data.userId = id;
+                        $scope.pageDialogUpdate.show();
+                    },
+                    edit: function (id) {
+                        $scope.pageDialog.title = "修改组织结构";
+                        Loading.show();
+                        // $timeout(function(){
+                        loader.userInfo({"userId":id},{},function (data) {
+                            $scope.addPage.data.userId = data.userId;
+                            $scope.addPage.data.userName = data.userName;
+                            $scope.addPage.data.userMobile = data.userMobile;
+                            $scope.addPage.data.userEmail = data.userEmail;
+                            $scope.addPage.data.userCompany = data.userCompany;
+                            $scope.addPage.data.userDepartment = data.userDepartment;
+                            $scope.addPage.data.userPosition = data.userPosition;
+                            $scope.addPage.data.userAddress = data.userAddress;
+                            $scope.addPage.data.userPostcode = data.userPostcode;
+                            $scope.addPage.data.userWeixin = data.userWeixin;
+                            $scope.addPage.data.userStatus = data.userStatus===1?true:false;
+                            Loading.hide();
+                            // $('#userName').attr("disabled","disabled");
+                            $scope.pageDialog.show();
+                            // $scope.addPage.init();
+                        })
+                        // },500);
+                    },
+                    detail:function (id) {
+                        $scope.pageDialogDetail.title = "用户详情";
+                        Loading.show();
+                        // $timeout(function(){
+                        loader.userInfo({"userId":id},{},function (data) {
+                            $scope.addPageDetail.data.userId = data.userId;
+                            $scope.addPageDetail.data.userName = data.userName;
+                            $scope.addPageDetail.data.userMobile = data.userMobile;
+                            $scope.addPageDetail.data.userEmail = data.userEmail;
+                            $scope.addPageDetail.data.userCompany = data.userCompany;
+                            $scope.addPageDetail.data.userDepartment = data.userDepartment;
+                            $scope.addPageDetail.data.userPosition = data.userPosition;
+                            $scope.addPageDetail.data.userAddress = data.userAddress;
+                            $scope.addPageDetail.data.userPostcode = data.userPostcode;
+                            $scope.addPageDetail.data.userWeixin = data.userWeixin;
+                            $scope.addPageDetail.data.userStatus = data.userStatus===1?true:false;
+                            Loading.hide();
+                            // $('#userName').attr("disabled","disabled");
+                            $scope.pageDialogDetail.show();
+                            // $scope.addPage.init();
+                        })
+                    },
+                    active: function (active,userId,userName) {
+                        Loading.show();
+                        loader.userUpdate({"userId":userId,"userStatus":active==true?1:0,"userName":userName},function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+
+                    },
+                    remove:function (id) {
+                        $rootScope.$confirm("确定要删除吗？", function () {
+                            Loading.show();
+                            loader.remove({'id': id}, {}, function (data) {
+                                if (data.result == "success") {
+                                    Loading.hide();
+                                    $scope.listPage.settings.reload(true);
+                                }
+                            }, function (error) {
+                                Loading.hide();
+                            });
+                        }, '删除');
+                    },
+                    search: function (search, fnCallback) {
+                        $scope.searchPage.data.offset = search.offset;
+                        loader.userList($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        })
+                    }
+                }
+            };
+
+            $scope.submit = function(e) {
+                if(e.keyCode=="13"){
+                    $scope.searchPage.action.search();
+                }
+            };
+            var resolve = function (mData, type, full) {
+                if (mData == 1) {
+                    return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
+                } else if (mData == 0) {
+                    return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
+                } else {
+                    return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
+                }
+            };
+
+
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "用户名称",
+                        mData: "userName",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "电子邮箱",
+                        mData: "userEmail",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+
+                    {
+                        sTitle: "手机号码",
+                        mData: "userMobile",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "创建时间",
+                        mData: "userCreatetime",
+                        mRender: function (mData, type, full) {
+                            if(!mData){
+                                return "";
+                            }
+                            return Util.formatSimpleDate(mData);
+                        }
+                    },
+                    {
+                        sTitle: "状态",
+                        mData: "userStatus",
+                        mRender: function (mData, type, full) {
+                            return resolve(mData, type, full);
+                        }
+                    },
+                    {
+                        sTitle: "操作",
+                        mData:"userId",
+                        mRender:function(mData,type,full) {
+                            return  '<i title="详情" class="fa fa-info" ng-click="listPage.action.detail(\'' + mData +'\')"> </i>' +
+                                '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                                '<i title="修改密码" ng-hide="loginUserMenuMap[currentView]" class="fa fa-user" ng-click="listPage.action.update(\'' + mData +'\')"> </i>' +
+                                '<i title="'+(full.userStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.userStatus==1?'false':'true')+',\''+mData+'\',\''+full.userName+'\')"></i>';
+                            // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+
+                        }
+                    }
+
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
+                    { sWidth: "15%", aTargets: [ 0,2,5 ] },
+                    { sWidth: "20%", aTargets: [ 1,3 ] },
+                    { sWidth: "10%", aTargets: [ 4 ] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+            $scope.searchPage.init();
+            $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
+                if (newVal) {
+                    $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
+                } else {
+                    if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
+                        $scope.listPage.checkedList = [];
+                    }
+                }
+            }, false);
+            $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
+                $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+            }, true);
+        }])
+        .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            // $rootScope.loginUserMenuMap={};
+            // var foreachMenus=function(menus){
+            //     for(var i=0;i<menus.length;i++){
+            //         var menu=menus[i];
+            //         $rootScope.loginUserMenuMap[menu.code]=!menu.permission;
+            //         // if(menu.children.length>0){
+            //         //     foreachMenus(menu.children);
+            //         // }
+            //     }
+            // };
+            //
+            // loader.loginMenus(function(data) {
+            //     // $rootScope.loginUser=data;
+            //     // $rootScope.isLogin=true;
+            //     foreachMenus(data);
+            // });
+            $scope.editPage = {
+                datas:{
+                    metricTree:{
+                        data:[ {id:1,name:"123",displayName:"123",unit:"11",valType:"string",
+                            children:[
+                                {id:1,name:"123",displayName:"123",unit:"11",valType:"string"},
+                                {id:2,name:"123",displayName:"123",unit:"11",valType:"string"},
+                                {id:3,name:"123",displayName:"123",unit:"11",valType:"string"},
+                            ]}],
+                        checked:"",
+                        settingData:{key:{name:"display"}},
+                        hideButton:false,
+                        treeId: 'locTree',
+                        checkType: { "Y" : "", "N" : "" },
+                        checkbox: "radio",
+                        init:function(){
+                            // Operate.getUserLocs({needCount:1,needJf:1},function(data){
+                            //     for(var i=0;i<data.legnth;i++){
+                            //         var row=data[i]
+                            //         for(var j=0;j<row.children.length;j++){
+                            //             row.children[j].open=true;
+                            //         }
+                            //     }
+                            //     $scope.departTree.data=data;
+                            // });
+                        },
+                        remove:function(node){
+                            var tip="确定要删除吗？";
+                            if(node.isParent){
+                                tip="确定要删除该节点及其子节点吗？";
+                            }
+                            $rootScope.$confirm(tip,function(){
+                                Loading.show();
+                                Depart.remove({id:node.id},function(data){
+                                    Loading.hide();
+                                    $rootScope.$alert("删除成功");
+                                    $scope.departDialog.node={
+                                        upDisabled: true,
+                                        downDisabled: true,
+                                        rightDisabled: true,
+                                        leftDisabled: true
+                                    };
+                                    if(data.result=="success"){
+                                        var treeObj = angular.element.fn.zTree.getZTreeObj($scope.departTree.treeId);
+                                        treeObj.removeNode(node);
+                                    }
+                                },function(data){
+                                    Loading.hide();
+                                });
+                            },"删除");
+                        },
+                        add:function(node){
+                            jQuery(".modal-body textarea").css({"width":"280px","height":"30px"});
+                            $scope.departDialog.title="新增";
+                            $scope.departDialog.model={isJF:0,delete:0};
+                            $scope.departDialog.model.name=null;
+                            $scope.departDialog.model.remark=null;
+                            $scope.departDialog.model.desc=null;
+                            if(node.name.indexOf("省局")>-1){
+                                $scope.departDialog.model.orgLevel="省";
+                            }else if(node.orgLevel=="省"){
+                                $scope.departDialog.model.orgLevel="市州";
+                            }else{
+                                $scope.departDialog.model.orgLevel="区县";
+                            }
+                            $scope.form.$setPristine();
+                            if(node) $scope.departDialog.model.pid=node.id;
+                            $scope.departDialog.show();
+                        },
+                        edit:function(node){
+                            jQuery(".modal-body textarea").css({"width":"280px","height":"30px"});
+                            $scope.departDialog.title="编辑";
+                            $scope.departDialog.model={delete:0,id:node.id,name:node.name,pid:node.pid,desc:node.desc,remark:node.remark,orgLevel:node.orgLevel,isJF:node.isJF==true?1:0};
+                            $scope.departDialog.show();
+                        },
+                        active:function(node){
+                            $scope.departDialog.depart=node;
+                            $scope.searchPage.departId=node.id;
+                            $scope.departDialog.isShow(node);
+                            $scope.listPage.settings.reload();
+                        },
+                        onCheck:function(nodes){
+                            // $scope.roleDailog.model.locId=null;
+                            // if(nodes.length>0)$scope.roleDailog.model.locId=nodes[0].id;
+                            $scope.$apply();
+                        }
+                    }
+                },
+                data:{metricsId:0}
+            };
+
+
+            $scope.listPreparePage = {
+                action: {
+                    metricNodeDom: function (data) {
+                        var htmlStr = "";
+                        if ("string" == data.valType) {
+                            htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>" +
+                                "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='包含'>包含</option></select></span>" +
+                                "<span style='width:80px;display: inline-block;'><input id='b" + data.id + "' placeholder='请输入' type='text' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'/></span>" +
+                                "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
+                        } else if ("enum" == data.valType) {
+                            var opt = "";
+                            $.each(data.enumMap, function (k, v) {
+                                if (k == 'normal') {
+                                    opt += "<option value='" + k + "'>" + "正常" + "</option>";
+                                } else if (k == 'warning') {
+                                    opt += "<option value='" + k + "'>" + "警告" + "</option>";
+                                } else if (k == 'critical') {
+                                    opt += "<option value='" + k + "'>" + "危急" + "</option>";
+                                } else if (k == 'shutdown') {
+                                    opt += "<option value='" + k + "'>" + "关闭" + "</option>";
+                                } else if (k == 'notPresent') {
+                                    opt += "<option value='" + k + "'>" + "不存在" + "</option>";
+                                } else if (k == 'notFunctioning') {
+                                    opt += "<option value='" + k + "'>" + "不工作" + "</option>";
+                                } else {
+                                    opt += "<option value='" + k + "'>" + k + "</option>";
+                                }
+                            });
+                            htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>" +
+                                "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='!='>!=</option></select></span>" +
+                                "<span style='width:80px;display: inline-block;'><select id='b" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option>" + opt + "</select></span>" +
+                                "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
+                        } else {//double
+                            htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>";
+                            htmlStr += "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='>'>></option><option value='<'><</option><option value='<='><=</option><option value='>='>>=</option></select></span>";
+                            htmlStr += '<span style="width:80px;display: inline-block;">';
+                            if (!data.unit) {
+                                htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:checkNumber(this);"/>';
+                            } else if (data.unit && data.unit == "%") {
+                                htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:checkPercent(this);"/>';
+                            } else {
+                                htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:a(this);"/>';
+                            }
+                            htmlStr += '</span>';
+                            htmlStr += "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
+                        }
+                        return htmlStr;
+                    }
+                }
+            }
+            // $scope.editPage.datas.metricTree = [{},{},{}];
 
             $scope.pageDialogDetail=Tools.dialog({
                 id:"pageDialogDetail",
@@ -442,8 +1114,8 @@
             $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
                 $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
             }, true);
-        }]) .controller('userManagerController', ['$scope','user.loader','Loading','toaster',function($scope,loader,Loading,toaster) {
-
+        }])
+        .controller('userManagerController', ['$scope','user.loader','Loading','toaster',function($scope,loader,Loading,toaster) {
         $scope.userLevel = document.getElementById("userLevel").value;
         $scope.userList=[];
         $scope.userManage={};

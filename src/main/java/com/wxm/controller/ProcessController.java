@@ -6,7 +6,6 @@ import com.wxm.model.OADeploymentTemplateRelation;
 import com.wxm.model.OAFormProperties;
 import com.wxm.service.*;
 import com.wxm.util.FileByte;
-import com.wxm.util.PropertyUtil;
 import com.wxm.util.ValidType;
 import com.wxm.util.Word2Html;
 import com.wxm.util.exception.OAException;
@@ -33,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
@@ -65,7 +65,10 @@ public class ProcessController {
     private HistoryService historyService;
     @Autowired
     private ProcessEngineConfiguration processEngineConfiguration;
-
+    @Value("${contract.template.path}")
+    private String contractPath;
+    @Value("${openoffice.org.path}")
+    private String openOfficePath;
     @Autowired
     private ConcactTemplateService concactTemplateService;
 
@@ -86,6 +89,29 @@ public class ProcessController {
 
     @Autowired
     private TaskProcessService taskProcessService;
+
+    @RequestMapping(value = "/dashboard", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public Object dashboard(HttpServletRequest request){
+        //获取 我的待办任务，我的已办任务以及我发起的任务 数量
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {throw new OAException(1101,"用户未登录");}
+        Map<String, Object> result = new HashMap<>();
+        try{
+            long size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
+            result.put("myPending",size);
+            size =  historyService.createHistoricProcessInstanceQuery().finished()
+                    .involvedUser(loginUser.getName())
+                    .count();
+            result.put("myComplete",size);
+            size = historyService.createHistoricProcessInstanceQuery().startedBy(loginUser.getName()).count();
+            result.put("initiator",size);
+            result.put("result","success");
+        }catch (Exception e){
+            result.put("result","failed");
+        }
+        return result;
+    }
 
     @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
@@ -217,8 +243,8 @@ public class ProcessController {
                 }
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
-                taskService.addComment(task.getId(), processInstance.getId(), "重新提交");
-
+//                taskService.addComment(task.getId(), processInstance.getId(), "重新提交");
+                runtimeService.setVariable(task.getProcessInstanceId(), task.getId(), "重新提交");
                 result.put("result", "success");
 //                String taskId = request.getParameter("taskId");
                 String taskDefinitionKey = taskService.getVariable(task.getId(), "taskDefinitionKey").toString();
@@ -256,15 +282,16 @@ public class ProcessController {
 //        String userName = request.getParameter("userName");
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String taskDefinitionKey = task.getTaskDefinitionKey();
+        if(StringUtils.isNotBlank(cause)) {
+//            taskService.addComment(taskId, task.getExecutionId(), "拒绝  " + cause);
+            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝  " + cause);
+        }
 
-        taskService.addComment(taskId, task.getExecutionId(), "拒绝  "+cause);
-        taskService.complete(taskId);
-
-//        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+//        taskService.complete(taskId);
         List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
-                .finished().
-                processInstanceId(task.getProcessInstanceId())
-                .orderByTaskCreateTime().asc().list();
+                .finished()
+                .processInstanceId(task.getProcessInstanceId())
+                .orderByTaskCreateTime().asc().listPage(0,1);
         if(null != historicTaskInstanceList){
             for(HistoricTaskInstance task1 : historicTaskInstanceList){
                 if(task1.getAssignee() == null){
@@ -280,9 +307,9 @@ public class ProcessController {
                     mailService.send(message);
 
                     task = taskService.createTaskQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
-                    if(StringUtils.isNotBlank(cause)) {
-                        taskService.addComment(task.getId(), task.getProcessInstanceId(), cause);
-                    }
+//                    if(StringUtils.isNotBlank(cause)) {
+//                        taskService.addComment(task.getId(), task.getProcessInstanceId(), cause);
+//                    }
                     taskService.setVariable(task.getId(),"taskDefinitionKey",taskDefinitionKey);
                     runtimeService.setVariable(task.getProcessInstanceId(),"taskDefinitionKeyShow",taskDefinitionKey);
                     break;
@@ -493,20 +520,25 @@ public class ProcessController {
             sb.append("<title>");
             sb.append(historicVariableInstance.getValue().toString());
             sb.append("</title>");
-            sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
+            sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=gb2312\" />");
             sb.append("<body>");
             sb.append(html);
             sb.append("</body></html>");
 
             String data = fillValue(processInstancesId,sb);
             try {
-                String path = PropertyUtil.getValue("contract.template.path");
-                String fileHtml = path+ historicVariableInstance.getValue().toString()+".html";
-                String filePf = path+ historicVariableInstance.getValue().toString()+".pdf";
+//                String path = PropertyUtil.getValue("contract.template.path");
+                String fileHtml = contractPath+ historicVariableInstance.getValue().toString()+".html";
+                String filePf = contractPath+ historicVariableInstance.getValue().toString()+".pdf";
+
+//                OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(fileHtml),"UTF-8");
+//                BufferedWriter writer=new BufferedWriter(write);
+//                writer.write(data);
+//                writer.close();
                 PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
                 printStream.println(data);
                 //转换成pdf文件
-                File htmlFile = Word2Html.html2pdf(fileHtml);
+                File htmlFile = Word2Html.html2pdf(fileHtml,openOfficePath);
                 // 获取pdf文件流
                 byte[] pdf = FileByte.getByte(filePf);
                 // HTML文件字符串

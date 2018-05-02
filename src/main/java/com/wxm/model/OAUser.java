@@ -2,11 +2,15 @@ package com.wxm.model;
 
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class OAUser {
     private Integer userId;
 
     private String userName;
+
+    private int parentId;
 
     private String userMobile;
 
@@ -28,11 +32,14 @@ public class OAUser {
 
     private Integer userStatus;
 
+    private List<OAUser> children;
+
     private Date userCreatetime;
 
     public OAUser(){
 
     }
+
     public OAUser(String userName){
         this.userName = userName;
         userAddress="";
@@ -47,12 +54,32 @@ public class OAUser {
         userWeixin ="";
     }
 
+    public List<OAUser> getOaUser() {
+        return children;
+    }
+
+    public void setOaUser(List<OAUser> list) {
+        if(children == null){
+            children = list;
+        }else {
+            this.children.addAll(list);
+        }
+    }
+
     public Integer getUserId() {
         return userId;
     }
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public int getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(int parentId) {
+        this.parentId = parentId;
     }
 
     public String getUserName() {

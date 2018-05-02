@@ -1,0 +1,43 @@
+/*personal style*/
+.ztree li a.curSelectedNode {
+    border:none;
+    height:17px;
+}
+.ztree li span.button.add {
+    background: url("../img/diy/add.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    margin: 0;
+    vertical-align: top;
+    margin-top: 2px;
+}
+.ztree li span.button.edit {
+    background: url("../img/diy/edit.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    margin: 0;
+    vertical-align: top;
+    margin-top: 2px;
+}
+.ztree li span.button.remove {
+    background: url("../img/diy/delete.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    margin: 0;
+    vertical-align: top;
+    margin-top: 2px;
+}
+
+/* input drop-list */
+.inputTreeDiv{
+    height:auto!important;
+    border:1px solid #ccc;
+    min-height: 50px;
+    max-height:200px;
+    overflow:auto;
+    background:white;
+    display:none;
+    position: absolute;
+    width:400px;
+    z-index:9;
+}
+
+/* left sidebar ztree overflow */
+.sidebar  ul.ztree{
+    width:210px;
+    overflow:auto;
+}

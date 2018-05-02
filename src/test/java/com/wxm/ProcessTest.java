@@ -194,7 +194,7 @@ public class ProcessTest {
     }
     @Test
     public void testHtml2Pdf(){
-        File htmlFile = Word2Html.html2pdf("F:\\tmp\\oa\\demo.html");
+        File htmlFile = Word2Html.html2pdf("F:\\tmp\\oa\\demo.html","C:/Program Files (x86)/OpenOffice 4");
     }
     @Test
     public void testHtml(){

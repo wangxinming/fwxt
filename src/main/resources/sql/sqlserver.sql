@@ -11,6 +11,7 @@ CREATE TABLE OA_USER
   USER_ADDRESS      NVARCHAR(200),
   USER_POSTCODE     NVARCHAR(200),
   USER_WEIXIN       NVARCHAR(100),
+  PARENT_ID         INT,
   USER_STATUS       INT,
   USER_CREATETIME   DATETIME
 )
@@ -99,6 +100,7 @@ CREATE TABLE OA_CONTRACT_CIRCULATION
 (
   CONTRACT_ID     INT IDENTITY PRIMARY KEY,
   TEMPLATE_ID     NVARCHAR(255),
+  PROCESSINSTANCE_ID NVARCHAR(255) not null
   CONTRACT_NAME   NVARCHAR(255),
   USER_ID         INT,
   CONTRACT_STATUS NVARCHAR(255),
@@ -136,6 +138,26 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'操作审计编号', N'user'
 EXECUTE sp_addextendedproperty N'MS_Description', N'操作内容', N'user', N'dbo', N'table', N'OA_AUDIT', N'column', N'CONTENT';
 EXECUTE sp_addextendedproperty N'MS_Description', N'操作时间', N'user', N'dbo', N'table', N'OA_AUDIT', N'column', N'CREATE_TIME';
 
+insert OA_USER (USER_NAME,USER_PWD,USER_STATUS,USER_CREATETIME) values ('admin','202CB962AC59075B964B07152D234B70',1,'2018-04-23 11:06:21.517');
+
+
+CREATE TABLE OA_ORGANIZATION
+(
+  ORGANIZATION_ID     INT IDENTITY PRIMARY KEY,
+  ORGANIZATION_NAME     NVARCHAR(255),
+  USER_ID     INT,
+  DESCRIBE         NVARCHAR(500),
+  CREATE_TIME     DATETIME
+)
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_ORGANIZATION', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'USER_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'DESCRIBE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'CREATE_TIME';
 
 /*表注释*/
 SELECT [ColumnName] = [Columns].name ,

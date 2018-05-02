@@ -146,7 +146,6 @@
 
                 angular.element('#' + $rootScope.confirm.id).modal('show');
             };
-
             $rootScope.$alert = function (info, level) {
                 if (null != info.code && info.code == 18 && info.name == "SecurityError"){
                     return;
@@ -161,13 +160,43 @@
                 }
                 angular.element('#' + $rootScope.alert.id).modal('show');
             };
+            var userName = jQuery.cookie("userName");
+            if(userName == "admin") {
+                $rootScope.loginUserMenuMap = {
+                    "user":false,
+                    "audit":false,
+                    "modeler":false,
+                    "upload":false,
+                    "form":false,
+                    "deployment":false,
+                    "process":true,
+                    "myProcess":true,
+                    "pending":true,
+                    "complete":true,
+                    "report":false
+                };
+            }else{
+                $rootScope.loginUserMenuMap = {
+                    "user":true,
+                    "audit":true,
+                    "modeler":true,
+                    "upload":true,
+                    "form":true,
+                    "deployment":true,
+                    "process":false,
+                    "myProcess":false,
+                    "pending":false,
+                    "complete":false,
+                    "report":false
+                };
+            }
         }])
         .config(['$httpProvider','$routeProvider', function ($httpProvider,$routeProvider) {
-            $routeProvider.when('/user', {
-                templateUrl: 'view/user/user.html',
-                controller: 'user.controller'
-            });
-            $routeProvider.otherwise({redirectTo: '/user'});
+            // $routeProvider.when('/user', {
+            //     templateUrl: 'view/user/user.html',
+            //     controller: 'user.controller'
+            // });
+            $routeProvider.otherwise({redirectTo: '/dashboard'});
 
             $httpProvider.interceptors.push("interceptor");}])
         .factory('interceptor', function ($q, $rootScope) {

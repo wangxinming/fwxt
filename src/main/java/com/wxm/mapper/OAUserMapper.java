@@ -24,4 +24,8 @@ public interface OAUserMapper {
     List<OAUser> list(@Param("offset") Integer offset, @Param("limit") Integer limit, @Param("userName") String userName);
 
     int count(@Param("userName") String userName);
+
+    OAUser getLeader(OAUser record);
+
+    List<OAUser> getAllUser();
 }

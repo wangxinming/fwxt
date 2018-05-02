@@ -40,6 +40,22 @@
             ;
         }])
         .controller('form.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster) {
+            // $rootScope.loginUserMenuMap={};
+            // var foreachMenus=function(menus){
+            //     for(var i=0;i<menus.length;i++){
+            //         var menu=menus[i];
+            //         $rootScope.loginUserMenuMap[menu.code]=!menu.permission;
+            //         // if(menu.children.length>0){
+            //         //     foreachMenus(menu.children);
+            //         // }
+            //     }
+            // };
+            // loader.loginMenus(function(data) {
+            //     // $rootScope.loginUser=data;
+            //     // $rootScope.isLogin=true;
+            //     foreachMenus(data);
+            // });
+
             $scope.pageDialog=Tools.dialog({
                 id:"pageDialog",
                 title:"新增",

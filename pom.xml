@@ -209,6 +209,22 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<resources>
+			<!-- <resource>
+            <directory>${project.basedir}/src/main/webapp/WEB-INF/lib</directory>
+            <targetPath>/BOOT-INF/lib/</targetPath>
+            <includes>
+            <include>*/.jar</include>
+            </includes>
+            </resource> -->
+			<resource>
+				<directory>${project.basedir}/lib</directory>
+				<targetPath>BOOT-INF/lib/</targetPath>
+				<includes>
+					<include>**/*.jar</include>
+				</includes>
+			</resource>
+		</resources>
 	</build>
 
 

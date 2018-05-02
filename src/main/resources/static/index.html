@@ -26,6 +26,8 @@
     <script src="lib/assets/js/ace-extra.min.js"></script>
     <link href="lib/bootstrap/css/bootstrap.min.css"  type="text/css" rel="stylesheet"/>
 
+    <!-- zTree -->
+    <link rel="stylesheet" type="text/css" href="lib/ztree/zTreeStyle.css">
     <!-- ng-grid -->
     <link rel="stylesheet" type="text/css" href="lib/angular/ng-grid.min.css">
 
@@ -41,6 +43,7 @@
     <link rel="stylesheet" type="text/css" href="lib/toastr/toaster.min.css" />
     <link rel="stylesheet" type="text/css" href="lib/select2/select2.css"/>
     <link rel="stylesheet" type="text/css" href="lib/select2/select2-bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/ztree/style/ztree.css"/>
     <!-- w5c validator -->
     <link rel="stylesheet" href="lib/w5c-validator/style.css">
     <!--菜单树-->
@@ -54,7 +57,7 @@
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;菜鸟教程</a>
+            <a class="navbar-brand" href="#">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;合同审批系统</a>
         </div>
         <div class="navbar-brand">
             <a id="toggle-sidebar"><i class="fa fa-bars"></i></a>
@@ -62,7 +65,7 @@
                 <a style="display: none">合同审批系统</a>
             </div>
         </div>
-        <div>
+        <div class="navbar-right">
             <p class="navbar-text navbar-center" id="loginInfo">欢迎登陆XX系统</p>
             <!--向右对齐-->
             <ul class="nav navbar-nav navbar-right">
@@ -93,9 +96,10 @@
                     <ul>
                         <li class="header-menu"></li>
                         <li class="sidebar-dropdown">
-                            <a id="user"><i class="fa fa-user" ></i><span>组织管理</span><span class="label label-danger"></span></a>
+                            <a id="user"><i class="fa fa-user" ></i><span>系统管理</span><span class="label label-danger"></span></a>
                             <div class="sidebar-submenu">
                                 <ul>
+                                    <li><a href="/index.html#/group">组织管理 <span class="label label-success"></span></a> </li>
                                     <li><a href="/index.html#/user">用户管理 <span class="label label-success"></span></a> </li>
                                     <!--<li><a href="/demo.html#/user">职务管理</a></li>-->
                                     <li><a href="/index.html#/audit">操作审计</a></li>
@@ -205,6 +209,10 @@
 <script src="lib/toastr/toaster.min.js"></script>
 <script src="lib/select2/select2.min.js"></script>
 
+<!-- zTree -->
+<script src="lib/ztree/jquery.ztree.all-3.5.min.js"></script>
+<script src="lib/ztree/jquery.ztree.exhide-3.5.min.js"></script>
+<script src="lib/ztree/ztree.directive.js"></script>
 <!--菜单树-->
 <script src="assets/js/jquery.mCustomScrollbar.concat.min.js"></script>
 <script src="assets/js/custom.js"></script>

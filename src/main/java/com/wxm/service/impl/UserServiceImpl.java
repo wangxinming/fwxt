@@ -39,6 +39,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<OAUser> getAllUser() {
+        return oaUserMapper.getAllUser();
+    }
+
+    @Override
     public OAUser selectByName(String userName) {
         return oaUserMapper.selectByName(userName);
     }
@@ -68,6 +73,11 @@ public class UserServiceImpl implements UserService {
             identityService.saveUser(user);
         }
         return oaUser.getUserId();
+    }
+
+    @Override
+    public OAUser getLeader(OAUser oaUser) {
+        return oaUserMapper.getLeader(oaUser);
     }
 
 

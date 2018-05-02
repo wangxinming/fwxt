@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.wxm.model.OAUser" >
     <id column="USER_ID" property="userId" jdbcType="INTEGER" />
     <result column="USER_NAME" property="userName" jdbcType="NVARCHAR" />
+    <result column="PARENT_ID" property="parentId" jdbcType="INTEGER" />
     <result column="USER_MOBILE" property="userMobile" jdbcType="NVARCHAR" />
     <result column="USER_EMAIL" property="userEmail" jdbcType="NVARCHAR" />
     <result column="USER_PWD" property="userPwd" jdbcType="NVARCHAR" />
@@ -17,7 +18,7 @@
     <result column="USER_CREATETIME" property="userCreatetime" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    USER_ID, USER_NAME, USER_MOBILE, USER_EMAIL, USER_PWD, USER_COMPANY, USER_DEPARTMENT, 
+    USER_ID, USER_NAME, PARENT_ID,USER_MOBILE, USER_EMAIL, USER_PWD, USER_COMPANY, USER_DEPARTMENT,
     USER_POSITION, USER_ADDRESS, USER_POSTCODE, USER_WEIXIN, USER_STATUS, USER_CREATETIME
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -26,25 +27,35 @@
     from OA_USER
     where USER_ID = #{userId,jdbcType=INTEGER}
   </select>
+  <select id="getAllUser" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from OA_USER
+  </select>
   <select id="selectByName" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select
     <include refid="Base_Column_List" />
     from OA_USER
     where USER_NAME = #{userName,jdbcType=NVARCHAR}
   </select>
-
+  <select id="getLeader" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from OA_USER
+    where USER_ID  = #{parentId,jdbcType=INTEGER}
+  </select>
 
   <select id="list" resultMap="BaseResultMap">
-    select top ${limit} * from OA_USER where USER_ID not
+    select top ${limit} * from OA_USER oa_user where oa_user.USER_ID not
     in(select top ${offset} USER_ID from OA_USER  where 1=1
     <if test="userName != null">
       AND USER_NAME like CONCAT('%',#{userName},'%' )
     </if>
     ORDER BY USER_ID ASC)
     <if test="userName != null" >
-      AND USER_NAME like CONCAT('%',#{userName},'%' )
+      AND oa_user.USER_NAME like CONCAT('%',#{userName},'%' )
     </if>
-    ORDER BY USER_ID
+    ORDER BY oa_user.USER_ID
   </select>
   <select id="count" resultType="java.lang.Integer">
     SELECT  count(*)
@@ -60,12 +71,12 @@
     where USER_ID = #{userId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAUser" >
-    insert into OA_USER (USER_ID, USER_NAME, USER_MOBILE, 
+    insert into OA_USER (USER_ID, USER_NAME,PARENT_ID, USER_MOBILE,
       USER_EMAIL, USER_PWD, USER_COMPANY, 
       USER_DEPARTMENT, USER_POSITION, USER_ADDRESS, 
       USER_POSTCODE, USER_WEIXIN, USER_STATUS, 
       USER_CREATETIME)
-    values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=NVARCHAR}, #{userMobile,jdbcType=NVARCHAR}, 
+    values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=NVARCHAR},#{parentId,jdbcType=INTEGER} #{userMobile,jdbcType=NVARCHAR},
       #{userEmail,jdbcType=NVARCHAR}, #{userPwd,jdbcType=NVARCHAR}, #{userCompany,jdbcType=NVARCHAR}, 
       #{userDepartment,jdbcType=NVARCHAR}, #{userPosition,jdbcType=NVARCHAR}, #{userAddress,jdbcType=NVARCHAR}, 
       #{userPostcode,jdbcType=NVARCHAR}, #{userWeixin,jdbcType=NVARCHAR}, #{userStatus,jdbcType=INTEGER}, 
@@ -79,6 +90,9 @@
       </if>
       <if test="userName != null" >
         USER_NAME,
+      </if>
+      <if test="parentId != null" >
+        PARENT_ID,
       </if>
       <if test="userMobile != null" >
         USER_MOBILE,
@@ -121,6 +135,9 @@
       <if test="userName != null" >
         #{userName,jdbcType=NVARCHAR},
       </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=INTEGER},
+      </if>
       <if test="userMobile != null" >
         #{userMobile,jdbcType=NVARCHAR},
       </if>
@@ -162,6 +179,9 @@
       <if test="userName != null" >
         USER_NAME = #{userName,jdbcType=NVARCHAR},
       </if>
+      <if test="parentId != null" >
+        PARENT_ID = #{parentId,jdbcType=INTEGER},
+      </if>
       <if test="userMobile != null" >
         USER_MOBILE = #{userMobile,jdbcType=NVARCHAR},
       </if>
@@ -201,6 +221,7 @@
   <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAUser" >
     update OA_USER
     set USER_NAME = #{userName,jdbcType=NVARCHAR},
+      PARENT_ID = #{parentId,jdbcType=INTEGER},
       USER_MOBILE = #{userMobile,jdbcType=NVARCHAR},
       USER_EMAIL = #{userEmail,jdbcType=NVARCHAR},
       USER_PWD = #{userPwd,jdbcType=NVARCHAR},

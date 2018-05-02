@@ -340,29 +340,87 @@ public class DeployController {
         }
 
         List<TaskComment> taskCommentList = new LinkedList<>();
-        List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery().finished().processInstanceId(historicProcessInstance.getId()).orderByTaskCreateTime().desc().list();
+//        List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery().finished().processInstanceId(historicProcessInstance.getId()).orderByTaskCreateTime().desc().list();
 
-        if(null != historicTaskInstanceList){
-            for(HistoricTaskInstance task1 : historicTaskInstanceList){
-                List<Comment> taskList1 = taskService.getTaskComments(task1.getId());
+        List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId(historicProcessInstance.getId())
+                .activityType("userTask")
+                .orderByHistoricActivityInstanceStartTime().desc()
+                .list();
+
+        if(null != hais){
+//            for(HistoricActivityInstance task1 : hais){
+//                List<Comment> taskList1 = taskService.getTaskComments(task1.getId());
+//                if(taskList1.size() >0) {
+//                    for (Comment comment : taskList1) {
+//                        TaskComment taskComment = new TaskComment();
+//                        if(task1.getAssignee() == null){
+//                            taskComment.setName(comment.getUserId());
+//                        }else {
+//                            taskComment.setName(task1.getAssignee());
+//                        }
+//                        taskComment.setCreateTime(comment.getTime());
+//                        taskComment.setDescription(comment.getFullMessage());
+//                        taskCommentList.add(taskComment);
+//                    }
+//                }else{
+//                    TaskComment taskComment = new TaskComment();
+//                    taskComment.setName(task1.getAssignee());
+//                    taskComment.setCreateTime(task1.getStartTime());
+//                    taskComment.setDescription("待审批");
+//                    taskCommentList.add(taskComment);
+//                }
+//            }
+            for(HistoricActivityInstance historicActivityInstance : hais){
+                List<Comment> taskList1 = taskService.getTaskComments(historicActivityInstance.getTaskId());
                 if(taskList1.size() >0) {
                     for (Comment comment : taskList1) {
                         TaskComment taskComment = new TaskComment();
-                        if(task1.getAssignee() == null){
+                        if(StringUtils.isBlank(comment.getUserId())) {
+                            taskComment.setName(historicActivityInstance.getAssignee());
+                        }else{
                             taskComment.setName(comment.getUserId());
-                        }else {
-                            taskComment.setName(task1.getAssignee());
                         }
                         taskComment.setCreateTime(comment.getTime());
                         taskComment.setDescription(comment.getFullMessage());
                         taskCommentList.add(taskComment);
                     }
-                }else{
-                    TaskComment taskComment = new TaskComment();
-                    taskComment.setName(task1.getAssignee());
-                    taskComment.setCreateTime(task1.getCreateTime());
-                    taskComment.setDescription("待审批");
-                    taskCommentList.add(taskComment);
+                }else {
+                    HistoricVariableInstance hi = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicActivityInstance.getProcessInstanceId()).variableName(historicActivityInstance.getTaskId()).singleResult();
+                    HistoricVariableInstance variableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicActivityInstance.getProcessInstanceId()).variableName("user").singleResult();
+
+//                    VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
+//                    Object object = runtimeService.getVariable(processInstance.getId(), historicActivityInstance.getTaskId());
+                    if (null == hi) {
+                        //当前节点没有审批信息，表明处于当前节点用户审批状态下
+                        TaskComment taskComment = new TaskComment();
+
+                        if (historicActivityInstance.getAssignee() == null) {
+//                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
+                            taskComment.setName(variableInstance.getValue().toString());
+                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                            taskComment.setDescription("提交");
+                        } else {
+                            taskComment.setName(historicActivityInstance.getAssignee());
+                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                            taskComment.setDescription("待审批");
+                        }
+                        taskCommentList.add(taskComment);
+                    }else{
+                        //当前节点没有审批信息，表明处于当前节点用户审批状态下
+                        TaskComment taskComment = new TaskComment();
+                        if (historicActivityInstance.getAssignee() == null) {
+//                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
+                            taskComment.setName(variableInstance.getValue().toString());
+                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                            taskComment.setDescription(hi.getValue().toString());
+                        } else {
+                            taskComment.setName(historicActivityInstance.getAssignee());
+                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                            taskComment.setDescription(hi.getValue().toString());
+                        }
+                        taskCommentList.add(taskComment);
+                    }
                 }
             }
             result.put("comments",taskCommentList);
@@ -401,6 +459,9 @@ public class DeployController {
             result.put("rows",list);
         }
         List<TaskComment> taskCommentList = new LinkedList<>();
+
+        List<Comment> commonts1  = taskService.getProcessInstanceComments(processInstance.getId());
+
         List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery()
                 .processInstanceId(processInstance.getId())
                 .activityType("userTask")
@@ -423,21 +484,38 @@ public class DeployController {
                         taskComment.setDescription(comment.getFullMessage());
                         taskCommentList.add(taskComment);
                     }
-                }else{
-                    //当前节点没有审批信息，表明处于当前节点用户审批状态下
-                    TaskComment taskComment = new TaskComment();
-                    if(historicActivityInstance.getAssignee() == null){
-                        VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(),"user");
-                        taskComment.setName(variableInstance.getValue().toString());
-                        taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                        taskComment.setDescription("提交");
-                    }else{
-                        taskComment.setName(historicActivityInstance.getAssignee());
-                        taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                        taskComment.setDescription("待审批");
-                    }
+                }else {
+                    Object object = runtimeService.getVariable(processInstance.getId(), historicActivityInstance.getTaskId());
+                    if (null == object) {
+                        //当前节点没有审批信息，表明处于当前节点用户审批状态下
+                        TaskComment taskComment = new TaskComment();
 
-                    taskCommentList.add(taskComment);
+                        if (historicActivityInstance.getAssignee() == null) {
+                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
+                            taskComment.setName(variableInstance.getValue().toString());
+                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                            taskComment.setDescription("提交");
+                        } else {
+                            taskComment.setName(historicActivityInstance.getAssignee());
+                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                            taskComment.setDescription("待审批");
+                        }
+                        taskCommentList.add(taskComment);
+                    }else{
+                        //当前节点没有审批信息，表明处于当前节点用户审批状态下
+                        TaskComment taskComment = new TaskComment();
+                        if (historicActivityInstance.getAssignee() == null) {
+                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
+                            taskComment.setName(variableInstance.getValue().toString());
+                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                            taskComment.setDescription(object.toString());
+                        } else {
+                            taskComment.setName(historicActivityInstance.getAssignee());
+                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                            taskComment.setDescription(object.toString());
+                        }
+                        taskCommentList.add(taskComment);
+                    }
                 }
             }
             result.put("comments",taskCommentList);

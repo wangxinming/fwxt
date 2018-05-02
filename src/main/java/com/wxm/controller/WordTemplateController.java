@@ -10,13 +10,13 @@ import com.wxm.service.WordTemplateFieldService;
 import com.wxm.service.WordTemplateService;
 import com.wxm.util.HtmlProcess;
 import com.wxm.util.Md5Utils;
-import com.wxm.util.PropertyUtil;
 import com.wxm.util.Word2Html;
 import com.wxm.util.exception.OAException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +34,10 @@ public class WordTemplateController {
     private static final Logger LOGGER = LoggerFactory.getLogger(WordTemplateController.class);
     @Autowired
     private ConcactTemplateService concactTemplateService;
-
+    @Value("${contract.template.path}")
+    private String contractPath;
+    @Value("${openoffice.org.path}")
+    private String openOfficePath;
     @Autowired
     private FormPropertiesService formPropertiesService;
 
@@ -138,14 +141,14 @@ public class WordTemplateController {
         String fileName = file.getOriginalFilename().substring(0,file.getOriginalFilename().indexOf("."));
         try {
 
-            String path = PropertyUtil.getValue("contract.template.path");
+//            String path = PropertyUtil.getValue("contract.template.path");
 //            File desFile = new File("F:\\tmp\\oa\\demo.doc");
-            File desFile = new File(path + docName);
+            File desFile = new File(contractPath + docName);
             if(!desFile.getParentFile().exists()){
                 desFile.mkdirs();
             }
             file.transferTo(desFile);
-            File htmlFile = Word2Html.office2pdf(path + docName);
+            File htmlFile = Word2Html.office2pdf(contractPath + docName,openOfficePath);
             // 获取html文件流
             StringBuilder htmlSb = new StringBuilder();
             try {
@@ -164,7 +167,7 @@ public class WordTemplateController {
             }
             // HTML文件字符串
             htmlStr = htmlSb.toString();
-            htmlStr=HtmlProcess.clearFormat(htmlStr,path + "\\images");
+            htmlStr=HtmlProcess.clearFormat(htmlStr,contractPath + "\\images");
             OAContractTemplate oaContractTemplate = new OAContractTemplate();
             oaContractTemplate.setTemplateCreatetime(new Timestamp(System.currentTimeMillis()));
             oaContractTemplate.setUserId(loginUser.getId());

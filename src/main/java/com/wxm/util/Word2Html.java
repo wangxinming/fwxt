@@ -12,8 +12,8 @@ public class Word2Html {
      * @param inputFilePath 源文件路径,如："D:/论坛.docx"
      * @return
      */
-    public static File openOfficeToPDF(String inputFilePath) {
-        return office2pdf(inputFilePath);
+    public static File openOfficeToPDF(String inputFilePath,String path) {
+        return office2pdf(inputFilePath,path);
     }
 
     /**
@@ -21,22 +21,22 @@ public class Word2Html {
      * 如我的OpenOffice.org 4安装在：C:/Program Files (x86)/OpenOffice 4
      * @return OpenOffice.org 4的安装目录
      */
-    public static String getOfficeHome() {
-
-        //这是返回的是OpenOffice的安装目录,建议将这个路径加入到配置文件中,然后直接通过配置文件获取
-        //我这里就直接写死了
-        return PropertyUtil.getValue("openoffice.org.path");
-    }
+//    public static String getOfficeHome(String path) {
+//
+//        //这是返回的是OpenOffice的安装目录,建议将这个路径加入到配置文件中,然后直接通过配置文件获取
+//        //我这里就直接写死了
+//        return PropertyUtil.getValue("openoffice.org.path");
+//    }
 
     /**
      * 连接OpenOffice.org 并且启动OpenOffice.org
      * @return
      */
-    public static OfficeManager getOfficeManager() {
+    public static OfficeManager getOfficeManager(String path) {
         DefaultOfficeManagerConfiguration config = new DefaultOfficeManagerConfiguration();
 
         // 设置OpenOffice.org 4的安装目录
-        config.setOfficeHome(getOfficeHome());
+        config.setOfficeHome(path);
 
         // 启动OpenOffice的服务
         OfficeManager officeManager = config.buildOfficeManager();
@@ -106,7 +106,7 @@ public class Word2Html {
 //        }
 //        return null;
 //    }
-    public static File html2pdf(String inputFilePath) {
+    public static File html2pdf(String inputFilePath,String path) {
         OfficeManager officeManager = null;
         try {
             if (inputFilePath==null||inputFilePath.trim().length()<=0) {
@@ -124,7 +124,7 @@ public class Word2Html {
             }
 
             //获取OpenOffice的安装路劲
-            officeManager = getOfficeManager();
+            officeManager = getOfficeManager(path);
 
             //连接OpenOffice
             OfficeDocumentConverter converter=new OfficeDocumentConverter(officeManager);
@@ -150,7 +150,7 @@ public class Word2Html {
      * @param inputFilePath 源文件路径，如："D:/论坛.docx"
      * @return
      */
-    public static File office2pdf(String inputFilePath) {
+    public static File office2pdf(String inputFilePath,String path) {
         OfficeManager officeManager = null;
         try {
             if (inputFilePath==null||inputFilePath.trim().length()<=0) {
@@ -168,7 +168,7 @@ public class Word2Html {
             }
 
             //获取OpenOffice的安装路劲
-            officeManager = getOfficeManager();
+            officeManager = getOfficeManager(path);
 
             //连接OpenOffice
             OfficeDocumentConverter converter=new OfficeDocumentConverter(officeManager);
@@ -211,7 +211,7 @@ public class Word2Html {
 
     //测试
     public static void main(String[] args) {
-        File html = openOfficeToPDF("F:\\tmp\\服务合同模板201803.doc");
+        File html = openOfficeToPDF("F:\\tmp\\服务合同模板201803.doc","C:/Program Files (x86)/OpenOffice 4");
         int tt = 0;
     }
 }

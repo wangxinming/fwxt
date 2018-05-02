@@ -2,8 +2,10 @@ package com.wxm.controller;
 
 import com.wxm.entity.*;
 import com.wxm.model.OAAudit;
+import com.wxm.model.OAOrganization;
 import com.wxm.model.OAUser;
 import com.wxm.service.AuditService;
+import com.wxm.service.UserOrganizitionService;
 import com.wxm.service.UserService;
 import com.wxm.util.Md5Utils;
 import com.wxm.util.exception.OAException;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping(value = "/user")
@@ -39,6 +42,8 @@ public class UserDefController {
     private FormService formService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserOrganizitionService userOrganizitionService;
 
     @Autowired
     private AuditService auditService;
@@ -143,11 +148,115 @@ public class UserDefController {
         return result;
     }
 
-
-    public void createGroup(){
-        Group group = identityService.newGroup("新用户ID");
-        identityService.saveGroup(group);
+    @RequestMapping(value = "/createGroup",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object createGroup(@RequestBody OAOrganization oaOrganization, HttpServletRequest request){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("新建组织结构 %s",oaOrganization.getOrganizationName())));
+//        Group group = identityService.newGroup("新用户ID");
+//        identityService.saveGroup(group);
+        try {
+            userOrganizitionService.save(oaOrganization);
+        }catch (Exception e){
+            LOGGER.warn("异常",e);
+            result.put("result", "failed");
+        }
+        return result;
     }
+    @RequestMapping(value = "/updateGroup",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object updateGroup(@RequestBody OAOrganization oaOrganization, HttpServletRequest request){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("新建组织结构 %s",oaOrganization.getOrganizationName())));
+//        Group group = identityService.newGroup("新用户ID");
+//        identityService.saveGroup(group);
+        try {
+            userOrganizitionService.save(oaOrganization);
+        }catch (Exception e){
+            LOGGER.warn("异常",e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/deleteGroup",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object deleteGroup(@RequestBody OAOrganization oaOrganization, HttpServletRequest request){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("新建组织结构 %s",oaOrganization.getOrganizationName())));
+//        Group group = identityService.newGroup("新用户ID");
+//        identityService.saveGroup(group);
+        try {
+            userOrganizitionService.save(oaOrganization);
+        }catch (Exception e){
+            LOGGER.warn("异常",e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/groupList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object groupList(@RequestParam(value = "offset", required=true) Integer offset,
+                            @RequestParam(value = "limit", required=true) Integer limit,
+                            HttpServletRequest request){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        return userOrganizitionService.getGroupList(offset,limit);
+    }
+
+    @RequestMapping(value = "/tree",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object tree(HttpServletRequest request){
+        List<OAOrganization> list = userOrganizitionService.getOrganizition();
+
+//        List<OAUser> res = new LinkedList<>();
+        Map<Integer,OAUser> res = new LinkedHashMap<>();;
+        Map<Integer,OAOrganization>  map = new LinkedHashMap<>();
+        Map<Integer,OAUser>  tmp = new LinkedHashMap<>();
+        List<OAUser> userList = userService.getAllUser();
+
+
+        for(OAOrganization oaOrganization : list){
+            OAUser oaUser = tmp.get(oaOrganization.getUserId());
+            List<OAUser> oaUserList = userList.parallelStream().filter(p->p.getParentId() == oaOrganization.getUserId())
+                    .peek(p -> p.setUserDepartment(oaOrganization.getOrganizationName()))
+                    .collect(Collectors.toList());
+            oaUser.setOaUser(oaUserList);
+
+            map.put(oaOrganization.getUserId(),oaOrganization);
+            res.put(oaOrganization.getUserId(),tmp.get(oaOrganization.getUserId()));
+        }
+        Map<Integer,OAUser> res2 = new LinkedHashMap<>();
+
+        for(OAUser oaUser : res.values()){
+
+        }
+        List<OAUser> oaUserList = userList.parallelStream().filter(p->p.getParentId() == 0).collect(Collectors.toList());
+        for(OAUser oaUser : oaUserList){
+            OAOrganization oaOrganization = map.get(oaUser.getUserId());
+            oaUser.setUserDepartment(oaOrganization.getOrganizationName());
+
+            res.put(oaOrganization.getUserId(),tmp.get(oaOrganization.getUserId()));
+        }
+
+        for(OAUser oaUser : userList){
+            tmp.put(oaUser.getUserId(),oaUser);
+        }
+
+        return res.values();
+    }
+
+
     @RequestMapping(value = "/create",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object createUser(@RequestBody OAUser oaUser, HttpServletRequest request)throws OAException{
@@ -240,45 +349,5 @@ public class UserDefController {
         }
         return userService.getUserList(Integer.parseInt(offset),Integer.parseInt(limit),userName);
     }
-//    /**
-//     * 启动流程
-//     */
-//
-//    @RequestMapping(value = "start", method = RequestMethod.POST)
-//    @ResponseBody
-//    public AjaxRes startWorkflow(Userdef o, HttpServletRequest request) throws Exception{
-//
-//        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-//        if(null == loginUser) throw new OAException(1101,"用户未登录");
-//
-////        auditService.audit(new OAAudit(loginUser.getName(),String.format("启动流程 %s",oaUser.getUserName())));
-//        AjaxRes ar =  new AjaxRes();
-//        try{
-//            Map<String, String> formProperties = new HashMap<String, String>();
-//
-//            // 从request中读取参数然后转换
-//            Map<String, String[]> parameterMap = request.getParameterMap();
-//            Set<Map.Entry<String, String[]>> entrySet = parameterMap.entrySet();
-//            for (Map.Entry<String, String[]> entry : entrySet) {
-//                String key = entry.getKey();
-//
-//                // fp_的意思是form paremeter
-//                if (StringUtils.defaultString(key).startsWith("fp_")) {
-//                    formProperties.put(key.split("_")[1], entry.getValue()[0]);
-//                }
-//            }
-//            String key = "new-process";
-//            ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(key);
-//            String pId = processInstance.getId();
-//            System.out.println("流程梳理所属流程定义id："
-//                    + processInstance.getProcessDefinitionId());
-//            System.out.println("流程实例的id：" + processInstance.getProcessInstanceId());
-//            System.out.println("流程实例的执行id：" + processInstance.getId());
-//            System.out.println("流程当前的活动（结点）id：" + processInstance.getActivityId());
-//            System.out.println("业务标识：" + processInstance.getBusinessKey());
-//        }catch (Exception e){
-//
-//        }
-//        return ar;
-//    }
+
 }

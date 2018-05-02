@@ -10,8 +10,18 @@ web_status = {
     NO_PRIVILEGE : "004"
 };
 function logoutUser() {
-    jQuery.cookie("userName",null);
-    window.location.href="/login.html";
+    var config = {
+        url:"/auth/logout",
+        type:"post",
+        dataType:"json",
+        data:{},
+        success:function(result){
+            jQuery.cookie("userName",null);
+            window.location.href="/login.html";
+        }
+    };
+    $.ajax(config);
+
 }
 function getQueryString(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");

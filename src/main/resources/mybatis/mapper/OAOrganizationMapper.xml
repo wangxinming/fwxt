@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OAOrganizationMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OAOrganization" >
+    <id column="ORGANIZATION_ID" property="organizationId" jdbcType="INTEGER" />
+    <result column="ORGANIZATION_NAME" property="organizationName" jdbcType="NVARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="DESCRIBE" property="describe" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="BaseResultMapUser" type="com.wxm.model.OAOrganization" >
+    <id column="ORGANIZATION_ID" property="organizationId" jdbcType="INTEGER" />
+    <result column="USER_NAME" property="userName" jdbcType="NVARCHAR" />
+    <result column="ORGANIZATION_NAME" property="organizationName" jdbcType="NVARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="DESCRIBE" property="describe" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ORGANIZATION_ID, ORGANIZATION_NAME, USER_ID, DESCRIBE, CREATE_TIME
+  </sql>
+
+  <select id="list" resultMap="BaseResultMapUser">
+    select top ${limit},oa_user.USER_NAME * from OA_ORGANIZATION oa_org,OA_USER oa_user  where oa_org.USER_ID = oa_user.USER_ID and ORGANIZATION_ID not
+    in(select top ${offset} ORGANIZATION_ID from OA_ORGANIZATION oa_org,OA_USER oa_user where oa_org.USER_ID = oa_user.USER_ID
+    <if test="organizationName != null">
+      AND ORGANIZATION_NAME like CONCAT('%',#{organizationName},'%' )
+    </if>
+    ORDER BY ORGANIZATION_ID ASC)
+    <if test="organizationName != null" >
+      AND ORGANIZATION_NAME like CONCAT('%',#{organizationName},'%' )
+    </if>
+    ORDER BY ORGANIZATION_ID
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    SELECT  count(*)
+    from OA_ORGANIZATION oa_org,OA_USER oa_user  where oa_org.USER_ID = oa_user.USER_ID
+    <if test="organizationName != null" >
+      AND ORGANIZATION_NAME like CONCAT('%',#{organizationName},'%' )
+    </if>
+  </select>
+
+<select id="getOrganizition" resultMap="BaseResultMapUser">
+  select
+  <include refid="Base_Column_List" />
+  from OA_ORGANIZATION
+</select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from OA_ORGANIZATION
+    where ORGANIZATION_ID = #{organizationId,jdbcType=INTEGER}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_ORGANIZATION
+    where ORGANIZATION_ID = #{organizationId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OAOrganization" useGeneratedKeys="true"  keyProperty = "organizationId" keyColumn = "ORGANIZATION_ID">
+    insert into OA_ORGANIZATION (ORGANIZATION_ID, ORGANIZATION_NAME, 
+      USER_ID, DESCRIBE, CREATE_TIME
+      )
+    values (#{organizationId,jdbcType=INTEGER}, #{organizationName,jdbcType=NVARCHAR}, 
+      #{userId,jdbcType=INTEGER}, #{describe,jdbcType=NVARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OAOrganization" useGeneratedKeys="true"  keyProperty = "organizationId" keyColumn = "ORGANIZATION_ID">
+    insert into OA_ORGANIZATION
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="organizationId != null" >
+        ORGANIZATION_ID,
+      </if>
+      <if test="organizationName != null" >
+        ORGANIZATION_NAME,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="describe != null" >
+        DESCRIBE,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="organizationId != null" >
+        #{organizationId,jdbcType=INTEGER},
+      </if>
+      <if test="organizationName != null" >
+        #{organizationName,jdbcType=NVARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="describe != null" >
+        #{describe,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAOrganization" >
+    update OA_ORGANIZATION
+    <set >
+      <if test="organizationName != null" >
+        ORGANIZATION_NAME = #{organizationName,jdbcType=NVARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="describe != null" >
+        DESCRIBE = #{describe,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where ORGANIZATION_ID = #{organizationId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAOrganization" >
+    update OA_ORGANIZATION
+    set ORGANIZATION_NAME = #{organizationName,jdbcType=NVARCHAR},
+      USER_ID = #{userId,jdbcType=INTEGER},
+      DESCRIBE = #{describe,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where ORGANIZATION_ID = #{organizationId,jdbcType=INTEGER}
+  </update>
+</mapper>
