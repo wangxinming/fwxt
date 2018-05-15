@@ -2,12 +2,10 @@ package com.wxm.controller;
 
 import com.wxm.entity.WordEntity;
 import com.wxm.entity.WordTemplateField;
+import com.wxm.model.OAContractCirculationWithBLOBs;
 import com.wxm.model.OAContractTemplate;
 import com.wxm.model.OAFormProperties;
-import com.wxm.service.ConcactTemplateService;
-import com.wxm.service.FormPropertiesService;
-import com.wxm.service.WordTemplateFieldService;
-import com.wxm.service.WordTemplateService;
+import com.wxm.service.*;
 import com.wxm.util.HtmlProcess;
 import com.wxm.util.Md5Utils;
 import com.wxm.util.Word2Html;
@@ -40,6 +38,8 @@ public class WordTemplateController {
     private String openOfficePath;
     @Autowired
     private FormPropertiesService formPropertiesService;
+    @Autowired
+    private ContractCirculationService contractCirculationService;
 
 
     @RequestMapping(value="/deleteWordTemplate",method= RequestMethod.DELETE,produces="application/json;charset=UTF-8")
@@ -130,6 +130,52 @@ public class WordTemplateController {
         }
         return null;
     }
+    //自定义文档处理
+    @RequestMapping(value="/custom",method= RequestMethod.POST)
+    public Object custom(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        String htmlStr = "";
+        String docName =  file.getOriginalFilename();
+        String fileName = file.getOriginalFilename().substring(0,file.getOriginalFilename().indexOf("."));
+        try {
+            File desFile = new File(contractPath + docName);
+            if(!desFile.getParentFile().exists()){
+                desFile.mkdirs();
+            }
+            file.transferTo(desFile);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        result.put("file",docName);
+        return result;
+    }
+    //文件下载
+    @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public Object download(
+            @RequestParam(value = "contractId", required = false, defaultValue = "") Integer contractId,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.querybyId(contractId);
+        byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
+        if(null != bytes) {
+            response.setContentType("application/x-download");
+            String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName() + ".doc", "UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+            return null;
+        }else {
+            return "文件不存在！";
+        }
+    }
+
+
     @RequestMapping(value="/batchImport",method= RequestMethod.POST)
     public Object saveThingsParse(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");

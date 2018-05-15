@@ -132,16 +132,16 @@ color: #ffffff;
     line-height: 101px;
 }
 .book-icon .fa-envelope{
-    color: #EB525D;
-    background: #B3BEE8;
+    color: #08eb58;
+    background: #ffffff;
 }
 .book-icon .fa-bell{
-    background:#FF9554;
-    color:#FFFFFF;
+    background: #ff2a34;
+    color: #ffffff;
 }
 .book-icon .fa-tasks{
-    color: #FFC575;
-    background: #495275;
+    color: #ffffff;
+    background: #434f75;
 }
 
 .book-icon .fa-rocket{
@@ -229,6 +229,7 @@ color: #ffffff;
     -o-animation: progress-bar-stripes 2s linear infinite;
     animation: progress-bar-stripes 2s linear infinite;
 }
+
 /*!**/
  /***/
  /**   H+ - Admin Theme*/

@@ -5,6 +5,7 @@
     <id column="USER_ID" property="userId" jdbcType="INTEGER" />
     <result column="USER_NAME" property="userName" jdbcType="NVARCHAR" />
     <result column="PARENT_ID" property="parentId" jdbcType="INTEGER" />
+    <result column="GROUP_ID" property="groupId" jdbcType="INTEGER" />
     <result column="USER_MOBILE" property="userMobile" jdbcType="NVARCHAR" />
     <result column="USER_EMAIL" property="userEmail" jdbcType="NVARCHAR" />
     <result column="USER_PWD" property="userPwd" jdbcType="NVARCHAR" />
@@ -18,7 +19,7 @@
     <result column="USER_CREATETIME" property="userCreatetime" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    USER_ID, USER_NAME, PARENT_ID,USER_MOBILE, USER_EMAIL, USER_PWD, USER_COMPANY, USER_DEPARTMENT,
+    USER_ID, USER_NAME, PARENT_ID,GROUP_ID,USER_MOBILE, USER_EMAIL, USER_PWD, USER_COMPANY, USER_DEPARTMENT,
     USER_POSITION, USER_ADDRESS, USER_POSTCODE, USER_WEIXIN, USER_STATUS, USER_CREATETIME
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -36,7 +37,7 @@
     select
     <include refid="Base_Column_List" />
     from OA_USER
-    where USER_NAME = #{userName,jdbcType=NVARCHAR}
+    where USER_NAME = #{userName,jdbcType=NVARCHAR} or USER_MOBILE=  #{userName,jdbcType=NVARCHAR}
   </select>
   <select id="getLeader" resultMap="BaseResultMap">
     select
@@ -71,12 +72,13 @@
     where USER_ID = #{userId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAUser" >
-    insert into OA_USER (USER_ID, USER_NAME,PARENT_ID, USER_MOBILE,
+    insert into OA_USER (USER_ID, USER_NAME,PARENT_ID,GROUP_ID, USER_MOBILE,
       USER_EMAIL, USER_PWD, USER_COMPANY, 
       USER_DEPARTMENT, USER_POSITION, USER_ADDRESS, 
       USER_POSTCODE, USER_WEIXIN, USER_STATUS, 
       USER_CREATETIME)
-    values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=NVARCHAR},#{parentId,jdbcType=INTEGER} #{userMobile,jdbcType=NVARCHAR},
+    values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=NVARCHAR},#{parentId,jdbcType=INTEGER},#{groupId,jdbcType=INTEGER},
+     #{userMobile,jdbcType=NVARCHAR},
       #{userEmail,jdbcType=NVARCHAR}, #{userPwd,jdbcType=NVARCHAR}, #{userCompany,jdbcType=NVARCHAR}, 
       #{userDepartment,jdbcType=NVARCHAR}, #{userPosition,jdbcType=NVARCHAR}, #{userAddress,jdbcType=NVARCHAR}, 
       #{userPostcode,jdbcType=NVARCHAR}, #{userWeixin,jdbcType=NVARCHAR}, #{userStatus,jdbcType=INTEGER}, 
@@ -93,6 +95,9 @@
       </if>
       <if test="parentId != null" >
         PARENT_ID,
+      </if>
+      <if test="groupId != null" >
+        GROUP_ID,
       </if>
       <if test="userMobile != null" >
         USER_MOBILE,
@@ -138,6 +143,9 @@
       <if test="parentId != null" >
         #{parentId,jdbcType=INTEGER},
       </if>
+      <if test="groupId != null" >
+        #{groupId,jdbcType=INTEGER},
+      </if>
       <if test="userMobile != null" >
         #{userMobile,jdbcType=NVARCHAR},
       </if>
@@ -182,6 +190,9 @@
       <if test="parentId != null" >
         PARENT_ID = #{parentId,jdbcType=INTEGER},
       </if>
+      <if test="groupId != null" >
+        GROUP_ID = #{groupId,jdbcType=INTEGER},
+      </if>
       <if test="userMobile != null" >
         USER_MOBILE = #{userMobile,jdbcType=NVARCHAR},
       </if>
@@ -222,6 +233,7 @@
     update OA_USER
     set USER_NAME = #{userName,jdbcType=NVARCHAR},
       PARENT_ID = #{parentId,jdbcType=INTEGER},
+      GROUP_ID = #{groupId,jdbcType=INTEGER},
       USER_MOBILE = #{userMobile,jdbcType=NVARCHAR},
       USER_EMAIL = #{userEmail,jdbcType=NVARCHAR},
       USER_PWD = #{userPwd,jdbcType=NVARCHAR},

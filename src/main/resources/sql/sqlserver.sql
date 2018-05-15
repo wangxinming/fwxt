@@ -1,8 +1,9 @@
 CREATE TABLE OA_USER
 (
   USER_ID           INT IDENTITY PRIMARY KEY,
-  USER_NAME         NVARCHAR(200) NOT NULL ,
-  USER_MOBILE       NVARCHAR(20),
+  USER_NAME         NVARCHAR(200) UNIQUE NOT NULL ,
+  GROUP_ID          INT DEFAULT 0,
+  USER_MOBILE       NVARCHAR(20) UNIQUE,
   USER_EMAIL        NVARCHAR(200),
   USER_PWD          NVARCHAR(200),
   USER_COMPANY      NVARCHAR(200),
@@ -11,8 +12,8 @@ CREATE TABLE OA_USER
   USER_ADDRESS      NVARCHAR(200),
   USER_POSTCODE     NVARCHAR(200),
   USER_WEIXIN       NVARCHAR(100),
-  PARENT_ID         INT,
-  USER_STATUS       INT,
+  PARENT_ID         INT DEFAULT 0,
+  USER_STATUS       INT DEFAULT 0,
   USER_CREATETIME   DATETIME
 )
 GO
@@ -33,10 +34,12 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'用户微信号', N'user', N
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户状态', N'user', N'dbo', N'table', N'OA_USER', N'column', N'USER_STATUS';
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户创建时间', N'user', N'dbo', N'table', N'OA_USER', N'column', N'USER_CREATETIME';
 
+insert OA_USER (USER_NAME,USER_PWD,USER_STATUS,USER_CREATETIME) values ('admin','202CB962AC59075B964B07152D234B70',1,'2018-04-23 11:06:21.517');
+
 CREATE TABLE OA_CONTRACT_TEMPLATE
 (
   TEMPLATE_ID         INT IDENTITY PRIMARY KEY,
-  TEMPLATE_NAME       NVARCHAR(255),
+  TEMPLATE_NAME       NVARCHAR(255) UNIQUE ,
   USER_ID             INT,
   TEMPLATE_STATUS     INT,
   TEMPLATE_HTML       TEXT,
@@ -54,7 +57,20 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'模板启用状态', N'user'
 EXECUTE sp_addextendedproperty N'MS_Description', N'模板内容', N'user', N'dbo', N'table', N'OA_CONTRACT_TEMPLATE', N'column', N'TEMPLATE_HTML';
 EXECUTE sp_addextendedproperty N'MS_Description', N'模板描述信息', N'user', N'dbo', N'table', N'OA_CONTRACT_TEMPLATE', N'column', N'TEMPLATE_DES';
 EXECUTE sp_addextendedproperty N'MS_Description', N'模板创建时间', N'user', N'dbo', N'table', N'OA_CONTRACT_TEMPLATE', N'column', N'TEMPLATE_CREATETIME';
+insert OA_USER (USER_NAME,USER_PWD,USER_STATUS,USER_CREATETIME) values ('admin','202CB962AC59075B964B07152D234B70',1,'2018-04-23 11:06:21.517');
 
+INSERT INTO OA_CONTRACT_TEMPLATE(TEMPLATE_NAME,USER_ID,TEMPLATE_STATUS,TEMPLATE_HTML,TEMPLATE_CREATETIME) VALUES ('自定义合同',1,1,'<DIV style="margin-top: 25px;">
+                <div class="row" id="customFile">
+                    <div class="col-md-6">
+                        <input id="file" type="file" accept=".doc,.docx" name="file" class="" style="" value="选择word文档">
+                    </div>
+                    <div class="col-md-6">
+                        　　<input type="submit" onclick="uploadFile();" name="submit" id="submit" ng-hide="loginUserMenuMap[currentView]" value="上传" class="btn btn-primary btn-lg" >  <span id="sendStatus"></span>
+                    </div>
+                </div>
+		<div style="margin-top: 25px;margin-bottom: 20px;" id="download">
+		</div>
+</DIV>','2018-04-23 11:06:21.517');
 
 CREATE TABLE OA_DEPLOYMENT_TEMPLATE_RELATION
 (
@@ -100,13 +116,14 @@ CREATE TABLE OA_CONTRACT_CIRCULATION
 (
   CONTRACT_ID     INT IDENTITY PRIMARY KEY,
   TEMPLATE_ID     NVARCHAR(255),
-  PROCESSINSTANCE_ID NVARCHAR(255) not null
+  PROCESSINSTANCE_ID NVARCHAR(255) not null,
   CONTRACT_NAME   NVARCHAR(255),
   USER_ID         INT,
   CONTRACT_STATUS NVARCHAR(255),
   DESCRIPTION     NVARCHAR(255),
   CONTRACT_HTML   TEXT,
   CONTRACT_PDF    IMAGE,
+  WORK_STATUS     INT,
   CREATE_TIME     DATETIME
 )
 GO
@@ -118,6 +135,7 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'合同编号', N'user', N'db
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同名称', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_NAME';
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'USER_ID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同状态', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_STATUS';
+EXECUTE sp_addextendedproperty N'MS_Description', N'合同开工状态', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'WORK_STATUS';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同描述', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'DESCRIPTION';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同原始HTML', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_HTML';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同PDF', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_PDF';
@@ -138,7 +156,6 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'操作审计编号', N'user'
 EXECUTE sp_addextendedproperty N'MS_Description', N'操作内容', N'user', N'dbo', N'table', N'OA_AUDIT', N'column', N'CONTENT';
 EXECUTE sp_addextendedproperty N'MS_Description', N'操作时间', N'user', N'dbo', N'table', N'OA_AUDIT', N'column', N'CREATE_TIME';
 
-insert OA_USER (USER_NAME,USER_PWD,USER_STATUS,USER_CREATETIME) values ('admin','202CB962AC59075B964B07152D234B70',1,'2018-04-23 11:06:21.517');
 
 
 CREATE TABLE OA_ORGANIZATION
@@ -149,6 +166,7 @@ CREATE TABLE OA_ORGANIZATION
   DESCRIBE         NVARCHAR(500),
   CREATE_TIME     DATETIME
 )
+
 GO
 /* 表注释 */
 EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_ORGANIZATION', NULL, NULL;
@@ -158,6 +176,117 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'db
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'USER_ID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'DESCRIBE';
 EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'CREATE_TIME';
+
+
+CREATE TABLE OA_GROUP
+(
+  GROUP_ID     INT IDENTITY PRIMARY KEY,
+  GROUP_NAME     NVARCHAR(255),
+  USER_ID        INT,
+  PRIVILEGEIDS   NVARCHAR(500),
+  DESCRIBE       NVARCHAR(500),
+  CREATE_TIME     DATETIME
+)
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_GROUP', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'GROUP_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'GROUP_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建组用户编号', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'USER_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'DESCRIBE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'CREATE_TIME';
+
+CREATE TABLE OA_GROUP_PRIVILEGE
+(
+  RELATION_ID     INT IDENTITY PRIMARY KEY,
+  GROUP_ID        INT,
+  PRIVILAGE       NVARCHAR(1000),
+  DESCRIBE        NVARCHAR(500),
+  CREATE_TIME     DATETIME
+)
+
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'ORGANIZATION_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'ORGANIZATION_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'USER_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'DESCRIBE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'CREATE_TIME';
+
+
+CREATE TABLE OA_GROUP_USER
+(
+  RELATION_ID     INT IDENTITY PRIMARY KEY,
+  GROUP_ID        INT,
+  USER_ID         INT,
+  DESCRIBE        NVARCHAR(500),
+  CREATE_TIME     DATETIME
+)
+
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_ORGANIZATION', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'USER_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'DESCRIBE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'CREATE_TIME';
+
+CREATE TABLE OA_PRIVILEGE
+(
+  PRIVILEGE_ID     INT IDENTITY PRIMARY KEY,
+  TYPE             NVARCHAR(100),
+  NAME             NVARCHAR(100),
+  CONTENT          NVARCHAR(500),
+  DESCRIBE         NVARCHAR(500),
+  CREATE_TIME      DATETIME
+)
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'权限表', N'user', N'dbo', N'table', N'OA_PRIVILEGE', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'权限编号', N'user', N'dbo', N'table', N'OA_PRIVILEGE', N'column', N'PRIVILEGE_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'权限类型', N'user', N'dbo', N'table', N'OA_PRIVILEGE', N'column', N'TYPE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'权限名称', N'user', N'dbo', N'table', N'OA_PRIVILEGE', N'column', N'NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'权限内容', N'user', N'dbo', N'table', N'OA_PRIVILEGE', N'column', N'CONTENT';
+EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_PRIVILEGE', N'column', N'DESCRIBE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_PRIVILEGE', N'column', N'CREATE_TIME';
+
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','新建用户','user','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','用户组管理','group','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','修改密码','password','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','合同模板管理','upload','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','合同模板字段检查','form','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','工作流定义','modeler','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','已发布流程','deployment','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','新合同建立','process','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','待处理申请','myProcess','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','我发起的申请','initiator','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','合同审核及批复','pending','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','归档文件查询','complete','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','个人任务统计','privateReport','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','法务任务统计','fawuReport','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','管理员日志查询','audit','2018-04-26 11:41:53.760');
+
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','新建用户','user','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','用户组管理','group','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','修改密码','password','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','合同模板管理','upload','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('button','合同模板字段检查','form','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','工作流定义','modeler','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','已发布流程','deployment','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('button','新合同建立','process','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('button','待处理申请','myProcess','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','我发起的申请','initiator','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','合同审核及批复','pending','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('button','归档文件查询','complete','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('button','个人任务统计','privateReport','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','法务任务统计','fawuReport','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','管理员日志查询','audit','2018-04-26 11:41:53.760');
 
 /*表注释*/
 SELECT [ColumnName] = [Columns].name ,

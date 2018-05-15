@@ -32,25 +32,30 @@ public class loginController {
                         HttpServletRequest request, HttpServletResponse response) throws Exception{
         Map<String, Object> result = new HashMap<String, Object>();
         OAUser oaUser = userService.selectByName(userName);
-        User user= new User();
+        if(oaUser != null) {
+            User user = new User();
 //                loginService.loginUser(userName);
-        String psw = Md5Utils.getMd5(password);
-        if(psw.equals(oaUser.getUserPwd())){
-            user.setId(oaUser.getUserId());
-            user.setName(userName);
-            user.setRealName(userName);
+            String psw = Md5Utils.getMd5(password);
+            if (psw.equals(oaUser.getUserPwd())) {
+                user.setId(oaUser.getUserId());
+                user.setName(oaUser.getUserName());
+                user.setRealName(oaUser.getUserName());
 //            user.setMobile(user.getMobile());
 //            user.setEmail(user.getEmail());
-            request.getSession().setAttribute("loginUser", user);
-            request.getSession().setAttribute("isLogin",true);
-            result.put("userName",userName);
-            result.put("result","success");
-        }else if(user==null){
-            result.put("result","fail");
-            result.put("msg","用户不存在");
+                request.getSession().setAttribute("loginUser", user);
+                request.getSession().setAttribute("isLogin", true);
+                result.put("userName", oaUser.getUserName());
+                result.put("result", "success");
+            } else if (user == null) {
+                result.put("result", "fail");
+                result.put("msg", "用户不存在");
+            } else {
+                result.put("result", "fail");
+                result.put("msg", "密码错误");
+            }
         }else{
-            result.put("result","fail");
-            result.put("msg","密码错误");
+            result.put("result", "fail");
+            result.put("msg", "用户不存在");
         }
         return result;
     }
@@ -60,8 +65,11 @@ public class loginController {
     @ResponseBody
     public void logOut(HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+//        if(null == loginUser) throw new OAException(1101,"用户未登录");
         request.getSession().removeAttribute("isLogin");
         request.getSession().removeAttribute("loginUser");
     }
+
+
+
 }

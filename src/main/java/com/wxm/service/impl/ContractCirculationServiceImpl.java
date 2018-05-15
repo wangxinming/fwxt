@@ -1,11 +1,16 @@
 package com.wxm.service.impl;
 
+import com.wxm.entity.ReportItem;
 import com.wxm.mapper.OAContractCirculationMapper;
 import com.wxm.model.OAContractCirculation;
 import com.wxm.model.OAContractCirculationWithBLOBs;
 import com.wxm.service.ContractCirculationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class ContractCirculationServiceImpl implements ContractCirculationService {
@@ -35,5 +40,15 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     @Override
     public Integer delete(int id) {
         return oaContractCirculationMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public List<ReportItem> count(Date startTime, Date endTime) {
+        return oaContractCirculationMapper.count(startTime,endTime);
+    }
+
+    @Override
+    public Integer total(String contractStatus,String contractType,Date startTime, Date endTime) {
+        return oaContractCirculationMapper.total(contractStatus,contractType,startTime,endTime);
     }
 }

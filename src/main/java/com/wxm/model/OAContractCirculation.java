@@ -13,6 +13,8 @@ public class OAContractCirculation {
 
     private Integer userId;
 
+    private  Integer workStatus;
+
     private String contractStatus;
 
     private String description;
@@ -33,6 +35,14 @@ public class OAContractCirculation {
 
     public void setContractId(Integer contractId) {
         this.contractId = contractId;
+    }
+
+    public Integer getWorkStatus() {
+        return workStatus;
+    }
+
+    public void setWorkStatus(Integer workStatus) {
+        this.workStatus = workStatus;
     }
 
     public Integer getTemplateId() {

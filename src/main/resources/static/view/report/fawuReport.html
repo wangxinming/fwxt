@@ -1,0 +1,62 @@
+<div class="row" style="margin: 15px 0px 0px 0px;">
+
+    <form name="queryForm" role="form" w5c-form-validate novalidate>
+        <div class="row">
+            <div class="col-md-4 form-group">
+                <label for="fromDateEx" class="col-lg-4 control-label">开始时间<code>*</code></label>
+                <div class="col-lg-8">
+                    <input type="text" placeholder="开始时间" value="" ng-model="searchPage.data.startTime" required
+                           id="fromDateEx" name="fromDateEx" datepicker class="form-control"
+                           onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate:'#F{$dp.$D(\'toDateEx\')}'})"/>
+                </div>
+            </div>
+
+            <div class="col-md-4 form-group">
+                <label for="toDateEx" class="col-lg-4 control-label">结束时间<code>*</code></label>
+                <div class="col-lg-8">
+                    <input type="text" placeholder="结束时间" value=""
+                           id="toDateEx" name="toDateEx" ng-model="searchPage.data.endTime"
+                           datepicker class="form-control"
+                           onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'fromDateEx\')}',maxDate:'%y-%M-%d'})"
+                           required/>
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <div class="list_button" >
+                    <div class="input-group">
+                        <span class="input-group-btn">
+						    <button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+
+    <div class="row">
+        <div class="col-md-3 form-group">
+            <label for="fromDateEx" class="col-lg-6">处理合同总数量</label>
+            <div class="col-lg-6">
+                <input type="text" ng-model="profile.total" ng-readonly="true" class="ng-pristine ng-valid" readonly="readonly">
+            </div>
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="fromDateEx" class="col-lg-6">模板合同数量</label>
+            <div class="col-lg-6">
+                <input type="text" ng-model="profile.template" ng-readonly="true" class="ng-pristine ng-valid" readonly="readonly">
+            </div>
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="fromDateEx" class="col-lg-6">自定义合同数量</label>
+            <div class="col-lg-6">
+                <input type="text" ng-model="profile.custom" ng-readonly="true" class="ng-pristine ng-valid" readonly="readonly">
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <highchart id="chartColumn" config="chartColumn" style="min-width: 80%; height: 350px; max-width: 100%; margin: 0 auto"></highchart>
+    </div>
+
+</div>

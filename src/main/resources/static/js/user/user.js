@@ -11,6 +11,10 @@
                 templateUrl: 'view/user/user.html',
                 controller: 'user.controller'
             })
+            .when('/password', {
+                    templateUrl: 'view/user/password.html',
+                    controller: 'password.controller'
+                })
             .when('/dashboard', {
                     templateUrl: 'view/user/dashboard.html',
                     controller: 'dashboard.controller'
@@ -271,6 +275,21 @@
         }])
         .factory('user.loader', function($resource){
             return $resource(web_path+'/:id', {}, {
+                //创建组
+                createGroup: {method:'PUT',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新组
+                updateGroup: {method:'POST',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //删除组
+                deleteGroup: {method:'DELETE',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取组列表
+                groupList: {method:'GET',url:"/user/list", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //按照ID获取组信息
+                groupInfo: {method:'GET',url:"/user/getGroupById", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                getPrivileges: {method:'GET',url:"/user/getPrivileges", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取权限列表
+                loginMenus: {method:'GET',url:"/user/loginMenus", isArray:true,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取菜单树
+                loginBar: {method:'GET',url:"/user/bars", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 uploadWordTemplate: {method: 'POST', url: "template/batchImport", isArray: false,enctype:'multipart/form-data'},
                 //拒绝任务
                 rejectTask: {method:'POST',url:"/workflow/process/reject", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
@@ -279,6 +298,8 @@
                 //提交表单任务，创建工作流
                 commitFormTask: {method:'POST',url:"/workflow/process/start", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 deployment: {method:'GET',url:"/api/deployments/deploymentList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取活跃流程
+                deploymentContract: {method:'GET',url:"/api/deployments/deploymentContract", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 getTemplateHtml: {method:'GET',url:"/api/deployments/html", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 getTemplateHtmlHistory: {method:'GET',url:"/api/deployments/htmlHistory", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 commitTemplateHtml: {method:'POST',url:"/api/deployments/commitHtml", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
@@ -291,22 +312,35 @@
                 userList: {method:'GET',url:"/user/userList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取用户信息
                 userInfo: {method:'GET',url:"/user/userInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
+                //获取用户组信息
+                userGroup: {method:'GET',url:"/user/userGroup", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取首页数据
                 dashboard: {method:'GET',url:"/workflow/process/dashboard", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新用户
                 updatePassword: {method:'POST',url:"/user/updatePassword", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新用户
                 userUpdate: {method:'POST',url:"/user/update", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取个人报表
+                myReport: {method:'GET',url:"/report/myReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //法务报表统计
+                fawuReport: {method:'GET',url:"/report/fawuReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新流程状态
+                updateProcessStatus: {method:'POST',url:"/api/deployments/updateProcessStatus", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新文档状态
+                templateUpdate: {method:'POST',url:"/api/deployments/templateUpdate", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //上传文件
                 uploadFile: {method:'GET',url:"/api/deployments/uploadFile", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //获取上传文件详情
+                //获取上传文件详情更新
                 uploadFileInfo: {method:'GET',url:"/api/deployments/uploadFileInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取上传文件详情
+                concatFile: {method:'GET',url:"/api/deployments/concatFile", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                //获取上传文件详情增加
+                uploadFileInfoAdd: {method:'GET',url:"/api/deployments/uploadFileInfoAdd", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取当前任务列表
                 getTaskPending: {method:'GET',url:"/workflow/process/process", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取我发起的申请，草稿
                 getMyTask: {method:'GET',url:"/workflow/process/myTask", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
                 //获取我提交发起的申请
                 commitedTask: {method:'GET',url:"/workflow/process/commitedTask", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取历史完成任务列表
@@ -340,7 +374,7 @@
                 //获取word模板列表,所有
                 getTemplateListTotal: {method: "GET", url:  "template/templateListTotal", isArray: false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //登录菜单
-                loginMenus:{url:'/user/loginMenus',method:'GET',isArray:true},
+                // loginMenus:{url:'/user/loginMenus',method:'GET',isArray:true},
                 //部署流程
                 deployDeployment: {method: "POST", url:  "/api/deployments/publish", isArray: false}
             });
@@ -360,44 +394,195 @@
             $scope.dashBoard();
 
         }])
+        .controller('password.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $scope.addPageUpdate={
+                init:function(){
+                    $scope.addPageUpdate.data={userStatus:true}
+                },
+                data: {
+                    userStatus:true
+                }
+            };
+            $scope.update = function () {
+                if($scope.addPageUpdate.data.userPwdNew != $scope.addPageUpdate.data.userPwdRenew){
+                    $scope.addPageUpdate.data.userPwdNew = "";
+                    $scope.addPageUpdate.data.userPwdRenew = "";
+                    toaster.pop('failed', "", "新密码不一致");
+                    return;
+                }
+                if($scope.addPageUpdate.data.userPwd == $scope.addPageUpdate.data.userPwdRenew){
+                    $scope.addPageUpdate.data.userPwdNew = "";
+                    $scope.addPageUpdate.data.userPwdRenew = "";
+                    toaster.pop('failed', "", "新密码和老密码不能一样");
+                    return;
+                }
+                Loading.show();
+                $scope.addPageUpdate.data.operater = 'user';
+                loader.updatePassword($scope.addPageUpdate.data,function(data){
+                    if(data.result=="success"){
+                        Loading.hide();
+                        toaster.pop('success', "", "操作成功");
+                        $scope.listPage.settings.reload();
+                        $scope.pageDialogUpdate.hide();
+                        $scope.addPageUpdate.init();
+                    }else{
+                        Loading.hide();
+                        toaster.pop('warning', "", data.msg);
+                    }
+                })
+            }
+        }])
         .controller('group.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $scope.editPage = {
+                datas:{
+                    metricTree:{
+                        data:[ {id:1,name:"1",displayName:"rewrew",unit:"11",valType:"string",
+                            children:[
+                                {id:1,name:"2",displayName:"fhsdduf",unit:"11",valType:"string",checked:true},
+                                {id:2,name:"3",displayName:"uuuu",unit:"11",valType:"string"},
+                                {id:3,name:"4",displayName:"8888",unit:"11",valType:"string",checked:true},
+                            ]}],
+                        returnData:[],
+                        checkType: { "Y" : "ps", "N" : "ps" },
+                        checked:"",
+                        treeId: 'locTree',
+                        checkbox: "true",
+                        level:2,
+                        treeClick:function(){},
+                        init:function(){
+                            // Operate.getUserLocs({needCount:1,needJf:1},function(data){
+                            //     for(var i=0;i<data.legnth;i++){
+                            //         var row=data[i]
+                            //         for(var j=0;j<row.children.length;j++){
+                            //             row.children[j].open=true;
+                            //         }
+                            //     }
+                            //     $scope.departTree.data=data;
+                            // });
+                        },
+                        remove:function(node){
+                            var tip="确定要删除吗？";
+                            if(node.isParent){
+                                tip="确定要删除该节点及其子节点吗？";
+                            }
+                            $rootScope.$confirm(tip,function(){
+                                Loading.show();
+                                Depart.remove({id:node.id},function(data){
+                                    Loading.hide();
+                                    $rootScope.$alert("删除成功");
+                                    $scope.departDialog.node={
+                                        upDisabled: true,
+                                        downDisabled: true,
+                                        rightDisabled: true,
+                                        leftDisabled: true
+                                    };
+                                    if(data.result=="success"){
+                                        var treeObj = angular.element.fn.zTree.getZTreeObj($scope.departTree.treeId);
+                                        treeObj.removeNode(node);
+                                    }
+                                },function(data){
+                                    Loading.hide();
+                                });
+                            },"删除");
+                        },
+                        add:function(node){
+                            jQuery(".modal-body textarea").css({"width":"280px","height":"30px"});
+                            // $scope.departDialog.title="新增";
+                            // $scope.departDialog.model={isJF:0,delete:0};
+                            // $scope.departDialog.model.name=null;
+                            // $scope.departDialog.model.remark=null;
+                            // $scope.departDialog.model.desc=null;
+                            // if(node.name.indexOf("省局")>-1){
+                            //     $scope.departDialog.model.orgLevel="省";
+                            // }else if(node.orgLevel=="省"){
+                            //     $scope.departDialog.model.orgLevel="市州";
+                            // }else{
+                            //     $scope.departDialog.model.orgLevel="区县";
+                            // }
+                            $scope.form.$setPristine();
+                            // if(node) $scope.departDialog.model.pid=node.id;
+                            // $scope.departDialog.show();
+                        },
+                        edit:function(node){
+                            jQuery(".modal-body textarea").css({"width":"280px","height":"30px"});
+                            $scope.departDialog.title="编辑";
+                            $scope.departDialog.model={delete:0,id:node.id,name:node.name,pid:node.pid,desc:node.desc,remark:node.remark,orgLevel:node.orgLevel,isJF:node.isJF==true?1:0};
+                            $scope.departDialog.show();
+                        },
+                        active:function(node){
+                            $scope.departDialog.depart=node;
+                            $scope.searchPage.departId=node.id;
+                            $scope.departDialog.isShow(node);
+                            $scope.listPage.settings.reload();
+                        },
+                        onCheck:function(nodes){
+                            // $scope.roleDailog.model.locId=null;
+                            // if(nodes.length>0)$scope.roleDailog.model.locId=nodes[0].id;
+                            $scope.$apply();
+                        }
+                    }
+                },
+                data:{metricsId:0}
+            };
+            // treeobj.expandNode(pnode, true, true, true);
+            //
+            $scope.groupDialog={
+                groupName:'',
+                description:'',
+                flow:'0',
+                task:'0',
+                oaPrivileges:[],
+                init:function(){
+                    $scope.groupDialog.groupName    =        '';
+                    $scope.groupDialog.description    =        '';
+                    $scope.groupDialog.flow         =       '0';
+                    $scope.groupDialog.task         =       '0';
+                    $scope.groupDialog.oaPrivileges =        [];
+                }
+            };
             $scope.pageDialog=Tools.dialog({
                 id:"pageDialog",
-                title:"新增组织",
+                title:"新增组",
                 hiddenButton:false,
                 save:function() {
-                    if ($scope.pageDialog.title === "新增用户") {
-                        Loading.show();
-                        $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
-                        loader.addUser($scope.addPage.data,function(data){
-                            if(data.result=="success"){
-                                Loading.hide();
-                                toaster.pop('success', "", "操作成功");
-                                $scope.listPage.settings.reload();
-                                $scope.pageDialog.hide();
+                    var treeObj = angular.element.fn.zTree.getZTreeObj($scope.editPage.datas.metricTree.treeId);
+                    var allNodes = treeObj.transformToArray(treeObj.getNodes());
+                    // var nodes=new Array();
+                    for(var i=0;i<allNodes.length;i++){
+                        var node=allNodes[i];
+                        if(node.isParent) continue;
+                        var s=node.getCheckStatus();
+                        var tmp = {
+                            privilegeId:node.id,
+                            name:node.content
+                        };
+                        if(s==null){
+                            $scope.groupDialog.oaPrivileges.push(tmp);
+                            // nodes.push(node);
+                        }else if(s.checked || s.half){
+                            $scope.groupDialog.oaPrivileges.push(tmp);
+                            // nodes.push(node);
+                        }
+                    }
+                    Loading.show();
+                    if( $scope.pageDialog.title == "新建组"){
+                        loader.createGroup($scope.groupDialog,function(data){
+                            Loading.hide();
+                            $scope.pageDialog.hide();
+                            $scope.groupDialog.init();
+                            $scope.listPage.settings.reload(true);
 
-                            }else{
-                                Loading.hide();
-                                toaster.pop('warning', "", data.msg);
-                            }
                         })
+                    }else{
+                        loader.updateGroup($scope.groupDialog,function(data){
+                            Loading.hide();
+                            $scope.groupDialog.init();
+                            $scope.pageDialog.hide();
+                            $scope.listPage.settings.reload(true);
 
-                    } else if ($scope.pageDialog.title === "修改用户") {
-                        Loading.show();
-                        $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
-                        loader.userUpdate($scope.addPage.data,function(data){
-                            if(data.result=="success"){
-                                Loading.hide();
-                                toaster.pop('success', "", "操作成功");
-                                $scope.listPage.settings.reload();
-                                $scope.pageDialog.hide();
-                                $scope.addPage.init();
-                            }else{
-                                Loading.hide();
-                                toaster.pop('warning', "", data.msg);
-                            }
                         })
                     }
+
                 }
             });
             $scope.addPage={
@@ -411,6 +596,7 @@
             $scope.searchPage = {
                 data: {
                     id: 0,
+                    groupName:'',
                     limit: 10, //每页条数(即取多少条数据)
                     offset: 0 //从第几条数据开始取
 
@@ -437,60 +623,45 @@
                 ready: false,
                 action:{
                     add: function () {
-                        $scope.pageDialog.title = "新增用户";
-                        $("#formPassword")[0].style.display = 'inherit';
+                        $scope.pageDialog.title = "新建组";
+                        Loading.show();
+                        loader.getPrivileges({},{},function (data) {
+                            Loading.hide();
+                            $scope.editPage.datas.metricTree.data = data.data;
+                        })
+                        // $("#formPassword")[0].style.display = 'inherit';
                         $scope.pageDialog.show();
                         $scope.addPage.init();
                     },
-                    update: function (id) {
-                        $scope.pageDialogUpdate.title = "修改密码";
-                        $scope.addPageUpdate.data.userId = id;
-                        $scope.pageDialogUpdate.show();
-                    },
+                    // update: function (id) {
+                    //     $scope.pageDialogUpdate.title = "修改组";
+                    //     $scope.addPageUpdate.data.userId = id;
+                    //     $scope.pageDialog.show();
+                    // },
                     edit: function (id) {
-                        $scope.pageDialog.title = "修改组织结构";
+                        $scope.pageDialog.title = "修改组";
                         Loading.show();
                         // $timeout(function(){
-                        loader.userInfo({"userId":id},{},function (data) {
-                            $scope.addPage.data.userId = data.userId;
-                            $scope.addPage.data.userName = data.userName;
-                            $scope.addPage.data.userMobile = data.userMobile;
-                            $scope.addPage.data.userEmail = data.userEmail;
-                            $scope.addPage.data.userCompany = data.userCompany;
-                            $scope.addPage.data.userDepartment = data.userDepartment;
-                            $scope.addPage.data.userPosition = data.userPosition;
-                            $scope.addPage.data.userAddress = data.userAddress;
-                            $scope.addPage.data.userPostcode = data.userPostcode;
-                            $scope.addPage.data.userWeixin = data.userWeixin;
-                            $scope.addPage.data.userStatus = data.userStatus===1?true:false;
+                        loader.groupInfo({"groupId":id},{},function (data) {
+                            $scope.groupDialog.groupId= id;
+                            $scope.groupDialog.groupName = data.groupName;
+                            $scope.groupDialog.description = data.describe;
+                            $scope.groupDialog.flow = data.flow;
+                            $scope.groupDialog.task = data.task;
+                            $scope.editPage.datas.metricTree.data = data.data;
+                                // [ {id:1,name:"123",displayName:"123",unit:"11",valType:"string",
+                                // children:[
+                                //     {id:1,name:"123",displayName:"123",unit:"11",valType:"string",checked:true},
+                                //     {id:2,name:"123",displayName:"123",unit:"11",valType:"string"},
+                                //     {id:3,name:"123",displayName:"123",unit:"11",valType:"string",checked:true},
+                                // ]}];
+
                             Loading.hide();
                             // $('#userName').attr("disabled","disabled");
                             $scope.pageDialog.show();
                             // $scope.addPage.init();
                         })
                         // },500);
-                    },
-                    detail:function (id) {
-                        $scope.pageDialogDetail.title = "用户详情";
-                        Loading.show();
-                        // $timeout(function(){
-                        loader.userInfo({"userId":id},{},function (data) {
-                            $scope.addPageDetail.data.userId = data.userId;
-                            $scope.addPageDetail.data.userName = data.userName;
-                            $scope.addPageDetail.data.userMobile = data.userMobile;
-                            $scope.addPageDetail.data.userEmail = data.userEmail;
-                            $scope.addPageDetail.data.userCompany = data.userCompany;
-                            $scope.addPageDetail.data.userDepartment = data.userDepartment;
-                            $scope.addPageDetail.data.userPosition = data.userPosition;
-                            $scope.addPageDetail.data.userAddress = data.userAddress;
-                            $scope.addPageDetail.data.userPostcode = data.userPostcode;
-                            $scope.addPageDetail.data.userWeixin = data.userWeixin;
-                            $scope.addPageDetail.data.userStatus = data.userStatus===1?true:false;
-                            Loading.hide();
-                            // $('#userName').attr("disabled","disabled");
-                            $scope.pageDialogDetail.show();
-                            // $scope.addPage.init();
-                        })
                     },
                     active: function (active,userId,userName) {
                         Loading.show();
@@ -510,7 +681,7 @@
                     remove:function (id) {
                         $rootScope.$confirm("确定要删除吗？", function () {
                             Loading.show();
-                            loader.remove({'id': id}, {}, function (data) {
+                            loader.deleteGroup({'id': id}, function (data) {
                                 if (data.result == "success") {
                                     Loading.hide();
                                     $scope.listPage.settings.reload(true);
@@ -522,7 +693,7 @@
                     },
                     search: function (search, fnCallback) {
                         $scope.searchPage.data.offset = search.offset;
-                        loader.userList($scope.searchPage.data, function (data) {
+                        loader.groupList($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
                         })
@@ -535,15 +706,6 @@
                     $scope.searchPage.action.search();
                 }
             };
-            var resolve = function (mData, type, full) {
-                if (mData == 1) {
-                    return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
-                } else if (mData == 0) {
-                    return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
-                } else {
-                    return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
-                }
-            };
 
 
             $scope.listPage.settings = {
@@ -552,30 +714,23 @@
                 getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
                 columns: [
                     {
-                        sTitle: "用户名称",
-                        mData: "userName",
+                        sTitle: "组名称",
+                        mData: "groupName",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
-                        sTitle: "电子邮箱",
-                        mData: "userEmail",
+                        sTitle: "描述",
+                        mData: "describe",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
 
                     {
-                        sTitle: "手机号码",
-                        mData: "userMobile",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
-                    {
                         sTitle: "创建时间",
-                        mData: "userCreatetime",
+                        mData: "createTime",
                         mRender: function (mData, type, full) {
                             if(!mData){
                                 return "";
@@ -584,49 +739,27 @@
                         }
                     },
                     {
-                        sTitle: "状态",
-                        mData: "userStatus",
-                        mRender: function (mData, type, full) {
-                            return resolve(mData, type, full);
-                        }
-                    },
-                    {
                         sTitle: "操作",
-                        mData:"userId",
+                        mData:"groupId",
                         mRender:function(mData,type,full) {
-                            return  '<i title="详情" class="fa fa-info" ng-click="listPage.action.detail(\'' + mData +'\')"> </i>' +
-                                '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
-                                '<i title="修改密码" ng-hide="loginUserMenuMap[currentView]" class="fa fa-user" ng-click="listPage.action.update(\'' + mData +'\')"> </i>' +
-                                '<i title="'+(full.userStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.userStatus==1?'false':'true')+',\''+mData+'\',\''+full.userName+'\')"></i>';
-                            // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+                            return  '<i title="编辑"  class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                                // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                                    '<i title="删除"  class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+                                // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
                     }
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
-                    { sWidth: "15%", aTargets: [ 0,2,5 ] },
-                    { sWidth: "20%", aTargets: [ 1,3 ] },
-                    { sWidth: "10%", aTargets: [ 4 ] }
+                    {bSortable: false, aTargets: [0,1,2,3]},  //第 0,10列不可排序
+                    { sWidth: "25%", aTargets: [ 0,1,2,3 ] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
                 ]  //定义默认排序列为第8列倒序
             };
             $scope.searchPage.init();
-            $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
-                if (newVal) {
-                    $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
-                } else {
-                    if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
-                        $scope.listPage.checkedList = [];
-                    }
-                }
-            }, false);
-            $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
-                $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
-            }, true);
         }])
         .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
             // $rootScope.loginUserMenuMap={};
@@ -811,17 +944,17 @@
                 title:"修改密码",
                 hiddenButton:false,
                 save:function() {
-                        if($scope.addPageUpdate.data.userPwdNew != $scope.addPageUpdate.data.userPwdRenew){
-                            $scope.addPageUpdate.data.userPwdNew = "";
-                            $scope.addPageUpdate.data.userPwdRenew = "";
-                            toaster.pop('failed', "", "新密码不一致");
-                            return;
-                        }
-                        if($scope.addPageUpdate.data.userPwd == $scope.addPageUpdate.data.userPwdRenew){
-                            $scope.addPageUpdate.data.userPwdNew = "";
-                            $scope.addPageUpdate.data.userPwdRenew = "";
-                            toaster.pop('failed', "", "新密码和老密码不能一样");
-                        }
+                        // if($scope.addPageUpdate.data.userPwdNew != $scope.addPageUpdate.data.userPwdRenew){
+                        //     $scope.addPageUpdate.data.userPwdNew = "";
+                        //     $scope.addPageUpdate.data.userPwdRenew = "";
+                        //     toaster.pop('failed', "", "新密码不一致");
+                        //     return;
+                        // }
+                        // if($scope.addPageUpdate.data.userPwd == $scope.addPageUpdate.data.userPwdRenew){
+                        //     $scope.addPageUpdate.data.userPwdNew = "";
+                        //     $scope.addPageUpdate.data.userPwdRenew = "";
+                        //     toaster.pop('failed', "", "新密码和老密码不能一样");
+                        // }
                         Loading.show();
                         loader.updatePassword($scope.addPageUpdate.data,function(data){
                             if(data.result=="success"){
@@ -925,6 +1058,11 @@
                     add: function () {
                         $scope.pageDialog.title = "新增用户";
                         $("#formPassword")[0].style.display = 'inherit';
+                        Loading.show();
+                        loader.userGroup({},{},function (data) {
+                            $scope.approvalGroup = data.group;
+                            Loading.hide();
+                        });
                         $scope.pageDialog.show();
                         $scope.addPage.init();
                     },
@@ -939,17 +1077,20 @@
                         Loading.show();
                         // $timeout(function(){
                             loader.userInfo({"userId":id},{},function (data) {
-                                $scope.addPage.data.userId = data.userId;
-                                $scope.addPage.data.userName = data.userName;
-                                $scope.addPage.data.userMobile = data.userMobile;
-                                $scope.addPage.data.userEmail = data.userEmail;
-                                $scope.addPage.data.userCompany = data.userCompany;
-                                $scope.addPage.data.userDepartment = data.userDepartment;
-                                $scope.addPage.data.userPosition = data.userPosition;
-                                $scope.addPage.data.userAddress = data.userAddress;
-                                $scope.addPage.data.userPostcode = data.userPostcode;
-                                $scope.addPage.data.userWeixin = data.userWeixin;
-                                $scope.addPage.data.userStatus = data.userStatus===1?true:false;
+
+                                $scope.addPage.data.userId = data.data.userId;
+                                $scope.addPage.data.userName = data.data.userName;
+                                $scope.addPage.data.userMobile = data.data.userMobile;
+                                $scope.addPage.data.userEmail = data.data.userEmail;
+                                $scope.addPage.data.userCompany = data.data.userCompany;
+                                $scope.addPage.data.userDepartment = data.data.userDepartment;
+                                $scope.addPage.data.userPosition = data.data.userPosition;
+                                $scope.addPage.data.userAddress = data.data.userAddress;
+                                $scope.addPage.data.userPostcode = data.data.userPostcode;
+                                $scope.addPage.data.userWeixin = data.data.userWeixin;
+                                $scope.addPage.data.userStatus = data.data.userStatus===1?true:false;
+                                $scope.approvalGroup = data.group;
+                                $scope.addPage.data.groupId = data.data.groupId;
                                 Loading.hide();
                                 // $('#userName').attr("disabled","disabled");
                                 $scope.pageDialog.show();
@@ -1114,6 +1255,251 @@
             $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
                 $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
             }, true);
+        }])
+        .controller('navBarController', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            var totalBefore = '     <ul>\n';
+            var totalEnd = '    </ul>\n';
+            var userParentBefore = '                        <li class="header-menu"></li>\n' +
+                '                        <li class="sidebar-dropdown">\n' +
+                '                            <a id="user"><i class="fa fa-user" ></i><span>用户管理模块</span><span class="label label-danger"></span></a>\n' +
+                '                            <div class="sidebar-submenu">\n' +
+                '                                <ul>';
+            var user = '<li><a href="/index.html#/user">用户信息 <span class="label label-success"></span></a> </li>';
+            var group = '<li><a href="/index.html#/group">用户组 <span class="label label-success"></span></a> </li>';
+            var password = '<li><a href="/index.html#/password">修改密码 <span class="label label-success"></span></a> </li>';
+            var end = '                                </ul>\n' +
+                '                            </div>\n' +
+                '                        </li>';
+
+            var uploadBefore = '                        <li class="sidebar-dropdown">\n' +
+                '                            <a id="deployment"><i class="fa fa-calendar"></i><span>合同模板管理模块</span><span class="badge"></span></a>\n' +
+                '                            <div class="sidebar-submenu" >\n' +
+                '                                <ul>';
+            var upload = '<li><a href="index.html#/upload">合同模板管理</a></li>';
+            var form = '<li><a href="index.html#/form">合同模板字段检查</a></li>';
+
+            var deployParent = '                        <li class="sidebar-dropdown">\n' +
+                '                            <a id="deploymentProcess"><i class="fa fa-tv"></i><span>合同流程管理模块</span><span class="badge"></span></a>\n' +
+                '                            <div class="sidebar-submenu" >\n' +
+                '                                <ul>';
+            var modeler = '<li><a href="index.html#/modeler">合同流程设定</a></li>';
+            var deployment = '<li><a href="index.html#/deployment">合同流程发布</a></li>';
+
+            var processParent = ' <li class="sidebar-dropdown">\n' +
+                '                            <a  id="process"><i class="fa fa-film"></i><span>合同日常流转模块</span></a>\n' +
+                '                            <div class="sidebar-submenu">\n' +
+                '                                <ul>';
+
+            var process = '<li><a href="/index.html#/process">新合同建立</a></li>';
+            var myProcess = '<li><a href="/index.html#/myProcess">待处理合同</a></li>';
+            var initiator = '<li><a href="/index.html#/initiator">我发起的合同</a></li>';
+
+            var pendingParent = '  <li class="sidebar-dropdown">\n' +
+                '                            <a id="shenpi"><i class="fa fa-tasks"></i><span>合同同归档管理模块</span></a>\n' +
+                '                            <div class="sidebar-submenu" >\n' +
+                '                                <ul>';
+            var pending = ' <li><a href="/index.html#/pending">合同审核及批复</a></li>';
+            var complete = ' <li><a href="/index.html#/complete">归档文件查询</a></li>';
+            var reportParent = '  <li class="sidebar-dropdown">\n' +
+                '                            <a id="report"><i class="fa fa-diamond"></i><span>合同分类统计模块</span></a>\n' +
+                '                            <div class="sidebar-submenu">\n' +
+                '                            <ul>';
+
+            var privateReport  = ' <li><a href="/index.html#/privateReport">个人任务统计</a></li>';
+            var fawu = '<li><a href="/index.html#/fawuReport">法务任务统计</a></li>';
+
+            var logParent = '                <li class="sidebar-dropdown">\n' +
+                '                            <a id="log"><i class="fa fa-bar-chart-o"></i><span>系统日志文件模块</span></a>\n' +
+                '                            <div class="sidebar-submenu" >\n' +
+                '                                <ul>';
+
+            var log = '<li><a href="/index.html#/audit">管理员日志查询</a></li>';
+            var bars = totalBefore;
+            loader.loginBar(null, function (data) {
+                    var tmp = '';
+                    if(data.user){
+                        tmp += user;
+                        tmp += group;
+                    }
+                    if(data.password){
+                        tmp += password;
+                    }
+                    if(tmp.length > 0){
+                        bars += userParentBefore;
+                        bars += tmp;
+                        bars += end;
+                    }
+                    tmp = '';
+                    if(data.upload){
+                        tmp += upload;
+                    }
+                    if(data.form){
+                        tmp += form;
+                    }
+                    if(tmp.length > 0){
+                        bars += uploadBefore;
+                        bars += tmp;
+                        bars += end;
+                    }
+                    tmp = '';
+                    if(data.modeler){
+                        tmp += modeler;
+                    }
+                    if(data.deployment){
+                        tmp += deployment;
+                    }
+                    if(tmp.length > 0){
+                        bars += deployParent;
+                        bars += tmp;
+                        bars += end;
+                    }
+                    tmp = '';
+                    if(data.process){
+                        tmp += process;
+                    }
+                    if(data.pending){
+                        tmp += pending;
+                    }
+                    if(data.myProcess){
+                        tmp += myProcess;
+                    }
+                    if(data.initiator){
+                        tmp += initiator;
+                    }
+                    if(tmp.length > 0){
+                        bars += processParent;
+                        bars += tmp;
+                        bars += end;
+                    }
+                    tmp = '';
+                    if(data.complete){
+                        tmp += complete;
+                    }
+                    if(tmp.length > 0){
+                        bars += pendingParent;
+                        bars += tmp;
+                        bars += end;
+                    }
+                    tmp = '';
+                    if(data.privateReport){
+                        tmp += privateReport;
+                    }
+                    if(data.fawuReport){
+                        tmp += fawu;
+                    }
+                    if(tmp.length > 0){
+                        bars += reportParent;
+                        bars += tmp;
+                        bars += end;
+                    }
+                    tmp = '';
+                    if(data.audit){
+                        tmp += log;
+                    }
+
+                    if(tmp.length > 0){
+                        bars += logParent;
+                        bars += tmp;
+                        bars += end;
+                    }
+                bars+=totalEnd;
+                $('#menuBar').html(bars);
+                $(".sidebar-dropdown > a").click(function(){
+                    $(".sidebar-submenu").slideUp(250);
+                    if ($(this).parent().hasClass("active")){
+                        $(".sidebar-dropdown").removeClass("active");
+                        $(this).parent().removeClass("active");
+                    }else{
+                        $(".sidebar-dropdown").removeClass("active");
+                        $(this).next(".sidebar-submenu").slideDown(250);
+                        $(this).parent().addClass("active");
+                    }
+
+                });
+            });
+
+            // $('#menuBar').html( '    <ul>\n' +
+            //     '                        <li class="header-menu"></li>\n' +
+            //     '                        <li class="sidebar-dropdown">\n' +
+            //     '                            <a id="user"><i class="fa fa-user" ></i><span>用户管理模块</span><span class="label label-danger"></span></a>\n' +
+            //     '                            <div class="sidebar-submenu">\n' +
+            //     '                                <ul>\n' +
+            //     '                                    <li><a href="/index.html#/user">新建用户 <span class="label label-success"></span></a> </li>\n' +
+            //     '                                    <li><a href="/index.html#/password">修改密码 <span class="label label-success"></span></a> </li>\n' +
+            //     '                                </ul>\n' +
+            //     '                            </div>\n' +
+            //     '                        </li>\n' +
+            //     '                        <li class="sidebar-dropdown">\n' +
+            //     '                            <a id="deployment"><i class="fa fa-calendar"></i><span>合同模板管理模块</span><span class="badge"></span></a>\n' +
+            //     '                            <div class="sidebar-submenu" >\n' +
+            //     '                                <ul>\n' +
+            //     '                                    <li><a href="index.html#/upload">合同模板管理</a></li>\n' +
+            //     '                                    <li><a href="index.html#/form">合同模板字段检查</a></li>\n' +
+            //     '                                </ul>\n' +
+            //     '                            </div>\n' +
+            //     '                        </li>\n' +
+            //     '                        <li class="sidebar-dropdown">\n' +
+            //     '                            <a id="deploymentProcess"><i class="fa fa-tv"></i><span>合同流程管理模块</span><span class="badge"></span></a>\n' +
+            //     '                            <div class="sidebar-submenu" >\n' +
+            //     '                                <ul>\n' +
+            //     '                                    <li><a href="index.html#/modeler">工作流定义</a></li>\n' +
+            //     '                                    <li><a href="index.html#/deployment">已发布流程</a></li>\n' +
+            //     '                                </ul>\n' +
+            //     '                            </div>\n' +
+            //     '                        </li>\n' +
+            //     '                        <li class="sidebar-dropdown">\n' +
+            //     '                            <a  id="process"><i class="fa fa-film"></i><span>合同日常流转模块</span></a>\n' +
+            //     '                            <div class="sidebar-submenu">\n' +
+            //     '                                <ul>\n' +
+            //     '                                    <li><a href="/index.html#/process">新合同建立</a></li>\n' +
+            //     '                                    <li><a href="/index.html#/myProcess">待处理申请</a></li>\n' +
+            //     '                                    <li><a href="/index.html#/initiator">我发起的申请</a></li>\n' +
+            //     '                                </ul>\n' +
+            //     '                            </div>\n' +
+            //     '                        </li>\n' +
+            //     '                        <li class="sidebar-dropdown">\n' +
+            //     '                            <a id="shenpi"><i class="fa fa-tasks"></i><span>合同同归档管理模块</span></a>\n' +
+            //     '                            <div class="sidebar-submenu" >\n' +
+            //     '                                <ul>\n' +
+            //     '                                    <li><a href="/index.html#/pending">合同审核及批复</a></li>\n' +
+            //     '                                    <li><a href="/index.html#/complete">归档文件查询</a></li>\n' +
+            //     '                                </ul>\n' +
+            //     '                            </div>\n' +
+            //     '                        </li>\n' +
+            //     '                        <li class="sidebar-dropdown">\n' +
+            //     '                            <a id="report"><i class="fa fa-diamond"></i><span>合同分类统计模块</span></a>\n' +
+            //     '                            <div class="sidebar-submenu">\n' +
+            //     '                            <ul>\n' +
+            //     '                                <li><a href="/index.html#/privateReport">个人任务统计</a></li>\n' +
+            //     '                                <li><a href="/index.html#/fawuReport">法务任务统计</a></li>\n' +
+            //     '                            </ul>\n' +
+            //     '                            </div>\n' +
+            //     '                        </li>\n' +
+            //     '                        <li class="sidebar-dropdown">\n' +
+            //     '                            <a id="log"><i class="fa fa-bar-chart-o"></i><span>系统日志文件模块</span></a>\n' +
+            //     '                            <div class="sidebar-submenu" >\n' +
+            //     '                                <ul>\n' +
+            //     '                                    <li><a href="/index.html#/audit">管理员日志查询</a></li>\n' +
+            //     '                                </ul>\n' +
+            //     '                            </div>\n' +
+            //     '                        </li>\n' +
+            //     '\n' +
+            //     '                    </ul>');
+        }])
+        .controller('navHeaderController', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $rootScope.loginUserMenuMap={};
+            var foreachMenus=function(menus){
+                for(var i=0;i<menus.length;i++){
+                    var menu=menus[i];
+                    $rootScope.loginUserMenuMap[menu.code]=!menu.permission;
+                    // if(menu.children.length>0){
+                    //     foreachMenus(menu.children);
+                    // }
+                }
+            };
+            loader.loginMenus(null, function (data) {
+                foreachMenus(data);
+            })
         }])
         .controller('userManagerController', ['$scope','user.loader','Loading','toaster',function($scope,loader,Loading,toaster) {
         $scope.userLevel = document.getElementById("userLevel").value;

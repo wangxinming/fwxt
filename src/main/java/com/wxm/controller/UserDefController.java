@@ -1,9 +1,12 @@
 package com.wxm.controller;
 
+import com.alibaba.druid.support.json.JSONUtils;
+import com.wxm.common.ImportExcelUtil;
+import com.wxm.common.JsonUtils;
 import com.wxm.entity.*;
-import com.wxm.model.OAAudit;
-import com.wxm.model.OAOrganization;
-import com.wxm.model.OAUser;
+import com.wxm.mapper.OAGroupMapper;
+import com.wxm.mapper.OAPrivilegeMapper;
+import com.wxm.model.*;
 import com.wxm.service.AuditService;
 import com.wxm.service.UserOrganizitionService;
 import com.wxm.service.UserService;
@@ -20,13 +23,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequestMapping(value = "/user")
 public class UserDefController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDefController.class);
@@ -44,10 +50,303 @@ public class UserDefController {
     private UserService userService;
     @Autowired
     private UserOrganizitionService userOrganizitionService;
-
+    @Autowired
+    private OAGroupMapper oaGroupMapper;
     @Autowired
     private AuditService auditService;
 
+    @Autowired
+    private OAPrivilegeMapper oaPrivilegeMapper;
+
+    //excel导入
+    @RequestMapping(value = "/excel",method = {RequestMethod.POST},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object excel(MultipartFile file, HttpServletRequest request, HttpServletResponse response){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        InputStream in =null;
+        List<OAUser> listob = null;
+        Map<String, String> result = new HashMap<>();
+        try {
+            in = file.getInputStream();
+            listob = new ImportExcelUtil().getBankListByExcel(in,file.getOriginalFilename());
+            in.close();
+            //该处可调用service相应方法进行数据保存到数据库中，现只对数据输出
+            for (OAUser oaUser : listob) {
+                if(null == oaUser || StringUtils.isBlank(oaUser.getUserName())) continue;
+                OAUser tmp = userService.selectByName(oaUser.getUserName());
+                if(tmp == null) {
+                    oaUser.setUserPwd(Md5Utils.getMd5(oaUser.getUserPwd()));
+                    userService.create(oaUser);
+                }
+            }
+            result.put("result","success");
+        } catch (Exception e) {
+            result.put("result","failed");
+        }
+        return result;
+    }
+
+    //创建组
+    @RequestMapping(value = "/group",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object group(@RequestBody GroupInfo groupInfo, HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        OAGroup oaGroup = new OAGroup();
+        Map<String,String> res = new LinkedHashMap<>();
+        res.put("result","success");
+        Map<String,Object> map  = new LinkedHashMap<>();
+        //工作流
+        if(groupInfo.getFlow().equals("1")){
+            map.put("flow","true");
+        }else{
+            map.put("flow","false");
+        }
+        //任务
+        if(groupInfo.getTask().equals("1")){
+            map.put("task","true");
+        }else{
+            map.put("task","false");
+        }
+        Map menu = new LinkedHashMap();
+        for(OAPrivilege oaPrivilege : groupInfo.getOaPrivileges()){
+            menu.put(oaPrivilege.getPrivilegeId(),oaPrivilege.getName());
+        }
+        map.put("menu",menu);
+        oaGroup.setGroupName(groupInfo.getGroupName());
+        oaGroup.setDescribe(groupInfo.getDescription());
+        oaGroup.setPrivilegeids( JsonUtils.toJsonString(map));
+        oaGroup.setUserId(loginUser.getId());
+        oaGroup.setCreateTime(new Date());
+        oaGroupMapper.insertSelective(oaGroup);
+        return res;
+
+    }
+
+    //更新组
+    @RequestMapping(value = "/group",method = {RequestMethod.POST},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object updateGroup(@RequestBody GroupInfo groupInfo, HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+//        OAGroup oaGroup = oaGroupMapper.selectByPrimaryKey(groupInfo.getGroupId());
+        OAGroup oaGroup = new OAGroup();
+        Map<String,Boolean> res = new LinkedHashMap<>();
+        Map<String,Object> map  = new LinkedHashMap<>();
+        //工作流
+        if(groupInfo.getFlow().equals("1")){
+            map.put("flow","true");
+        }else{
+            map.put("flow","false");
+        }
+        //任务
+        if(groupInfo.getTask().equals("1")){
+            map.put("task","true");
+        }else{
+            map.put("task","false");
+        }
+
+        Map menu = new LinkedHashMap();
+        for(OAPrivilege oaPrivilege : groupInfo.getOaPrivileges()){
+            menu.put(oaPrivilege.getPrivilegeId(),oaPrivilege.getName());
+        }
+
+        map.put("menu",menu);
+        oaGroup.setGroupId(groupInfo.getGroupId());
+        oaGroup.setGroupName(groupInfo.getGroupName());
+        oaGroup.setPrivilegeids( JsonUtils.toJsonString(map));
+        oaGroup.setUserId(loginUser.getId());
+        oaGroupMapper.updateByPrimaryKeySelective(oaGroup);
+        return res;
+
+    }
+
+    //删除组
+    @RequestMapping(value = "/group",method = {RequestMethod.DELETE},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object deleteGroup(@RequestParam (value = "id", required=true)Integer id, HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String,String> res = new LinkedHashMap<>();
+        res.put("result","success");
+        oaGroupMapper.deleteByPrimaryKey(id);
+        return res;
+    }
+    //组列表
+    @RequestMapping(value = "/list",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object listGroup(@RequestParam(value = "groupName", required=false) String groupName,
+                            @RequestParam(value = "offset", required=true) Integer offset,
+                            @RequestParam(value = "limit", required=true) Integer limit,
+                             HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        List<OAGroup> list = oaGroupMapper.list(groupName,offset,limit,null,null);
+        Integer count = oaGroupMapper.count(groupName,null,null);
+        result.put("rows",list);
+        result.put("total",count);
+        return result;
+    }
+    //添加组时，权限下发
+    @RequestMapping(value = "/getPrivileges",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object getPrivileges(HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        List<OAPrivilege> oaPrivileges = oaPrivilegeMapper.list("menu");
+        for(OAPrivilege oaPrivilege : oaPrivileges){
+            oaPrivilege.setId(oaPrivilege.getPrivilegeId());
+        }
+        result.put("data",oaPrivileges);
+        return result;
+    }
+    //组明细
+    @RequestMapping(value = "/getGroupById",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object getGroupById(@RequestParam(value = "groupId", required=true) Integer groupId,
+                            HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        OAGroup oaGroup = oaGroupMapper.selectByPrimaryKey(groupId);
+        Map map = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+        Map mapMenu = (Map)map.get("menu");
+
+        List<OAPrivilege> oaPrivileges = oaPrivilegeMapper.list("menu");
+        result.put("groupName",oaGroup.getGroupName());
+        result.put("describe",oaGroup.getDescribe());
+        for(OAPrivilege oaPrivilege : oaPrivileges){
+            oaPrivilege.setId(oaPrivilege.getPrivilegeId());
+            if(mapMenu.containsKey(oaPrivilege.getPrivilegeId().toString())){
+                oaPrivilege.setChecked(true);
+            }else{
+                oaPrivilege.setChecked(false);
+            }
+        }
+        if(map.get("flow").equals("true")) {
+            result.put("flow", true);
+        }else{
+            result.put("flow", false);
+        }
+        if(map.get("task").equals("true")) {
+            result.put("task", true);
+        }else{
+            result.put("task", false);
+        }
+        result.put("data",oaPrivileges);
+        return result;
+    }
+
+    //用户菜单
+    @RequestMapping(value = "/bars",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object bars(HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String,Boolean> res = new LinkedHashMap<>();
+        if(loginUser.getName().equals("admin")){
+            res.put("user",true);
+            res.put("password",true);
+            res.put("group",true);
+            res.put("upload",true);
+            res.put("form",true);
+            res.put("modeler",true);
+            res.put("deployment",true);
+            res.put("process",true);
+            res.put("myProcess",true);
+            res.put("initiator",true);
+            res.put("pending",true);
+            res.put("complete",true);
+            res.put("privateReport",true);
+            res.put("fawuReport",true);
+            res.put("audit",true);
+            return res;
+        }
+        List<Menu> list = new LinkedList<>();
+        OAUser oaUser = userService.getUserById(loginUser.getId());
+        if(null != oaUser && null != oaUser.getGroupId() && oaUser.getGroupId() > 0){
+            OAGroup oaGroup = oaGroupMapper.selectByPrimaryKey(oaUser.getGroupId());
+            if(null != oaGroup){
+                Map map = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+                Map<String,String> map1 = (Map<String,String>)map.get("menu");
+                for(Map.Entry<String,String> entry:map1.entrySet()){
+                    res.put(entry.getValue(),true);
+                }
+            }
+        }else{
+            res.put("user",true);
+            res.put("password",true);
+            res.put("group",false);
+            res.put("upload",false);
+            res.put("form",false);
+            res.put("modeler",false);
+            res.put("deployment",false);
+            res.put("process",true);
+            res.put("myProcess",true);
+            res.put("initiator",true);
+            res.put("pending",true);
+            res.put("complete",true);
+            res.put("privateReport",true);
+            res.put("fawuReport",false);
+            res.put("audit",false);
+        }
+        return res;
+//        if(loginUser.getName().equals("admin")){
+//            res.put("user",true);
+//            res.put("password",true);
+//            res.put("upload",true);
+//            res.put("form",true);
+//            res.put("modeler",true);
+//            res.put("deployment",true);
+//            res.put("process",true);
+//            res.put("myProcess",true);
+//            res.put("initiator",true);
+//            res.put("pending",true);
+//            res.put("complete",true);
+//            res.put("privateReport",true);
+//            res.put("fawuReport",true);
+//            res.put("audit",true);
+//
+//        }else{
+//            res.put("user",true);
+//            res.put("password",true);
+//            res.put("upload",true);
+//            res.put("form",true);
+//            res.put("modeler",true);
+//            res.put("deployment",true);
+//            res.put("process",true);
+//            res.put("myProcess",true);
+//            res.put("initiator",true);
+//            res.put("pending",true);
+//            res.put("complete",true);
+//            res.put("privateReport",true);
+//            res.put("fawuReport",true);
+//            res.put("audit",true);
+//        }
+//        return res;
+
+    }
+    //用户页面按钮
     @RequestMapping(value = "/loginMenus",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object loginMenus(HttpServletRequest request) throws OAException{
@@ -58,6 +357,8 @@ public class UserDefController {
         List<Menu> list = new LinkedList<>();
         if(loginUser.getName().equals("admin")){
             Menu menu = new Menu("user","用户界面",true);
+            list.add(menu);
+            menu = new Menu("group","用户组",true);
             list.add(menu);
             menu = new Menu("audit","审计界面",true);
             list.add(menu);
@@ -77,14 +378,89 @@ public class UserDefController {
             list.add(menu);
             menu = new Menu("complete","已办任务",false);
             list.add(menu);
-            menu = new Menu("report","报表",true);
+            menu = new Menu("privateReport","报表",true);
             list.add(menu);
+            menu = new Menu("fawuReport","报表",true);
+            list.add(menu);
+            return list;
+        }
 
+        OAUser oaUser = userService.getUserById(loginUser.getId());
+        if(null != oaUser && oaUser.getGroupId()!= null && oaUser.getGroupId()> 0){
+            OAGroup oaGroup = oaGroupMapper.selectByPrimaryKey(oaUser.getGroupId());
+            if(null != oaGroup){
+                Map map = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+                String flow = map.get("flow").toString();
+                String task = map.get("task").toString();
+                if(flow.equals("true")){
+                    Menu menu = new Menu("user","用户界面",false);
+                    list.add(menu);
+                    menu = new Menu("group","用户组",false);
+                    list.add(menu);
+                    menu = new Menu("audit","审计界面",true);
+                    list.add(menu);
+                    menu = new Menu("modeler","流程设计界面",true);
+                    list.add(menu);
+                    menu = new Menu("upload","合同模板界面",true);
+                    list.add(menu);
+                    menu = new Menu("form","表单项界面",true);
+                    list.add(menu);
+                    menu = new Menu("deployment","部署界面",true);
+                    list.add(menu);
 
-        }else{
+                }else{
+                    Menu menu = new Menu("user","用户界面",false);
+                    list.add(menu);
+                    menu = new Menu("group","用户组",false);
+                    list.add(menu);
+                    menu = new Menu("audit","审计界面",false);
+                    list.add(menu);
+                    menu = new Menu("modeler","流程设计界面",false);
+                    list.add(menu);
+                    menu = new Menu("upload","合同模板界面",false);
+                    list.add(menu);
+                    menu = new Menu("form","表单项界面",false);
+                    list.add(menu);
+                    menu = new Menu("deployment","部署界面",false);
+                    list.add(menu);
+
+                }
+                if(task.equals("true")){
+                    Menu menu = new Menu("process","流程申请",true);
+                    list.add(menu);
+                    menu = new Menu("myProcess","我的申请",true);
+                    list.add(menu);
+                    menu = new Menu("pending","待办任务",true);
+                    list.add(menu);
+                    menu = new Menu("complete","已办任务",true);
+                    list.add(menu);
+                    menu = new Menu("privateReport","报表",true);
+                    list.add(menu);
+                    menu = new Menu("fawuReport","报表",false);
+                    list.add(menu);
+                }else{
+                    Menu menu = new Menu("process","流程申请",false);
+                    list.add(menu);
+                    menu = new Menu("myProcess","我的申请",false);
+                    list.add(menu);
+                    menu = new Menu("pending","待办任务",false);
+                    list.add(menu);
+                    menu = new Menu("complete","已办任务",false);
+                    list.add(menu);
+                    menu = new Menu("privateReport","报表",false);
+                    list.add(menu);
+                    menu = new Menu("fawuReport","报表",false);
+                    list.add(menu);
+
+                }
+            }
+        }
+        if(list.size() == 0){
             Menu menu = new Menu("user","用户界面",false);
             list.add(menu);
-            menu = new Menu("audit","审计界面",true);
+            menu = new Menu("group","用户组",false);
+            list.add(menu);
+            menu = new Menu("audit","审计界面",false);
             list.add(menu);
             menu = new Menu("modeler","流程设计界面",false);
             list.add(menu);
@@ -102,7 +478,9 @@ public class UserDefController {
             list.add(menu);
             menu = new Menu("complete","已办任务",true);
             list.add(menu);
-            menu = new Menu("report","报表",true);
+            menu = new Menu("privateReport","报表",true);
+            list.add(menu);
+            menu = new Menu("fawuReport","报表",false);
             list.add(menu);
         }
         return list;
@@ -282,25 +660,37 @@ public class UserDefController {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
 
-        String oldPassword = map.get("userPwd").toString();
-        String newPassword = map.get("userPwdNew").toString();
-        String userId = map.get("userId").toString();
+        Object oldPassword = map.get("userPwd");
+        Object newPassword = map.get("userPwdNew");
+        Object userId = map.get("userId");
+        Integer userIdServer ;
+        if(null != userId && StringUtils.isNotBlank(userId.toString())){
+            userIdServer = Integer.parseInt(userId.toString());
+        }else{
+            userIdServer = loginUser.getId();
+        }
 
-//        auditService.audit(new OAAudit(loginUser.getName(),String.format("修改密码 %s",oaUser.getUserName())));
         Map<String, Object> result = new HashMap<>();
         try {
-            result.put("result", "failed");
-            OAUser oaUser = userService.getUserById(Integer.parseInt(userId));
-            auditService.audit(new OAAudit(loginUser.getName(),String.format("修改密码 %s",oaUser.getUserName())));
-            if(oaUser.getUserPwd().equals(Md5Utils.getMd5(oldPassword))){
+            OAUser oaUser = userService.getUserById(userIdServer);
+            auditService.audit(new OAAudit(loginUser.getName(), String.format("修改密码 %s", oaUser.getUserName())));
+            if(loginUser.getName().equals("admin")){
                 result.put("result", "success");
-                oaUser.setUserPwd(Md5Utils.getMd5(newPassword));
+                oaUser.setUserPwd(Md5Utils.getMd5(newPassword.toString()));
                 userService.update(oaUser);
+            }else {
+                result.put("result", "failed");
+                if (oaUser.getUserPwd().equals(Md5Utils.getMd5(oldPassword.toString()))) {
+                    result.put("result", "success");
+                    oaUser.setUserPwd(Md5Utils.getMd5(newPassword.toString()));
+                    userService.update(oaUser);
+                }
             }
-        }catch (Exception e){
-            LOGGER.warn("异常",e);
+        } catch (Exception e) {
+            LOGGER.warn("异常", e);
             result.put("result", "failed");
         }
+
         return result;
     }
     //更新用户信息
@@ -330,8 +720,28 @@ public class UserDefController {
                                 )throws OAException{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
-        return userService.getUserById(userId);
+        Map<String,Object> map =  new LinkedHashMap<>();
+        map.put("result","success");
+        map.put("data",userService.getUserById(userId));
+        map.put("group",oaGroupMapper.total());
+        return map;
     }
+    //通过USR_ID获取USER信息
+    @RequestMapping(value = "/userGroup",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object userGroup(
+                              HttpServletRequest request,
+                              HttpServletResponse response
+    )throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        Map<String,Object> map =  new LinkedHashMap<>();
+        map.put("result","success");
+        map.put("group",oaGroupMapper.total());
+        return map;
+    }
+
+
     @RequestMapping(value = "/userList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object userList(HttpServletRequest request

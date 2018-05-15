@@ -1,12 +1,28 @@
-<div class="portlet box"  style="top: 100px;">
+<div class="portlet box"  style="margin: 15px 0px 0px 0px;">
     <form id="orderFormInfo" method="POST">
     <!--<form id="" action="/workflow/process/start" method="POST">-->
         <input type="text" style="display:none" name="id" id="wordId"/>
+        <input type="text" style="display:none" name="contract" id="contract"/>
         <input type="text" style="display:none" name="processInstanceId" id="processInstanceId"/>
-        <input type="submit" ng-hide="loginUserMenuMap[currentView]" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
-        <input type="submit" ng-hide="loginUserMenuMap[currentView]" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
-        <input type="submit" ng-hide="showCommit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="回到上次审批人" />
-        <div id="orderForm"></div>
+        <input type="text" style="display:none" name="custom" id="custom"/>
+        <div class="col-md-4" style="font-size: 16px;">
+            <label  class="col-md-3 control-label" style="font-size: 16px;">标题</label>
+            <div class="col-md-9" style="margin: -2px 0px 0px -40px;">
+                <input type="text" class="form-control ng-pristine ng-valid" maxlength="300" ng-model="contractName" placeholder="合同名称（默认名称为流程名称）">
+            </div>
+        </div>
+        <div style="float: left;margin: -4px 0 0 -60px;">
+        <span class="checkbox">
+          <label style="font-size: 16px;">
+              <input class="ace reverse ng-pristine ng-valid" type="checkbox" ng-model="workStatus" id="workStatus">已开工<span style="margin-left: 5px;" class="lbl"></span>
+          </label>
+        </span>
+        </div>
+        <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
+        <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
+        <input type="submit" ng-hide="showCommit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="返回到上次审批人" />
+
+        <div id="orderForm" style="margin-top: 20px;"></div>
     </form>
     <div class="col-md-6 " id="approvalList"></div>
 </div>

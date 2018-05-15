@@ -271,6 +271,20 @@
                 users: [],
                 ready: false,
                 action:{
+                    active: function (status,id) {
+                        Loading.show();
+                        loader.templateUpdate({"id":id,"status":status==true?1:0},function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    },
                     add: function () {
                         $scope.pageDialog.show();
                     },
@@ -290,10 +304,10 @@
                     update:function (id) {
                         $scope.pageDialog.title = "更新";
                         Loading.show();
-                        loader.uploadFileInfo({'template_id':id},{},function (data) {
+                        loader.concatFile({'template_id':id},{},function (data) {
                             $scope.pageDialog.model.id = id;
                             $scope.pageDialog.model.name = data.data.templateName;
-                            $scope.pageDialog.model.des = data.data.des;
+                            $scope.pageDialog.model.des = data.data.templateDes;
                             $('#templateName').val(data.data.templateName);
                             // $('#templateDes').val(data.data.des);
                             $('#htmlTemplateText').val(data.data.templateHtml);
@@ -347,6 +361,19 @@
                         }
                     },
                     {
+                        sTitle: "状态",
+                        mData: "templateStatus",
+                        mRender: function (mData, type, full) {
+                            if (mData == 1) {
+                                return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
+                            } else if (mData == 0) {
+                                return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
+                            } else {
+                                return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
+                            }
+                        }
+                    },
+                    {
                         sTitle: "创建模板用户",
                         mData: "userName",
                         mRender: function (mData, type, full) {
@@ -369,6 +396,7 @@
                         mData:"templateId",
                         mRender:function(mData,type,full) {
                             return '<i title="编辑" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')"></i>' +
+                                '<i title="'+(full.templateStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.templateStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.templateStatus==1?'false':'true')+',\''+mData+'\')"></i>'+
                                 '<i title="删除" class="fa fa-trash-o" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>'
                                 // '<i title="发布" class="fa fa-cog fa-fw" ng-show=userLevel.indexOf("publish")!=-1  ng-click="listPage.action.publish(\'' + mData + '\')"></i>';
                         }
@@ -376,7 +404,7 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3]}  //第 0,10列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,10列不可排序
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -456,6 +484,20 @@
                 users: [],
                 ready: false,
                 action:{
+                    active: function (status,id) {
+                        Loading.show();
+                        loader.updateProcessStatus({"id":id,"status":status==true?1:0},{},function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    },
                     add: function (id) {
                         $scope.pageDialog.show();
                     },
@@ -542,26 +584,40 @@
                             return Util.formatSimpleDate(mData);
                         }
                     },
-
                     {
-                        sTitle: "关联word模板名称",
-                        mData: "oacontractTemplate.templateName",
+                        sTitle: "版本",
+                        // mData: "oacontractTemplate.templateName",
+                        mData: "version",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "状态",
+                        mData: "status",
+                        mRender: function (mData, type, full) {
+                            if (mData == 1) {
+                                return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
+                            } else if (mData == 0) {
+                                return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
+                            } else {
+                                return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
+                            }
                         }
                     },
                     {
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="关联模板" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + full.id  +'\','+ full.oacontractTemplate.templateId +',\''+ full.oacontractTemplate.templateName+ '\')"></i>' +
+                            // return '<i title="关联模板" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + full.id  +'\','+ full.oacontractTemplate.templateId +',\''+ full.oacontractTemplate.templateName+ '\')"></i>' +
+                            return '<i title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.status==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\')"></i>'+
                                     '<i title="删除" class="fa fa-trash-o" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3]}  //第 0,3列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,3列不可排序
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]

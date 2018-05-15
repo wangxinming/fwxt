@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OAPrivilegeMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OAPrivilege" >
+    <id column="PRIVILEGE_ID" property="privilegeId" jdbcType="INTEGER" />
+    <result column="TYPE" property="type" jdbcType="NVARCHAR" />
+    <result column="NAME" property="name" jdbcType="NVARCHAR" />
+    <result column="CONTENT" property="content" jdbcType="NVARCHAR" />
+    <result column="DESCRIBE" property="describe" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    PRIVILEGE_ID, TYPE, NAME, CONTENT, DESCRIBE, CREATE_TIME
+  </sql>
+
+  <select id="list" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from OA_PRIVILEGE where 1=1
+    <if test="type != null" >
+      AND TYPE =  #{type,jdbcType=NVARCHAR}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from OA_PRIVILEGE
+    where PRIVILEGE_ID = #{privilegeId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_PRIVILEGE
+    where PRIVILEGE_ID = #{privilegeId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OAPrivilege" >
+    insert into OA_PRIVILEGE (PRIVILEGE_ID, TYPE, NAME, 
+      CONTENT, DESCRIBE, CREATE_TIME
+      )
+    values (#{privilegeId,jdbcType=INTEGER}, #{type,jdbcType=NVARCHAR}, #{name,jdbcType=NVARCHAR}, 
+      #{content,jdbcType=NVARCHAR}, #{describe,jdbcType=NVARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OAPrivilege" >
+    insert into OA_PRIVILEGE
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="privilegeId != null" >
+        PRIVILEGE_ID,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="name != null" >
+        NAME,
+      </if>
+      <if test="content != null" >
+        CONTENT,
+      </if>
+      <if test="describe != null" >
+        DESCRIBE,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="privilegeId != null" >
+        #{privilegeId,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=NVARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=NVARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=NVARCHAR},
+      </if>
+      <if test="describe != null" >
+        #{describe,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAPrivilege" >
+    update OA_PRIVILEGE
+    <set >
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=NVARCHAR},
+      </if>
+      <if test="name != null" >
+        NAME = #{name,jdbcType=NVARCHAR},
+      </if>
+      <if test="content != null" >
+        CONTENT = #{content,jdbcType=NVARCHAR},
+      </if>
+      <if test="describe != null" >
+        DESCRIBE = #{describe,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where PRIVILEGE_ID = #{privilegeId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAPrivilege" >
+    update OA_PRIVILEGE
+    set TYPE = #{type,jdbcType=NVARCHAR},
+      NAME = #{name,jdbcType=NVARCHAR},
+      CONTENT = #{content,jdbcType=NVARCHAR},
+      DESCRIBE = #{describe,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where PRIVILEGE_ID = #{privilegeId,jdbcType=INTEGER}
+  </update>
+</mapper>

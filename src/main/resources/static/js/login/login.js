@@ -20,13 +20,13 @@
             if ($scope.loginForm.$valid) {
                 LoginService.login($scope.user,{},function(data){
                     if(data.result=="success"){
-                        jQuery.cookie("userName",$scope.user.userName);
+                        jQuery.cookie("userName",data.userName);
                         var url=jQuery.cookie("wxm_url");
                         if(url){
                             jQuery.cookie("wxm_url",null);
                             location.href=url;
                         }else{
-                            location.href="./index.html#/user";
+                            location.href="./index.html#/dashboard";
                         }
                     }else{
                         if(data.msg && data.msg.indexOf("用户")>-1){

@@ -12,6 +12,7 @@ public class TaskInfo {
     private String processInstanceId;//流程实例ID
     private String executionId;//执行对象ID
     private String processDefinitionId;//流程定义ID
+    private Integer workStatus;
 
     public void setId(String id){
         this.id = id;
@@ -37,6 +38,15 @@ public class TaskInfo {
     public void setProcessDefinitionId(String processDefinitionId){
         this.processDefinitionId = processDefinitionId;
     }
+
+    public void setWorkStatus(Integer workStatus) {
+        this.workStatus = workStatus;
+    }
+
+    public Integer getWorkStatus() {
+        return workStatus;
+    }
+
     public String getId(){
         return id;
     }

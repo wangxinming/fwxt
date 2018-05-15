@@ -3,19 +3,19 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <div dialog info="pageDialogDetail" data="addPageDetail.data" class="ldialog">
-            <div>
+            <div style="height: 130px;">
                 <img style="width: 100%" ng-src="{{hash}}"/>
             </div>
-            <div id="htmlTemplate"></div>
-            <div>
+            <div style="width: 60%;float: left;display: inline;" id="htmlTemplate"></div>
+            <div style="width: 40%;display: inline;" id="keyword">
+            </div>
+            <div style="margin-top: 30px;">
                 <table width="100%">
-                    <!--<tr>-->
-                        <!--<th>流程名称</th>-->
-                        <!--<th>请求标题</th>-->
-                        <!--<th>创建人</th>-->
-                        <!--<th>申请日期</th>-->
-                        <!--<th>当前结点</th>-->
-                    <!--</tr>-->
+                    <tr>
+                        <th>角色</th>
+                        <th>操作时间</th>
+                        <th>审批意见</th>
+                    </tr>
 
                     <tr ng-repeat="x in details">
                         <td>{{ x.name }}</td>

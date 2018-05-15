@@ -31,9 +31,9 @@ body {
     opacity: 0.8;
 }
 .login-div .login-title{
-    /*background:url("../../img/login/logo.png") no-repeat;*/
-    width: 374px;
-    height: 108px;
+    background:url("../../img/login/logo.png") no-repeat;
+    height: 60px;
+    margin-left: 24%;
  }
 .login-div .login-content{
     border:1px solid #fff;

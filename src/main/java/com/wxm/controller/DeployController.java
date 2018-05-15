@@ -6,9 +6,7 @@ import com.wxm.activiti.vo.DeploymentResponse;
 import com.wxm.entity.KeyValue;
 import com.wxm.entity.TaskComment;
 import com.wxm.entity.WordEntity;
-import com.wxm.model.OAAudit;
-import com.wxm.model.OAContractTemplate;
-import com.wxm.model.OADeploymentTemplateRelation;
+import com.wxm.model.*;
 import com.wxm.service.*;
 import com.wxm.util.Status;
 import com.wxm.util.ToWeb;
@@ -27,6 +25,8 @@ import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.impl.persistence.entity.VariableInstance;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.Task;
@@ -47,7 +47,8 @@ public class DeployController {
     private RepositoryService repositoryService;
     @Autowired
     private ConcactTemplateService concactTemplateService;
-
+    @Autowired
+    private ContractCirculationService contractCirculationService;
     @Autowired
     private FormPropertiesService formPropertiesService;
 
@@ -83,7 +84,11 @@ public class DeployController {
             OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(dID);
 //            OADeploymentTemplateRelation oaDeploymentTemplateRelation = new OADeploymentTemplateRelation();
             if(oaDeploymentTemplateRelation != null ){
-                oaDeploymentTemplateRelation.setRelationTemplateid(Integer.parseInt(rID));
+                if(StringUtils.isBlank(rID)){
+                    oaDeploymentTemplateRelation.setRelationTemplateid(0);
+                }else{
+                    oaDeploymentTemplateRelation.setRelationTemplateid(Integer.parseInt(rID));
+                }
                 oaDeploymentTemplateRelation.setRelationDeploymentid(dID);
                 oaDeploymentTemplateService.update(oaDeploymentTemplateRelation);
                 auditService.audit(new OAAudit(loginUser.getName(),String.format("修改模板关系")));
@@ -124,6 +129,30 @@ public class DeployController {
     }
 
 
+    @RequestMapping(value = "/templateUpdate",method = RequestMethod.POST,produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object templateUpdate(HttpServletRequest request,@RequestBody Map<String,String> map )throws Exception {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try{
+            String id = map.get("id");
+            String status = map.get("status");
+            OAContractTemplate oaContractTemplate = new OAContractTemplate();
+            oaContractTemplate.setTemplateId(Integer.parseInt(id));
+            oaContractTemplate.setTemplateStatus(Integer.parseInt(status));
+            concactTemplateService.update(oaContractTemplate);
+        }catch (Exception e){
+            result.put("result", "failed");
+        }
+        return result;
+
+    }
+
     @RequestMapping(value = "/saveUploadFile",method = RequestMethod.POST,produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object saveUploadFile(HttpServletRequest request,@RequestBody Map<String,String> map )throws Exception {
@@ -152,6 +181,20 @@ public class DeployController {
         }
         return result;
     }
+    @RequestMapping(value = "/concatFile", method = RequestMethod.GET)
+    @ResponseBody
+    public Object concatFile(HttpServletRequest request)throws Exception {
+        String template_id = request.getParameter("template_id");
+        Map<String, Object> result = new HashMap<>();
+        try{
+            OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(template_id));
+            result.put("data",oaContractTemplate);
+        }catch (Exception e){
+
+        }
+        return result;
+    }
+
     @RequestMapping(value = "/uploadFileInfo", method = RequestMethod.GET)
     @ResponseBody
     public Object uploadFileInfo(HttpServletRequest request)throws Exception {
@@ -166,16 +209,22 @@ public class DeployController {
             List<KeyValue> list = new LinkedList<>();
             //部署ID
             String id = request.getParameter("id");
-            String template_id = request.getParameter("template_id");
-            int tmp_id = 0;
+//            String template_id = request.getParameter("template_id");
+//            int tmp_id = 0;
 
             String processInstanceId = request.getParameter("processInstanceId");
-            if (null == template_id) {
-                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(id);
-                tmp_id = oaDeploymentTemplateRelation.getRelationTemplateid();
-            } else {
-                tmp_id = Integer.parseInt(template_id);
-            }
+            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
+            result.put("workStatus",oaContractCirculationWithBLOBs.getWorkStatus());
+            result.put("title",oaContractCirculationWithBLOBs.getContractName());
+//            if (null == template_id) {
+//                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(id);
+//                tmp_id = oaDeploymentTemplateRelation.getRelationTemplateid();
+//            } else {
+//                tmp_id = Integer.parseInt(template_id);
+//            }
+//            String contract = request.getParameter("contract");
+//            OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.querybyId(Integer.parseInt(contract));
+
             result.put("showCommit", true);
             if(null != processInstanceId) {
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
@@ -187,7 +236,7 @@ public class DeployController {
                     result.put("showCommit", false);
                 }
             }
-            OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(tmp_id);
+            OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
             if (StringUtils.isNotBlank(processInstanceId)) {
                 Map<String, VariableInstance> stringVariableInstanceMap = runtimeService.getVariableInstances(processInstanceId);
                 for (Map.Entry<String, VariableInstance> entry : stringVariableInstanceMap.entrySet()) {
@@ -207,6 +256,28 @@ public class DeployController {
         return result;
     }
 
+    @RequestMapping(value = "/uploadFileInfoAdd", method = RequestMethod.GET)
+    @ResponseBody
+    public Object uploadFileInfoAdd(HttpServletRequest request)throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        try {
+            //部署ID
+            String contract = request.getParameter("contract");
+            result.put("showCommit", true);
+            OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
+            result.put("data",oaContractTemplate);
+
+        }catch (Exception e){
+            LOGGER.error("参数异常",e);
+        }
+        return result;
+    }
 
 
     @RequestMapping(value = "/uploadFile", method = RequestMethod.GET)
@@ -319,13 +390,20 @@ public class DeployController {
         //历史遗留
         String processInstanceId = request.getParameter("taskId");
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-        Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
-        OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
-        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaDeploymentTemplateRelation.getRelationTemplateid());
+//        Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
+//        OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
+        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
+        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
 
-        List<KeyValue> list = new LinkedList<>();
+        Map<String,KeyValue> map = new LinkedHashMap();
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
+        //判断当前合同是否自定义合同
+        if(null != oaContractCirculationWithBLOBs.getDescription() && oaContractCirculationWithBLOBs.getDescription().equals("custom")){
+            result.put("download",oaContractCirculationWithBLOBs.getContractId());
+        }
+
+
         if(StringUtils.isNotBlank(historicProcessInstance.getId())){
             List<HistoricVariableInstance> historicVariableInstances = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
 
@@ -333,11 +411,27 @@ public class DeployController {
                 if(null == historicVariableInstance || null == historicVariableInstance.getValue() || null == historicVariableInstance.getVariableName())continue;
                 if(historicVariableInstance.getVariableName().startsWith("name")) {
                     KeyValue keyValue = new KeyValue(historicVariableInstance.getVariableName(), historicVariableInstance.getValue().toString());
-                    list.add(keyValue);
+                    map.put(historicVariableInstance.getVariableName(),keyValue);
+
                 }
             }
-            result.put("rows",list);
+            result.put("rows",map.values());
         }
+
+        //关键字展现
+        StringBuilder sb = new StringBuilder("<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">");
+        List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
+        for(OAFormProperties oaFormProperties : oaFormPropertiesList){
+            if(null == oaFormProperties ) continue;
+            sb.append("<div align=\"LEFT\">");
+            sb.append(oaFormProperties.getFieldName());
+            sb.append(":");
+            if(map.containsKey(oaFormProperties.getFieldMd5()))
+                sb.append(map.get(oaFormProperties.getFieldMd5()).getValue());
+            sb.append("</div>");
+
+        }
+        result.put("keyword",sb.toString());
 
         List<TaskComment> taskCommentList = new LinkedList<>();
 //        List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery().finished().processInstanceId(historicProcessInstance.getId()).orderByTaskCreateTime().desc().list();
@@ -349,28 +443,6 @@ public class DeployController {
                 .list();
 
         if(null != hais){
-//            for(HistoricActivityInstance task1 : hais){
-//                List<Comment> taskList1 = taskService.getTaskComments(task1.getId());
-//                if(taskList1.size() >0) {
-//                    for (Comment comment : taskList1) {
-//                        TaskComment taskComment = new TaskComment();
-//                        if(task1.getAssignee() == null){
-//                            taskComment.setName(comment.getUserId());
-//                        }else {
-//                            taskComment.setName(task1.getAssignee());
-//                        }
-//                        taskComment.setCreateTime(comment.getTime());
-//                        taskComment.setDescription(comment.getFullMessage());
-//                        taskCommentList.add(taskComment);
-//                    }
-//                }else{
-//                    TaskComment taskComment = new TaskComment();
-//                    taskComment.setName(task1.getAssignee());
-//                    taskComment.setCreateTime(task1.getStartTime());
-//                    taskComment.setDescription("待审批");
-//                    taskCommentList.add(taskComment);
-//                }
-//            }
             for(HistoricActivityInstance historicActivityInstance : hais){
                 List<Comment> taskList1 = taskService.getTaskComments(historicActivityInstance.getTaskId());
                 if(taskList1.size() >0) {
@@ -392,7 +464,7 @@ public class DeployController {
 //                    VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
 //                    Object object = runtimeService.getVariable(processInstance.getId(), historicActivityInstance.getTaskId());
                     if (null == hi) {
-                        //当前节点没有审批信息，表明处于当前节点用户审批状态下
+                        //
                         TaskComment taskComment = new TaskComment();
 
                         if (historicActivityInstance.getAssignee() == null) {
@@ -438,26 +510,49 @@ public class DeployController {
         if(null == loginUser) throw new OAException(1101,"用户未登录");
         String taskId = request.getParameter("taskId");
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(task.getExecutionId()).singleResult();
-        Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(processInstance.getDeploymentId()).singleResult();
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+//        Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(processInstance.getDeploymentId()).singleResult();
 
-        OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
-        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaDeploymentTemplateRelation.getRelationTemplateid());
+//        OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
+//        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaDeploymentTemplateRelation.getRelationTemplateid());
+        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(task.getProcessInstanceId());
+        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
 
-        List<KeyValue> list = new LinkedList<>();
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
+        Map<String,KeyValue> map = new LinkedHashMap();
+        //判断当前合同是否自定义合同
+        if(oaContractCirculationWithBLOBs.getDescription().equals("custom")){
+            result.put("download",oaContractCirculationWithBLOBs.getContractId());
+        }
+
         if(StringUtils.isNotBlank(processInstance.getId())){
             Map<String, VariableInstance> stringVariableInstanceMap = runtimeService.getVariableInstances(processInstance.getId());
             for (Map.Entry<String, VariableInstance> entry : stringVariableInstanceMap.entrySet()) {
                 if(null == entry.getValue() || StringUtils.isBlank(entry.getValue().getTextValue()))continue;
                 if(entry.getKey().startsWith("name")) {
                     KeyValue keyValue = new KeyValue(entry.getKey(), entry.getValue().getTextValue());
-                    list.add(keyValue);
+                    map.put(entry.getKey(),keyValue);
+//                    list.add(keyValue);
                 }
             }
-            result.put("rows",list);
+            result.put("rows",map.values());
         }
+
+        //关键字展现
+        StringBuilder sb = new StringBuilder("<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">");
+        List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
+        for(OAFormProperties oaFormProperties : oaFormPropertiesList){
+            if(null == oaFormProperties ) continue;
+            sb.append("<div align=\"LEFT\">");
+            sb.append(oaFormProperties.getFieldName());
+            sb.append(":");
+            if(map.containsKey(oaFormProperties.getFieldMd5()))
+                sb.append(map.get(oaFormProperties.getFieldMd5()).getValue());
+            sb.append("</div>");
+
+        }
+        result.put("keyword",sb.toString());
         List<TaskComment> taskCommentList = new LinkedList<>();
 
         List<Comment> commonts1  = taskService.getProcessInstanceComments(processInstance.getId());
@@ -524,6 +619,89 @@ public class DeployController {
         return result;
     }
 
+    //更新模板启用状态
+    @RequestMapping(value = "/updateProcessStatus", method = RequestMethod.POST,produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object updateStatus(HttpServletRequest request){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try{
+            String id = request.getParameter("id");
+            String status = request.getParameter("status");
+            ProcessDefinition pf = repositoryService.createProcessDefinitionQuery().deploymentId(id).singleResult();
+            if(!repositoryService.isProcessDefinitionSuspended(pf.getId()) && Integer.parseInt(status) == 0) {
+                repositoryService.suspendProcessDefinitionById(pf.getId());
+            }else{
+                repositoryService.activateProcessDefinitionById(pf.getId());
+            }
+
+        }catch (Exception e){
+
+        }
+        return result;
+    }
+
+    //获取部署模板列表，用于用户提交合同
+    @RequestMapping(value = "deploymentContract",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object deploymentContract (HttpServletRequest request,
+                        @RequestParam(value = "offset", defaultValue = "0", required = false) Integer offset,
+                        @RequestParam(value = "limit", defaultValue = "10", required = false) Integer limit)throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        List<ProcessDefinition> pfList = repositoryService.createProcessDefinitionQuery().active()
+                .orderByDeploymentId().desc().listPage(offset,limit);
+        long count = repositoryService.createProcessDefinitionQuery().active().count();
+        List<com.wxm.entity.Deployment> list = new ArrayList<>();
+        for(ProcessDefinition pf:pfList){
+            Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(pf.getDeploymentId()).singleResult();
+            com.wxm.entity.Deployment deploy= new com.wxm.entity.Deployment();
+            OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
+            if(null != oaDeploymentTemplateRelation) {
+                OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaDeploymentTemplateRelation.getRelationTemplateid());
+                deploy.setOAContractTemplate(oaContractTemplate);
+            }
+            deploy.setStatus(pf.isSuspended()?0:1);
+            deploy.setVersion(new Integer(pf.getVersion()).toString());
+            deploy.setId(deployment.getId());
+            deploy.setName(deployment.getName());
+            deploy.setCategory(deployment.getCategory());
+            deploy.setDeploymentTime(deployment.getDeploymentTime());
+            deploy.setTenantId(deployment.getTenantId());
+
+            list.add(deploy);
+        }
+//        List<Deployment> deployments = repositoryService.createDeploymentQuery()
+//                .orderByDeploymenTime().desc()
+//                .listPage(offset, limit);
+//        long count = repositoryService.createDeploymentQuery().count();
+//        List<com.wxm.entity.Deployment> list = new ArrayList<>();
+//        for(Deployment deployment: deployments){
+//            com.wxm.entity.Deployment deploy= new com.wxm.entity.Deployment();
+//            ProcessDefinition pf = repositoryService.createProcessDefinitionQuery().deploymentId(deployment.getId()).singleResult();
+//            OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
+//            if(null != oaDeploymentTemplateRelation) {
+//                OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaDeploymentTemplateRelation.getRelationTemplateid());
+//                deploy.setOAContractTemplate(oaContractTemplate);
+//            }
+//            deploy.setStatus(pf.isSuspended()?0:1);
+//            deploy.setVersion(new Integer(pf.getVersion()).toString());
+//            deploy.setId(deployment.getId());
+//            deploy.setName(deployment.getName());
+//            deploy.setCategory(deployment.getCategory());
+//            deploy.setDeploymentTime(deployment.getDeploymentTime());
+//            deploy.setTenantId(deployment.getTenantId());
+//
+//            list.add(deploy);
+//        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("rows",list);
+        result.put("total",count);
+        return  result;
+
+    }
     //获取部署模板列表，对应word审批模板
     @RequestMapping(value = "deploymentList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -535,16 +713,19 @@ public class DeployController {
         List<Deployment> deployments = repositoryService.createDeploymentQuery()
                 .orderByDeploymenTime().desc()
                 .listPage(offset, limit);
+
         long count = repositoryService.createDeploymentQuery().count();
         List<com.wxm.entity.Deployment> list = new ArrayList<>();
         for(Deployment deployment: deployments){
             com.wxm.entity.Deployment deploy= new com.wxm.entity.Deployment();
-
+            ProcessDefinition pf = repositoryService.createProcessDefinitionQuery().deploymentId(deployment.getId()).singleResult();
             OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
             if(null != oaDeploymentTemplateRelation) {
                 OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaDeploymentTemplateRelation.getRelationTemplateid());
                 deploy.setOAContractTemplate(oaContractTemplate);
             }
+            deploy.setStatus(pf.isSuspended()?0:1);
+            deploy.setVersion(new Integer(pf.getVersion()).toString());
             deploy.setId(deployment.getId());
             deploy.setName(deployment.getName());
             deploy.setCategory(deployment.getCategory());

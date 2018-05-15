@@ -8,6 +8,8 @@ import java.util.List;
 public class OAUser {
     private Integer userId;
 
+    private Integer groupId;
+
     private String userName;
 
     private int parentId;
@@ -44,6 +46,7 @@ public class OAUser {
         this.userName = userName;
         userAddress="";
         userCompany="";
+        groupId = 0;
         userCreatetime= new Date(System.currentTimeMillis());
         userDepartment="";
         userEmail = "";
@@ -64,6 +67,14 @@ public class OAUser {
         }else {
             this.children.addAll(list);
         }
+    }
+
+    public Integer getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
     }
 
     public Integer getUserId() {

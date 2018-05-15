@@ -2,6 +2,7 @@ package com.wxm.controller;
 
 import com.wxm.entity.*;
 import com.wxm.model.OAContractCirculationWithBLOBs;
+import com.wxm.model.OAContractTemplate;
 import com.wxm.model.OADeploymentTemplateRelation;
 import com.wxm.model.OAFormProperties;
 import com.wxm.service.*;
@@ -214,8 +215,9 @@ public class ProcessController {
         if(StringUtils.isNotBlank(processInstanceId)) {
             try{
                 String deploymentID = map.get("id");
-                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
-                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
+//                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
+                OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
+                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
 //                WordEntity wordEntity = wordTemplateService.queryInfoRel(deploymentID);
 //                List<WordTemplateField> list = wordTemplateFieldService.getWordTemplateFieldByTemplateId(wordEntity.getId());
                 for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
@@ -253,7 +255,7 @@ public class ProcessController {
 //                taskService.complete(task.getId());
                 map.put("init","");
                 runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
-                OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
+//                OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
 //                oaContractCirculationWithBLOBs.setTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
 //                oaContractCirculationWithBLOBs.setProcessInstanceId(processInstance.getId());
                 oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
@@ -329,11 +331,18 @@ public class ProcessController {
         result.put("result","success");
         String info = "";
         String processInstanceId = map.get("processInstanceId");
+        String workStatus = map.get("workStatus");
+        String custom = map.get("custom");
+        String contract = map.get("contract");
+        String contractName = map.get("contractName");
+        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
         if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交
             try{
                 String deploymentID = map.get("id");
-                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
-                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
+//                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
+//                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
+                OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
+                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
 //                WordEntity wordEntity = wordTemplateService.queryInfoRel(deploymentID);
 //                List<WordTemplateField> list = wordTemplateFieldService.getWordTemplateFieldByTemplateId(wordEntity.getId());
                 for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
@@ -374,13 +383,39 @@ public class ProcessController {
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");
                     taskService.complete(task.getId());
                     map.put("init","");
+                    if(StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
+                        map.put("contractStatus","1");
+                    }else{
+                        map.put("contractStatus","0");
+                    }
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
-                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
-                    oaContractCirculationWithBLOBs.setTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
-                    oaContractCirculationWithBLOBs.setContractName(deployment.getName() + "-" + time.format(nowTime));
-                    oaContractCirculationWithBLOBs.setProcessInstanceId(processInstance.getId());
-                    oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
-                    contractCirculationService.insert(oaContractCirculationWithBLOBs);
+                    //自定义模板处理
+                    if(oaContractTemplate.getTemplateName().contains("自定义")) {
+                        OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
+                        contractCirculationWithBLOBs.setContractId(oaContractCirculationWithBLOBs.getContractId());
+                        if (StringUtils.isNotBlank(custom)) {
+//                        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
+
+                            // 获取word文件流，custom文件名称
+                            String filePf = contractPath + custom;
+                            byte[] word = FileByte.getByte(filePf);
+                            contractCirculationWithBLOBs.setContractPdf(word);
+                        }
+                        if (StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
+                            contractCirculationWithBLOBs.setWorkStatus(1);
+                        } else {
+                            contractCirculationWithBLOBs.setWorkStatus(0);
+                        }
+                        contractCirculationWithBLOBs.setDescription("custom");
+                        contractCirculationService.update(contractCirculationWithBLOBs);
+                    }
+//                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
+//                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
+//                    oaContractCirculationWithBLOBs.setTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
+//                    oaContractCirculationWithBLOBs.setContractName(deployment.getName() + "-" + time.format(nowTime));
+//                    oaContractCirculationWithBLOBs.setProcessInstanceId(processInstance.getId());
+//                    oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
+//                    contractCirculationService.update(oaContractCirculationWithBLOBs);
 
                 }else{
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
@@ -393,8 +428,11 @@ public class ProcessController {
             try {
                 String deploymentID = map.get("id");
                 String index = map.get("index");
-                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
-                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
+
+
+//                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
+//                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
+                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(Integer.parseInt(contract));
 //                WordEntity wordEntity = wordTemplateService.queryInfoRel(deploymentID);
 //                List<WordTemplateField> list = wordTemplateFieldService.getWordTemplateFieldByTemplateId(wordEntity.getId());
                 for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
@@ -436,23 +474,55 @@ public class ProcessController {
                 mapInfo.put("init", "start");
                 Date nowTime = new Date();
                 SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd");
-                mapInfo.put("title", deployment.getName() + "-" + time.format(nowTime));
+                if(StringUtils.isBlank(contractName)) {
+                    mapInfo.put("title", deployment.getName() + "-" + time.format(nowTime));
+                }else{
+                    mapInfo.put("title", contractName);
+                }
                 mapInfo.put("timeStamp", new Date().getTime());
+                if(StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
+                    mapInfo.put("contractStatus",1);
+                }else{
+                    mapInfo.put("contractStatus",0);
+                }
                 mapInfo.putAll(map);
                 identityService.setAuthenticatedUserId(loginUser.getName());
                 ProcessInstance processInstance = runtimeService.startProcessInstanceById(pd.getId(), mapInfo);
+                OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
+                oaContractCirculationWithBLOBs.setTemplateId(Integer.parseInt(contract));
+                if(StringUtils.isBlank(contractName)) {
+                    oaContractCirculationWithBLOBs.setContractName(deployment.getName() + "-" + time.format(nowTime));
+                }else{
+                    oaContractCirculationWithBLOBs.setContractName(contractName);
+                }
+
+                oaContractCirculationWithBLOBs.setProcessInstanceId(processInstance.getId());
+                oaContractCirculationWithBLOBs.setContractStatus("start");
+                oaContractCirculationWithBLOBs.setCreateTime(new Date());
+                if(StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
+                    oaContractCirculationWithBLOBs.setWorkStatus(1);
+                }else{
+                    oaContractCirculationWithBLOBs.setWorkStatus(0);
+                }
+                //自定义模板处理
+                if(oaContractTemplate.getTemplateName().contains("自定义")) {
+                    oaContractCirculationWithBLOBs.setDescription("custom");
+                    if (StringUtils.isNotBlank(custom)) {
+                        // 获取word文件流
+                        String filePf = contractPath + custom;
+                        byte[] word = FileByte.getByte(filePf);
+                        oaContractCirculationWithBLOBs.setContractPdf(word);
+                    }
+                }else {
+                    oaContractCirculationWithBLOBs.setDescription("template");
+                    oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
+                }
+                contractCirculationService.insert(oaContractCirculationWithBLOBs);
                 if (index.equals("1")) {
                     Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");
                     taskService.complete(task.getId());
                     runtimeService.setVariable(processInstance.getProcessInstanceId(), "init", "");
-
-                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
-                    oaContractCirculationWithBLOBs.setTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
-                    oaContractCirculationWithBLOBs.setContractName(deployment.getName() + "-" + time.format(nowTime));
-                    oaContractCirculationWithBLOBs.setProcessInstanceId(processInstance.getId());
-                    oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
-                    contractCirculationService.insert(oaContractCirculationWithBLOBs);
                 }
             } catch (Exception e) {
                 result.put("result", "failed");
@@ -508,46 +578,63 @@ public class ProcessController {
         ProcessInstance pi = runtimeService.createProcessInstanceQuery()//
                 .processInstanceId(processInstancesId)//使用流程实例ID查询
                 .singleResult();
-        //流程结束了
-        if(pi==null){
-            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstancesId);
-            HistoricVariableInstance historicVariableInstance =  historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstancesId).variableName("title").singleResult();
+//        task = taskService.createTaskQuery().processInstanceId(processInstancesId).singleResult();
+        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstancesId);
+        if(pi != null) {
+            ActivityImpl activity = ((ProcessDefinitionEntity) repositoryService.getProcessDefinition(task.getProcessDefinitionId())).findActivity(pi.getActivityId());
+//            if (null != activity && activity.getProperty("name").equals("归档")) {
+//                //归档后 用户可以查
+//
+//            }
+            if (null != activity && activity.getProperty("name").equals("核对")) {
+            //归档后 用户可以查
+                runtimeService.setVariable(processInstancesId,"instanceStatus","completed");
+                HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstancesId).variableName("title").singleResult();
 //            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstancesId,"title");
-            String html = oaContractCirculationWithBLOBs.getContractHtml();
-            StringBuilder sb = new StringBuilder(html.length()+300);
-            sb.append("<html>");
-            sb.append("<head>");
-            sb.append("<title>");
-            sb.append(historicVariableInstance.getValue().toString());
-            sb.append("</title>");
-            sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=gb2312\" />");
-            sb.append("<body>");
-            sb.append(html);
-            sb.append("</body></html>");
+                String html = oaContractCirculationWithBLOBs.getContractHtml();
+                StringBuilder sb = new StringBuilder(html.length() + 300);
+                sb.append("<!DOCTYPE html>");
+                sb.append("<head>");
+                sb.append("<title>");
+                sb.append(historicVariableInstance.getValue().toString());
+                sb.append("</title>");
+                sb.append("   <meta charset=\"utf-8\">\n" +
+                        "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
+                sb.append("<body>");
+                sb.append(html);
+                sb.append("</body></html>");
 
-            String data = fillValue(processInstancesId,sb);
-            try {
+                String data = fillValue(processInstancesId, sb);
+                try {
 //                String path = PropertyUtil.getValue("contract.template.path");
-                String fileHtml = contractPath+ historicVariableInstance.getValue().toString()+".html";
-                String filePf = contractPath+ historicVariableInstance.getValue().toString()+".pdf";
+                    String fileHtml = contractPath + historicVariableInstance.getValue().toString() + ".html";
+                    String filePf = contractPath + historicVariableInstance.getValue().toString() + ".pdf";
 
 //                OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(fileHtml),"UTF-8");
 //                BufferedWriter writer=new BufferedWriter(write);
 //                writer.write(data);
 //                writer.close();
-                PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
-                printStream.println(data);
-                //转换成pdf文件
-                File htmlFile = Word2Html.html2pdf(fileHtml,openOfficePath);
-                // 获取pdf文件流
-                byte[] pdf = FileByte.getByte(filePf);
-                // HTML文件字符串
-                oaContractCirculationWithBLOBs.setContractPdf(pdf);
-                contractCirculationService.update(oaContractCirculationWithBLOBs);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                    PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
+                    printStream.println(data);
+                    //转换成pdf文件
+                    File htmlFile = Word2Html.html2pdf(fileHtml, openOfficePath);
+                    // 获取pdf文件流
+                    byte[] pdf = FileByte.getByte(filePf);
+                    oaContractCirculationWithBLOBs.setContractStatus("completed");
+                    // HTML文件字符串
+                    oaContractCirculationWithBLOBs.setContractPdf(pdf);
+                    contractCirculationService.update(oaContractCirculationWithBLOBs);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
             }
+        }else{
+            //合同状态 为完成状态
+//            oaContractCirculationWithBLOBs.setContractStatus("completed");
+//            contractCirculationService.update(oaContractCirculationWithBLOBs);
         }
+
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         return result;
@@ -619,8 +706,6 @@ public class ProcessController {
         return result;
     }
 
-
-
     //获取该员工历史任务,参与过的任务
     @RequestMapping(value = "processHistory", method = RequestMethod.GET)
     @ResponseBody
@@ -634,12 +719,12 @@ public class ProcessController {
 
 
         List<TaskInfo> taskInfos = new LinkedList<>();
-        List<HistoricProcessInstance> listProcess = historyService.createHistoricProcessInstanceQuery().finished()
-                .involvedUser(loginUser.getName())
+        List<HistoricProcessInstance> listProcess = historyService.createHistoricProcessInstanceQuery()
+                .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
                 .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
-        long size = historyService.createHistoricProcessInstanceQuery().finished()
-                .involvedUser(loginUser.getName())
+        long size = historyService.createHistoricProcessInstanceQuery()
+                .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
                 .count();
         for(HistoricProcessInstance historicProcessInstance : listProcess){
@@ -655,6 +740,8 @@ public class ProcessController {
                         taskInfo.setTitle(h.getValue().toString());
                     }else if(h.getVariableName().equals("user")){
                         taskInfo.setStarter(h.getValue().toString());
+                    }else if(h.getVariableName().equals("contractStatus")){
+                        taskInfo.setWorkStatus(Integer.parseInt(h.getValue().toString()));
                     }
                 }
             }
@@ -724,7 +811,6 @@ public class ProcessController {
                                @RequestParam(value = "offset", required = true ,defaultValue= "0" ) int offset,
                                @RequestParam(value = "limit", required = true,defaultValue= "10" ) int limit
                                ) throws Exception{
-        //TODO
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
         List<ProInstance> processInstanceList = new LinkedList<>();

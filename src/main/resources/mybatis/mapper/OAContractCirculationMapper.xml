@@ -8,6 +8,7 @@
     <result column="CONTRACT_NAME" property="contractName" jdbcType="NVARCHAR" />
     <result column="USER_ID" property="userId" jdbcType="INTEGER" />
     <result column="CONTRACT_STATUS" property="contractStatus" jdbcType="NVARCHAR" />
+    <result column="WORK_STATUS" property="workStatus" jdbcType="INTEGER" />
     <result column="DESCRIPTION" property="description" jdbcType="NVARCHAR" />
     <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
   </resultMap>
@@ -15,12 +16,31 @@
     <result column="CONTRACT_HTML" property="contractHtml" jdbcType="LONGVARCHAR" />
     <result column="CONTRACT_PDF" property="contractPdf" jdbcType="LONGVARBINARY" />
   </resultMap>
+
+  <resultMap id="hashmap" type="com.wxm.entity.ReportItem" >
+    <result column="TEMPLATE_NAME" property="name" jdbcType="NVARCHAR" />
+    <result column="y" property="y" jdbcType="INTEGER" />
+  </resultMap>
   <sql id="Base_Column_List" >
-    CONTRACT_ID, TEMPLATE_ID,PROCESSINSTANCE_ID, CONTRACT_NAME, USER_ID, CONTRACT_STATUS, DESCRIPTION, CREATE_TIME
+    CONTRACT_ID, TEMPLATE_ID,PROCESSINSTANCE_ID, CONTRACT_NAME,WORK_STATUS, USER_ID, CONTRACT_STATUS, DESCRIPTION, CREATE_TIME
   </sql>
   <sql id="Blob_Column_List" >
     CONTRACT_HTML, CONTRACT_PDF
   </sql>
+  <select id="count" resultMap="hashmap" >
+    SELECT t1.TEMPLATE_NAME,t2.y from OA_CONTRACT_TEMPLATE t1,
+    (SELECT TEMPLATE_ID,count(CONTRACT_ID) as y from OA_CONTRACT_CIRCULATION
+     where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME <![CDATA[ <= ]]> #{endTime} and CONTRACT_STATUS='completed' and DESCRIPTION = 'template'
+     group by TEMPLATE_ID) t2 where t1.TEMPLATE_ID=t2.TEMPLATE_ID ORDER by t2.y DESC
+  </select>
+  <select id="total" resultType="java.lang.Integer">
+    SELECT count(CONTRACT_ID) from OA_CONTRACT_CIRCULATION
+         where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME <![CDATA[ <= ]]> #{endTime}
+          and CONTRACT_STATUS= #{contractStatus}
+        <if test="contractType != null" >
+          and DESCRIPTION = #{contractType}
+        </if>
+  </select>
   <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
@@ -42,11 +62,11 @@
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
-    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID, PROCESSINSTANCE_ID,CONTRACT_NAME,
+    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID, PROCESSINSTANCE_ID,CONTRACT_NAME,WORK_STATUS
       USER_ID, CONTRACT_STATUS, DESCRIPTION, 
       CREATE_TIME, CONTRACT_HTML, CONTRACT_PDF
       )
-    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=NVARCHAR},#{PROCESSINSTANCE_ID,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},
+    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=NVARCHAR},#{PROCESSINSTANCE_ID,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
       #{userId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARBINARY}
       )
@@ -66,6 +86,9 @@
 
       <if test="contractName != null" >
         CONTRACT_NAME,
+      </if>
+      <if test="workStatus != null" >
+        WORK_STATUS,
       </if>
       <if test="userId != null" >
         USER_ID,
@@ -99,6 +122,9 @@
       <if test="contractName != null" >
         #{contractName,jdbcType=NVARCHAR},
       </if>
+      <if test="workStatus != null" >
+        #{workStatus,jdbcType=INTEGER},
+      </if>
       <if test="userId != null" >
         #{userId,jdbcType=INTEGER},
       </if>
@@ -131,6 +157,9 @@
       <if test="contractName != null" >
         CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
       </if>
+      <if test="workStatus != null" >
+        WORK_STATUS = #{workStatus,jdbcType=INTEGER},
+      </if>
       <if test="userId != null" >
         USER_ID = #{userId,jdbcType=INTEGER},
       </if>
@@ -157,6 +186,7 @@
     set TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
       PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      WORK_STATUS = #{workStatus,jdbcType=INTEGER},
       USER_ID = #{userId,jdbcType=INTEGER},
       CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
       DESCRIPTION = #{description,jdbcType=NVARCHAR},
@@ -170,6 +200,7 @@
     set TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
       PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      WORK_STATUS = #{workStatus,jdbcType=INTEGER},
       USER_ID = #{userId,jdbcType=INTEGER},
       CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
       DESCRIPTION = #{description,jdbcType=NVARCHAR},

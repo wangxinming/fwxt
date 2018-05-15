@@ -117,22 +117,120 @@
                 var path = $location.path();
                 angular.element('#' + $rootScope.confirm.id).modal('hide');
                 $rootScope.currentView = path.substring(1, path.length);
-                if($rootScope.currentView == "user" || $rootScope.currentView == "audit"){
-                    if (!$("#user").parent().hasClass("active")) {
-                        $("#user").trigger("click");
-                    }
-                }else if($rootScope.currentView == "modeler" || $rootScope.currentView == "upload" || $rootScope.currentView == "form" || $rootScope.currentView == "deployment"){
-                    if (!$("#deployment").parent().hasClass("active")) {
-                        $("#deployment").trigger("click");
-                    }
-                }else if($rootScope.currentView == "process" || $rootScope.currentView == "myProcess"  || $rootScope.currentView == "initiator"){
-                    if (!$("#process").parent().hasClass("active")) {
-                        $("#process").trigger("click");
-                    }
-                }else if($rootScope.currentView == "pending" || $rootScope.currentView == "complete"){
-                    if (!$("#shenpi").parent().hasClass("active")) {
-                        $("#shenpi").trigger("click");
-                    }
+                switch ($rootScope.currentView){
+                    case 'user':
+                        $('#mbx1').html('<a href="index.html#/user"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/user"><span class="fa fa-angle-double-right"></span> 用户信息</a>');
+                        if (!$("#user").parent().hasClass("active")) {
+                            $("#user").trigger("click");
+                        }
+                        break;
+                    case 'group':
+                        $('#mbx1').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 用户组</a>');
+                        if (!$("#user").parent().hasClass("active")) {
+                            $("#user").trigger("click");
+                        }
+                        break;
+                    case 'password':
+                        $('#mbx1').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 修改密码</a>');
+                        if (!$("#user").parent().hasClass("active")) {
+                            $("#user").trigger("click");
+                        }
+                        break;
+
+                    case 'upload':
+                        $('#mbx1').html('<a href="index.html#/upload"><span class="fa fa-angle-double-right"></span> 合同模板管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/upload"><span class="fa fa-angle-double-right"></span> 合同模板管理</a>');
+                        if (!$("#deployment").parent().hasClass("active")) {
+                            $("#deployment").trigger("click");
+                        }
+                        break;
+                    case 'form':
+                        $('#mbx1').html('<a href="index.html#/form"><span class="fa fa-angle-double-right"></span> 合同模板管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/form"><span class="fa fa-angle-double-right"></span> 合同模板字段检查</a>');
+                        if (!$("#deployment").parent().hasClass("active")) {
+                            $("#deployment").trigger("click");
+                        }
+                        break;
+                    case 'modeler':
+                        $('#mbx1').html('<a href="index.html#/modeler"><span class="fa fa-angle-double-right"></span> 合同流程管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/modeler"><span class="fa fa-angle-double-right"></span> 合同流程设定</a>');
+                        if (!$("#deploymentProcess").parent().hasClass("active")) {
+                            $("#deploymentProcess").trigger("click");
+                        }
+                        break;
+
+                    case 'deployment':
+                        $('#mbx1').html('<a href="index.html#/deployment"><span class="fa fa-angle-double-right"></span> 合同流程管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/deployment"><span class="fa fa-angle-double-right"></span> 合同流程发布</a>');
+                        if (!$("#deploymentProcess").parent().hasClass("active")) {
+                            $("#deploymentProcess").trigger("click");
+                        }
+                        break;
+                    case 'process':
+                        $('#mbx1').html('<a href="index.html#/process"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
+                        $('#mbx2').html('<a href="index.html#/process"><span class="fa fa-angle-double-right"></span> 新合同建立</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'myProcess':
+                        $('#mbx1').html('<a href="index.html#/myProcess"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
+                        $('#mbx2').html('<a href="index.html#/myProcess"><span class="fa fa-angle-double-right"></span> 待处理合同</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'initiator':
+                        $('#mbx1').html('<a href="index.html#/initiator"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
+                        $('#mbx2').html('<a href="index.html#/initiator"><span class="fa fa-angle-double-right"></span> 我发起的合同</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'pending':
+                        $('#mbx1').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同同归档管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同审核及批复</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'complete':
+                        $('#mbx1').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 合同同归档管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 归档文件查询</a>');
+                        if (!$("#shenpi").parent().hasClass("active")) {
+                            $("#shenpi").trigger("click");
+                        }
+                        break;
+
+                    case 'privateReport':
+                        $('#mbx1').html('<a href="index.html#/privateReport"><span class="fa fa-angle-double-right"></span> 合同分类统计模块</a>');
+                        $('#mbx2').html('<a href="index.html#/privateReport"><span class="fa fa-angle-double-right"></span> 个人任务统计</a>');
+                        if (!$("#report").parent().hasClass("active")) {
+                            $("#report").trigger("click");
+                        }
+                        break;
+                    case 'fawuReport':
+                        $('#mbx1').html('<a href="index.html#/fawuReport"><span class="fa fa-angle-double-right"></span> 合同分类统计模块</a>');
+                        $('#mbx2').html('<a href="index.html#/fawuReport"><span class="fa fa-angle-double-right"></span> 法务任务统计</a>');
+                        if (!$("#report").parent().hasClass("active")) {
+                            $("#report").trigger("click");
+                        }
+                        break;
+                    case 'audit':
+                        $('#mbx1').html('<a href="index.html#/audit"><span class="fa fa-angle-double-right"></span> 系统日志文件模块</a>');
+                        $('#mbx2').html('<a href="index.html#/audit"><span class="fa fa-angle-double-right"></span> 管理员日志查询</a>');
+                        if (!$("#log").parent().hasClass("active")) {
+                            $("#log").trigger("click");
+                        }
+                        break;
+                    case 'dashboard':
+                    default:
+                        $('#mbx1').html('');
+                        $('#mbx2').html('');
+                      break;
                 }
                 $(".modal-backdrop").hide();
             });
@@ -160,36 +258,36 @@
                 }
                 angular.element('#' + $rootScope.alert.id).modal('show');
             };
-            var userName = jQuery.cookie("userName");
-            if(userName == "admin") {
-                $rootScope.loginUserMenuMap = {
-                    "user":false,
-                    "audit":false,
-                    "modeler":false,
-                    "upload":false,
-                    "form":false,
-                    "deployment":false,
-                    "process":true,
-                    "myProcess":true,
-                    "pending":true,
-                    "complete":true,
-                    "report":false
-                };
-            }else{
-                $rootScope.loginUserMenuMap = {
-                    "user":true,
-                    "audit":true,
-                    "modeler":true,
-                    "upload":true,
-                    "form":true,
-                    "deployment":true,
-                    "process":false,
-                    "myProcess":false,
-                    "pending":false,
-                    "complete":false,
-                    "report":false
-                };
-            }
+            // var userName = jQuery.cookie("userName");
+            // if(userName == "admin") {
+            //     $rootScope.loginUserMenuMap = {
+            //         "user":false,
+            //         "audit":false,
+            //         "modeler":false,
+            //         "upload":false,
+            //         "form":false,
+            //         "deployment":false,
+            //         "process":true,
+            //         "myProcess":true,
+            //         "pending":true,
+            //         "complete":true,
+            //         "report":false
+            //     };
+            // }else{
+            //     $rootScope.loginUserMenuMap = {
+            //         "user":true,
+            //         "audit":true,
+            //         "modeler":true,
+            //         "upload":true,
+            //         "form":true,
+            //         "deployment":true,
+            //         "process":false,
+            //         "myProcess":false,
+            //         "pending":false,
+            //         "complete":false,
+            //         "report":false
+            //     };
+            // }
         }])
         .config(['$httpProvider','$routeProvider', function ($httpProvider,$routeProvider) {
             // $routeProvider.when('/user', {

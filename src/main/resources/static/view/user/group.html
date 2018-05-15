@@ -1,5 +1,5 @@
 
-<div class="portlet box"  style="top: 100px;position: fixed;" ng-keypress="submit($event)">
+<div class="portlet box"  style="margin: 15px 0px 0px 0px;" ng-keypress="submit($event)">
 
     <!--<input type="text" readonly class="s" z-tree="{-->
     <!--inData:'locationsForJFSearch',-->
@@ -28,14 +28,14 @@
     <!--}" id="metricTree">-->
     <!--</ul>-->
     <label  class="col-md-3 control-label"></label>
-    <div class="col-md-6 ">
+    <div class="col-md-5" style="float:right;margin:-36px 0px -40px;">
         <div class="list_button" >
             <div class="input-group">
-                <!--<input type="text" class="form-control" maxlength="20" ng-model="searchPage.data.userName" placeholder="组织名称模糊查询">-->
-                <!--<span class="input-group-btn">-->
-                    <!--<button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>-->
-                <!--</span>-->
-                <button type="button" class="btn" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.add()" ng-show="userLevel.indexOf('add')!=-1">新增</button>
+                <input type="text" class="form-control" maxlength="20" ng-model="searchPage.data.groupName" placeholder="组名称查询">
+                <span class="input-group-btn">
+                    <button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>
+                </span>
+                <button type="button" class="btn" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.add()" ng-show="userLevel.indexOf('add')!=-1">新增组</button>
             </div>
         </div>
     </div>

@@ -20,7 +20,8 @@
 }
 @media screen and (min-width: 768px) {
     .page-wrapper.toggled .page-content{
-        padding-left: 300px;
+        padding-left: 280px;
+        padding-right: 8px;
     }
 }
 
@@ -283,10 +284,10 @@
     padding-left: 0px;
 }
 .page-wrapper .page-content > div {
-    padding: 1px 1px;
+    padding: 65px 0px;
     /*width: 1000px;*/
-    top: 65px;
-    position: absolute;
+    /*top: 65px;*/
+    /*position: absolute;*/
 }
 .page-wrapper .page-content {
     overflow-x: hidden;
