@@ -31,16 +31,32 @@
     where PROPERTIES_ID = #{propertiesId,jdbcType=INTEGER}
   </select>
   <select id="list" resultMap="BaseResultMapTemplateName">
-    select top ${limit} *,template.TEMPLATE_NAME from OA_FORM_PROPERTIES properties,OA_CONTRACT_TEMPLATE template where PROPERTIES_ID not
-    in(select top ${offset} PROPERTIES_ID from OA_FORM_PROPERTIES  where 1=1
+
+    select top ${limit} *,template.TEMPLATE_NAME from OA_FORM_PROPERTIES properties,OA_CONTRACT_TEMPLATE template
+    where properties.PROPERTIES_ID not in(select top  ${offset} PROPERTIES_ID from OA_FORM_PROPERTIES
+    where 1=1  AND TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE
+    where 1=1
     <if test="templateName != null">
-      AND properties.TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE where TEMPLATE_NAME like CONCAT('%',#{templateName},'%' ))
+    AND TEMPLATE_NAME like CONCAT('%',#{templateName},'%' )
     </if>
-    ORDER BY properties.PROPERTIES_ID ASC)
-    <if test="templateName != null" >
-      AND properties.TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE where TEMPLATE_NAME like CONCAT('%',#{templateName},'%' ))
+    ) ORDER BY PROPERTIES_ID ASC)
+    AND properties.TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE
+    where 1=1
+    <if test="templateName != null">
+    AND TEMPLATE_NAME like CONCAT('%',#{templateName},'%' )
     </if>
-     AND properties.TEMPLATE_ID = template.TEMPLATE_ID ORDER BY properties.PROPERTIES_ID
+    ) and properties.TEMPLATE_ID = template.TEMPLATE_ID
+    ORDER BY properties.PROPERTIES_ID ASC
+    <!--select top ${limit} *,template.TEMPLATE_NAME from OA_FORM_PROPERTIES properties,OA_CONTRACT_TEMPLATE template where PROPERTIES_ID not-->
+    <!--in(select top ${offset} PROPERTIES_ID from OA_FORM_PROPERTIES  where 1=1-->
+    <!--<if test="templateName != null">-->
+      <!--AND properties.TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE where TEMPLATE_NAME like CONCAT('%',#{templateName},'%' ))-->
+    <!--</if>-->
+    <!--ORDER BY properties.PROPERTIES_ID ASC)-->
+    <!--<if test="templateName != null" >-->
+      <!--AND properties.TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE where TEMPLATE_NAME like CONCAT('%',#{templateName},'%' ))-->
+    <!--</if>-->
+     <!--AND properties.TEMPLATE_ID = template.TEMPLATE_ID ORDER BY properties.PROPERTIES_ID-->
   </select>
   <select id="count" resultType="java.lang.Integer">
     SELECT  count(*)

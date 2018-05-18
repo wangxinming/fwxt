@@ -275,6 +275,23 @@
         }])
         .factory('user.loader', function($resource){
             return $resource(web_path+'/:id', {}, {
+                /*用户管理*/
+                //增加用户
+                addUser: {method:'PUT',url:"/user/create", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //用户列表
+                userList: {method:'GET',url:"/user/userList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取用户信息
+                userInfo: {method:'GET',url:"/user/userInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取用户组信息
+                userGroup: {method:'GET',url:"/user/userGroup", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取首页数据
+                dashboard: {method:'GET',url:"/workflow/process/dashboard", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新用户
+                updatePassword: {method:'POST',url:"/user/updatePassword", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新用户
+                userUpdate: {method:'POST',url:"/user/update", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                /*用户组管理*/
                 //创建组
                 createGroup: {method:'PUT',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新组
@@ -290,6 +307,9 @@
                 loginMenus: {method:'GET',url:"/user/loginMenus", isArray:true,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取菜单树
                 loginBar: {method:'GET',url:"/user/bars", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                /*任务管理*/
+                //上传模板
                 uploadWordTemplate: {method: 'POST', url: "template/batchImport", isArray: false,enctype:'multipart/form-data'},
                 //拒绝任务
                 rejectTask: {method:'POST',url:"/workflow/process/reject", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
@@ -306,20 +326,7 @@
                 modeler: {method:'GET',url:"/api/deployments/modelerList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新模板关系表
                 updateTemRelation: {method:'POST',url:"/api/deployments/updateTemRelation", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //增加用户
-                addUser: {method:'PUT',url:"/user/create", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //用户列表
-                userList: {method:'GET',url:"/user/userList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //获取用户信息
-                userInfo: {method:'GET',url:"/user/userInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //获取用户组信息
-                userGroup: {method:'GET',url:"/user/userGroup", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //获取首页数据
-                dashboard: {method:'GET',url:"/workflow/process/dashboard", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //更新用户
-                updatePassword: {method:'POST',url:"/user/updatePassword", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                //更新用户
-                userUpdate: {method:'POST',url:"/user/update", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
                 //获取个人报表
                 myReport: {method:'GET',url:"/report/myReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //法务报表统计
@@ -355,11 +362,9 @@
                 saveUploadFileInfo: {method:'POST',url:"/api/deployments/saveUploadFile", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取发布流程列表
                 query: {method:'GET',url:"/api/deployments/list", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
                 //获取word模板以及部署流程关联列表
                 //审计信息列表
                 auditList: {method:'GET',url:"/audit/auditList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
                 //删除word模板
                 removeWordTemplate: {method: "DELETE", url:  "template/deleteWordTemplate", isArray: false},
 
@@ -389,6 +394,9 @@
                         $('#initiator').text(data.initiator);
                     }
                     Loading.hide();
+                }, function (error) {
+                    Loading.hide();
+
                 })
             };
             $scope.dashBoard();
@@ -397,25 +405,46 @@
         .controller('password.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
             $scope.addPageUpdate={
                 init:function(){
-                    $scope.addPageUpdate.data={userStatus:true}
+                    $scope.addPageUpdate.data={
+                        userStatus:true
+                    }
                 },
                 data: {
                     userStatus:true
                 }
             };
             $scope.update = function () {
+                if(!$scope.addPageUpdate.data.userPwd){
+                    $('#userPsw').focus();
+                    toaster.pop('failed', "", "原有密码不能为空");
+                    return;
+                }
+                if(!$scope.addPageUpdate.data.userPwdNew){
+                    $('#userPswNew').focus();
+                    toaster.pop('failed', "", "新密码不能为空");
+                    return;
+                }
+                if(!$scope.addPageUpdate.data.userPwdRenew){
+                    $('#userPwdRenew').focus();
+                    toaster.pop('failed', "", "新密码确认不能为空");
+                    return;
+                }
+
                 if($scope.addPageUpdate.data.userPwdNew != $scope.addPageUpdate.data.userPwdRenew){
                     $scope.addPageUpdate.data.userPwdNew = "";
                     $scope.addPageUpdate.data.userPwdRenew = "";
+                    $('#userPswNew').focus();
                     toaster.pop('failed', "", "新密码不一致");
                     return;
                 }
                 if($scope.addPageUpdate.data.userPwd == $scope.addPageUpdate.data.userPwdRenew){
+                    $('#userPsw').focus();
                     $scope.addPageUpdate.data.userPwdNew = "";
                     $scope.addPageUpdate.data.userPwdRenew = "";
                     toaster.pop('failed', "", "新密码和老密码不能一样");
                     return;
                 }
+
                 Loading.show();
                 $scope.addPageUpdate.data.operater = 'user';
                 loader.updatePassword($scope.addPageUpdate.data,function(data){
@@ -429,19 +458,24 @@
                         Loading.hide();
                         toaster.pop('warning', "", data.msg);
                     }
+                }, function (error) {
+                    Loading.hide();
+
                 })
             }
         }])
         .controller('group.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
-            $scope.editPage = {
-                datas:{
-                    metricTree:{
-                        data:[ {id:1,name:"1",displayName:"rewrew",unit:"11",valType:"string",
+
+            /*{id:1,name:"1",displayName:"rewrew",unit:"11",valType:"string",
                             children:[
                                 {id:1,name:"2",displayName:"fhsdduf",unit:"11",valType:"string",checked:true},
                                 {id:2,name:"3",displayName:"uuuu",unit:"11",valType:"string"},
                                 {id:3,name:"4",displayName:"8888",unit:"11",valType:"string",checked:true},
-                            ]}],
+                            ]}*/
+            $scope.editPage = {
+                datas:{
+                    metricTree:{
+                        data:[],
                         returnData:[],
                         checkType: { "Y" : "ps", "N" : "ps" },
                         checked:"",
@@ -505,14 +539,8 @@
                         },
                         edit:function(node){
                             jQuery(".modal-body textarea").css({"width":"280px","height":"30px"});
-                            $scope.departDialog.title="编辑";
-                            $scope.departDialog.model={delete:0,id:node.id,name:node.name,pid:node.pid,desc:node.desc,remark:node.remark,orgLevel:node.orgLevel,isJF:node.isJF==true?1:0};
-                            $scope.departDialog.show();
                         },
                         active:function(node){
-                            $scope.departDialog.depart=node;
-                            $scope.searchPage.departId=node.id;
-                            $scope.departDialog.isShow(node);
                             $scope.listPage.settings.reload();
                         },
                         onCheck:function(nodes){
@@ -545,6 +573,12 @@
                 title:"新增组",
                 hiddenButton:false,
                 save:function() {
+                    if(!$scope.groupDialog.groupName){
+                        $('#name').focus();
+                        toaster.pop('failed', "", "用户组名称不能为空");
+                        return;
+                    }
+
                     var treeObj = angular.element.fn.zTree.getZTreeObj($scope.editPage.datas.metricTree.treeId);
                     var allNodes = treeObj.transformToArray(treeObj.getNodes());
                     // var nodes=new Array();
@@ -572,6 +606,9 @@
                             $scope.groupDialog.init();
                             $scope.listPage.settings.reload(true);
 
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                     }else{
                         loader.updateGroup($scope.groupDialog,function(data){
@@ -579,6 +616,9 @@
                             $scope.groupDialog.init();
                             $scope.pageDialog.hide();
                             $scope.listPage.settings.reload(true);
+
+                        }, function (error) {
+                            Loading.hide();
 
                         })
                     }
@@ -628,16 +668,14 @@
                         loader.getPrivileges({},{},function (data) {
                             Loading.hide();
                             $scope.editPage.datas.metricTree.data = data.data;
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                         // $("#formPassword")[0].style.display = 'inherit';
                         $scope.pageDialog.show();
                         $scope.addPage.init();
                     },
-                    // update: function (id) {
-                    //     $scope.pageDialogUpdate.title = "修改组";
-                    //     $scope.addPageUpdate.data.userId = id;
-                    //     $scope.pageDialog.show();
-                    // },
                     edit: function (id) {
                         $scope.pageDialog.title = "修改组";
                         Loading.show();
@@ -655,11 +693,11 @@
                                 //     {id:2,name:"123",displayName:"123",unit:"11",valType:"string"},
                                 //     {id:3,name:"123",displayName:"123",unit:"11",valType:"string",checked:true},
                                 // ]}];
-
                             Loading.hide();
-                            // $('#userName').attr("disabled","disabled");
                             $scope.pageDialog.show();
-                            // $scope.addPage.init();
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                         // },500);
                     },
@@ -675,6 +713,8 @@
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        },function (error) {
+                            Loading.hide();
                         })
 
                     },
@@ -696,6 +736,9 @@
                         loader.groupList($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                     }
                 }
@@ -762,22 +805,6 @@
             $scope.searchPage.init();
         }])
         .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
-            // $rootScope.loginUserMenuMap={};
-            // var foreachMenus=function(menus){
-            //     for(var i=0;i<menus.length;i++){
-            //         var menu=menus[i];
-            //         $rootScope.loginUserMenuMap[menu.code]=!menu.permission;
-            //         // if(menu.children.length>0){
-            //         //     foreachMenus(menu.children);
-            //         // }
-            //     }
-            // };
-            //
-            // loader.loginMenus(function(data) {
-            //     // $rootScope.loginUser=data;
-            //     // $rootScope.isLogin=true;
-            //     foreachMenus(data);
-            // });
             $scope.editPage = {
                 datas:{
                     metricTree:{
@@ -870,56 +897,56 @@
             };
 
 
-            $scope.listPreparePage = {
-                action: {
-                    metricNodeDom: function (data) {
-                        var htmlStr = "";
-                        if ("string" == data.valType) {
-                            htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>" +
-                                "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='包含'>包含</option></select></span>" +
-                                "<span style='width:80px;display: inline-block;'><input id='b" + data.id + "' placeholder='请输入' type='text' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'/></span>" +
-                                "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
-                        } else if ("enum" == data.valType) {
-                            var opt = "";
-                            $.each(data.enumMap, function (k, v) {
-                                if (k == 'normal') {
-                                    opt += "<option value='" + k + "'>" + "正常" + "</option>";
-                                } else if (k == 'warning') {
-                                    opt += "<option value='" + k + "'>" + "警告" + "</option>";
-                                } else if (k == 'critical') {
-                                    opt += "<option value='" + k + "'>" + "危急" + "</option>";
-                                } else if (k == 'shutdown') {
-                                    opt += "<option value='" + k + "'>" + "关闭" + "</option>";
-                                } else if (k == 'notPresent') {
-                                    opt += "<option value='" + k + "'>" + "不存在" + "</option>";
-                                } else if (k == 'notFunctioning') {
-                                    opt += "<option value='" + k + "'>" + "不工作" + "</option>";
-                                } else {
-                                    opt += "<option value='" + k + "'>" + k + "</option>";
-                                }
-                            });
-                            htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>" +
-                                "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='!='>!=</option></select></span>" +
-                                "<span style='width:80px;display: inline-block;'><select id='b" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option>" + opt + "</select></span>" +
-                                "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
-                        } else {//double
-                            htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>";
-                            htmlStr += "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='>'>></option><option value='<'><</option><option value='<='><=</option><option value='>='>>=</option></select></span>";
-                            htmlStr += '<span style="width:80px;display: inline-block;">';
-                            if (!data.unit) {
-                                htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:checkNumber(this);"/>';
-                            } else if (data.unit && data.unit == "%") {
-                                htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:checkPercent(this);"/>';
-                            } else {
-                                htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:a(this);"/>';
-                            }
-                            htmlStr += '</span>';
-                            htmlStr += "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
-                        }
-                        return htmlStr;
-                    }
-                }
-            }
+            // $scope.listPreparePage = {
+            //     action: {
+            //         metricNodeDom: function (data) {
+            //             var htmlStr = "";
+            //             if ("string" == data.valType) {
+            //                 htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>" +
+            //                     "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='包含'>包含</option></select></span>" +
+            //                     "<span style='width:80px;display: inline-block;'><input id='b" + data.id + "' placeholder='请输入' type='text' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'/></span>" +
+            //                     "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
+            //             } else if ("enum" == data.valType) {
+            //                 var opt = "";
+            //                 $.each(data.enumMap, function (k, v) {
+            //                     if (k == 'normal') {
+            //                         opt += "<option value='" + k + "'>" + "正常" + "</option>";
+            //                     } else if (k == 'warning') {
+            //                         opt += "<option value='" + k + "'>" + "警告" + "</option>";
+            //                     } else if (k == 'critical') {
+            //                         opt += "<option value='" + k + "'>" + "危急" + "</option>";
+            //                     } else if (k == 'shutdown') {
+            //                         opt += "<option value='" + k + "'>" + "关闭" + "</option>";
+            //                     } else if (k == 'notPresent') {
+            //                         opt += "<option value='" + k + "'>" + "不存在" + "</option>";
+            //                     } else if (k == 'notFunctioning') {
+            //                         opt += "<option value='" + k + "'>" + "不工作" + "</option>";
+            //                     } else {
+            //                         opt += "<option value='" + k + "'>" + k + "</option>";
+            //                     }
+            //                 });
+            //                 htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>" +
+            //                     "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='!='>!=</option></select></span>" +
+            //                     "<span style='width:80px;display: inline-block;'><select id='b" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option>" + opt + "</select></span>" +
+            //                     "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
+            //             } else {//double
+            //                 htmlStr = "<span style='width:130px;display: inline-block;'>" + data.displayName + "</span>";
+            //                 htmlStr += "<span style='width:80px;display: inline-block;'><select id='a" + data.id + "' style='width:80px;height: 20px;line-height: 20px;padding: 0px 0px;'><option value=''>请选择</option><option value='=='>==</option><option value='>'>></option><option value='<'><</option><option value='<='><=</option><option value='>='>>=</option></select></span>";
+            //                 htmlStr += '<span style="width:80px;display: inline-block;">';
+            //                 if (!data.unit) {
+            //                     htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:checkNumber(this);"/>';
+            //                 } else if (data.unit && data.unit == "%") {
+            //                     htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:checkPercent(this);"/>';
+            //                 } else {
+            //                     htmlStr += '<input id="b' + data.id + '" placeholder="请输入" maxlength="10" type="text" style="width:80px;height: 20px;line-height: 20px;padding: 0px 0px;" onblur="javascript:a(this);"/>';
+            //                 }
+            //                 htmlStr += '</span>';
+            //                 htmlStr += "<span style='width:30px;display: inline-block;'>" + (data.unit ? data.unit : "") + "</span>";
+            //             }
+            //             return htmlStr;
+            //         }
+            //     }
+            // }
             // $scope.editPage.datas.metricTree = [{},{},{}];
 
             $scope.pageDialogDetail=Tools.dialog({
@@ -955,6 +982,10 @@
                         //     $scope.addPageUpdate.data.userPwdRenew = "";
                         //     toaster.pop('failed', "", "新密码和老密码不能一样");
                         // }
+                        if($scope.addPageUpdate.data.userPwdNew){
+
+                        }
+
                         Loading.show();
                         loader.updatePassword($scope.addPageUpdate.data,function(data){
                             if(data.result=="success"){
@@ -967,6 +998,8 @@
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        }, function (error) {
+                            Loading.hide();
                         })
                     }
             });
@@ -986,6 +1019,15 @@
                 hiddenButton:false,
                 save:function() {
                     if ($scope.pageDialog.title === "新增用户") {
+                        if(!$scope.addPage.data.userName){
+                            $('#userName').focus();
+                            toaster.pop('failed', "", "用户名不能为空");
+                            return;
+                        }else if(!$scope.addPage.data.userPwd){
+                            $('#userPwd').focus();
+                            toaster.pop('failed', "", "用户密码不能为空");
+                            return;
+                        }
                         Loading.show();
                         $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
                         loader.addUser($scope.addPage.data,function(data){
@@ -999,6 +1041,9 @@
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        }, function (error) {
+                            Loading.hide();
+
                         })
 
                     } else if ($scope.pageDialog.title === "修改用户") {
@@ -1015,6 +1060,9 @@
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                     }
                 }
@@ -1062,6 +1110,9 @@
                         loader.userGroup({},{},function (data) {
                             $scope.approvalGroup = data.group;
                             Loading.hide();
+                        }, function (error) {
+                            Loading.hide();
+
                         });
                         $scope.pageDialog.show();
                         $scope.addPage.init();
@@ -1095,6 +1146,9 @@
                                 // $('#userName').attr("disabled","disabled");
                                 $scope.pageDialog.show();
                                 // $scope.addPage.init();
+                            }, function (error) {
+                                Loading.hide();
+
                             })
                         // },500);
                     },
@@ -1103,21 +1157,24 @@
                         Loading.show();
                         // $timeout(function(){
                         loader.userInfo({"userId":id},{},function (data) {
-                            $scope.addPageDetail.data.userId = data.userId;
-                            $scope.addPageDetail.data.userName = data.userName;
-                            $scope.addPageDetail.data.userMobile = data.userMobile;
-                            $scope.addPageDetail.data.userEmail = data.userEmail;
-                            $scope.addPageDetail.data.userCompany = data.userCompany;
-                            $scope.addPageDetail.data.userDepartment = data.userDepartment;
-                            $scope.addPageDetail.data.userPosition = data.userPosition;
-                            $scope.addPageDetail.data.userAddress = data.userAddress;
-                            $scope.addPageDetail.data.userPostcode = data.userPostcode;
-                            $scope.addPageDetail.data.userWeixin = data.userWeixin;
-                            $scope.addPageDetail.data.userStatus = data.userStatus===1?true:false;
+                            $scope.addPageDetail.data.userId = data.data.userId;
+                            $scope.addPageDetail.data.userName = data.data.userName;
+                            $scope.addPageDetail.data.userMobile = data.data.userMobile;
+                            $scope.addPageDetail.data.userEmail = data.data.userEmail;
+                            $scope.addPageDetail.data.userCompany = data.data.userCompany;
+                            $scope.addPageDetail.data.userDepartment = data.data.userDepartment;
+                            $scope.addPageDetail.data.userPosition = data.data.userPosition;
+                            $scope.addPageDetail.data.userAddress = data.data.userAddress;
+                            $scope.addPageDetail.data.userPostcode = data.data.userPostcode;
+                            $scope.addPageDetail.data.userWeixin = data.data.userWeixin;
+                            $scope.addPageDetail.data.userStatus = data.data.userStatus===1?true:false;
                             Loading.hide();
                             // $('#userName').attr("disabled","disabled");
                             $scope.pageDialogDetail.show();
                             // $scope.addPage.init();
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                     },
                     active: function (active,userId,userName) {
@@ -1132,6 +1189,9 @@
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        }, function (error) {
+                            Loading.hide();
+
                         })
 
                     },
@@ -1153,6 +1213,9 @@
                         loader.userList($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                     }
                 }
@@ -1416,6 +1479,9 @@
                     }
 
                 });
+            }, function (error) {
+                Loading.hide();
+
             });
 
             // $('#menuBar').html( '    <ul>\n' +
@@ -1499,6 +1565,9 @@
             };
             loader.loginMenus(null, function (data) {
                 foreachMenus(data);
+            }, function (error) {
+                Loading.hide();
+
             })
         }])
         .controller('userManagerController', ['$scope','user.loader','Loading','toaster',function($scope,loader,Loading,toaster) {
@@ -1512,6 +1581,9 @@
             }
             loader.getUsers(null, function (data) {
                 $scope.userList =data;
+            }, function (error) {
+                Loading.hide();
+
             })
         };
         $scope.updateUser  = function(){
@@ -1527,6 +1599,9 @@
                 if(data.result=="success"){
                     toaster.pop('success', "", "操作成功");
                 }
+            }, function (error) {
+                Loading.hide();
+
             })
         };
 
@@ -1550,6 +1625,9 @@
                 if (data.result!=null&&data.result.indexOf("admin") > -1) {
                     $scope.userManage.level.push("admin");
                 }
+            }, function (error) {
+                Loading.hide();
+
             })
         });
         $scope.getUserInfo();

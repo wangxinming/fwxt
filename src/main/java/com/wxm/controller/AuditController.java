@@ -28,8 +28,8 @@ public class AuditController {
     @RequestMapping(value = "/auditList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object userList(HttpServletRequest request,
-                           @RequestParam(value = "offset", required = false) int offset,
-                           @RequestParam(value = "limit", required = false) int limit,
+                           @RequestParam(value = "offset", required = true) int offset,
+                           @RequestParam(value = "limit", required = true) int limit,
                            @RequestParam(value = "userName", required = false) String userName,
                            @RequestParam(value = "startTime", required = true) String startTime,
                            @RequestParam(value = "endTime", required = true) String endTime
@@ -39,25 +39,13 @@ public class AuditController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
-        Map<String, Object> result = new HashMap<>();
-        Date start=null,end=null;
+        LOGGER.info("查询审计日志，参数：{}，{}，{}，{}，{}",offset,limit,userName,startTime,endTime);
         if(StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)){
-            start = null;
-            end = null;
+            return auditService.getAudits(offset,limit,userName, null, null);
         }else{
-            try {
-                SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                start = time.parse(startTime);
-                end = time.parse(endTime);
-                if(StringUtils.isBlank(userName)){
-                    userName = null;
-                }
-                result.put("rows",auditService.list(offset,limit,userName,start,end));
-                result.put("total",auditService.count(userName,start,end));
-            }catch (Exception e){
-                LOGGER.error("参数异常",e);
-            }
+            SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            return auditService.getAudits(offset,limit,userName, time.parse(startTime), time.parse(endTime));
         }
-        return result;
+
     }
 }

@@ -222,6 +222,11 @@
                     $scope.pageDialog.model.html = $('#htmlTemplateText').val();
                     $scope.pageDialog.model.name = $('#templateName').val();
                     $scope.pageDialog.model.des = $('#templateDes').val();
+
+                    var params = $("#uploadFormUpdate").serializeArray();
+                    for(var i in params ){
+                        $scope.pageDialog.model[params[i].name] = params[i].value;
+                    }
                     Loading.show();
                     loader.saveUploadFileInfo($scope.pageDialog.model,function(data){
                         if(data.result=="success"){

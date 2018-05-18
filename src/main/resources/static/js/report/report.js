@@ -125,7 +125,7 @@
                         loader.fawuReport({"startTime": $scope.searchPage.data.startTime,"endTime":$scope.searchPage.data.endTime},function(data){
                             if(data.result=="success"){
                                 Loading.hide();
-                                toaster.pop('success', "", "操作成功");
+                                // toaster.pop('success', "", "操作成功");
                                 $scope.profile.total = data.data.total;
                                 $scope.profile.template = data.data.templateNum;
                                 $scope.profile.custom = data.data.customNum;
@@ -154,6 +154,9 @@
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                     }
                 }
@@ -327,28 +330,6 @@
                     }
                 }
                 ]
-                // options: {
-                //     exporting: {
-                //         // 是否允许导出
-                //         enabled: false
-                //     },
-                //     chart: {
-                //         type: 'bubble',
-                //         zoomType: 'xy'
-                //     }
-                // },
-                //
-                // title:{
-                //     text: 'Highcharts bubbles with radial gradient fill'
-                // },
-                // series:[{
-                //     data: [[97, 36, 79], [94, 74, 60], [68, 76, 58], [64, 87, 56], [68, 27, 73], [74, 99, 42], [7, 93, 87], [51, 69, 40], [38, 23, 33], [57, 86, 31]]
-                // }, {
-                //     data: [[25, 10, 87], [2, 75, 59], [11, 54, 8], [86, 55, 93], [5, 3, 58], [90, 63, 44], [91, 33, 17], [97, 3, 56], [15, 67, 48], [54, 25, 81]]
-                // }, {
-                //     data: [[47, 47, 21], [20, 12, 4], [6, 76, 91], [38, 30, 60], [57, 98, 64], [61, 17, 80], [83, 60, 13], [67, 78, 75], [64, 12, 10], [30, 77, 82]]
-                // }]
-
             };
             // $scope.chartConfigColoum.series.push({"data": $scope.chartSeries });
             var current = new Date();
@@ -363,28 +344,32 @@
                         loader.myReport({"startTime": $scope.searchPage.data.startTime,"endTime":$scope.searchPage.data.endTime},function(data){
                             if(data.result=="success"){
                                 Loading.hide();
-                                toaster.pop('success', "", "操作成功");
+                                // toaster.pop('success', "", "操作成功");
                                 // $scope.listPage.settings.reload();
                                 $scope.chartSeries.name = "个人任务统计";
-                                // $scope.chartConfigPie.series=
-                                $scope.chartConfigPie.series = [{
-                                    type: 'pie',
-                                    name: '任务',
-                                    data: [
-                                        { name: '已完成任务', y: data.data.completedCount, sliced: true},
-                                        { name: '参与的任务', y: data.data.involveCount}
-                                    ]
-                                }]
-                                // $scope.chartSeries.data = [{   name: '已完成任务',
-                                //     y: data.reportEntity.completedCount,
-                                //     sliced: true},{ name: '参与的任务',
-                                //     y: data.reportEntity.involveCount
-                                //     }];
-
+                                if(data.data.completedCount == 0 && data.data.involveCount ==0){
+                                    $scope.chartConfigPie.series =[{
+                                        type: 'pie',
+                                        name: '任务',
+                                        data: []
+                                    }]
+                                }else {
+                                    $scope.chartConfigPie.series = [{
+                                        type: 'pie',
+                                        name: '任务',
+                                        data: [
+                                            {name: '已完成任务', y: data.data.completedCount, sliced: true},
+                                            {name: '参与的任务', y: data.data.involveCount}
+                                        ]
+                                    }]
+                                }
                             }else{
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                     }
                 }
@@ -625,6 +610,9 @@
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        }, function (error) {
+                            Loading.hide();
+
                         })
 
                     } else if ($scope.pageDialog.title === "修改用户") {
@@ -639,6 +627,9 @@
                                 Loading.hide();
                                 toaster.pop('warning', "", data.msg);
                             }
+                        }, function (error) {
+                            Loading.hide();
+
                         })
                     }
                 }

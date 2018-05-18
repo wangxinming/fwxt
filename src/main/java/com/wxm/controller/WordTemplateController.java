@@ -1,7 +1,5 @@
 package com.wxm.controller;
-
-import com.wxm.entity.WordEntity;
-import com.wxm.entity.WordTemplateField;
+import com.wxm.model.OAAudit;
 import com.wxm.model.OAContractCirculationWithBLOBs;
 import com.wxm.model.OAContractTemplate;
 import com.wxm.model.OAFormProperties;
@@ -10,7 +8,6 @@ import com.wxm.util.HtmlProcess;
 import com.wxm.util.Md5Utils;
 import com.wxm.util.Word2Html;
 import com.wxm.util.exception.OAException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +37,8 @@ public class WordTemplateController {
     private FormPropertiesService formPropertiesService;
     @Autowired
     private ContractCirculationService contractCirculationService;
-
+    @Autowired
+    private AuditService auditService;
 
     @RequestMapping(value="/deleteWordTemplate",method= RequestMethod.DELETE,produces="application/json;charset=UTF-8")
     public Object deleteWordTemplate( HttpServletRequest request,
@@ -56,9 +54,10 @@ public class WordTemplateController {
             if(id != 0) {
                 concactTemplateService.delete(id);
                 formPropertiesService.delete(id);
+                auditService.audit(new OAAudit(loginUser.getName(),String.format("删除合同模板 %s",id)));
             }
         }catch (Exception e){
-            LOGGER.warn("",e);
+            LOGGER.error("异常",e);
             result.put("result","failed");
         }
         return result;
@@ -71,21 +70,34 @@ public class WordTemplateController {
                              @RequestParam(value = "templateName", defaultValue = "", required = false) String templateName
                              )throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
-        result.put("rows",formPropertiesService.list(offset,limit,templateName));
-        result.put("total",formPropertiesService.count(templateName));
+        result.put("result","success");
+        try {
+            result.put("rows", formPropertiesService.list(offset, limit, templateName));
+            result.put("total", formPropertiesService.count(templateName));
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result","failed");
+        }
         return result;
     }
     @RequestMapping(value="/updateFieldInfo",method= RequestMethod.POST,produces="application/json;charset=UTF-8")
     public Object updateFieldInfo(@RequestBody OAFormProperties oaFormProperties,HttpServletRequest request) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try {
             formPropertiesService.update(oaFormProperties);
         }catch (Exception e){
+            LOGGER.error("异常",e);
             result.put("result","failed");
         }
         return result;
@@ -94,10 +106,19 @@ public class WordTemplateController {
     @RequestMapping(value="/templateListTotal",method= RequestMethod.GET,produces="application/json;charset=UTF-8")
     public Object templateList( HttpServletRequest request)throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
-        result.put("rows",concactTemplateService.listTemplate());
-        result.put("total",concactTemplateService.count());
+        result.put("result","success");
+        try {
+            result.put("rows", concactTemplateService.listTemplate());
+            result.put("total", concactTemplateService.count());
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result","failed");
+        }
         return result;
     }
 
@@ -107,11 +128,19 @@ public class WordTemplateController {
                                 @RequestParam(value = "limit", required=true) Integer limit
                                 ) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
-        result.put("rows",concactTemplateService.list(offset,limit));
-        result.put("total",concactTemplateService.count());
-
+        result.put("result","success");
+        try {
+            result.put("rows", concactTemplateService.list(offset, limit));
+            result.put("total", concactTemplateService.count());
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result","failed");
+        }
         return result;
     }
 
@@ -134,23 +163,24 @@ public class WordTemplateController {
     @RequestMapping(value="/custom",method= RequestMethod.POST)
     public Object custom(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
-        String htmlStr = "";
-        String docName =  file.getOriginalFilename();
-        String fileName = file.getOriginalFilename().substring(0,file.getOriginalFilename().indexOf("."));
         try {
+            String docName = file.getOriginalFilename();
             File desFile = new File(contractPath + docName);
-            if(!desFile.getParentFile().exists()){
+            if (!desFile.getParentFile().exists()) {
                 desFile.mkdirs();
             }
             file.transferTo(desFile);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            result.put("file", docName);
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result","failed");
         }
-        result.put("file",docName);
         return result;
     }
     //文件下载
@@ -181,14 +211,11 @@ public class WordTemplateController {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
         Map<String, Object> result = new HashMap<>();
-        result.put("result", "");
+        result.put("result", "success");
         String htmlStr = "";
         String docName =  file.getOriginalFilename();
         String fileName = file.getOriginalFilename().substring(0,file.getOriginalFilename().indexOf("."));
         try {
-
-//            String path = PropertyUtil.getValue("contract.template.path");
-//            File desFile = new File("F:\\tmp\\oa\\demo.doc");
             File desFile = new File(contractPath + docName);
             if(!desFile.getParentFile().exists()){
                 desFile.mkdirs();
@@ -207,9 +234,11 @@ public class WordTemplateController {
                 // 删除临时文件
 //            htmlFile.delete();
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                LOGGER.error("异常",e);
+                result.put("result","failed");
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("异常",e);
+                result.put("result","failed");
             }
             // HTML文件字符串
             htmlStr = htmlSb.toString();
@@ -248,7 +277,8 @@ public class WordTemplateController {
             oaContractTemplate.setTemplateHtml(htmlStr);
             concactTemplateService.update(oaContractTemplate);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("异常",e);
+            result.put("result","failed");
         }
         return "";
     }

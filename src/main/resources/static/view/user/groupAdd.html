@@ -4,14 +4,13 @@
 </head>
 <div dialog info="pageDialog" data="addPage.data" class="ldialog">
     <div class="portlet-body form">
-        <form class="form-horizontal" role="form" id="addForm">
+        <form class="form-horizontal" role="form" id="addForm" name="form">
             <div class="dialog-con">
                 <table class="modal-table">
                     <tr>
                         <td class="row-lable"> 组名称 </td>
                         <td>
-                            <input type="text" id="name" ng-model="groupDialog.groupName"  placeholder="组名称" name="name"
-                                   maxlength="20" required/>
+                            <input type="text" id="name" ng-model="groupDialog.groupName"  placeholder="组名称" name="name" maxlength="20" required/>
                             <span class="required">*</span>
                             <div class="required" ng-show="form.name.$dirty && form.name.$invalid">
                                 <span ng-show="form.name.$error.required">此项不能为空.</span>
@@ -22,13 +21,7 @@
                     <tr>
                         <td class="row-lable"> 组描述 </td>
                         <td>
-                            <input type="text" id="description" ng-model="groupDialog.description"  placeholder="组描述" name="description"
-                                   maxlength="200" required/>
-                            <span class="required">*</span>
-                            <div class="required" ng-show="form.name.$dirty && form.name.$invalid">
-                                <span ng-show="form.name.$error.required">此项不能为空.</span>
-                                <span ng-show="!form.name.$error.required && form.name.$error.maxlength">超出长度限制.</span>
-                            </div>
+                            <input type="text" id="description" ng-model="groupDialog.description"  placeholder="组描述" name="description" maxlength="200"/>
                         </td>
                     </tr>
                     <tr>

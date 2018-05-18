@@ -2,14 +2,10 @@ package com.wxm.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wxm.activiti.vo.DeploymentResponse;
 import com.wxm.entity.KeyValue;
 import com.wxm.entity.TaskComment;
-import com.wxm.entity.WordEntity;
 import com.wxm.model.*;
 import com.wxm.service.*;
-import com.wxm.util.Status;
-import com.wxm.util.ToWeb;
 import com.wxm.util.exception.OAException;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
@@ -55,8 +51,6 @@ public class DeployController {
     @Autowired
     private OADeploymentTemplateService oaDeploymentTemplateService;
     @Autowired
-    private WordTemplateService wordTemplateService;
-    @Autowired
     private RuntimeService runtimeService;
     @Autowired
     private TaskService taskService;
@@ -74,15 +68,12 @@ public class DeployController {
             throw new OAException(1101,"用户未登录");
         }
 
-
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try{
             String dID = request.getParameter("dID");
             String rID = request.getParameter("rID");
-//            int count = oaDeploymentTemplateService.coutRelByDeploymentId(dID);
             OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(dID);
-//            OADeploymentTemplateRelation oaDeploymentTemplateRelation = new OADeploymentTemplateRelation();
             if(oaDeploymentTemplateRelation != null ){
                 if(StringUtils.isBlank(rID)){
                     oaDeploymentTemplateRelation.setRelationTemplateid(0);
@@ -101,7 +92,7 @@ public class DeployController {
                 auditService.audit(new OAAudit(loginUser.getName(),String.format("新增模板关系")));
             }
         }catch (Exception e){
-            LOGGER.error("参数异常",e);
+            LOGGER.error("异常",e);
             result.put("result","failed");
         }
         return result;
@@ -122,7 +113,7 @@ public class DeployController {
             oaDeploymentTemplateService.delete(Integer.parseInt(id));
             auditService.audit(new OAAudit(loginUser.getName(),String.format("删除模板关系")));
         }catch (Exception e){
-            LOGGER.error("参数异常",e);
+            LOGGER.error("异常",e);
             result.put("result","failed");
         }
         return result;
@@ -146,7 +137,9 @@ public class DeployController {
             oaContractTemplate.setTemplateId(Integer.parseInt(id));
             oaContractTemplate.setTemplateStatus(Integer.parseInt(status));
             concactTemplateService.update(oaContractTemplate);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("更新模板")));
         }catch (Exception e){
+            LOGGER.error("异常",e);
             result.put("result", "failed");
         }
         return result;
@@ -168,15 +161,48 @@ public class DeployController {
             String name = map.get("name");
             String des = map.get("des");
             String html = map.get("html");
-            WordEntity wordEntity = new WordEntity();
-            wordEntity.setId(Integer.parseInt(id));
-            wordEntity.setName(name);
-            wordEntity.setDes(des);
-            wordEntity.setHtml(html);
-            wordTemplateService.update(wordEntity);
+            OAContractTemplate oaContractTemplate = new OAContractTemplate();
+//            WordEntity wordEntity = new WordEntity();
+            oaContractTemplate.setTemplateName(name);
+            oaContractTemplate.setTemplateId(Integer.parseInt(id));
+            oaContractTemplate.setTemplateHtml(html);
+            oaContractTemplate.setTemplateDes(des);
+
+            concactTemplateService.update(oaContractTemplate);
+//            wordTemplateService.update(wordEntity);
+            //合并字段
+            Map<String,String> mapField = new LinkedHashMap<>();
+            for(Map.Entry<String,String> entry:map.entrySet()){
+                if(entry.getKey().contains("name_")){
+                    mapField.put(entry.getKey(),entry.getValue());
+                }
+            }
+            List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(Integer.parseInt(id));
+            Map<String,OAFormProperties> mapDBField = new LinkedHashMap<>();
+            for(OAFormProperties oaFormProperties:oaFormPropertiesList){
+                mapDBField.put(oaFormProperties.getFieldMd5(),oaFormProperties);
+            }
+            //数据库中没有的字段，需要增加
+            for(Map.Entry<String,String> entry:mapField.entrySet()){
+                if(!mapDBField.containsKey(entry.getKey())){
+                    OAFormProperties oaFormProperties = new OAFormProperties();
+                    oaFormProperties.setFieldMd5(entry.getKey());
+                    oaFormProperties.setFieldName("自定义");
+                    oaFormProperties.setTemplateId(Integer.parseInt(id));
+                    oaFormProperties.setTemplateName(name);
+                    oaFormProperties.setCreateTime(new Date());
+                    formPropertiesService.insert(oaFormProperties);
+                }
+            }
+            //数据库中多余的字段，需要删除
+            for(Map.Entry<String,OAFormProperties> entry:mapDBField.entrySet()){
+                if(!mapField.containsKey(entry.getKey())){
+                    formPropertiesService.delete(entry.getValue().getPropertiesId());
+                }
+            }
             auditService.audit(new OAAudit(loginUser.getName(), String.format("更新合同模板")));
         }catch (Exception e){
-            LOGGER.error("参数异常",e);
+            LOGGER.error("异常",e);
             result.put("result", "failed");
         }
         return result;
@@ -186,11 +212,13 @@ public class DeployController {
     public Object concatFile(HttpServletRequest request)throws Exception {
         String template_id = request.getParameter("template_id");
         Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
         try{
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(template_id));
             result.put("data",oaContractTemplate);
         }catch (Exception e){
-
+            LOGGER.error("异常",e);
+            result.put("result", "failed");
         }
         return result;
     }
@@ -249,8 +277,11 @@ public class DeployController {
                 result.put("rows", list);
             }
             result.put("data",oaContractTemplate);
+            List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
+            result.put("fields",oaFormPropertiesList);
 
         }catch (Exception e){
+            result.put("result","failed");
             LOGGER.error("参数异常",e);
         }
         return result;
@@ -272,8 +303,10 @@ public class DeployController {
             result.put("showCommit", true);
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
             result.put("data",oaContractTemplate);
-
+            List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
+            result.put("fields",oaFormPropertiesList);
         }catch (Exception e){
+            result.put("result","failed");
             LOGGER.error("参数异常",e);
         }
         return result;
@@ -286,16 +319,22 @@ public class DeployController {
                           @RequestParam(value = "offset", required = true) int offset,
                           @RequestParam(value = "limit", required = true) int limit
                           )throws Exception {
-        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
             LOGGER.error("用户未登录");
-            throw new OAException(1101,"用户未登录");
+            throw new OAException(1101, "用户未登录");
         }
-        int count = concactTemplateService.count();
-        List<OAContractTemplate> oaContractTemplateList = concactTemplateService.list(offset,limit);
         Map<String, Object> result = new HashMap<>();
-        result.put("rows",oaContractTemplateList);
-        result.put("total",count);
+        try{
+            int count = concactTemplateService.count();
+            List<OAContractTemplate> oaContractTemplateList = concactTemplateService.list(offset, limit);
+            result.put("result","success");
+            result.put("rows", oaContractTemplateList);
+            result.put("total", count);
+        }catch (Exception e){
+            result.put("result","failed");
+            LOGGER.error("异常",e);
+        }
         return result;
     }
 
@@ -374,6 +413,7 @@ public class DeployController {
                     .deploy();
             modelData.setDeploymentId(deployment.getId());
             repositoryService.saveModel(modelData);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("发布流程： "+processName)));
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result", "failed");

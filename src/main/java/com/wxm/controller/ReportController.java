@@ -69,6 +69,7 @@ public class ReportController {
                 result.put("result","success");
                 result.put("data",reportEntity);
             }catch (Exception e){
+                result.put("result","failed");
                 LOGGER.error("参数异常",e);
             }
         }
@@ -109,6 +110,7 @@ public class ReportController {
                 result.put("result","success");
                 result.put("data",reportEntity);
             }catch (Exception e){
+                result.put("result","failed");
                 LOGGER.error("参数异常",e);
             }
         }

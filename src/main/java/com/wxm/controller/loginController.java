@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,14 +35,11 @@ public class loginController {
         OAUser oaUser = userService.selectByName(userName);
         if(oaUser != null) {
             User user = new User();
-//                loginService.loginUser(userName);
             String psw = Md5Utils.getMd5(password);
             if (psw.equals(oaUser.getUserPwd())) {
                 user.setId(oaUser.getUserId());
                 user.setName(oaUser.getUserName());
                 user.setRealName(oaUser.getUserName());
-//            user.setMobile(user.getMobile());
-//            user.setEmail(user.getEmail());
                 request.getSession().setAttribute("loginUser", user);
                 request.getSession().setAttribute("isLogin", true);
                 result.put("userName", oaUser.getUserName());
@@ -57,6 +55,7 @@ public class loginController {
             result.put("result", "fail");
             result.put("msg", "用户不存在");
         }
+        LOGGER.info("用户：{}，登录时间：{}",userName,new Date());
         return result;
     }
 
@@ -68,6 +67,7 @@ public class loginController {
 //        if(null == loginUser) throw new OAException(1101,"用户未登录");
         request.getSession().removeAttribute("isLogin");
         request.getSession().removeAttribute("loginUser");
+        LOGGER.info("用户：{}，登出时间：{}",loginUser.getName(),new Date());
     }
 
 

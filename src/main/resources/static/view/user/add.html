@@ -5,12 +5,12 @@
 <div dialog info="pageDialog" data="addPage.data" class="ldialog">
 
     <div class="portlet-body form">
-        <form class="form-horizontal" role="form" id="addForm">
+        <form class="form-horizontal" role="form" id="addForm" name="form">
             <div class="form-body">
                 <div class="form-group">
                     <label  class="col-md-3 control-label">用户名称</label>
                     <div class="col-md-9">
-                        <input type="text" class="form-control" name="userName" id="userName" ng-model="addPage.data.userName" placeholder="用户名字" maxlength="20">
+                        <input type="text" class="form-control" name="userName" id="userName" ng-model="addPage.data.userName" placeholder="用户名字" maxlength="20" required>
                         <div class="required" ng-show="form.userName.$dirty && form.userName.$invalid">
                             <span ng-show="form.userName.$error.required">此项不能为空.</span>
                             <!--<span ng-show="!form.userName.$error.required && form.userName.$error.minlength">长度最小6位字符.</span>-->
@@ -21,7 +21,7 @@
                 <div class="form-group" style="display: none" id="formPassword">
                     <label  class="col-md-3 control-label">用户密码</label>
                     <div class="col-md-9">
-                    <input type="password" class="form-control" name="userPwd" ng-model="addPage.data.userPwd" placeholder="用户密码" minlength="6" maxlength="20">
+                    <input type="password" class="form-control" name="userPwd" id="userPwd" ng-model="addPage.data.userPwd" placeholder="用户密码" minlength="6" maxlength="20" required>
                         <div class="required" ng-show="form.userPwd.$dirty && form.userPwd.$invalid">
                             <span ng-show="form.userPwd.$error.required">此项不能为空.</span>
                             <span ng-show="!form.userPwd.$error.required && form.userPwd.$error.minlength">长度最小6位字符.</span>
@@ -47,7 +47,7 @@
                 <div class="form-group">
                     <label  class="col-md-3 control-label">邮箱</label>
                     <div class="col-md-9">
-                        <input type="text" class="form-control"  name="userEmail" ng-model="addPage.data.userEmail" placeholder="邮箱" maxlength="20">
+                        <input type="email" class="form-control"  name="userEmail" ng-model="addPage.data.userEmail" placeholder="邮箱" maxlength="30">
                         <div class="required" ng-show="form.userEmail.$dirty && form.userEmail.$invalid">
                             <span ng-show="form.userEmail.$error.email">邮箱地址格式错误.</span>
                             <span ng-show="!form.userEmail.$error.email && form.email.$error.maxlength">超出长度限制.</span>

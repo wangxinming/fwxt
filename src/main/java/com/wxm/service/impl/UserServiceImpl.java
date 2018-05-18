@@ -62,9 +62,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Integer update(OAUser oaUser) {
-        oaUserMapper.updateByPrimaryKeySelective(oaUser);
         oaUser.setUserPwd(null);
         oaUser.setUserCreatetime(null);
+        oaUserMapper.updateByPrimaryKeySelective(oaUser);
         org.activiti.engine.identity.User user = identityService.createUserQuery().
                 userId(oaUser.getUserName()).
                 userFirstName(oaUser.getUserId().toString()).singleResult();

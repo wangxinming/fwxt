@@ -1,3 +1,11 @@
+use oa;
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_USER'
+ and type = 'U')
+ drop table OA_USER
+go
+
 CREATE TABLE OA_USER
 (
   USER_ID           INT IDENTITY PRIMARY KEY,
@@ -36,6 +44,12 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'用户创建时间', N'user'
 
 insert OA_USER (USER_NAME,USER_PWD,USER_STATUS,USER_CREATETIME) values ('admin','202CB962AC59075B964B07152D234B70',1,'2018-04-23 11:06:21.517');
 
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_CONTRACT_TEMPLATE'
+ and type = 'U')
+ drop table OA_CONTRACT_TEMPLATE
+go
 CREATE TABLE OA_CONTRACT_TEMPLATE
 (
   TEMPLATE_ID         INT IDENTITY PRIMARY KEY,
@@ -57,7 +71,6 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'模板启用状态', N'user'
 EXECUTE sp_addextendedproperty N'MS_Description', N'模板内容', N'user', N'dbo', N'table', N'OA_CONTRACT_TEMPLATE', N'column', N'TEMPLATE_HTML';
 EXECUTE sp_addextendedproperty N'MS_Description', N'模板描述信息', N'user', N'dbo', N'table', N'OA_CONTRACT_TEMPLATE', N'column', N'TEMPLATE_DES';
 EXECUTE sp_addextendedproperty N'MS_Description', N'模板创建时间', N'user', N'dbo', N'table', N'OA_CONTRACT_TEMPLATE', N'column', N'TEMPLATE_CREATETIME';
-insert OA_USER (USER_NAME,USER_PWD,USER_STATUS,USER_CREATETIME) values ('admin','202CB962AC59075B964B07152D234B70',1,'2018-04-23 11:06:21.517');
 
 INSERT INTO OA_CONTRACT_TEMPLATE(TEMPLATE_NAME,USER_ID,TEMPLATE_STATUS,TEMPLATE_HTML,TEMPLATE_CREATETIME) VALUES ('自定义合同',1,1,'<DIV style="margin-top: 25px;">
                 <div class="row" id="customFile">
@@ -72,6 +85,12 @@ INSERT INTO OA_CONTRACT_TEMPLATE(TEMPLATE_NAME,USER_ID,TEMPLATE_STATUS,TEMPLATE_
 		</div>
 </DIV>','2018-04-23 11:06:21.517');
 
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_DEPLOYMENT_TEMPLATE_RELATION'
+ and type = 'U')
+ drop table OA_DEPLOYMENT_TEMPLATE_RELATION
+go
 CREATE TABLE OA_DEPLOYMENT_TEMPLATE_RELATION
 (
   RELATION_ID           INT IDENTITY PRIMARY KEY,
@@ -89,7 +108,12 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'部署流程编号', N'user'
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同模板编号', N'user', N'dbo', N'table', N'OA_DEPLOYMENT_TEMPLATE_RELATION', N'column', N'RELATION_TEMPLATEID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'关联创建时间', N'user', N'dbo', N'table', N'OA_DEPLOYMENT_TEMPLATE_RELATION', N'column', N'RELATION_CREATETIME';
 
-
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_FORM_PROPERTIES'
+ and type = 'U')
+ drop table OA_FORM_PROPERTIES
+go
 CREATE TABLE OA_FORM_PROPERTIES
 (
   PROPERTIES_ID INT IDENTITY PRIMARY KEY,
@@ -112,6 +136,12 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'表单项类型', N'user', N
 EXECUTE sp_addextendedproperty N'MS_Description', N'表单项校验规则', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'FIELD_VALID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'表单项创建时间', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'CREATE_TIME';
 
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_CONTRACT_CIRCULATION'
+ and type = 'U')
+ drop table OA_CONTRACT_CIRCULATION
+go
 CREATE TABLE OA_CONTRACT_CIRCULATION
 (
   CONTRACT_ID     INT IDENTITY PRIMARY KEY,
@@ -141,6 +171,12 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'合同原始HTML', N'user', 
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同PDF', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_PDF';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同创建时间', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CREATE_TIME';
 
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_AUDIT'
+ and type = 'U')
+ drop table OA_AUDIT
+go
 CREATE TABLE OA_AUDIT
 (
   AUDIT_ID     INT IDENTITY PRIMARY KEY,
@@ -157,7 +193,12 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'操作内容', N'user', N'db
 EXECUTE sp_addextendedproperty N'MS_Description', N'操作时间', N'user', N'dbo', N'table', N'OA_AUDIT', N'column', N'CREATE_TIME';
 
 
-
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_ORGANIZATION'
+ and type = 'U')
+ drop table OA_ORGANIZATION
+go
 CREATE TABLE OA_ORGANIZATION
 (
   ORGANIZATION_ID     INT IDENTITY PRIMARY KEY,
@@ -177,7 +218,12 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'db
 EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'DESCRIBE';
 EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'CREATE_TIME';
 
-
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_GROUP'
+ and type = 'U')
+ drop table OA_GROUP
+go
 CREATE TABLE OA_GROUP
 (
   GROUP_ID     INT IDENTITY PRIMARY KEY,
@@ -197,45 +243,12 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'创建组用户编号', N'us
 EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'DESCRIBE';
 EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'CREATE_TIME';
 
-CREATE TABLE OA_GROUP_PRIVILEGE
-(
-  RELATION_ID     INT IDENTITY PRIMARY KEY,
-  GROUP_ID        INT,
-  PRIVILAGE       NVARCHAR(1000),
-  DESCRIBE        NVARCHAR(500),
-  CREATE_TIME     DATETIME
-)
-
-GO
-/* 表注释 */
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', NULL, NULL;
-/* 字段注释 */
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'ORGANIZATION_ID';
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'ORGANIZATION_NAME';
-EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'USER_ID';
-EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'DESCRIBE';
-EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_GROUP_PRIVILEGE', N'column', N'CREATE_TIME';
-
-
-CREATE TABLE OA_GROUP_USER
-(
-  RELATION_ID     INT IDENTITY PRIMARY KEY,
-  GROUP_ID        INT,
-  USER_ID         INT,
-  DESCRIBE        NVARCHAR(500),
-  CREATE_TIME     DATETIME
-)
-
-GO
-/* 表注释 */
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_ORGANIZATION', NULL, NULL;
-/* 字段注释 */
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_ID';
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_NAME';
-EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'USER_ID';
-EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'DESCRIBE';
-EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'CREATE_TIME';
-
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_PRIVILEGE'
+ and type = 'U')
+ drop table OA_PRIVILEGE
+go
 CREATE TABLE OA_PRIVILEGE
 (
   PRIVILEGE_ID     INT IDENTITY PRIMARY KEY,

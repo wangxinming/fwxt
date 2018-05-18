@@ -101,15 +101,23 @@ public class ProcessController {
         try{
             long size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
             result.put("myPending",size);
-            size =  historyService.createHistoricProcessInstanceQuery().finished()
-                    .involvedUser(loginUser.getName())
-                    .count();
-            result.put("myComplete",size);
+            if(loginUser.getName().equals("admin")){
+                size = historyService.createHistoricProcessInstanceQuery()
+                        .variableValueEquals("instanceStatus","completed")
+                        .count();
+                result.put("myComplete", size);
+            }else {
+                size = historyService.createHistoricProcessInstanceQuery()
+                        .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
+                        .count();
+                result.put("myComplete", size);
+            }
             size = historyService.createHistoricProcessInstanceQuery().startedBy(loginUser.getName()).count();
             result.put("initiator",size);
             result.put("result","success");
         }catch (Exception e){
             result.put("result","failed");
+            LOGGER.info("异常",e);
         }
         return result;
     }
@@ -121,17 +129,21 @@ public class ProcessController {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws Exception {
-        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processId);
-        byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
-        response.setContentType("application/x-download");
+        try {
+            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processId);
+            byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
+            response.setContentType("application/x-download");
 //        String codedfilename = MimeUtility.encodeText( new String((oaContractCirculationWithBLOBs.getContractName()+".pdf").getBytes("UTF-8"), "ISO-8859-1"));
 //        String codedfilename = MimeUtility.encodeText(new String((oaContractCirculationWithBLOBs.getContractName()+".pdf").getBytes(), "GB2312"),"GB2312","B");
 //        strText = MimeUtility.encodeText(new String(strText.getBytes(), "GB2312"), "GB2312", "B");
-        String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName()+".pdf","UTF-8");
-        //        String codedfilename = oaContractCirculationWithBLOBs.getContractName()+".pdf";
-        response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
-        response.setContentLength(bytes.length);
-        response.getOutputStream().write(bytes);
+            String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName() + ".pdf", "UTF-8");
+            //        String codedfilename = oaContractCirculationWithBLOBs.getContractName()+".pdf";
+            response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+        }catch (Exception e){
+            LOGGER.info("下载异常",e);
+        }
         return null;
     }
 
@@ -141,64 +153,51 @@ public class ProcessController {
         if(null == loginUser) throw new OAException(1101,"用户未登录");
         String taskID = request.getParameter("TaskId");
         String processInstanceId = "";
-
-        if(!StringUtils.isBlank(taskID)){
-            HistoricTaskInstance historicTaskInstance = historyService.createHistoricTaskInstanceQuery().taskId(taskID).singleResult();
-//            Task task = taskService.createTaskQuery().taskId(taskID).singleResult();
-//            processInstanceId = task.getProcessInstanceId();
-            processInstanceId = historicTaskInstance.getProcessInstanceId();
-        }else{
-            processInstanceId = request.getParameter("processInstanceId");
-        }
-
-
-//        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-//        ProcessInstance  processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-        HistoricProcessInstance processInstance =  historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-        //获取流程图
-        BpmnModel bpmnModel = repositoryService.getBpmnModel(processInstance.getProcessDefinitionId());
-        Context.setProcessEngineConfiguration((ProcessEngineConfigurationImpl) processEngineConfiguration);
-        ProcessDiagramGenerator diagramGenerator = processEngineConfiguration.getProcessDiagramGenerator();
-//        ProcessDefinitionEntity definitionEntity = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(processInstance.getProcessDefinitionId());
-//        HistoricActivityInstance highLightedActivitList =  historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstanceId).singleResult();
-        //高亮环节id集合
-        List<String> highLightedActivitis = new ArrayList<String>();
-
-//        //高亮线路id集合
-//        List<String> highLightedFlows = getHighLightedFlows(definitionEntity,highLightedActivitList);
-//        String activityId = "";
-//
-//        for(HistoricActivityInstance tempActivity : highLightedActivitList){
-//             activityId = tempActivity.getActivityId();
-//        }
-        ProcessInstance pi = runtimeService.createProcessInstanceQuery()//
-                .processInstanceId(processInstanceId)//使用流程实例ID查询
-                .singleResult();
-
-        //流程结束了
-        if(pi==null){
-            highLightedActivitis.add(processInstance.getEndActivityId());
-        }else{
-
-            ProcessInstance  processInstanceRun = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-            Task task = taskService.createTaskQuery().processInstanceId(processInstanceRun.getProcessInstanceId()).singleResult();
-            String taskDefinitionKey = task.getTaskDefinitionKey();
-            if( StringUtils.isNotBlank(taskDefinitionKey)){
-                highLightedActivitis.add(taskDefinitionKey);
-            }else {
-                highLightedActivitis.add(processInstanceRun.getActivityId());
+        try {
+            if (!StringUtils.isBlank(taskID)) {
+                HistoricTaskInstance historicTaskInstance = historyService.createHistoricTaskInstanceQuery().taskId(taskID).singleResult();
+                processInstanceId = historicTaskInstance.getProcessInstanceId();
+            } else {
+                processInstanceId = request.getParameter("processInstanceId");
             }
-        }
+            HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            //获取流程图
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(processInstance.getProcessDefinitionId());
+            Context.setProcessEngineConfiguration((ProcessEngineConfigurationImpl) processEngineConfiguration);
+            ProcessDiagramGenerator diagramGenerator = processEngineConfiguration.getProcessDiagramGenerator();
+            //高亮环节id集合
+            List<String> highLightedActivitis = new ArrayList<String>();
+            ProcessInstance pi = runtimeService.createProcessInstanceQuery()//
+                    .processInstanceId(processInstanceId)//使用流程实例ID查询
+                    .singleResult();
 
-//        commandContext.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel,"png", highLightedActivitis,new ArrayList<String>(),"宋体","宋体","宋体",null,1.0D);
-        InputStream imageStream = diagramGenerator.generateDiagram(bpmnModel,"png", highLightedActivitis,new ArrayList<String>(),"宋体","宋体","宋体",null,1.0D);
-        //单独返回流程图，不高亮显示
-//        InputStream imageStream = diagramGenerator.generatePngDiagram(bpmnModel);
-        // 输出资源内容到相应对象
-        byte[] b = new byte[1024];
-        int len;
-        while ((len = imageStream.read(b, 0, 1024)) != -1) {
-            response.getOutputStream().write(b, 0, len);
+            //流程结束了
+            if (pi == null) {
+                highLightedActivitis.add(processInstance.getEndActivityId());
+            } else {
+
+                ProcessInstance processInstanceRun = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+                Task task = taskService.createTaskQuery().processInstanceId(processInstanceRun.getProcessInstanceId()).singleResult();
+                String taskDefinitionKey = task.getTaskDefinitionKey();
+                if (StringUtils.isNotBlank(taskDefinitionKey)) {
+                    highLightedActivitis.add(taskDefinitionKey);
+                } else {
+                    highLightedActivitis.add(processInstanceRun.getActivityId());
+                }
+            }
+
+        //        commandContext.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel,"png", highLightedActivitis,new ArrayList<String>(),"宋体","宋体","宋体",null,1.0D);
+            InputStream imageStream = diagramGenerator.generateDiagram(bpmnModel, "png", highLightedActivitis, new ArrayList<String>(), "宋体", "宋体", "宋体", null, 1.0D);
+            //单独返回流程图，不高亮显示
+        //        InputStream imageStream = diagramGenerator.generatePngDiagram(bpmnModel);
+            // 输出资源内容到相应对象
+            byte[] b = new byte[1024];
+            int len;
+            while ((len = imageStream.read(b, 0, 1024)) != -1) {
+                response.getOutputStream().write(b, 0, len);
+            }
+        }catch (Exception e){
+            LOGGER.error("异常",e);
         }
     }
 
@@ -218,8 +217,6 @@ public class ProcessController {
 //                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
                 List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
-//                WordEntity wordEntity = wordTemplateService.queryInfoRel(deploymentID);
-//                List<WordTemplateField> list = wordTemplateFieldService.getWordTemplateFieldByTemplateId(wordEntity.getId());
                 for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
                     String md5 = oaFormProperties.getFieldMd5();
                     String type = oaFormProperties.getFieldType();
@@ -245,26 +242,19 @@ public class ProcessController {
                 }
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
-//                taskService.addComment(task.getId(), processInstance.getId(), "重新提交");
                 runtimeService.setVariable(task.getProcessInstanceId(), task.getId(), "重新提交");
                 result.put("result", "success");
-//                String taskId = request.getParameter("taskId");
                 String taskDefinitionKey = taskService.getVariable(task.getId(), "taskDefinitionKey").toString();
                 taskService.setVariable(task.getId(), "taskDefinitionKey",null);
                 taskProcessService.jump(taskDefinitionKey, task.getProcessInstanceId());
-//                taskService.complete(task.getId());
                 map.put("init","");
                 runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
-//                OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
-//                oaContractCirculationWithBLOBs.setTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
-//                oaContractCirculationWithBLOBs.setProcessInstanceId(processInstance.getId());
                 oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
                 contractCirculationService.update(oaContractCirculationWithBLOBs);
             }catch (Exception e){
+                LOGGER.error("异常",e);
                 result.put("result","failed");
             }
-
-
         }
         return result;
     }
@@ -280,16 +270,11 @@ public class ProcessController {
         result.put("result","success");
         String taskId = map.get("id");
 
-
-//        String userName = request.getParameter("userName");
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String taskDefinitionKey = task.getTaskDefinitionKey();
         if(StringUtils.isNotBlank(cause)) {
-//            taskService.addComment(taskId, task.getExecutionId(), "拒绝  " + cause);
             runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝  " + cause);
         }
-
-//        taskService.complete(taskId);
         List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
                 .finished()
                 .processInstanceId(task.getProcessInstanceId())
@@ -297,8 +282,6 @@ public class ProcessController {
         if(null != historicTaskInstanceList){
             for(HistoricTaskInstance task1 : historicTaskInstanceList){
                 if(task1.getAssignee() == null){
-//                    HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery()
-//                            .processInstanceId(task.getProcessInstanceId()).variableName("user").singleResult();
                     taskProcessService.jump(task1.getTaskDefinitionKey(), task.getProcessInstanceId());
                     runtimeService.setVariable(task.getProcessInstanceId(), "init", "start");
                     SimpleMailMessage message = new SimpleMailMessage();
@@ -309,9 +292,6 @@ public class ProcessController {
                     mailService.send(message);
 
                     task = taskService.createTaskQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
-//                    if(StringUtils.isNotBlank(cause)) {
-//                        taskService.addComment(task.getId(), task.getProcessInstanceId(), cause);
-//                    }
                     taskService.setVariable(task.getId(),"taskDefinitionKey",taskDefinitionKey);
                     runtimeService.setVariable(task.getProcessInstanceId(),"taskDefinitionKeyShow",taskDefinitionKey);
                     break;
@@ -339,12 +319,8 @@ public class ProcessController {
         if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交
             try{
                 String deploymentID = map.get("id");
-//                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
-//                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
                 List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
-//                WordEntity wordEntity = wordTemplateService.queryInfoRel(deploymentID);
-//                List<WordTemplateField> list = wordTemplateFieldService.getWordTemplateFieldByTemplateId(wordEntity.getId());
                 for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
                     String md5 = oaFormProperties.getFieldMd5();
                     String type = oaFormProperties.getFieldType();
@@ -598,8 +574,7 @@ public class ProcessController {
                 sb.append("<title>");
                 sb.append(historicVariableInstance.getValue().toString());
                 sb.append("</title>");
-                sb.append("   <meta charset=\"utf-8\">\n" +
-                        "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
+                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
                 sb.append("<body>");
                 sb.append(html);
                 sb.append("</body></html>");
@@ -715,18 +690,33 @@ public class ProcessController {
                                         HttpServletRequest request)throws Exception {
 
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser){
+            throw new OAException(1101,"用户未登录");
+        }
 
-
+        List<HistoricProcessInstance> listProcess = null;
+        long size = 0;
         List<TaskInfo> taskInfos = new LinkedList<>();
-        List<HistoricProcessInstance> listProcess = historyService.createHistoricProcessInstanceQuery()
-                .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
+        if(loginUser.getName().equals("admin")){
+            listProcess = historyService.createHistoricProcessInstanceQuery()
+                    .variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
-                .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
-        long size = historyService.createHistoricProcessInstanceQuery()
-                .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
+                    .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
+            size = historyService.createHistoricProcessInstanceQuery()
+                    .variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
-                .count();
+                    .count();
+        }else{
+            listProcess = historyService.createHistoricProcessInstanceQuery()
+                    .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
+//                .variableValueEquals("user",loginUser.getName())
+                    .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
+            size = historyService.createHistoricProcessInstanceQuery()
+                    .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
+//                .variableValueEquals("user",loginUser.getName())
+                    .count();
+        }
+
         for(HistoricProcessInstance historicProcessInstance : listProcess){
             historicProcessInstance.getStartTime();
             Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
@@ -755,23 +745,6 @@ public class ProcessController {
             taskInfo.setProcessDefinitionId(historicProcessInstance.getProcessDefinitionId());
 
         }
-//        List<HistoricTaskInstance> list = historyService.createHistoricTaskInstanceQuery()// 创建任务查询对象
-//                .taskAssignee(loginUser.getName())// 指定个人认为查询，指定办理人
-//                .list();
-//        long size = historyService.createHistoricTaskInstanceQuery().taskAssignee(loginUser.getName()).count();
-//        if (list != null && list.size() > 0) {
-//            for (HistoricTaskInstance task : list) {
-//                TaskInfo taskInfo = new TaskInfo();
-//                taskInfo.setId(task.getId());
-//                taskInfo.setName(task.getName());
-//                taskInfo.setTimestamp(task.getStartTime());
-//                taskInfo.setAssignee(task.getAssignee());
-//                taskInfo.setProcessInstanceId(task.getProcessInstanceId());
-//                taskInfo.setExecutionId(task.getExecutionId());
-//                taskInfo.setProcessDefinitionId(task.getProcessDefinitionId());
-//                taskInfos.add(taskInfo);
-//            }
-//        }
         Map<String, Object> result = new HashMap<>();
         result.put("rows", taskInfos);
         result.put("total", size);
@@ -876,14 +849,11 @@ public class ProcessController {
             proInstance.setId(processInstance.getId());
             proInstance.setDeployName(deployment.getName());
             proInstance.setDeployId(deployment.getId());
-//            VariableInstance variableInstance = historicVariableInstance.getValue().get("title");
             if(historicVariableInstance != null) {
                 proInstance.setTitle(historicVariableInstance.getValue().toString());
             }
 
             proInstance.setStatus("发起申请");
-//            historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstance.getId()).variableName("timeStamp").singleResult();
-//            variableInstance = stringVariableInstanceMap.get("timeStamp");
             if(historicVariableInstance != null) {
                 proInstance.setCreateTime(historicVariableInstance.getCreateTime());
             }
@@ -891,35 +861,6 @@ public class ProcessController {
         Map<String, Object> result = new HashMap<>();
         result.put("rows", processInstanceList);
         result.put("total", count);
-//        List<Task> taskList1 = taskService.createTaskQuery()
-//                .taskAssignee(loginUser.getName()).list();
-//        if (taskList1 != null && taskList1.size() > 0) {
-//            for (Task task : taskList1) {
-////                    TaskModel taskModel = new TaskModel();
-//                // 获取部署名
-//                String processdefintionId = task.getProcessDefinitionId();
-//                ProcessDefinition processDefinition = repositoryService
-//                        .createProcessDefinitionQuery()
-//                        .processDefinitionId(processdefintionId)
-//                        .singleResult();
-//                // 根据taskname和节点判断是否是第一个
-//                String taskName = task.getName();
-//                Iterator<FlowElement> iterator = findFlow(processdefintionId);
-//                String row0 = null;
-//                String eleName0 = null;
-//                while (iterator.hasNext()) {
-//                    FlowElement flowElement0 = iterator.next();
-//                    // 下一个节点
-//                    FlowElement flowElement = iterator.next();
-//                    String eleName = flowElement.getName();
-//                    if (taskName.equals(eleName)) {
-//                        row0 = flowElement0.getXmlRowNumber() + "";
-//                        eleName0 = flowElement0.getClass().getSimpleName();
-//                        break;
-//                    }
-//                }
-//            }
-//        }
         return result;
     }
 
@@ -975,16 +916,6 @@ public class ProcessController {
                 }
             }
         }
-//        list = taskService.getProcessInstanceComments(processInstanceId);
-//        for (Comment com : list) {
-//            System.out.println("ID:" + com.getId());
-//            System.out.println("Message:" + com.getFullMessage());
-//            System.out.println("TaskId:" + com.getTaskId());
-//            System.out.println("ProcessInstanceId:" + com.getProcessInstanceId());
-//            System.out.println("UserId:" + com.getUserId());
-//        }
-//
-//        System.out.println(list);
         return response;
     }
 
