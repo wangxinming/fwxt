@@ -73,6 +73,7 @@ public class DeployController {
         try{
             String dID = request.getParameter("dID");
             String rID = request.getParameter("rID");
+            LOGGER.info("修改模板关系，参数：{}，{}",dID,rID);
             OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(dID);
             if(oaDeploymentTemplateRelation != null ){
                 if(StringUtils.isBlank(rID)){
@@ -110,6 +111,7 @@ public class DeployController {
         result.put("result","success");
         try{
             String id = request.getParameter("id");
+            LOGGER.info("删除关系，参数：{}",id);
             oaDeploymentTemplateService.delete(Integer.parseInt(id));
             auditService.audit(new OAAudit(loginUser.getName(),String.format("删除模板关系")));
         }catch (Exception e){
@@ -133,6 +135,7 @@ public class DeployController {
         try{
             String id = map.get("id");
             String status = map.get("status");
+            LOGGER.info("更新模板，参数：{} {}",id,status);
             OAContractTemplate oaContractTemplate = new OAContractTemplate();
             oaContractTemplate.setTemplateId(Integer.parseInt(id));
             oaContractTemplate.setTemplateStatus(Integer.parseInt(status));
@@ -161,6 +164,8 @@ public class DeployController {
             String name = map.get("name");
             String des = map.get("des");
             String html = map.get("html");
+
+            LOGGER.info("保存文件，参数：{} {} {} {}",id,name,des,html);
             OAContractTemplate oaContractTemplate = new OAContractTemplate();
 //            WordEntity wordEntity = new WordEntity();
             oaContractTemplate.setTemplateName(name);
@@ -200,7 +205,7 @@ public class DeployController {
                     formPropertiesService.delete(entry.getValue().getPropertiesId());
                 }
             }
-            auditService.audit(new OAAudit(loginUser.getName(), String.format("更新合同模板")));
+            auditService.audit(new OAAudit(loginUser.getName(), String.format("更新合同模板 %s",name)));
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result", "failed");
@@ -214,6 +219,7 @@ public class DeployController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try{
+            LOGGER.info("合同模板ID，参数：{}",template_id);
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(template_id));
             result.put("data",oaContractTemplate);
         }catch (Exception e){
@@ -241,6 +247,8 @@ public class DeployController {
 //            int tmp_id = 0;
 
             String processInstanceId = request.getParameter("processInstanceId");
+            LOGGER.info("获取文件信息，参数：{}",processInstanceId);
+
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
             result.put("workStatus",oaContractCirculationWithBLOBs.getWorkStatus());
             result.put("title",oaContractCirculationWithBLOBs.getContractName());
@@ -300,6 +308,7 @@ public class DeployController {
         try {
             //部署ID
             String contract = request.getParameter("contract");
+            LOGGER.info("合同ID号，参数：{}",contract);
             result.put("showCommit", true);
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
             result.put("data",oaContractTemplate);
@@ -350,6 +359,7 @@ public class DeployController {
         result.put("result", "success");
         try {
             String id = request.getParameter("id");
+            LOGGER.info("删除流程ID，参数：{}",id);
             repositoryService.deleteModel(id);
             auditService.audit(new OAAudit(loginUser.getName(),String.format("删除流程模板")));
         }catch (Exception e){
@@ -364,11 +374,15 @@ public class DeployController {
     @ResponseBody
     public Map delete(HttpServletRequest request)throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser){
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         try {
             String id = request.getParameter("id");
+            LOGGER.info("删除已经部署流程ID，参数：{}",id);
             repositoryService.deleteDeployment(id, true);
             auditService.audit(new OAAudit(loginUser.getName(),String.format("删除部署流程")));
 //        log.error("delete guid: "+id);
@@ -382,11 +396,15 @@ public class DeployController {
     @ResponseBody
     public Map publish(HttpServletRequest request)throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         String id= request.getParameter("id");
         try {
+            LOGGER.info("发布流程，参数：{}",id);
             //获取模型
             Model modelData = repositoryService.getModel(id);
             byte[] bytes = repositoryService.getModelEditorSource(modelData.getId());
@@ -426,9 +444,13 @@ public class DeployController {
     @ResponseBody
     public Object htmlHistory(HttpServletRequest request) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser){
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         //历史遗留
         String processInstanceId = request.getParameter("taskId");
+        LOGGER.info("工作流实例ID，参数：{}",processInstanceId);
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
 //        Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
 //        OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
@@ -547,7 +569,10 @@ public class DeployController {
     @ResponseBody
     public Object html(HttpServletRequest request)throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         String taskId = request.getParameter("taskId");
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
@@ -664,7 +689,10 @@ public class DeployController {
     @ResponseBody
     public Object updateStatus(HttpServletRequest request){
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         try{
@@ -676,9 +704,10 @@ public class DeployController {
             }else{
                 repositoryService.activateProcessDefinitionById(pf.getId());
             }
+            auditService.audit(new OAAudit(loginUser.getName(), String.format("更新合同模板状态 %s",status)));
 
         }catch (Exception e){
-
+            LOGGER.error("异常",e);
         }
         return result;
     }
@@ -690,7 +719,10 @@ public class DeployController {
                         @RequestParam(value = "offset", defaultValue = "0", required = false) Integer offset,
                         @RequestParam(value = "limit", defaultValue = "10", required = false) Integer limit)throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         List<ProcessDefinition> pfList = repositoryService.createProcessDefinitionQuery().active()
                 .orderByDeploymentId().desc().listPage(offset,limit);
         long count = repositoryService.createProcessDefinitionQuery().active().count();
@@ -749,7 +781,10 @@ public class DeployController {
                         @RequestParam(value = "offset", defaultValue = "0", required = false) Integer offset,
                         @RequestParam(value = "limit", defaultValue = "10", required = false) Integer limit)throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         List<Deployment> deployments = repositoryService.createDeploymentQuery()
                 .orderByDeploymenTime().desc()
                 .listPage(offset, limit);
@@ -787,7 +822,10 @@ public class DeployController {
                           @RequestParam(value = "offset", defaultValue = "0", required = true) Integer offset,
                           @RequestParam(value = "limit", defaultValue = "10", required = true) Integer limit) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         List<Model> list = repositoryService.createModelQuery().orderByCreateTime().desc().listPage(offset, limit);
         long count = repositoryService.createModelQuery().count();
         Map<String, Object> result = new HashMap<>();

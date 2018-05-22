@@ -174,6 +174,7 @@ public class UserDefController {
             oaGroup.setPrivilegeids(JsonUtils.toJsonString(map));
             oaGroup.setUserId(loginUser.getId());
             oaGroupMapper.updateByPrimaryKeySelective(oaGroup);
+            auditService.audit(new OAAudit(loginUser.getName(), String.format("更新用户组")));
         }catch (Exception e){
             LOGGER.error("异常",e);
             res.put("result", "failed");
@@ -195,6 +196,7 @@ public class UserDefController {
         res.put("result","success");
         try {
             oaGroupMapper.deleteByPrimaryKey(id);
+            auditService.audit(new OAAudit(loginUser.getName(), String.format("删除组")));
         }catch (Exception e){
             LOGGER.error("异常",e);
             res.put("result", "failed");
@@ -394,9 +396,9 @@ public class UserDefController {
                 String flow = map.get("flow").toString();
                 String task = map.get("task").toString();
                 if(flow.equals("true")){
-                    Menu menu = new Menu("user","用户界面",false);
+                    Menu menu = new Menu("user","用户界面",true);
                     list.add(menu);
-                    menu = new Menu("group","用户组",false);
+                    menu = new Menu("group","用户组",true);
                     list.add(menu);
                     menu = new Menu("audit","审计界面",true);
                     list.add(menu);
@@ -437,7 +439,7 @@ public class UserDefController {
                     list.add(menu);
                     menu = new Menu("privateReport","报表",true);
                     list.add(menu);
-                    menu = new Menu("fawuReport","报表",false);
+                    menu = new Menu("fawuReport","报表",true);
                     list.add(menu);
                 }else{
                     Menu menu = new Menu("process","流程申请",false);
@@ -549,7 +551,7 @@ public class UserDefController {
         result.put("result", "success");
         try {
             userOrganizitionService.save(oaOrganization);
-            auditService.audit(new OAAudit(loginUser.getName(),String.format("新建组织结构 %s",oaOrganization.getOrganizationName())));
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("新建组 %s",oaOrganization.getOrganizationName())));
         }catch (Exception e){
             LOGGER.warn("异常",e);
             result.put("result", "failed");

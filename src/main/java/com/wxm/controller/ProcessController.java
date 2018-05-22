@@ -96,7 +96,10 @@ public class ProcessController {
     public Object dashboard(HttpServletRequest request){
         //获取 我的待办任务，我的已办任务以及我发起的任务 数量
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) {throw new OAException(1101,"用户未登录");}
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         try{
             long size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
@@ -129,6 +132,11 @@ public class ProcessController {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         try {
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processId);
             byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
@@ -150,7 +158,10 @@ public class ProcessController {
     @RequestMapping("/queryProPlan")
     public void queryProPlan(HttpServletRequest request,HttpServletResponse response) throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         String taskID = request.getParameter("TaskId");
         String processInstanceId = "";
         try {
@@ -207,7 +218,10 @@ public class ProcessController {
     @ResponseBody
     public Object jump(HttpServletRequest request,@RequestBody Map<String,String> map)throws  Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         String processInstanceId = map.get("processInstanceId");
         String info = "";
@@ -264,7 +278,10 @@ public class ProcessController {
     @ResponseBody
     public Object reject(HttpServletRequest request,@RequestBody Map<String,String> map)throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         String cause = map.get("cause");
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
@@ -306,7 +323,10 @@ public class ProcessController {
     @ResponseBody
     public Object start(HttpServletRequest request, HttpServletResponse response,@RequestBody Map<String,String> map) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         String info = "";
@@ -542,7 +562,10 @@ public class ProcessController {
     @ResponseBody
     public Object complete(HttpServletRequest request)throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         String taskId = request.getParameter("id");
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
 //利用任务对象，获取流程实例id
@@ -620,7 +643,10 @@ public class ProcessController {
     @ResponseBody
     public void ProcessDef(HttpServletRequest request) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         long size = repositoryService.createProcessDefinitionQuery().count();
         List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery()
                 .orderByProcessDefinitionVersion().asc()
@@ -647,7 +673,10 @@ public class ProcessController {
                                  @RequestParam(value = "limit", required = true) int limit,
                                  HttpServletRequest request)throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) {throw new OAException(1101,"用户未登录");}
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
 
         List<TaskInfo> taskInfos = new LinkedList<>();
         List<Task> list = taskService.createTaskQuery()// 创建任务查询对象
@@ -691,6 +720,7 @@ public class ProcessController {
 
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser){
+            LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
 
@@ -785,7 +815,10 @@ public class ProcessController {
                                @RequestParam(value = "limit", required = true,defaultValue= "10" ) int limit
                                ) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         List<ProInstance> processInstanceList = new LinkedList<>();
         List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
                 .orderByProcessInstanceStartTime().desc()
@@ -823,7 +856,10 @@ public class ProcessController {
                             @RequestParam(value = "offset", required = true ,defaultValue= "0" ) int offset,
                             @RequestParam(value = "limit", required = true,defaultValue= "10" ) int limit) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         List<ProInstance> processInstanceList = new LinkedList<>();
         List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
                 .orderByProcessInstanceStartTime().desc()
@@ -871,7 +907,10 @@ public class ProcessController {
     public Object getRecord(@PathVariable(value = "id",required = false) String taskId,
                             HttpServletRequest request,HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         taskId = "42503";
         List<TaskComment> taskCommentList = new LinkedList<>();
         List<Comment> list = new ArrayList<>();

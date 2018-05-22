@@ -96,6 +96,7 @@ public class WordTemplateController {
         result.put("result","success");
         try {
             formPropertiesService.update(oaFormProperties);
+            auditService.audit(new OAAudit(loginUser.getName(), String.format("更新字段信息")));
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result","failed");
@@ -148,7 +149,7 @@ public class WordTemplateController {
     public Object formCommit( HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) throw new OAException(1101,"用户未登录");
-            Map map = request.getParameterMap();
+            LOGGER.error("用户未登录");
             return response;
     }
     private LinkedHashMap<String,String> getField(String html){
@@ -209,7 +210,10 @@ public class WordTemplateController {
     @RequestMapping(value="/batchImport",method= RequestMethod.POST)
     public Object saveThingsParse(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) throw new OAException(1101,"用户未登录");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         String htmlStr = "";
@@ -276,6 +280,7 @@ public class WordTemplateController {
             }
             oaContractTemplate.setTemplateHtml(htmlStr);
             concactTemplateService.update(oaContractTemplate);
+            auditService.audit(new OAAudit(loginUser.getName(), String.format("上传文件模板 %s",docName)));
         } catch (Exception e) {
             LOGGER.error("异常",e);
             result.put("result","failed");

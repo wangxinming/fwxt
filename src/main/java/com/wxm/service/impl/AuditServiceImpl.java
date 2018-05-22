@@ -27,7 +27,7 @@ public class AuditServiceImpl implements AuditService {
             if(info.getAuditId()>0)
                 return true;
         }catch (Exception e){
-
+            LOGGER.error("异常",e);
         }
         return false;
     }

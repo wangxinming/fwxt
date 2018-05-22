@@ -39,13 +39,20 @@ public class AuditController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","failed");
         LOGGER.info("查询审计日志，参数：{}，{}，{}，{}，{}",offset,limit,userName,startTime,endTime);
-        if(StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)){
-            return auditService.getAudits(offset,limit,userName, null, null);
-        }else{
-            SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            return auditService.getAudits(offset,limit,userName, time.parse(startTime), time.parse(endTime));
+        try {
+            if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+                return auditService.getAudits(offset, limit, userName, null, null);
+            } else {
+                SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                return auditService.getAudits(offset, limit, userName, time.parse(startTime), time.parse(endTime));
+            }
+        }catch (Exception e){
+            LOGGER.error("异常",e);
         }
+        return result;
 
     }
 }

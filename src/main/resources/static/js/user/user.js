@@ -785,9 +785,9 @@
                         sTitle: "操作",
                         mData:"groupId",
                         mRender:function(mData,type,full) {
-                            return  '<i title="编辑"  class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                            return  '<i title="编辑"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
                                 // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
-                                    '<i title="删除"  class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+                                    '<i title="删除"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                                 // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
@@ -1160,6 +1160,7 @@
                             $scope.addPageDetail.data.userId = data.data.userId;
                             $scope.addPageDetail.data.userName = data.data.userName;
                             $scope.addPageDetail.data.userMobile = data.data.userMobile;
+                            $scope.addPageDetail.data.userGroup = data.data.groupId;
                             $scope.addPageDetail.data.userEmail = data.data.userEmail;
                             $scope.addPageDetail.data.userCompany = data.data.userCompany;
                             $scope.addPageDetail.data.userDepartment = data.data.userDepartment;
@@ -1168,6 +1169,7 @@
                             $scope.addPageDetail.data.userPostcode = data.data.userPostcode;
                             $scope.addPageDetail.data.userWeixin = data.data.userWeixin;
                             $scope.addPageDetail.data.userStatus = data.data.userStatus===1?true:false;
+                            $scope.approvalGroup = data.group;
                             Loading.hide();
                             // $('#userName').attr("disabled","disabled");
                             $scope.pageDialogDetail.show();
