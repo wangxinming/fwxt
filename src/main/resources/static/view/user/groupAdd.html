@@ -21,7 +21,7 @@
                     <tr>
                         <td class="row-lable"> 组描述 </td>
                         <td>
-                            <input type="text" id="description" ng-model="groupDialog.description"  placeholder="组描述" name="description" maxlength="200"/>
+                            <input type="text" id="description" ng-model="groupDialog.description"  placeholder="组描述" name="description" maxlength="40"/>
                         </td>
                     </tr>
                     <tr>
@@ -49,6 +49,10 @@
                         </td>
                     </tr>
                 </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="dialog.save()"> {{dialog.buttonText==null?"确定":dialog.buttonText}}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             </div>
         </form>
     </div>

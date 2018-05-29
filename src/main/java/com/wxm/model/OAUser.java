@@ -20,6 +20,8 @@ public class OAUser {
 
     private String userPwd;
 
+    private Integer enterpriseId;
+
     private String userCompany;
 
     private String userDepartment;
@@ -53,8 +55,17 @@ public class OAUser {
         userMobile="";
         userPosition = "";
         userPwd = "";
+        enterpriseId = 0;
         userStatus = 1;
         userWeixin ="";
+    }
+
+    public Integer getEnterpriseId() {
+        return enterpriseId;
+    }
+
+    public void setEnterpriseId(Integer enterpriseId) {
+        this.enterpriseId = enterpriseId;
     }
 
     public List<OAUser> getOaUser() {

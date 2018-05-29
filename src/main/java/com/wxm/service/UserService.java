@@ -12,5 +12,6 @@ public interface UserService {
      OAUser selectByName(String userName);
      Integer create(OAUser oaUser);
      Integer update(OAUser oaUser);
+     Integer updatePsw(OAUser oaUser);
      OAUser getLeader(OAUser oaUser);
 }

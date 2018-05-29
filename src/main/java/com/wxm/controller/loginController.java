@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/auth/")
@@ -34,16 +32,23 @@ public class loginController {
         Map<String, Object> result = new HashMap<String, Object>();
         OAUser oaUser = userService.selectByName(userName);
         if(oaUser != null) {
+            Integer random = new Random().nextInt();
             User user = new User();
             String psw = Md5Utils.getMd5(password);
             if (psw.equals(oaUser.getUserPwd())) {
                 user.setId(oaUser.getUserId());
                 user.setName(oaUser.getUserName());
                 user.setRealName(oaUser.getUserName());
+                user.setParentId(random);
                 request.getSession().setAttribute("loginUser", user);
                 request.getSession().setAttribute("isLogin", true);
                 result.put("userName", oaUser.getUserName());
                 result.put("result", "success");
+                OAUser oaUserUpdate = new OAUser();
+                oaUserUpdate.setUserName(oaUser.getUserName());
+                oaUserUpdate.setUserId(oaUser.getUserId());
+                oaUserUpdate.setParentId(random);
+                userService.update(oaUserUpdate);
             } else if (user == null) {
                 result.put("result", "fail");
                 result.put("msg", "用户不存在");

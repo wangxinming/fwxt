@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OAEnterpriseMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OAEnterprise" >
+    <id column="ENTERPRISE_ID" property="enterpriseId" jdbcType="INTEGER" />
+    <result column="COMPANY_NAME" property="companyName" jdbcType="NVARCHAR" />
+    <result column="COMPANY_PROVINCE" property="companyProvince" jdbcType="NVARCHAR" />
+    <result column="COMPANY_CITY" property="companyCity" jdbcType="NVARCHAR" />
+    <result column="COMPANY_OWNER" property="companyOwner" jdbcType="NVARCHAR" />
+    <result column="OWNER_MOBILE" property="ownerMobile" jdbcType="NVARCHAR" />
+    <result column="COMPANY_STATUS" property="companyStatus" jdbcType="INTEGER" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ENTERPRISE_ID, COMPANY_NAME, COMPANY_PROVINCE, COMPANY_CITY, COMPANY_OWNER, OWNER_MOBILE, 
+    COMPANY_STATUS, CREATE_TIME
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from OA_ENTERPRISE
+    where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    SELECT  count(*)
+    from OA_ENTERPRISE where 1=1
+    <if test="name != null" >
+      AND OA_ENTERPRISE.COMPANY_NAME like CONCAT('%',#{name},'%' )
+    </if>
+  </select>
+  <select id="list" resultMap="BaseResultMap">
+    select top ${limit} * from OA_ENTERPRISE where OA_ENTERPRISE.ENTERPRISE_ID not
+    in(select top ${offset} ENTERPRISE_ID from OA_ENTERPRISE  where 1=1
+    <if test="name != null" >
+      AND OA_ENTERPRISE.COMPANY_NAME like CONCAT('%',#{name},'%' )
+    </if>
+    ORDER BY CREATE_TIME DESC )
+    <if test="name != null" >
+      AND OA_ENTERPRISE.COMPANY_NAME like CONCAT('%',#{name},'%' )
+    </if>
+    ORDER BY CREATE_TIME DESC
+  </select>
+  <select id="total" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from OA_ENTERPRISE
+    where COMPANY_STATUS = 1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_ENTERPRISE
+    where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OAEnterprise" >
+    insert into OA_ENTERPRISE (ENTERPRISE_ID, COMPANY_NAME, COMPANY_PROVINCE, 
+      COMPANY_CITY, COMPANY_OWNER, OWNER_MOBILE, 
+      COMPANY_STATUS, CREATE_TIME)
+    values (#{enterpriseId,jdbcType=INTEGER}, #{companyName,jdbcType=NVARCHAR}, #{companyProvince,jdbcType=NVARCHAR}, 
+      #{companyCity,jdbcType=NVARCHAR}, #{companyOwner,jdbcType=NVARCHAR}, #{ownerMobile,jdbcType=NVARCHAR}, 
+      #{companyStatus,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OAEnterprise" useGeneratedKeys="true"  keyProperty = "enterpriseId" keyColumn = "ENTERPRISE_ID">
+    insert into OA_ENTERPRISE
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="enterpriseId != null" >
+        ENTERPRISE_ID,
+      </if>
+      <if test="companyName != null" >
+        COMPANY_NAME,
+      </if>
+      <if test="companyProvince != null" >
+        COMPANY_PROVINCE,
+      </if>
+      <if test="companyCity != null" >
+        COMPANY_CITY,
+      </if>
+      <if test="companyOwner != null" >
+        COMPANY_OWNER,
+      </if>
+      <if test="ownerMobile != null" >
+        OWNER_MOBILE,
+      </if>
+      <if test="companyStatus != null" >
+        COMPANY_STATUS,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="enterpriseId != null" >
+        #{enterpriseId,jdbcType=INTEGER},
+      </if>
+      <if test="companyName != null" >
+        #{companyName,jdbcType=NVARCHAR},
+      </if>
+      <if test="companyProvince != null" >
+        #{companyProvince,jdbcType=NVARCHAR},
+      </if>
+      <if test="companyCity != null" >
+        #{companyCity,jdbcType=NVARCHAR},
+      </if>
+      <if test="companyOwner != null" >
+        #{companyOwner,jdbcType=NVARCHAR},
+      </if>
+      <if test="ownerMobile != null" >
+        #{ownerMobile,jdbcType=NVARCHAR},
+      </if>
+      <if test="companyStatus != null" >
+        #{companyStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAEnterprise" >
+    update OA_ENTERPRISE
+    <set >
+      <if test="companyName != null" >
+        COMPANY_NAME = #{companyName,jdbcType=NVARCHAR},
+      </if>
+      <if test="companyProvince != null" >
+        COMPANY_PROVINCE = #{companyProvince,jdbcType=NVARCHAR},
+      </if>
+      <if test="companyCity != null" >
+        COMPANY_CITY = #{companyCity,jdbcType=NVARCHAR},
+      </if>
+      <if test="companyOwner != null" >
+        COMPANY_OWNER = #{companyOwner,jdbcType=NVARCHAR},
+      </if>
+      <if test="ownerMobile != null" >
+        OWNER_MOBILE = #{ownerMobile,jdbcType=NVARCHAR},
+      </if>
+      <if test="companyStatus != null" >
+        COMPANY_STATUS = #{companyStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAEnterprise" >
+    update OA_ENTERPRISE
+    set COMPANY_NAME = #{companyName,jdbcType=NVARCHAR},
+      COMPANY_PROVINCE = #{companyProvince,jdbcType=NVARCHAR},
+      COMPANY_CITY = #{companyCity,jdbcType=NVARCHAR},
+      COMPANY_OWNER = #{companyOwner,jdbcType=NVARCHAR},
+      OWNER_MOBILE = #{ownerMobile,jdbcType=NVARCHAR},
+      COMPANY_STATUS = #{companyStatus,jdbcType=INTEGER},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -76,6 +76,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Integer updatePsw(OAUser oaUser) {
+        oaUser.setUserCreatetime(null);
+        oaUserMapper.updateByPrimaryKeySelective(oaUser);
+        return oaUser.getUserId();
+    }
+
+    @Override
     public OAUser getLeader(OAUser oaUser) {
         return oaUserMapper.getLeader(oaUser);
     }

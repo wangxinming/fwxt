@@ -14,6 +14,7 @@ CREATE TABLE OA_USER
   USER_MOBILE       NVARCHAR(20) UNIQUE,
   USER_EMAIL        NVARCHAR(200),
   USER_PWD          NVARCHAR(200),
+  ENTERPRISE_ID     INT DEFAULT 0,,
   USER_COMPANY      NVARCHAR(200),
   USER_DEPARTMENT   NVARCHAR(200),
   USER_POSITION     NVARCHAR(200),
@@ -231,6 +232,7 @@ CREATE TABLE OA_GROUP
   USER_ID        INT,
   PRIVILEGEIDS   NVARCHAR(500),
   DESCRIBE       NVARCHAR(500),
+  STATUS         INT,
   CREATE_TIME     DATETIME
 )
 GO
@@ -271,6 +273,7 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'db
 
 INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','新建用户','user','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','用户组管理','group','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','公司管理','enterprise','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','修改密码','password','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','合同模板管理','upload','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('menu','合同模板字段检查','form','2018-04-26 11:41:53.760');
@@ -287,6 +290,7 @@ INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('menu','管�
 
 INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','新建用户','user','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','用户组管理','group','2018-04-26 11:41:53.760');
+INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','公司管理','enterprise','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','修改密码','password','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','合同模板管理','upload','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('button','合同模板字段检查','form','2018-04-26 11:41:53.760');
@@ -300,6 +304,37 @@ INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('button','归
 INSERT INTO OA_PRIVILEGE (TYPE, NAME,CONTENT, CREATE_TIME) VALUES ('button','个人任务统计','privateReport','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','法务任务统计','fawuReport','2018-04-26 11:41:53.760');
 INSERT INTO OA_PRIVILEGE (TYPE, NAME, CONTENT,CREATE_TIME) VALUES ('button','管理员日志查询','audit','2018-04-26 11:41:53.760');
+
+
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_ENTERPRISE'
+ and type = 'U')
+ drop table OA_ENTERPRISE
+go
+CREATE TABLE OA_ENTERPRISE
+(
+  ENTERPRISE_ID       INT IDENTITY PRIMARY KEY,
+  COMPANY_NAME        NVARCHAR(100),
+  COMPANY_PROVINCE    NVARCHAR(20),
+  COMPANY_CITY          NVARCHAR(50),
+  COMPANY_OWNER         NVARCHAR(50),
+  OWNER_MOBILE         NVARCHAR(20),
+  COMPANY_STATUS      INT,
+  CREATE_TIME      DATETIME
+)
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'企业表', N'user', N'dbo', N'table', N'OA_ENTERPRISE', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'公司编号', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'ENTERPRISE_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'公司名称', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'COMPANY_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'公司所在省区', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'COMPANY_PROVINCE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'公司所在市区', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'COMPANY_CITY';
+EXECUTE sp_addextendedproperty N'MS_Description', N'公司负责人', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'COMPANY_OWNER';
+EXECUTE sp_addextendedproperty N'MS_Description', N'公司负责人手机号码', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'OWNER_MOBILE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'公司状态', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'COMPANY_STATUS';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'CREATE_TIME';
 
 /*表注释*/
 SELECT [ColumnName] = [Columns].name ,

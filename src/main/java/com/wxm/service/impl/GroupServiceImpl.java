@@ -24,8 +24,8 @@ public class GroupServiceImpl implements GroupService{
     }
 
     @Override
-    public Integer saveGroup(String groupName,Integer userId,String privilegeids,String describe) {
-        OAGroup group = new OAGroup(groupName,userId,privilegeids,describe);
+    public Integer saveGroup(String groupName,Integer userId,String privilegeids,String describe,Integer status) {
+        OAGroup group = new OAGroup(groupName,userId,privilegeids,describe,status);
         return oaGroupMapper.insertSelective(group);
     }
 }

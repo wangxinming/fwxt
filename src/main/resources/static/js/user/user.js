@@ -19,10 +19,14 @@
                     templateUrl: 'view/user/dashboard.html',
                     controller: 'dashboard.controller'
             })
+            .when('/enterprise', {
+                templateUrl: 'view/user/enterprise.html',
+                controller: 'enterprise.controller'
+            })
             .when('/group', {
-                templateUrl: 'view/user/group.html',
-                controller: 'group.controller'
-            });
+                    templateUrl: 'view/user/group.html',
+                    controller: 'group.controller'
+                });
         }])
 
         .directive('editZtree',["$compile","$timeout","Util",function($compile,$timeout,Util){
@@ -275,6 +279,21 @@
         }])
         .factory('user.loader', function($resource){
             return $resource(web_path+'/:id', {}, {
+                /*企业管理*/
+                //创建分公司
+                createEnterprise: {method:'PUT',url:"/user/enterprise", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新分公司
+                updateEnterprise: {method:'POST',url:"/user/enterprise", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新分公司状态
+                enterpriseUpdateStatus: {method:'POST',url:"/user/enterpriseStatus", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //删除分公司
+                deleteEnterprise: {method:'DELETE',url:"/user/enterprise", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取分公司列表
+                enterpriseList: {method:'GET',url:"/user/listEnterprise", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取分公司信息
+                queryCompany: {method:'GET',url:"/user/queryCompany", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+
                 /*用户管理*/
                 //增加用户
                 addUser: {method:'PUT',url:"/user/create", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
@@ -296,6 +315,9 @@
                 createGroup: {method:'PUT',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新组
                 updateGroup: {method:'POST',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                //更新组状态
+                userUpdateStatus: {method:'POST',url:"/user/updateStatus", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //删除组
                 deleteGroup: {method:'DELETE',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取组列表
@@ -464,6 +486,247 @@
                 })
             }
         }])
+        .controller('enterprise.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $scope.addPage={
+                data:{
+                    companyStatus:true,
+                    companyName:''
+                },
+                init:function(){
+                    $scope.addPage.data = {
+                        companyStatus:true,
+                        companyName:""
+                    }
+                }
+            };
+            $scope.pageDialog=Tools.dialog({
+                id:"pageDialog",
+                title:"创建公司",
+                hiddenButton:true,
+                save:function() {
+                    Loading.show();
+                    $scope.addPage.data.companyStatus = $scope.addPage.data.companyStatus === true?1:0;
+                    if( $scope.pageDialog.title == "创建公司"){
+                        loader.createEnterprise($scope.addPage.data,function(data){
+                            Loading.hide();
+                            $scope.pageDialog.hide();
+                            $scope.addPage.init();
+                            $scope.listPage.settings.reload(true);
+
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    }else{
+                        loader.updateEnterprise($scope.addPage.data,function(data){
+                            Loading.hide();
+                            $scope.addPage.init();
+                            $scope.pageDialog.hide();
+                            $scope.listPage.settings.reload(true);
+
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    }
+
+                }
+            });
+            $scope.searchPage = {
+                data: {
+                    id: 0,
+                    groupName:'',
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        id:0,
+                        limit: 10, //每页条数(即取多少条数据)
+                        offset: 0 //从第几条数据开始取
+                    }
+                },
+                action:{
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    add: function () {
+                        $scope.pageDialog.title = "创建公司";
+                        $scope.addPage.init();
+                        $scope.pageDialog.show();
+
+                    },
+                    edit: function (id) {
+                        $scope.pageDialog.title = "修改公司";
+                        Loading.show();
+                        // $timeout(function(){
+                        loader.queryCompany({"id":id},{},function (data) {
+                            $scope.addPage.data.enterpriseId = data.data.enterpriseId;
+                            $scope.addPage.data.companyName = data.data.companyName;
+                            $scope.addPage.data.companyProvince = data.data.companyProvince;
+                            $scope.addPage.data.companyCity = data.data.companyCity;
+                            $scope.addPage.data.companyOwner = data.data.companyOwner;
+                            $scope.addPage.data.ownerMobile = data.data.ownerMobile;
+                            $scope.addPage.data.companyStatus = data.data.companyStatus==1?true:false;
+                            $scope.addPage.data.createTime = data.data.createTime;
+                            Loading.hide();
+                            $scope.pageDialog.show();
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                        // },500);
+                    },
+                    active: function (active,id,name) {
+                        Loading.show();
+                        loader.enterpriseUpdateStatus({"enterpriseId":id,"companyStatus":active==true?1:0},function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        },function (error) {
+                            Loading.hide();
+                        })
+
+                    },
+                    remove:function (id) {
+                        $rootScope.$confirm("确定要删除吗？", function () {
+                            Loading.show();
+                            loader.deleteEnterprise({'enterpriseId': id}, function (data) {
+                                if (data.result == "success") {
+                                    Loading.hide();
+                                    $scope.listPage.settings.reload(true);
+                                }
+                            }, function (error) {
+                                Loading.hide();
+                            });
+                        }, '删除');
+                    },
+                    search: function (search, fnCallback) {
+                        $scope.searchPage.data.offset = search.offset;
+                        loader.enterpriseList($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    }
+                }
+            };
+
+            $scope.submit = function(e) {
+                if(e.keyCode=="13"){
+                    $scope.searchPage.action.search();
+                }
+            };
+
+            var resolve = function (mData, type, full) {
+                if (mData == 1) {
+                    return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
+                } else if (mData == 0) {
+                    return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
+                } else {
+                    return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "公司名称",
+                        mData: "companyName",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "负责人",
+                        mData: "companyOwner",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "手机号码",
+                        mData: "ownerMobile",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "公司状态",
+                        mData: "companyStatus",
+                        mRender: function (mData, type, full) {
+                            return resolve(mData, type, full);
+                        }
+                    },
+                    {
+                        sTitle: "省区",
+                        mData: "companyProvince",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "市区",
+                        mData: "companyCity",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "创建时间",
+                        mData: "createTime",
+                        mRender: function (mData, type, full) {
+                            if(!mData){
+                                return "";
+                            }
+                            return Util.formatSimpleDate(mData);
+                        }
+                    },
+                    {
+                        sTitle: "操作",
+                        mData:"enterpriseId",
+                        mRender:function(mData,type,full) {
+                            return  '<i title="编辑"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                                // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                                '<i title="删除"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>'+
+                                '<i title="'+(full.companyStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.companyStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.companyStatus==1?'false':'true')+',\''+mData+'\',\''+full.companyStatus+'\')"></i>';
+                            // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+
+                        }
+                    }
+
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4,5,6,7]},  //第 0,10列不可排序
+                    { sWidth: "12%", aTargets: [ 0,1,2,3 ,4,5,6,7] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+            $scope.searchPage.init();
+        }])
         .controller('group.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
 
             /*{id:1,name:"1",displayName:"rewrew",unit:"11",valType:"string",
@@ -571,7 +834,7 @@
             $scope.pageDialog=Tools.dialog({
                 id:"pageDialog",
                 title:"新增组",
-                hiddenButton:false,
+                hiddenButton:true,
                 save:function() {
                     if(!$scope.groupDialog.groupName){
                         $('#name').focus();
@@ -701,9 +964,9 @@
                         })
                         // },500);
                     },
-                    active: function (active,userId,userName) {
+                    active: function (active,groupId,userName) {
                         Loading.show();
-                        loader.userUpdate({"userId":userId,"userStatus":active==true?1:0,"userName":userName},function(data){
+                        loader.userUpdateStatus({"groupId":groupId,"status":active==true?1:0},function(data){
                             if(data.result=="success"){
                                 Loading.hide();
                                 toaster.pop('success', "", "操作成功");
@@ -750,7 +1013,15 @@
                 }
             };
 
-
+            var resolve = function (mData, type, full) {
+                if (mData == 1) {
+                    return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
+                } else if (mData == 0) {
+                    return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
+                } else {
+                    return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
+                }
+            };
             $scope.listPage.settings = {
                 pageSize:10,
                 reload: null,
@@ -770,7 +1041,13 @@
                             return Util.str2Html(mData);
                         }
                     },
-
+                    {
+                        sTitle: "组状态",
+                        mData: "status",
+                        mRender: function (mData, type, full) {
+                            return resolve(mData, type, full);
+                        }
+                    },
                     {
                         sTitle: "创建时间",
                         mData: "createTime",
@@ -787,7 +1064,8 @@
                         mRender:function(mData,type,full) {
                             return  '<i title="编辑"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
                                 // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
-                                    '<i title="删除"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+                                    '<i title="删除"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>'+
+                                    '<i title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.status==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\',\''+full.status+'\')"></i>';
                                 // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
@@ -795,8 +1073,8 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3]},  //第 0,10列不可排序
-                    { sWidth: "25%", aTargets: [ 0,1,2,3 ] }
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,10列不可排序
+                    { sWidth: "20%", aTargets: [ 0,1,2,3 ,4] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -1016,7 +1294,7 @@
             $scope.pageDialog=Tools.dialog({
                 id:"pageDialog",
                 title:"新增用户",
-                hiddenButton:false,
+                hiddenButton:true,
                 save:function() {
                     if ($scope.pageDialog.title === "新增用户") {
                         if(!$scope.addPage.data.userName){
@@ -1106,9 +1384,11 @@
                     add: function () {
                         $scope.pageDialog.title = "新增用户";
                         $("#formPassword")[0].style.display = 'inherit';
+                        $('#userName').removeAttr("disabled");
                         Loading.show();
                         loader.userGroup({},{},function (data) {
                             $scope.approvalGroup = data.group;
+                            $scope.approvalEnterprise = data.company;
                             Loading.hide();
                         }, function (error) {
                             Loading.hide();
@@ -1125,15 +1405,17 @@
                     edit: function (id) {
                         $scope.pageDialog.title = "修改用户";
                         $("#formPassword")[0].style.display = 'none';
+                        $('#userName').attr("disabled","disabled");
                         Loading.show();
                         // $timeout(function(){
                             loader.userInfo({"userId":id},{},function (data) {
 
                                 $scope.addPage.data.userId = data.data.userId;
                                 $scope.addPage.data.userName = data.data.userName;
+                                $scope.addPage.data.userPwd = data.data.userPwd;
                                 $scope.addPage.data.userMobile = data.data.userMobile;
                                 $scope.addPage.data.userEmail = data.data.userEmail;
-                                $scope.addPage.data.userCompany = data.data.userCompany;
+                                $scope.addPage.data.enterpriseId = data.data.enterpriseId;
                                 $scope.addPage.data.userDepartment = data.data.userDepartment;
                                 $scope.addPage.data.userPosition = data.data.userPosition;
                                 $scope.addPage.data.userAddress = data.data.userAddress;
@@ -1141,6 +1423,7 @@
                                 $scope.addPage.data.userWeixin = data.data.userWeixin;
                                 $scope.addPage.data.userStatus = data.data.userStatus===1?true:false;
                                 $scope.approvalGroup = data.group;
+                                $scope.approvalEnterprise = data.company;
                                 $scope.addPage.data.groupId = data.data.groupId;
                                 Loading.hide();
                                 // $('#userName').attr("disabled","disabled");
@@ -1162,7 +1445,8 @@
                             $scope.addPageDetail.data.userMobile = data.data.userMobile;
                             $scope.addPageDetail.data.userGroup = data.data.groupId;
                             $scope.addPageDetail.data.userEmail = data.data.userEmail;
-                            $scope.addPageDetail.data.userCompany = data.data.userCompany;
+                            $scope.addPageDetail.data.enterpriseId = data.data.enterpriseId;
+                            // $scope.addPageDetail.data.userCompany = data.data.userCompany;
                             $scope.addPageDetail.data.userDepartment = data.data.userDepartment;
                             $scope.addPageDetail.data.userPosition = data.data.userPosition;
                             $scope.addPageDetail.data.userAddress = data.data.userAddress;
@@ -1170,6 +1454,7 @@
                             $scope.addPageDetail.data.userWeixin = data.data.userWeixin;
                             $scope.addPageDetail.data.userStatus = data.data.userStatus===1?true:false;
                             $scope.approvalGroup = data.group;
+                            $scope.approvalEnterprise = data.company;
                             Loading.hide();
                             // $('#userName').attr("disabled","disabled");
                             $scope.pageDialogDetail.show();
@@ -1332,6 +1617,7 @@
             var user = '<li><a href="/index.html#/user">用户信息 <span class="label label-success"></span></a> </li>';
             var group = '<li><a href="/index.html#/group">用户组 <span class="label label-success"></span></a> </li>';
             var password = '<li><a href="/index.html#/password">修改密码 <span class="label label-success"></span></a> </li>';
+            var enterprise = '<li><a href="/index.html#/enterprise">公司管理 <span class="label label-success"></span></a> </li>';
             var end = '                                </ul>\n' +
                 '                            </div>\n' +
                 '                        </li>';
@@ -1384,7 +1670,12 @@
                     var tmp = '';
                     if(data.user){
                         tmp += user;
+                    }
+                    if(data.group){
                         tmp += group;
+                    }
+                    if(data.enterprise){
+                        tmp += enterprise;
                     }
                     if(data.password){
                         tmp += password;

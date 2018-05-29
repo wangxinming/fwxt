@@ -7,10 +7,19 @@ import java.util.List;
 public class GroupInfo {
     private Integer groupId;
     private List<OAPrivilege> oaPrivileges;
+    private Integer status;
     private String groupName;
     private String description;
     private String flow;
     private String task;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 
     public String getDescription() {
         return description;

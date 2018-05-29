@@ -2,7 +2,9 @@ package com.wxm.controller;
 
 import com.wxm.mapper.OAAuditMapper;
 import com.wxm.model.OAAudit;
+import com.wxm.model.OAUser;
 import com.wxm.service.AuditService;
+import com.wxm.service.UserService;
 import com.wxm.util.exception.OAException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,7 +26,8 @@ public class AuditController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditController.class);
     @Autowired
     private AuditService auditService;
-
+    @Autowired
+    private UserService userService;
     @RequestMapping(value = "/auditList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object userList(HttpServletRequest request,
@@ -38,6 +41,12 @@ public class AuditController {
         if(null == loginUser) {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
+        }else{
+            OAUser oaUser = userService.getUserById(loginUser.getId());
+            if(oaUser != null && oaUser.getParentId() != loginUser.getParentId()){
+                LOGGER.error("用户在其他地址登录");
+                throw new OAException(1101,"用户在其他地址登录");
+            }
         }
         Map<String, Object> result = new HashMap<>();
         result.put("result","failed");

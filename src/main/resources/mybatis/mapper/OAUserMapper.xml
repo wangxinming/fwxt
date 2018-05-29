@@ -6,6 +6,7 @@
     <result column="USER_NAME" property="userName" jdbcType="NVARCHAR" />
     <result column="PARENT_ID" property="parentId" jdbcType="INTEGER" />
     <result column="GROUP_ID" property="groupId" jdbcType="INTEGER" />
+    <result column="ENTERPRISE_ID" property="enterpriseId" jdbcType="INTEGER" />
     <result column="USER_MOBILE" property="userMobile" jdbcType="NVARCHAR" />
     <result column="USER_EMAIL" property="userEmail" jdbcType="NVARCHAR" />
     <result column="USER_PWD" property="userPwd" jdbcType="NVARCHAR" />
@@ -19,7 +20,7 @@
     <result column="USER_CREATETIME" property="userCreatetime" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    USER_ID, USER_NAME, PARENT_ID,GROUP_ID,USER_MOBILE, USER_EMAIL, USER_PWD, USER_COMPANY, USER_DEPARTMENT,
+    USER_ID, USER_NAME, PARENT_ID,GROUP_ID,USER_MOBILE, USER_EMAIL, USER_PWD, ENTERPRISE_ID,USER_COMPANY, USER_DEPARTMENT,
     USER_POSITION, USER_ADDRESS, USER_POSTCODE, USER_WEIXIN, USER_STATUS, USER_CREATETIME
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -73,13 +74,13 @@
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAUser" >
     insert into OA_USER (USER_ID, USER_NAME,PARENT_ID,GROUP_ID, USER_MOBILE,
-      USER_EMAIL, USER_PWD, USER_COMPANY, 
+      USER_EMAIL, USER_PWD,ENTERPRISE_ID, USER_COMPANY,
       USER_DEPARTMENT, USER_POSITION, USER_ADDRESS, 
       USER_POSTCODE, USER_WEIXIN, USER_STATUS, 
       USER_CREATETIME)
     values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=NVARCHAR},#{parentId,jdbcType=INTEGER},#{groupId,jdbcType=INTEGER},
      #{userMobile,jdbcType=NVARCHAR},
-      #{userEmail,jdbcType=NVARCHAR}, #{userPwd,jdbcType=NVARCHAR}, #{userCompany,jdbcType=NVARCHAR}, 
+      #{userEmail,jdbcType=NVARCHAR}, #{userPwd,jdbcType=NVARCHAR},#{enterpriseId,jdbcType=INTEGER}, #{userCompany,jdbcType=NVARCHAR},
       #{userDepartment,jdbcType=NVARCHAR}, #{userPosition,jdbcType=NVARCHAR}, #{userAddress,jdbcType=NVARCHAR}, 
       #{userPostcode,jdbcType=NVARCHAR}, #{userWeixin,jdbcType=NVARCHAR}, #{userStatus,jdbcType=INTEGER}, 
       #{userCreatetime,jdbcType=TIMESTAMP})
@@ -107,6 +108,9 @@
       </if>
       <if test="userPwd != null" >
         USER_PWD,
+      </if>
+      <if test="enterpriseId != null" >
+        ENTERPRISE_ID,
       </if>
       <if test="userCompany != null" >
         USER_COMPANY,
@@ -155,6 +159,9 @@
       <if test="userPwd != null" >
         #{userPwd,jdbcType=NVARCHAR},
       </if>
+      <if test="enterpriseId != null" >
+        #{enterpriseId,jdbcType=INTEGER},
+      </if>
       <if test="userCompany != null" >
         #{userCompany,jdbcType=NVARCHAR},
       </if>
@@ -202,6 +209,9 @@
       <if test="userPwd != null" >
         USER_PWD = #{userPwd,jdbcType=NVARCHAR},
       </if>
+      <if test="enterpriseId != null" >
+        ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER},
+      </if>
       <if test="userCompany != null" >
         USER_COMPANY = #{userCompany,jdbcType=NVARCHAR},
       </if>
@@ -237,6 +247,7 @@
       USER_MOBILE = #{userMobile,jdbcType=NVARCHAR},
       USER_EMAIL = #{userEmail,jdbcType=NVARCHAR},
       USER_PWD = #{userPwd,jdbcType=NVARCHAR},
+      ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER},
       USER_COMPANY = #{userCompany,jdbcType=NVARCHAR},
       USER_DEPARTMENT = #{userDepartment,jdbcType=NVARCHAR},
       USER_POSITION = #{userPosition,jdbcType=NVARCHAR},

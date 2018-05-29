@@ -36,7 +36,9 @@
                 <div class="form-group">
                     <label  class="col-md-3 control-label">公司</label>
                     <div class="col-md-9">
-                        <input type="text" disabled="disabled" class="form-control"  ng-model="addPageDetail.data.userCompany" placeholder="公司" maxlength="190">
+                        <select  class="form-control"  disabled="disabled" ng-model="addPageDetail.data.enterpriseId"  ng-options="item.enterpriseId as item.companyName for item in approvalEnterprise ">
+                        </select>
+                        <!--<input type="text" disabled="disabled" class="form-control"  ng-model="addPageDetail.data.userCompany" placeholder="公司" maxlength="190">-->
                     </div>
                 </div>
                 <div class="form-group">

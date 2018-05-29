@@ -17,8 +17,18 @@ public class User implements Serializable {
     private String weixin;
     private Integer age;
     private String realName;
+    private Integer parentId;
     private boolean active;
     private Timestamp createTime;
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
     public void setCompany(String company){
         this.company = company;
     }

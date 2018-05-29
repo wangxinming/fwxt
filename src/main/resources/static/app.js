@@ -132,6 +132,13 @@
                             $("#user").trigger("click");
                         }
                         break;
+                    case 'enterprise':
+                        $('#mbx1').html('<a href="index.html#/enterprise"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/enterprise"><span class="fa fa-angle-double-right"></span> 公司管理</a>');
+                        if (!$("#user").parent().hasClass("active")) {
+                            $("#user").trigger("click");
+                        }
+                        break;
                     case 'password':
                         $('#mbx1').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
                         $('#mbx2').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 修改密码</a>');
@@ -318,12 +325,14 @@
                         info = "未知错误";
                     }
                     if (info && info != "") {
-                        if (info.indexOf("用户未登录") > -1 || info.indexOf("数据库异常") > -1) {
-                            jQuery.cookie("wxm_url", window.location.href);
-                            location.href = "./login.html";
-                        } else {
-                            $rootScope.$alert(info, "alarm");
-                        }
+                        jQuery.cookie("wxm_url", window.location.href);
+                        location.href = "./login.html";
+                        // if (info.indexOf("用户未登录") > -1 || info.indexOf("数据库异常") > -1) {
+                        //     jQuery.cookie("wxm_url", window.location.href);
+                        //     location.href = "./login.html";
+                        // } else {
+                        //     $rootScope.$alert(info, "alarm");
+                        // }
                     }
                     return $q.reject(e);
                 }

@@ -1,0 +1,75 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<div dialog info="pageDialog" data="addPage.data" class="ldialog">
+    <div class="portlet-body form">
+        <form class="form-horizontal" role="form" id="addForm" name="form">
+            <div class="form-body">
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">公司名称</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="companyName" id="companyName" ng-model="addPage.data.companyName" placeholder="用户名字" maxlength="20" required>
+                        <div class="required" ng-show="form.companyName.$dirty && form.companyName.$invalid">
+                            <span ng-show="form.companyName.$error.required">此项不能为空.</span>
+                            <span ng-show="!form.companyName.$error.required && form.companyName.$error.maxlength">长度最大20位字符.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">省份</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" ng-model="addPage.data.companyProvince" name="companyProvince" placeholder="省份"  minlength="20" maxlength="20">
+                        <div>
+                            <span ng-show="form.companyProvince.$error.required">此项不能为空.</span>
+                            <span ng-show="form.companyProvince.$error.number">只能输入数字</span>
+                            <span ng-show="!form.companyProvince.$error.required && form.userPostcodeName.$error.minlength">长度20位数据.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label  class="col-md-3 control-label"> 市（区）</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" ng-model="addPage.data.companyCity" name="companyCity" placeholder="市（区）"  minlength="20" maxlength="20">
+
+                        <!--<input type="text" class="form-control"  ng-model="addPage.data.userGroup" placeholder="手机号码" maxlength="19">-->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">总经理名称</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control"  name="companyOwner" ng-model="addPage.data.companyOwner" placeholder="总经理名称" maxlength="30">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">手机号码</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control"  ng-model="addPage.data.ownerMobile" name="mobile" placeholder="手机号码" minlength="11" maxlength="11" ng-pattern="/^1[3|4|5|7|8]\d{9}$/">
+                        <div >
+                            <span ng-show="form.mobile.$error.required">此项不能为空.</span>
+                            <span ng-show="form.mobile.$error.number">只能输入数字</span>
+                            <span ng-show="!form.mobile.$error.required && form.mobile.$error.minlength">长度11位字符.</span>
+                            <span ng-show="form.mobile.$error.pattern">手机格式不正确</span>
+                            <!--<span ng-show="!form.mobile.$error.required && form.mobile.$error.maxlength">长度最大11位字符.</span>-->
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-3 control-label">公司状态</label>
+                    <div class="col-md-9">
+                        <input type="checkbox" class="ace ace-switch ace-switch-4" ng-model="addPage.data.companyStatus"  />
+                        <span class="lbl"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="pageDialog.save()"> {{dialog.buttonText==null?"确定":dialog.buttonText}}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+
+</div>

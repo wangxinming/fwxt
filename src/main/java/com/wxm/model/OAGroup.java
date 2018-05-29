@@ -12,19 +12,30 @@ public class OAGroup {
     private String privilegeids;
 
     private String describe;
+    private Integer status;
 
     private Date createTime;
 
     public OAGroup(){
 
     }
-    public OAGroup(String groupName,Integer userId,String privilegeids,String describe){
+    public OAGroup(String groupName,Integer userId,String privilegeids,String describe,int status){
         this.createTime = new Date();
         this.groupName = groupName;
         this.userId = userId;
         this.privilegeids = privilegeids;
         this.describe = describe;
+        this.status = status;
     }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
     public Integer getGroupId() {
         return groupId;
     }

@@ -7,15 +7,16 @@
     <result column="USER_ID" property="userId" jdbcType="INTEGER" />
     <result column="PRIVILEGEIDS" property="privilegeids" jdbcType="NVARCHAR" />
     <result column="DESCRIBE" property="describe" jdbcType="NVARCHAR" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
     <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    GROUP_ID, GROUP_NAME, USER_ID, PRIVILEGEIDS, DESCRIBE, CREATE_TIME
+    GROUP_ID, GROUP_NAME, USER_ID, PRIVILEGEIDS, DESCRIBE,STATUS, CREATE_TIME
   </sql>
   <select id="total" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from OA_GROUP
+    from OA_GROUP where STATUS = 1
   </select>
   <select id="list" resultMap="BaseResultMap">
     select top ${limit} * from OA_GROUP where OA_GROUP.GROUP_ID not
@@ -62,10 +63,10 @@
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAGroup" useGeneratedKeys="true"  keyProperty = "groupId" keyColumn = "GROUP_ID">
     insert into OA_GROUP (GROUP_ID, GROUP_NAME, USER_ID, 
-      PRIVILEGEIDS, DESCRIBE, CREATE_TIME
+      PRIVILEGEIDS, DESCRIBE,STATUS, CREATE_TIME
       )
     values (#{groupId,jdbcType=INTEGER}, #{groupName,jdbcType=NVARCHAR}, #{userId,jdbcType=INTEGER}, 
-      #{privilegeids,jdbcType=NVARCHAR}, #{describe,jdbcType=NVARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      #{privilegeids,jdbcType=NVARCHAR}, #{describe,jdbcType=NVARCHAR},#{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wxm.model.OAGroup" useGeneratedKeys="true"  keyProperty = "groupId" keyColumn = "GROUP_ID">
@@ -85,6 +86,9 @@
       </if>
       <if test="describe != null" >
         DESCRIBE,
+      </if>
+      <if test="status != null" >
+        STATUS,
       </if>
       <if test="createTime != null" >
         CREATE_TIME,
@@ -106,6 +110,9 @@
       <if test="describe != null" >
         #{describe,jdbcType=NVARCHAR},
       </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -126,6 +133,9 @@
       <if test="describe != null" >
         DESCRIBE = #{describe,jdbcType=NVARCHAR},
       </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
       <if test="createTime != null" >
         CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -138,6 +148,7 @@
       USER_ID = #{userId,jdbcType=INTEGER},
       PRIVILEGEIDS = #{privilegeids,jdbcType=NVARCHAR},
       DESCRIBE = #{describe,jdbcType=NVARCHAR},
+      STATUS = #{status,jdbcType=INTEGER},
       CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
     where GROUP_ID = #{groupId,jdbcType=INTEGER}
   </update>
