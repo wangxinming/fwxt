@@ -1,10 +1,7 @@
 package com.wxm.controller;
 
 import com.wxm.entity.*;
-import com.wxm.model.OAContractCirculationWithBLOBs;
-import com.wxm.model.OAContractTemplate;
-import com.wxm.model.OADeploymentTemplateRelation;
-import com.wxm.model.OAFormProperties;
+import com.wxm.model.*;
 import com.wxm.service.*;
 import com.wxm.util.FileByte;
 import com.wxm.util.ValidType;
@@ -14,6 +11,7 @@ import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.FlowElement;
 import org.activiti.bpmn.model.Process;
+import org.activiti.bpmn.model.UserTask;
 import org.activiti.engine.*;
 import org.activiti.engine.history.*;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -23,6 +21,7 @@ import org.activiti.engine.impl.persistence.entity.VariableInstance;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Comment;
@@ -38,6 +37,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
@@ -72,7 +72,8 @@ public class ProcessController {
     private String openOfficePath;
     @Autowired
     private ConcactTemplateService concactTemplateService;
-
+    @Autowired
+    private ManagementService managementService;
     @Autowired
     private FormPropertiesService formPropertiesService;
 
@@ -86,10 +87,33 @@ public class ProcessController {
     private MailService mailService;
 
     @Autowired
+    private OAAttachmentService oaAttachmentService;
+
+    @Autowired
     private ContractCirculationService contractCirculationService;
 
     @Autowired
     private TaskProcessService taskProcessService;
+    private static String formatSeconds(long seconds) {
+        String timeStr = seconds + "秒";
+        if (seconds > 60) {
+            long second = seconds % 60;
+            long min = seconds / 60;
+            timeStr = min + "分" + second + "秒";
+            if (min > 60) {
+                min = (seconds / 60) % 60;
+                long hour = (seconds / 60) / 60;
+                timeStr = hour + "小时" + min + "分" + second + "秒";
+                if (hour > 24) {
+                    hour = ((seconds / 60) / 60) % 24;
+                    long day = (((seconds / 60) / 60) / 24);
+                    timeStr = day + "天" + hour + "小时" + min + "分" + second + "秒";
+                }
+            }
+        }
+        return timeStr;
+    }
+
 
     @RequestMapping(value = "/dashboard", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
@@ -104,6 +128,22 @@ public class ProcessController {
         try{
             long size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
             result.put("myPending",size);
+
+            List<TaskInfo> taskInfos = new LinkedList<>();
+            List<Task> list=taskService.createTaskQuery().taskAssignee(loginUser.getName())
+                    .listPage(0,10);
+            for(Task task:list){
+                TaskInfo taskInfo = new TaskInfo();
+                VariableInstance variableInstance = runtimeService.getVariableInstance(task.getExecutionId(),"title");
+                if(null != variableInstance) {
+                    taskInfo.setTitle(variableInstance.getTextValue());
+                }
+                taskInfo.setTimestamp(task.getCreateTime());
+                taskInfo.setProcessDefinitionId(task.getProcessDefinitionId());
+                taskInfos.add(taskInfo);
+            }
+            result.put("pendingList",taskInfos);
+
             if(loginUser.getName().equals("admin")){
                 size = historyService.createHistoricProcessInstanceQuery()
                         .variableValueEquals("instanceStatus","completed")
@@ -114,9 +154,47 @@ public class ProcessController {
                         .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
                         .count();
                 result.put("myComplete", size);
+
+
             }
+
             size = historyService.createHistoricProcessInstanceQuery().startedBy(loginUser.getName()).count();
             result.put("initiator",size);
+
+            taskInfos = new LinkedList<>();
+            List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
+                    .startedBy(loginUser.getName()).orderByProcessInstanceStartTime().desc()
+                    .listPage(0,10);
+            for(HistoricProcessInstance historicProcessInstance:historicProcessInstanceList){
+                TaskInfo taskInfo = new TaskInfo();
+                ProcessInstance pi = runtimeService.createProcessInstanceQuery()//
+                        .processInstanceId(historicProcessInstance.getId())//使用流程实例ID查询
+                        .singleResult();
+                if(pi == null){
+                    taskInfo.setAssignee("审批结束");
+                    HistoricVariableInstance historicVariableInstance =historyService.createHistoricVariableInstanceQuery().variableName("title").processInstanceId(historicProcessInstance.getId()).singleResult();
+                    if(null != historicVariableInstance) {
+                        taskInfo.setTitle(historicVariableInstance.getValue().toString());
+                    }
+                }else{
+                    Task task = taskService.createTaskQuery().processInstanceId(historicProcessInstance.getId()).singleResult();
+                    taskInfo.setAssignee(task.getAssignee());
+
+                    taskInfo.setDuringTime(formatSeconds((new Date().getTime() - task.getCreateTime().getTime())/1000));
+                    VariableInstance variableInstance = runtimeService.getVariableInstance(historicProcessInstance.getId(),"title");
+                    if(null != variableInstance) {
+                        taskInfo.setTitle(variableInstance.getTextValue());
+                    }
+
+                }
+
+
+                taskInfo.setTimestamp(historicProcessInstance.getStartTime());
+                taskInfo.setProcessDefinitionId(historicProcessInstance.getProcessDefinitionId());
+                taskInfos.add(taskInfo);
+            }
+            result.put("initiatorList",taskInfos);
+
             result.put("result","success");
         }catch (Exception e){
             result.put("result","failed");
@@ -124,6 +202,7 @@ public class ProcessController {
         }
         return result;
     }
+
 
     @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
@@ -154,7 +233,56 @@ public class ProcessController {
         }
         return null;
     }
+    //预览
+    @RequestMapping("/previewInfo")
+    public Object previewInfo(HttpServletRequest request,HttpServletResponse response) throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        String docId = request.getParameter("depId");
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(docId).singleResult();
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+//        BpmnModel bpmnModel = (BpmnModel)repositoryService.createModelQuery().modelId(modelId).latestVersion().singleResult();
+        Collection<FlowElement> flowElements = bpmnModel.getProcesses().get(0).getFlowElements();
+        List<FlowElem> flowElems = new LinkedList<>();
+        for(FlowElement flowElement:flowElements){
+            if(flowElement instanceof UserTask && StringUtils.isNotBlank(((UserTask) flowElement).getAssignee() )) {
+                FlowElem flowElem = new FlowElem(flowElement.getName(),((UserTask) flowElement).getAssignee());
+                flowElems.add(flowElem);
+            }
+        }
+        result.put("flows",flowElems);
+        return result;
 
+    }
+    @RequestMapping("/previewImage")
+    public void preview(HttpServletRequest request,HttpServletResponse response) throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        String docId = request.getParameter("depId");
+
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(docId).singleResult();
+        Map<String, Object> result = new HashMap<>();
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+        ProcessDiagramGenerator diagramGenerator = processEngineConfiguration.getProcessDiagramGenerator();
+        List<String> highLightedActivitis = new ArrayList<String>();
+        InputStream imageStream = diagramGenerator.generateDiagram(bpmnModel, "png", highLightedActivitis, new ArrayList<String>(), "宋体", "宋体", "宋体", null, 1.0D);
+        //单独返回流程图，不高亮显示
+        //        InputStream imageStream = diagramGenerator.generatePngDiagram(bpmnModel);
+        // 输出资源内容到相应对象
+        byte[] b = new byte[1024];
+        int len;
+        while ((len = imageStream.read(b, 0, 1024)) != -1) {
+            response.getOutputStream().write(b, 0, len);
+        }
+    }
     @RequestMapping("/queryProPlan")
     public void queryProPlan(HttpServletRequest request,HttpServletResponse response) throws Exception {
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
@@ -230,33 +358,35 @@ public class ProcessController {
                 String deploymentID = map.get("id");
 //                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
-                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
-                for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
-                    String md5 = oaFormProperties.getFieldMd5();
-                    String type = oaFormProperties.getFieldType();
-                    String length = oaFormProperties.getFieldValid();
-                    if( StringUtils.isBlank(md5) ||  StringUtils.isBlank(type) ||  StringUtils.isBlank(length)) continue;
-                    md5 = md5.trim();
-                    type = type.trim();
-                    length = length.trim();
-                    String value = map.get(md5).toString();
-                    if( StringUtils.isBlank(value))continue;
-                    if (value.length() > Integer.parseInt(length)) {
-                        info = oaFormProperties.getFieldMd5() + " 字段长度过长";
-                        result.put("info", info);
-                        break;
-                    }
-                    if (type.equals("D")) {
-                        if (!ValidType.isNumeric(value)) {
-                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
-                            result.put("info", info);
-                            break;
-                        }
-                    }
-                }
+//                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
+//                for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
+//                    String md5 = oaFormProperties.getFieldMd5();
+//                    String type = oaFormProperties.getFieldType();
+//                    String length = oaFormProperties.getFieldValid();
+//                    if( StringUtils.isBlank(md5) ||  StringUtils.isBlank(type) ||  StringUtils.isBlank(length)) continue;
+//                    md5 = md5.trim();
+//                    type = type.trim();
+//                    length = length.trim();
+//                    String value = map.get(md5).toString();
+//                    if( StringUtils.isBlank(value))continue;
+//                    if (value.length() > Integer.parseInt(length)) {
+//                        info = oaFormProperties.getFieldMd5() + " 字段长度过长";
+//                        result.put("info", info);
+//                        break;
+//                    }
+//                    if (type.equals("D")) {
+//                        if (!ValidType.isNumeric(value)) {
+//                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
+//                            result.put("info", info);
+//                            break;
+//                        }
+//                    }
+//                }
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
-                runtimeService.setVariable(task.getProcessInstanceId(), task.getId(), "重新提交");
+
+                String attachmentRefuse = map.get("attachmentRefuse");
+                runtimeService.setVariable(task.getProcessInstanceId(), task.getId(), "重新提交 "+attachmentRefuse);
                 result.put("result", "success");
                 String taskDefinitionKey = taskService.getVariable(task.getId(), "taskDefinitionKey").toString();
                 taskService.setVariable(task.getId(), "taskDefinitionKey",null);
@@ -289,8 +419,12 @@ public class ProcessController {
 
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String taskDefinitionKey = task.getTaskDefinitionKey();
+//        runtimeService.setVariable(task.getProcessInstanceId(), "refuseTask", "拒绝" );
+        runtimeService.setVariable(task.getProcessInstanceId(), "refuseTask", cause );
         if(StringUtils.isNotBlank(cause)) {
-            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝  " + cause);
+            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝:  " + cause);
+        }else{
+            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝" );
         }
         List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
                 .finished()
@@ -340,35 +474,35 @@ public class ProcessController {
             try{
                 String deploymentID = map.get("id");
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
-                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
-                for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
-                    String md5 = oaFormProperties.getFieldMd5();
-                    String type = oaFormProperties.getFieldType();
-                    String length = oaFormProperties.getFieldValid();
-                    if( StringUtils.isBlank(md5) ||  StringUtils.isBlank(type) ||  StringUtils.isBlank(length)) continue;
-                    md5 = md5.trim();
-                    type = type.trim();
-                    length = length.trim();
-                    String value = map.get(md5).toString();
-                    if( StringUtils.isBlank(value))continue;
-                    if (value.length() > Integer.parseInt(length)) {
-                        info = oaFormProperties.getFieldMd5() + " 字段长度过长";
-                        result.put("info", info);
-                        break;
-                    }
-                    if (type.equals("D")) {
-                        if (!ValidType.isNumeric(value)) {
-                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
-                            result.put("info", info);
-                            break;
-                        }
-                    }else if(type.equals("YYYY-MM-DD")){
-                        if (!ValidType.isDate(value)) {
-                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
-                            result.put("info", info);
-                        }
-                    }
-                }
+//                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
+//                for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
+//                    String md5 = oaFormProperties.getFieldMd5();
+//                    String type = oaFormProperties.getFieldType();
+//                    String length = oaFormProperties.getFieldValid();
+//                    if( StringUtils.isBlank(md5) ||  StringUtils.isBlank(type) ||  StringUtils.isBlank(length)) continue;
+//                    md5 = md5.trim();
+//                    type = type.trim();
+//                    length = length.trim();
+//                    String value = map.get(md5).toString();
+//                    if( StringUtils.isBlank(value))continue;
+//                    if (value.length() > Integer.parseInt(length)) {
+//                        info = oaFormProperties.getFieldMd5() + " 字段长度过长";
+//                        result.put("info", info);
+//                        break;
+//                    }
+//                    if (type.equals("D")) {
+//                        if (!ValidType.isNumeric(value)) {
+//                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
+//                            result.put("info", info);
+//                            break;
+//                        }
+//                    }else if(type.equals("YYYY-MM-DD")){
+//                        if (!ValidType.isDate(value)) {
+//                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
+//                            result.put("info", info);
+//                        }
+//                    }
+//                }
                 String index = map.get("index");
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 if(index.equals("1")){
@@ -431,35 +565,35 @@ public class ProcessController {
                 List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(Integer.parseInt(contract));
 //                WordEntity wordEntity = wordTemplateService.queryInfoRel(deploymentID);
 //                List<WordTemplateField> list = wordTemplateFieldService.getWordTemplateFieldByTemplateId(wordEntity.getId());
-                for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
-                    String md5 = oaFormProperties.getFieldMd5();
-                    String type = oaFormProperties.getFieldType();
-                    String length = oaFormProperties.getFieldValid();
-
-                    if (StringUtils.isBlank(md5) || StringUtils.isBlank(type) || StringUtils.isBlank(length)) continue;
-                    md5 = md5.trim();
-                    type = type.trim();
-                    length = length.trim();
-                    String value = map.get(md5).toString();
-                    if (StringUtils.isBlank(value)) continue;
-                    if (value.length() > Integer.parseInt(length)) {
-                        info = oaFormProperties.getFieldMd5() + " 字段长度过长";
-                        result.put("info", info);
-                        break;
-                    }
-                    if (type.equals("D")) {
-                        if (!ValidType.isNumeric(value)) {
-                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
-                            result.put("info", info);
-                            break;
-                        }
-                    }else if(type.equals("YYYY-MM-DD")){
-                        if (!ValidType.isDate(value)) {
-                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
-                            result.put("info", info);
-                        }
-                    }
-                }
+//                for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
+//                    String md5 = oaFormProperties.getFieldMd5();
+//                    String type = oaFormProperties.getFieldType();
+//                    String length = oaFormProperties.getFieldValid();
+//
+//                    if (StringUtils.isBlank(md5) || StringUtils.isBlank(type) || StringUtils.isBlank(length)) continue;
+//                    md5 = md5.trim();
+//                    type = type.trim();
+//                    length = length.trim();
+//                    String value = map.get(md5).toString();
+//                    if (StringUtils.isBlank(value)) continue;
+//                    if (value.length() > Integer.parseInt(length)) {
+//                        info = oaFormProperties.getFieldMd5() + " 字段长度过长";
+//                        result.put("info", info);
+//                        break;
+//                    }
+//                    if (type.equals("D")) {
+//                        if (!ValidType.isNumeric(value)) {
+//                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
+//                            result.put("info", info);
+//                            break;
+//                        }
+//                    }else if(type.equals("YYYY-MM-DD")){
+//                        if (!ValidType.isDate(value)) {
+//                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
+//                            result.put("info", info);
+//                        }
+//                    }
+//                }
                 // 查找流程定义
                 ProcessDefinition pd = repositoryService.createProcessDefinitionQuery()
                         .deploymentId(deploymentID).singleResult();
@@ -485,6 +619,7 @@ public class ProcessController {
                 identityService.setAuthenticatedUserId(loginUser.getName());
                 ProcessInstance processInstance = runtimeService.startProcessInstanceById(pd.getId(), mapInfo);
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
+                oaContractCirculationWithBLOBs.setUserId(loginUser.getId());
                 oaContractCirculationWithBLOBs.setTemplateId(Integer.parseInt(contract));
                 if(StringUtils.isBlank(contractName)) {
                     oaContractCirculationWithBLOBs.setContractName(deployment.getName() + "-" + time.format(nowTime));
@@ -710,12 +845,14 @@ public class ProcessController {
         return result;
     }
 
-    //获取该员工历史任务,参与过的任务
+    //归档任务查询 获取该员工历史任务,参与过的任务
     @RequestMapping(value = "processHistory", method = RequestMethod.GET)
     @ResponseBody
-    public Object findHistoryTaskByName(@PathVariable(value = "user", required = false) String user,
+    public Object findHistoryTaskByName(@RequestParam(value = "user", required = false) String user,
                                         @RequestParam(value = "offset", required = true ,defaultValue= "0" ) int offset,
                                         @RequestParam(value = "limit", required = true,defaultValue= "10" ) int limit,
+                                        @RequestParam(value = "title", required = false  ) String title,
+                                        @RequestParam(value = "contractId", required = false  ) String contractId,
                                         HttpServletRequest request)throws Exception {
 
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
@@ -727,21 +864,28 @@ public class ProcessController {
         List<HistoricProcessInstance> listProcess = null;
         long size = 0;
         List<TaskInfo> taskInfos = new LinkedList<>();
+        HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+        if(StringUtils.isNotBlank(title)) {
+            historicProcessInstanceQuery =historicProcessInstanceQuery.variableValueLike("title", "%"+title+"%");
+        }
         if(loginUser.getName().equals("admin")){
-            listProcess = historyService.createHistoricProcessInstanceQuery()
+            if(StringUtils.isNotBlank(user)){
+                historicProcessInstanceQuery =historicProcessInstanceQuery.involvedUser(user);
+            }
+            listProcess = historicProcessInstanceQuery
                     .variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
                     .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
-            size = historyService.createHistoricProcessInstanceQuery()
+            size = historicProcessInstanceQuery
                     .variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
                     .count();
         }else{
-            listProcess = historyService.createHistoricProcessInstanceQuery()
+            listProcess = historicProcessInstanceQuery
                     .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
                     .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
-            size = historyService.createHistoricProcessInstanceQuery()
+            size = historicProcessInstanceQuery
                     .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
                     .count();

@@ -9,7 +9,7 @@
                 <tr>
                     <td class="row-lable"> 模板名称 </td>
                     <td>
-                        <input type="text" id="templateName" ng-model="pageDialog.model.name" name="name" ng-maxlength="20"
+                        <input type="text" id="templateName" ng-model="pageDialog.model.name" name="name" id="templateName" ng-maxlength="20"
                                 required>
                         <span class="required">*</span>
                         <div class="required" ng-show="form.name.$dirty && form.name.$invalid">
@@ -21,7 +21,7 @@
                 </tr>
 
                 <div style="margin-top: 17px;" class="form-group">
-                    <textarea rows="50" cols="30" id="htmlTemplateText" style="width: 100%;height: 300px;"></textarea>
+                    <textarea rows="50" cols="30" id="htmlTemplateText" style="display:none;width: 100%;height: 300px;"></textarea>
                     <button style="margin-top: 17px;" class="btn blue" ng-click="loadHtml()" type="button">结果演示</button>
                     <div id="htmlTemplate"></div>
                 </div>

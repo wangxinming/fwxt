@@ -2,16 +2,33 @@
 
     <!--<img src='/workflow/process/queryProPlan?getActivitiProccessImage&ProcessInstanceId=40001' />-->
     <!--<label  class="col-md-3 control-label"></label>-->
-    <!--<div class="col-md-6 ">-->
-        <!--<div class="list_button" >-->
-            <!--<div class="input-group">-->
-                <!--&lt;!&ndash;<input type="text" class="form-control" ng-model="key" placeholder="关键字模糊查询">&ndash;&gt;-->
-                <!--&lt;!&ndash;<span class="input-group-btn">&ndash;&gt;-->
-						<!--&lt;!&ndash;<button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>&ndash;&gt;-->
-					<!--&lt;!&ndash;</span>&ndash;&gt;-->
-                <!--<button type="button" class="btn" ng-click="listPage.action.add()" ng-show="userLevel.indexOf('add')!=-1">编辑</button>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
-    <table jq-table="listPage.settings" class="table"></table>
+    <div class="col-md-8 ">
+                <div class="form-body">
+                <!--<input type="text" class="form-control" ng-model="key" placeholder="关键字模糊查询">-->
+                <!--<span class="input-group-btn">-->
+						<!--<button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>-->
+					<!--</span>-->
+                <div class="form-group">
+                    <label  class="col-md-1 control-label">模板</label>
+                    <div class="col-md-11">
+                        <select  class="form-control"  ng-model="row.rID"  ng-options="item.templateId as item.templateName for item in sites ">
+                            <option value=""> --- 请选择合同模板 --- </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-md-1 control-label">流程</label>
+                    <div class="col-md-11">
+                        <select  class="form-control"  ng-model="row.dID"  ng-options="item.id as item.name for item in deploys ">
+                            <option value=""> --- 请选择流程 --- </option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <button type="button" class="btn blue" ng-click="listPage.action.start()" ng-show="userLevel.indexOf('add')!=-1">发起合同</button>
+    </div>
+
+
+    <!--<table jq-table="listPage.settings" class="table"></table>-->
 </div>

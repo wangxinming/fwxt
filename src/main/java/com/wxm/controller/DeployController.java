@@ -2,6 +2,7 @@ package com.wxm.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wxm.common.JsonUtils;
 import com.wxm.entity.KeyValue;
 import com.wxm.entity.TaskComment;
 import com.wxm.model.*;
@@ -58,6 +59,10 @@ public class DeployController {
     private AuditService auditService;
     @Autowired
     private HistoryService historyService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private GroupService groupService;
 
     @RequestMapping(value = "/updateTemRelation",method = RequestMethod.POST,produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -177,15 +182,28 @@ public class DeployController {
 //            wordTemplateService.update(wordEntity);
             //合并字段
             Map<String,String> mapField = new LinkedHashMap<>();
+            Map<String,String> mapFieldCheck = new LinkedHashMap<>();
             for(Map.Entry<String,String> entry:map.entrySet()){
                 if(entry.getKey().contains("name_")){
                     mapField.put(entry.getKey(),entry.getValue());
                 }
+                if(entry.getKey().contains("checkbox_")){
+                    mapFieldCheck.put(entry.getKey(),entry.getValue());
+                }
             }
+
             List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(Integer.parseInt(id));
             Map<String,OAFormProperties> mapDBField = new LinkedHashMap<>();
             for(OAFormProperties oaFormProperties:oaFormPropertiesList){
                 mapDBField.put(oaFormProperties.getFieldMd5(),oaFormProperties);
+            }
+            for(Map.Entry<String,String> entry : mapFieldCheck.entrySet()){
+                String key = "name"+entry.getKey().substring(8);
+                OAFormProperties oaFormPropertie = mapDBField.get(key);
+                OAFormProperties oaFormProperties = new OAFormProperties();
+                oaFormProperties.setPropertiesId(oaFormPropertie.getPropertiesId());
+                oaFormProperties.setStatus(entry.getValue().equals("on")?1:0);
+                formPropertiesService.update(oaFormProperties);
             }
             //数据库中没有的字段，需要增加
             for(Map.Entry<String,String> entry:mapField.entrySet()){
@@ -221,7 +239,9 @@ public class DeployController {
         try{
             LOGGER.info("合同模板ID，参数：{}",template_id);
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(template_id));
+            List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(Integer.parseInt(template_id));
             result.put("data",oaContractTemplate);
+            result.put("fields",oaFormPropertiesList);
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result", "failed");
@@ -266,8 +286,13 @@ public class DeployController {
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 Object object = taskService.getVariable(task.getId(), "taskDefinitionKey");
+
+//                Object refuseTask = taskService.getVariable(task.getId(), "taskDefinitionKey");
                 if (object == null || StringUtils.isBlank(object.toString())) {
                     result.put("showCommit", true);
+                    Object refuseTask = runtimeService.getVariable(task.getExecutionId(),"refuseTask");
+                    result.put("refuse",refuseTask);
+
                 } else {
                     result.put("showCommit", false);
                 }
@@ -484,7 +509,7 @@ public class DeployController {
         StringBuilder sb = new StringBuilder("<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">");
         List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
         for(OAFormProperties oaFormProperties : oaFormPropertiesList){
-            if(null == oaFormProperties ) continue;
+            if(null == oaFormProperties  && oaFormProperties.getStatus() != 1) continue;
             sb.append("<div align=\"LEFT\">");
             sb.append(oaFormProperties.getFieldName());
             sb.append(":");
@@ -497,7 +522,17 @@ public class DeployController {
 
         List<TaskComment> taskCommentList = new LinkedList<>();
 //        List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery().finished().processInstanceId(historicProcessInstance.getId()).orderByTaskCreateTime().desc().list();
+        boolean flag = false;
+        OAUser oaUser = userService.getUserById(loginUser.getId());
+        if(null == oaUser.getGroupId() || oaUser.getGroupId() < 1){
+            flag = true;
+        }
+        OAGroup oaGroup = groupService.getGroupById(oaUser.getGroupId());
+        Map mapGroup = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
 
+        if (mapGroup.get("attachment")!= null && mapGroup.get("attachment").equals("true")) {
+            flag = true;
+        }
         List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery()
                 .processInstanceId(historicProcessInstance.getId())
                 .activityType("userTask")
@@ -547,11 +582,19 @@ public class DeployController {
 //                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
                             taskComment.setName(variableInstance.getValue().toString());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            taskComment.setDescription(hi.getValue().toString());
+                            if(flag) {
+                                taskComment.setDescription(hi.getValue().toString());
+                            }else{
+                                taskComment.setDescription("通过");
+                            }
                         } else {
                             taskComment.setName(historicActivityInstance.getAssignee());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            taskComment.setDescription(hi.getValue().toString());
+                            if(flag) {
+                                taskComment.setDescription(hi.getValue().toString());
+                            }else{
+                                taskComment.setDescription("通过");
+                            }
                         }
                         taskCommentList.add(taskComment);
                     }
@@ -608,7 +651,7 @@ public class DeployController {
         StringBuilder sb = new StringBuilder("<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">");
         List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
         for(OAFormProperties oaFormProperties : oaFormPropertiesList){
-            if(null == oaFormProperties ) continue;
+            if(null == oaFormProperties && oaFormProperties.getStatus() != 1) continue;
             sb.append("<div align=\"LEFT\">");
             sb.append(oaFormProperties.getFieldName());
             sb.append(":");
@@ -620,8 +663,19 @@ public class DeployController {
         result.put("keyword",sb.toString());
         List<TaskComment> taskCommentList = new LinkedList<>();
 
-        List<Comment> commonts1  = taskService.getProcessInstanceComments(processInstance.getId());
+//        List<Comment> commonts1  = taskService.getProcessInstanceComments(processInstance.getId());
 
+        boolean flag = false;
+        OAUser oaUser = userService.getUserById(loginUser.getId());
+        if(null == oaUser.getGroupId() || oaUser.getGroupId() < 1){
+            flag = true;
+        }
+        OAGroup oaGroup = groupService.getGroupById(oaUser.getGroupId());
+        Map mapGroup = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+
+        if (mapGroup.get("attachment")!= null && mapGroup.get("attachment").equals("true")) {
+            flag = true;
+        }
         List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery()
                 .processInstanceId(processInstance.getId())
                 .activityType("userTask")
@@ -668,11 +722,19 @@ public class DeployController {
                             VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
                             taskComment.setName(variableInstance.getValue().toString());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            taskComment.setDescription(object.toString());
+                            if(flag) {
+                                taskComment.setDescription(object.toString());
+                            }else{
+                                taskComment.setDescription("通过");
+                            }
                         } else {
                             taskComment.setName(historicActivityInstance.getAssignee());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            taskComment.setDescription(object.toString());
+                            if(flag) {
+                                taskComment.setDescription(object.toString());
+                            }else{
+                                taskComment.setDescription("通过");
+                            }
                         }
                         taskCommentList.add(taskComment);
                     }

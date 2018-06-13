@@ -243,6 +243,11 @@ public class UserDefController {
             } else {
                 map.put("task", "false");
             }
+            if (groupInfo.getAttachment().equals("1")) {
+                map.put("attachment", "true");
+            } else {
+                map.put("attachment", "false");
+            }
             Map menu = new LinkedHashMap();
             for (OAPrivilege oaPrivilege : groupInfo.getOaPrivileges()) {
                 menu.put(oaPrivilege.getPrivilegeId(), oaPrivilege.getName());
@@ -310,7 +315,11 @@ public class UserDefController {
             } else {
                 map.put("task", "false");
             }
-
+            if (groupInfo.getAttachment().equals("1")) {
+                map.put("attachment", "true");
+            } else {
+                map.put("attachment", "false");
+            }
             Map menu = new LinkedHashMap();
             for (OAPrivilege oaPrivilege : groupInfo.getOaPrivileges()) {
                 menu.put(oaPrivilege.getPrivilegeId(), oaPrivilege.getName());
@@ -425,6 +434,11 @@ public class UserDefController {
                 result.put("flow", true);
             } else {
                 result.put("flow", false);
+            }
+            if (map.get("attachment").equals("true")) {
+                result.put("attachment", true);
+            } else {
+                result.put("attachment", false);
             }
             if (map.get("task").equals("true")) {
                 result.put("task", true);

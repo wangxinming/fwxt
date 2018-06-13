@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OAAttachmentMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OAAttachment" >
+    <id column="ATTACHMENT_ID" property="attachmentId" jdbcType="INTEGER" />
+    <result column="CONTRACT_ID" property="contractId" jdbcType="INTEGER" />
+    <result column="FILE_NAME" property="fileName" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.wxm.model.OAAttachment" extends="BaseResultMap" >
+    <result column="FILE_CONTENT" property="fileContent" jdbcType="LONGVARBINARY" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ATTACHMENT_ID, CONTRACT_ID, FILE_NAME, CREATE_TIME
+  </sql>
+  <sql id="Blob_Column_List" >
+    FILE_CONTENT
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from OA_ATTACHMENT
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=INTEGER}
+  </select>
+  <select id="list" resultMap="ResultMapWithBLOBs"  parameterType="java.lang.Integer">
+    select
+    <include refid="Base_Column_List" />
+    from OA_ATTACHMENT where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_ATTACHMENT
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OAAttachment" useGeneratedKeys="true"  keyProperty = "attachmentId" keyColumn = "ATTACHMENT_ID">
+    insert into OA_ATTACHMENT (ATTACHMENT_ID, CONTRACT_ID, FILE_NAME, 
+      CREATE_TIME, FILE_CONTENT)
+    values (#{attachmentId,jdbcType=INTEGER}, #{contractId,jdbcType=INTEGER}, #{fileName,jdbcType=NVARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{fileContent,jdbcType=LONGVARBINARY})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OAAttachment" useGeneratedKeys="true"  keyProperty = "attachmentId" keyColumn = "ATTACHMENT_ID">
+    insert into OA_ATTACHMENT
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="attachmentId != null" >
+        ATTACHMENT_ID,
+      </if>
+      <if test="contractId != null" >
+        CONTRACT_ID,
+      </if>
+      <if test="fileName != null" >
+        FILE_NAME,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="fileContent != null" >
+        FILE_CONTENT,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="attachmentId != null" >
+        #{attachmentId,jdbcType=INTEGER},
+      </if>
+      <if test="contractId != null" >
+        #{contractId,jdbcType=INTEGER},
+      </if>
+      <if test="fileName != null" >
+        #{fileName,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fileContent != null" >
+        #{fileContent,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAAttachment" >
+    update OA_ATTACHMENT
+    <set >
+      <if test="contractId != null" >
+        CONTRACT_ID = #{contractId,jdbcType=INTEGER},
+      </if>
+      <if test="fileName != null" >
+        FILE_NAME = #{fileName,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fileContent != null" >
+        FILE_CONTENT = #{fileContent,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wxm.model.OAAttachment" >
+    update OA_ATTACHMENT
+    set CONTRACT_ID = #{contractId,jdbcType=INTEGER},
+      FILE_NAME = #{fileName,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      FILE_CONTENT = #{fileContent,jdbcType=LONGVARBINARY}
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAAttachment" >
+    update OA_ATTACHMENT
+    set CONTRACT_ID = #{contractId,jdbcType=INTEGER},
+      FILE_NAME = #{fileName,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=INTEGER}
+  </update>
+</mapper>

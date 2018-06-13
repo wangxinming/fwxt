@@ -22,7 +22,7 @@ public interface OAFormPropertiesMapper {
 
     List<OAFormProperties> listByTemplateId(Integer templateId);
 
-    List<OAFormProperties> list(@Param("offset") Integer offset, @Param("limit") Integer limit, @Param("templateName") String templateName);
+    List<OAFormProperties> list(@Param("offset") Integer offset, @Param("limit") Integer limit, @Param("templateName") String templateName, @Param("templateId") Integer templateId);
 
-    int count(@Param("templateName") String templateName);
+    int count(@Param("templateName") String templateName, @Param("templateId") Integer templateId);
 }

@@ -111,7 +111,7 @@
                 },
                 init: function () {
                     $scope.searchPage.data = {
-                        id:1,
+                        id:0,
                         limit: 10, //每页条数(即取多少条数据)
                         offset: 0, //从第几条数据开始取
                         orderBy: "name",//排序字段
@@ -121,6 +121,9 @@
                 action:{
                     search:function () {
                         $scope.listPage.settings.reload(true);
+                    },
+                    back:function () {
+                        window.location.href = "/index.html#/upload";
                     }
                 }
             };
@@ -226,7 +229,7 @@
                         sTitle: "操作",
                         mData:"propertiesId",
                         mRender:function(mData,type,full) {
-                            return '<i title="编辑" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData+'\',\'' +full.fieldName+'\',\'' +full.fieldType+'\',\'' +full.fieldValid+ '\')"></i>' ;
+                            return '<i><a title="编辑" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData+'\',\'' +full.fieldName+'\',\'' +full.fieldType+'\',\'' +full.fieldValid+ '\')">编辑</a><i>' ;
                                 // '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }
@@ -242,6 +245,8 @@
                 ]  //定义默认排序列为第8列倒序
             };
             $scope.searchPage.init();
+            $scope.search = $location.search();
+            $scope.searchPage.data.id = $scope.search.id;
             $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
                 if (newVal) {
                     $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
@@ -328,6 +333,9 @@
                 init: function () {
                     $scope.searchPage.data = {
                         id:1,
+                        user:"",
+                        title:"",
+                        contractId:"",
                         limit: 10, //每页条数(即取多少条数据)
                         offset: 0, //从第几条数据开始取
                         orderBy: "updated",//排序字段
@@ -486,8 +494,10 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="详情" class="fa fa-list-alt" ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></i>'+
-                                     '<i class="fa fa-download" title="下载" ng-click="listPage.action.down(\'' + mData + '\')"></i>';
+
+                            //class="fa fa-list-alt" class="fa fa-download"
+                            return '<i><a title="详情"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></a></i>'+
+                                     '<i><a title="下载" ng-click="listPage.action.down(\'' + mData + '\')"></a></i>';
                                 // '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }
@@ -680,9 +690,9 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-
-                            return '<i title="启动流程" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')"></i>' +
-                                '<i title="删除" class="fa fa-trash-o" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+                            // class="fa fa-pencil fa-fw" class="fa fa-trash-o"
+                            return '<i><a title="启动流程"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')"></a></i>' +
+                                '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a></i>';
                         }
                     }
 
@@ -883,7 +893,7 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="申请单" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData+'\',\''+full.deployId + '\')"></i>';
+                            return '<i><a title="申请单" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData+'\',\''+full.deployId + '\')"></a></i>';
                                 // '<i title="查看详情" class="fa fa-list-alt" ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></i>';
                         }
                     }
@@ -1071,7 +1081,8 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="详情查看" class="fa fa-info" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.detail(\'' + mData+'\')"></i>';
+                            //class="fa fa-info"
+                            return '<i><a title="详情查看"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.detail(\'' + mData+'\')"></a></i>';
                             // '<i title="查看详情" class="fa fa-list-alt" ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></i>';
                         }
                     }
@@ -1344,8 +1355,9 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="处理" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')"></i>' +
-                                    '<i title="详情" class="fa fa-list-alt" ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></i>';
+                            //class="fa fa-pencil fa-fw" class="fa fa-list-alt"
+                            return '<i><a title="处理"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')"></a></i>' +
+                                    '<i><a title="详情"  ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></a></i>';
                         }
                     }
 
@@ -1378,7 +1390,23 @@
                 var html = '<i style="margin-top: 25px;" class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.file+'</i>'
                 $('#download').html(html);
             });
-            // $scope.uploadFile = function (){
+
+            $scope.uploadAttachment = function (){
+                $.ajaxFileUpload({
+                    method:"POST",
+                    url:"/template/custom",            //需要链接到服务器地址
+                    dataType: 'json',
+                    fileElementId:'fileAttachment',                        //文件选择框的id属性
+                    data:{id:$('#processInstanceId').val()},
+                    success: function(data,s, status){
+                        $('#sendStatus').text("上传成功");
+                        $('#custom').val(data.file);
+                    },error: function (data, status, e){
+                        $('#sendStatus').text("上传失败");
+                    }
+                });
+            };
+            // $scope.uploadAttachment = function (){
             //     $.ajaxFileUpload({
             //         method:"POST",
             //         url:"/template/batchImport",            //需要链接到服务器地址
@@ -1406,8 +1434,15 @@
                     $('#contract').val($scope.search.contract);
                     $('#processInstanceId').val($scope.search.processInstanceId);
                     $('#orderForm').html(data.data.templateHtml);
+
+
                     $scope.showCommit =  data.showCommit;
                     $scope.fields = data.fields;
+                    for(var i=0;i<data.fields.length;i++){
+                        if(data.fields[i].fieldType) {
+                            $('#'+data.fields[i].fieldMd5).attr('placeholder', data.fields[i].fieldType)
+                        }
+                    }
                     Loading.hide();
                 });
             }else if($scope.search.state=='update'){
@@ -1424,7 +1459,13 @@
                             $('#'+data.rows[j].key).val(data.rows[j].value);
                         }
                     }
+                    for(var i=0;i<data.fields.length;i++){
+                        if(data.fields[i] && data.fields[i].fieldMd5 && data.fields[i].fieldType) {
+                            $('#'+data.fields[i].fieldMd5).attr('placeholder', data.fields[i].fieldType)
+                        }
+                    }
                     $scope.showCommit =  data.showCommit;
+                    $('#refuseCause').text(data.refuse)
                     Loading.hide();
                 });
             };
@@ -1440,27 +1481,27 @@
                         $('#'+$scope.fields[i].fieldMd5).focus();
                         return;
                     }
-                    switch($scope.fields[i].fieldType){
-                        case 'D':
-                            if (isNaN( $('#'+$scope.fields[i].fieldMd5).val())){
-                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                                $('#'+$scope.fields[i].fieldMd5).focus();
-                                return;
-                            }
-                            break;
-                        case 'T':
-                            break;
-                        case 'YYYYMMDD':
-                            var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
-                            if(r==null){
-                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                                $('#'+$scope.fields[i].fieldMd5).focus();
-                                return;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    // switch($scope.fields[i].fieldType){
+                    //     case 'D':
+                    //         if (isNaN( $('#'+$scope.fields[i].fieldMd5).val())){
+                    //             toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                    //             $('#'+$scope.fields[i].fieldMd5).focus();
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case 'T':
+                    //         break;
+                    //     case 'YYYYMMDD':
+                    //         var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
+                    //         if(r==null){
+                    //             toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                    //             $('#'+$scope.fields[i].fieldMd5).focus();
+                    //             return;
+                    //         }
+                    //         break;
+                    //     default:
+                    //         break;
+                    // }
                 }
                 var params = $("#orderFormInfo").serializeArray();
                 var values = {workStatus:$('#workStatus').val()};
@@ -1536,7 +1577,7 @@
             }
 
         }])
-        .controller('process.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster) {
+        .controller('process.controller', ['$scope','$location','$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster) {
             $scope.search = $location.search();
             $scope.pageID = {};
             $scope.pageDialog=Tools.dialog({
@@ -1582,6 +1623,7 @@
                 //部署流程编号、模板编号
                 // $scope.description = name;
                 $scope.sites = data.rows;
+                $scope.deploys = data.deploys;
             });
             $scope.listPage = {
                 data: [],
@@ -1593,8 +1635,9 @@
                     add: function (id) {
                         $scope.pageDialog.show();
                     },
-                    start:function (id) {
-                            window.open("/index.html#/order?state=create&id=" + id + "&contract=" + $scope.row.rID, "_blank");
+                    start:function () {
+                            // window.open("/index.html#/order?state=create&id=" + id + "&contract=" + $scope.row.rID, "_blank");
+                            window.open("/index.html#/order?state=create&id=" + $scope.row.dID + "&contract=" + $scope.row.rID, "_blank");
                     },
                     edit: function (id) {
                     },

@@ -44,12 +44,12 @@ public class FormPropertiesServiceImpl implements FormPropertiesService {
     }
 
     @Override
-    public List<OAFormProperties> list(Integer offset, Integer limit, String templateName) {
-        return oaFormPropertiesMapper.list(offset,limit,templateName);
+    public List<OAFormProperties> list(Integer offset, Integer limit, String templateName,Integer templateId ) {
+        return oaFormPropertiesMapper.list(offset,limit,templateName,templateId);
     }
 
     @Override
-    public Integer count(String templateName) {
-        return oaFormPropertiesMapper.count(templateName);
+    public Integer count(String templateName,Integer templateId) {
+        return oaFormPropertiesMapper.count(templateName,templateId);
     }
 }

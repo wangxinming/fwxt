@@ -16,4 +16,6 @@ public interface ContractCirculationService {
     Integer delete(int id);
     List<ReportItem> count(Date startTime, Date endTime);
     Integer total(String contractStatus,String contractType,Date startTime, Date endTime);
+    Integer groupCount(Date startTime, Date endTime);
+    List<ReportItem> group(Date startTime, Date endTime, Integer offset,  Integer limit);
 }

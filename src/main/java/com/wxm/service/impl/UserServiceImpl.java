@@ -74,7 +74,11 @@ public class UserServiceImpl implements UserService {
         }
         return oaUser.getUserId();
     }
-
+    @Override
+    public Integer updateStatus(OAUser oaUser) {
+        oaUserMapper.updateByPrimaryKeySelective(oaUser);
+        return oaUser.getUserId();
+    }
     @Override
     public Integer updatePsw(OAUser oaUser) {
         oaUser.setUserCreatetime(null);

@@ -1,13 +1,14 @@
 package com.wxm.controller;
-import com.wxm.model.OAAudit;
-import com.wxm.model.OAContractCirculationWithBLOBs;
-import com.wxm.model.OAContractTemplate;
-import com.wxm.model.OAFormProperties;
+import com.wxm.model.*;
 import com.wxm.service.*;
 import com.wxm.util.HtmlProcess;
 import com.wxm.util.Md5Utils;
 import com.wxm.util.Word2Html;
 import com.wxm.util.exception.OAException;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,10 @@ public class WordTemplateController {
     private ContractCirculationService contractCirculationService;
     @Autowired
     private AuditService auditService;
+    @Autowired
+    private RepositoryService repositoryService;
+    @Autowired
+    private OAAttachmentService oaAttachmentService;
 
     @RequestMapping(value="/deleteWordTemplate",method= RequestMethod.DELETE,produces="application/json;charset=UTF-8")
     public Object deleteWordTemplate( HttpServletRequest request,
@@ -65,6 +70,7 @@ public class WordTemplateController {
 
     @RequestMapping(value="/fieldList",method= RequestMethod.GET,produces="application/json;charset=UTF-8")
     public Object fieldList( HttpServletRequest request,
+                             @RequestParam(value = "id", defaultValue = "0", required = true) Integer id,
                              @RequestParam(value = "offset", defaultValue = "0", required = true) Integer offset,
                              @RequestParam(value = "limit", defaultValue = "10", required = true) Integer limit,
                              @RequestParam(value = "templateName", defaultValue = "", required = false) String templateName
@@ -77,8 +83,8 @@ public class WordTemplateController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try {
-            result.put("rows", formPropertiesService.list(offset, limit, templateName));
-            result.put("total", formPropertiesService.count(templateName));
+            result.put("rows", formPropertiesService.list(offset, limit, templateName,id));
+            result.put("total", formPropertiesService.count(templateName,id));
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result","failed");
@@ -116,6 +122,27 @@ public class WordTemplateController {
         try {
             result.put("rows", concactTemplateService.listTemplate());
             result.put("total", concactTemplateService.count());
+
+            List<Deployment> deployments = repositoryService.createDeploymentQuery()
+                    .orderByDeploymenTime().desc()
+                    .list();
+
+            List<com.wxm.entity.Deployment> list = new ArrayList<>();
+            for(Deployment deployment: deployments){
+                com.wxm.entity.Deployment deploy= new com.wxm.entity.Deployment();
+                ProcessDefinition pf = repositoryService.createProcessDefinitionQuery().deploymentId(deployment.getId()).singleResult();
+                if(pf.isSuspended()) continue;
+                deploy.setStatus(pf.isSuspended()?0:1);
+                deploy.setVersion(new Integer(pf.getVersion()).toString());
+                deploy.setId(deployment.getId());
+                deploy.setName(deployment.getName());
+                deploy.setCategory(deployment.getCategory());
+                deploy.setDeploymentTime(deployment.getDeploymentTime());
+                deploy.setTenantId(deployment.getTenantId());
+
+                list.add(deploy);
+            }
+            result.put("deploys",list);
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result","failed");
@@ -160,9 +187,24 @@ public class WordTemplateController {
         }
         return null;
     }
-    //自定义文档处理
-    @RequestMapping(value="/custom",method= RequestMethod.POST)
-    public Object custom(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+
+    @RequestMapping(value = "/fileDelete", method = RequestMethod.DELETE)
+    @ResponseBody
+    public Object fileDelete( HttpServletRequest request){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        String id = request.getParameter("id");
+        oaAttachmentService.delete(Integer.parseInt(id));
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        return result;
+    }
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @ResponseBody
+    public Object upload(MultipartFile file, HttpServletRequest request){
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) {
             LOGGER.error("用户未登录");
@@ -171,16 +213,55 @@ public class WordTemplateController {
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         try {
-            String docName = file.getOriginalFilename();
-            File desFile = new File(contractPath + docName);
-            if (!desFile.getParentFile().exists()) {
-                desFile.mkdirs();
-            }
-            file.transferTo(desFile);
-            result.put("file", docName);
+            OAAttachment oaAttachment = new OAAttachment();
+            oaAttachment.setFileName(file.getOriginalFilename());
+            oaAttachment.setFileContent(file.getBytes());
+            Integer id = oaAttachmentService.save(oaAttachment);
+            result.put("id", id);
+//            File desFile = new File(contractPath + docName);
+//            if (!desFile.getParentFile().exists()) {
+//                desFile.mkdirs();
+//            }
+//            file.transferTo(desFile);
+//            result.put("file", docName);
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result","failed");
+        }
+        return result;
+    }
+
+    //自定义文档处理
+    @RequestMapping(value="/custom",method= RequestMethod.POST)
+    public Object custom(@RequestParam("fileAttachment")MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+
+        String contract = request.getParameter("processInstanceId");
+        if(StringUtils.isNotBlank(contract)){
+            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(contract);
+            OAContractCirculationWithBLOBs oaContract = new OAContractCirculationWithBLOBs();
+            oaContract.setContractId(oaContractCirculationWithBLOBs.getContractId());
+            oaContract.setContractPdf( file.getBytes());
+            contractCirculationService.update(oaContract);
+        }else {
+            try {
+                String docName = file.getOriginalFilename();
+                File desFile = new File( String.format("%s%s_%s",contractPath,new Date().getTime(),docName));
+                if (!desFile.getParentFile().exists()) {
+                    desFile.mkdirs();
+                }
+                file.transferTo(desFile);
+                result.put("file", docName);
+            } catch (Exception e) {
+                LOGGER.error("异常", e);
+                result.put("result", "failed");
+            }
         }
         return result;
     }
@@ -251,12 +332,14 @@ public class WordTemplateController {
             oaContractTemplate.setTemplateCreatetime(new Timestamp(System.currentTimeMillis()));
             oaContractTemplate.setUserId(loginUser.getId());
             oaContractTemplate.setTemplateName(fileName);
-            oaContractTemplate.setTemplateStatus(1);
+            oaContractTemplate.setTemplateStatus(0);
             concactTemplateService.insert(oaContractTemplate);
 
             int id = oaContractTemplate.getTemplateId();
             Pattern pattern = Pattern.compile("@@([\\s\\S]*?)!!");
             Matcher matcher = pattern.matcher(htmlStr);
+
+            String checkboxBefore = "<input type=\"checkbox\" style=\"display:none;height:10px;zoom:180%;\" name=\"";
 
             String before = "<input type=\"text\" style=\"border:none;border-bottom:1px solid #000;\" name=\"";
             String end = "\"/>";
@@ -268,6 +351,7 @@ public class WordTemplateController {
                 String length = tmp.substring(tmp.indexOf("##")+2,tmp.indexOf("!!"));
                 int start = matcher.start();
                 String name = "name_" + Md5Utils.getMd5(String.format("%s%s%s%s",var,type,length,start));
+                String checkbox = "checkbox_" + Md5Utils.getMd5(String.format("%s%s%s%s",var,type,length,start));
                 oaFormProperties.setFieldName(var);
                 oaFormProperties.setFieldMd5(name);
                 oaFormProperties.setTemplateId(id);
@@ -275,7 +359,7 @@ public class WordTemplateController {
                 oaFormProperties.setFieldValid(length);
                 oaFormProperties.setCreateTime(new Date());
                 formPropertiesService.insert(oaFormProperties);
-                String text = before+name+"\" id=\""+name+end;
+                String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s",before,name,name,end,checkboxBefore,checkbox,checkbox,end);
                 htmlStr = htmlStr.replace(tmp,text);
             }
             oaContractTemplate.setTemplateHtml(htmlStr);

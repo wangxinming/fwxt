@@ -35,7 +35,7 @@
             <div class="input-group">
                 <input type="text" class="form-control" maxlength="20" ng-model="searchPage.data.userName" placeholder="用户名模糊查询">
                 <span class="input-group-btn">
-                    <button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>
+                    <button class="btn blue" ng-click="searchPage.action.searchInfo()" type="button">查询</button>
                 </span>
                 <button type="button" class="btn" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.add()" ng-show="userLevel.indexOf('add')!=-1">新增</button>
             </div>

@@ -13,6 +13,15 @@ public class TaskInfo {
     private String executionId;//执行对象ID
     private String processDefinitionId;//流程定义ID
     private Integer workStatus;
+    private String duringTime;
+
+    public String getDuringTime() {
+        return duringTime;
+    }
+
+    public void setDuringTime(String duringTime) {
+        this.duringTime = duringTime;
+    }
 
     public void setId(String id){
         this.id = id;

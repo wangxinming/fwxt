@@ -12,6 +12,15 @@ public class GroupInfo {
     private String description;
     private String flow;
     private String task;
+    private String attachment;
+
+    public String getAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(String attachment) {
+        this.attachment = attachment;
+    }
 
     public Integer getStatus() {
         return status;

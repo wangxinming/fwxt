@@ -7,6 +7,7 @@ import com.wxm.service.ContractCirculationService;
 import com.wxm.util.exception.OAException;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricVariableInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,6 +110,41 @@ public class ReportController {
 
                 result.put("result","success");
                 result.put("data",reportEntity);
+            }catch (Exception e){
+                result.put("result","failed");
+                LOGGER.error("参数异常",e);
+            }
+        }
+        return result;
+    }
+
+
+    @RequestMapping(value = "/rejectReport",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object rejectReport(HttpServletRequest request,
+                       @RequestParam(value = "offset", defaultValue = "0", required = false) Integer offset,
+                       @RequestParam(value = "limit", defaultValue = "10", required = false) Integer limit,
+                       @RequestParam(value = "startTime", required = true) String startTime,
+                       @RequestParam(value = "endTime", required = true) String endTime)throws Exception{
+
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        Date start=null,end=null;
+        if(StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)){
+            start = null;
+            end = null;
+        }else{
+            try {
+                SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                start = time.parse(startTime);
+                end = time.parse(endTime);
+                List<ReportItem> reportItems = contractCirculationService.group(start,end,offset,limit);
+                result.put("rows",reportItems);
+                result.put("total",contractCirculationService.groupCount(start,end));
             }catch (Exception e){
                 result.put("result","failed");
                 LOGGER.error("参数异常",e);

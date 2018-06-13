@@ -8,6 +8,7 @@
     <result column="FIELD_MD5" property="fieldMd5" jdbcType="NVARCHAR" />
     <result column="FIELD_TYPE" property="fieldType" jdbcType="NVARCHAR" />
     <result column="FIELD_VALID" property="fieldValid" jdbcType="NVARCHAR" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
     <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
   </resultMap>
   <resultMap id="BaseResultMapTemplateName" type="com.wxm.model.OAFormProperties" >
@@ -18,11 +19,12 @@
     <result column="FIELD_MD5" property="fieldMd5" jdbcType="NVARCHAR" />
     <result column="FIELD_TYPE" property="fieldType" jdbcType="NVARCHAR" />
     <result column="FIELD_VALID" property="fieldValid" jdbcType="NVARCHAR" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
     <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
   </resultMap>
 
   <sql id="Base_Column_List" >
-    PROPERTIES_ID, TEMPLATE_ID, FIELD_NAME,FIELD_MD5, FIELD_TYPE, FIELD_VALID, CREATE_TIME
+    PROPERTIES_ID, TEMPLATE_ID, FIELD_NAME,FIELD_MD5, FIELD_TYPE, FIELD_VALID,STATUS, CREATE_TIME
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -39,11 +41,17 @@
     <if test="templateName != null">
     AND TEMPLATE_NAME like CONCAT('%',#{templateName},'%' )
     </if>
+    <if test="templateId != 0" >
+      AND TEMPLATE_ID = #{templateId,jdbcType=INTEGER}
+    </if>
     ) ORDER BY PROPERTIES_ID ASC)
     AND properties.TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE
     where 1=1
     <if test="templateName != null">
     AND TEMPLATE_NAME like CONCAT('%',#{templateName},'%' )
+    </if>
+    <if test="templateId != 0" >
+      AND TEMPLATE_ID = #{templateId,jdbcType=INTEGER}
     </if>
     ) and properties.TEMPLATE_ID = template.TEMPLATE_ID
     ORDER BY properties.PROPERTIES_ID ASC
@@ -64,6 +72,9 @@
     <if test="templateName != null" >
       AND TEMPLATE_ID IN (SELECT TEMPLATE_ID from OA_CONTRACT_TEMPLATE where TEMPLATE_NAME like CONCAT('%',#{templateName},'%' ))
     </if>
+    <if test="templateId != 0" >
+      AND TEMPLATE_ID = #{templateId,jdbcType=INTEGER}
+    </if>
   </select>
 <select id="listByTemplateId" resultMap="BaseResultMap">
     SELECT
@@ -81,10 +92,10 @@
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAFormProperties" useGeneratedKeys="true"  keyProperty = "propertiesId" keyColumn = "PROPERTIES_ID">
     insert into OA_FORM_PROPERTIES (PROPERTIES_ID, TEMPLATE_ID, FIELD_NAME, FIELD_MD5
-      FIELD_TYPE, FIELD_VALID, CREATE_TIME
+      FIELD_TYPE, FIELD_VALID,STATUS, CREATE_TIME
       )
     values (#{propertiesId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{fieldName,jdbcType=NVARCHAR}, #{FIELD_MD5,jdbcType=NVARCHAR},
-      #{fieldType,jdbcType=NVARCHAR}, #{fieldValid,jdbcType=NVARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      #{fieldType,jdbcType=NVARCHAR}, #{fieldValid,jdbcType=NVARCHAR},  #{status,jdbcType=INTEGER},#{createTime,jdbcType=TIMESTAMP}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wxm.model.OAFormProperties" useGeneratedKeys="true"  keyProperty = "propertiesId" keyColumn = "PROPERTIES_ID">
@@ -107,6 +118,9 @@
       </if>
       <if test="fieldValid != null" >
         FIELD_VALID,
+      </if>
+      <if test="status != null" >
+        STATUS,
       </if>
       <if test="createTime != null" >
         CREATE_TIME,
@@ -131,6 +145,9 @@
       <if test="fieldValid != null" >
         #{fieldValid,jdbcType=NVARCHAR},
       </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -154,6 +171,9 @@
       <if test="fieldValid != null" >
         FIELD_VALID = #{fieldValid,jdbcType=NVARCHAR},
       </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
       <if test="createTime != null" >
         CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -167,6 +187,7 @@
       FIELD_Md5 = #{fieldMd5,jdbcType=NVARCHAR},
       FIELD_TYPE = #{fieldType,jdbcType=NVARCHAR},
       FIELD_VALID = #{fieldValid,jdbcType=NVARCHAR},
+      STATUS = #{status,jdbcType=INTEGER},
       CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
     where PROPERTIES_ID = #{propertiesId,jdbcType=INTEGER}
   </update>

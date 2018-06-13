@@ -17,7 +17,17 @@ public class OAFormProperties {
 
     private String fieldValid;
 
+    private Integer  status;
+
     private Date createTime;
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
 
     public String getTemplateName() {
         return templateName;

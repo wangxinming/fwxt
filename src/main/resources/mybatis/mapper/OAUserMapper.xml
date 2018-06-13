@@ -51,11 +51,11 @@
     select top ${limit} * from OA_USER oa_user where oa_user.USER_ID not
     in(select top ${offset} USER_ID from OA_USER  where 1=1
     <if test="userName != null">
-      AND USER_NAME like CONCAT('%',#{userName},'%' )
+      AND USER_NAME like CONCAT('%',#{userName},'%' ) or USER_EMAIL like CONCAT('%',#{userName},'%' ) or USER_MOBILE like CONCAT('%',#{userName},'%' )
     </if>
     ORDER BY USER_ID ASC)
     <if test="userName != null" >
-      AND oa_user.USER_NAME like CONCAT('%',#{userName},'%' )
+      AND oa_user.USER_NAME like CONCAT('%',#{userName},'%' ) or USER_EMAIL like CONCAT('%',#{userName},'%' ) or USER_MOBILE like CONCAT('%',#{userName},'%' )
     </if>
     ORDER BY oa_user.USER_ID
   </select>
@@ -63,7 +63,7 @@
     SELECT  count(*)
     from OA_USER where 1=1
     <if test="userName != null" >
-      AND USER_NAME like CONCAT('%',#{userName},'%' )
+      AND USER_NAME like CONCAT('%',#{userName},'%' ) or USER_EMAIL like CONCAT('%',#{userName},'%' ) or USER_MOBILE like CONCAT('%',#{userName},'%' )
     </if>
   </select>
 

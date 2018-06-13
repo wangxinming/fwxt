@@ -28,4 +28,9 @@ public class GroupServiceImpl implements GroupService{
         OAGroup group = new OAGroup(groupName,userId,privilegeids,describe,status);
         return oaGroupMapper.insertSelective(group);
     }
+
+    @Override
+    public OAGroup getGroupById(Integer groupId) {
+        return oaGroupMapper.selectByPrimaryKey(groupId);
+    }
 }

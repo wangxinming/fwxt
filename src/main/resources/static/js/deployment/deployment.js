@@ -43,6 +43,7 @@
                     }
                 }
             };
+
             $scope.listPage = {
                 data: [],
                 checkedList: [],
@@ -136,9 +137,10 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil fa-fw"  ng-click="listPage.action.update(\'' + mData + '\')"></i>' +
-                                    '<i title="删除" ng-hide="loginUserMenuMap[currentView]" class="fa fa-trash-o"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>' +
-                                    '<i title="发布" ng-hide="loginUserMenuMap[currentView]" class="fa fa-cog fa-fw" ng-click="listPage.action.publish(\'' + mData + '\')"></i>';
+                            //class="fa fa-pencil fa-fw" class="fa fa-trash-o"  class="fa fa-cog fa-fw"
+                            return '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')"></a></i>' +
+                                    '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a></i>' +
+                                    '<i><a title="发布" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.publish(\'' + mData + '\')"></a>';
                         }
                     }
 
@@ -166,7 +168,7 @@
             }, true);
 
         }])
-        .controller('upload.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $rootScope,loader,Util,Tools,Loading,toaster) {
+        .controller('upload.controller', ['$scope','$location', '$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope,$location, $rootScope,loader,Util,Tools,Loading,toaster) {
             /** 验证文件是否导入成功  */
             $("#uploadForm").ajaxForm(function(data){
                 $scope.listPage.settings.reload()
@@ -291,7 +293,12 @@
                         })
                     },
                     add: function () {
+                        $('#templateName').removeAttr("disabled");
                         $scope.pageDialog.show();
+                    },
+                    fieldsList: function(id){
+                        window.location.href = "/index.html#/form?id="+id;
+                            // $location.path("/index.html#/form?id="+id);
                     },
                     remove:function (id) {
                         $rootScope.$confirm("确定要删除吗？", function () {
@@ -316,6 +323,19 @@
                             $('#templateName').val(data.data.templateName);
                             // $('#templateDes').val(data.data.des);
                             $('#htmlTemplateText').val(data.data.templateHtml);
+                            $('#htmlTemplate').html($('#htmlTemplateText').val());
+                            $("input[type=checkbox]").show();
+                            for(var i=0;i<data.fields.length;i++){
+                                if(data.fields[i].status == 1){
+                                    $('#checkbox'+data.fields[i].fieldMd5.substring(4)).prop("checked",true);
+                                }
+                            }
+                            if(data.data.templateStatus == 1){
+                                $('#templateName').attr("disabled","disabled");
+                            }else{
+                                $('#templateName').removeAttr("disabled");
+                            }
+
                             Loading.hide();
                         });
                         $scope.pageDialog.show();
@@ -400,9 +420,11 @@
                         sTitle: "操作",
                         mData:"templateId",
                         mRender:function(mData,type,full) {
-                            return '<i title="编辑" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')"></i>' +
-                                '<i title="'+(full.templateStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.templateStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.templateStatus==1?'false':'true')+',\''+mData+'\')"></i>'+
-                                '<i title="删除" class="fa fa-trash-o" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>'
+                            // class="fa fa-pencil fa-fw"  class="fa fa-key"  class="'+(full.templateStatus==1?'fa fa-stop':'fa fa-play')+'" class="fa fa-trash-o"
+                            return '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')"></a></i>' +
+                                '<i><a title="模板字段"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.fieldsList(\'' + mData + '\')"></a></i>' +
+                                '<i><a title="'+(full.templateStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.active('+(full.templateStatus==1?'false':'true')+',\''+mData+'\')">'+(full.templateStatus==1?'停用':'启用')+'</a></i>'+
+                                '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a></i>'
                                 // '<i title="发布" class="fa fa-cog fa-fw" ng-show=userLevel.indexOf("publish")!=-1  ng-click="listPage.action.publish(\'' + mData + '\')"></i>';
                         }
                     }
@@ -435,6 +457,14 @@
         }])
         .controller('deployment.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $rootScope,loader,Util,Tools,Loading,toaster) {
             $scope.row = {};
+
+            $scope.pageDialogDetail = Tools.dialog({
+                id:"pageDialogDetail",
+                title:"预览",
+                hiddenButton:true,
+                save:function(){
+                }
+            });
             $scope.pageDialog=Tools.dialog({
                 id:"pageDialog",
                 title:"新增",
@@ -505,6 +535,17 @@
                     },
                     add: function (id) {
                         $scope.pageDialog.show();
+                    },
+                    browse:function (id) {
+                        $scope.hash="/workflow/process/previewImage?depId="+id;
+                        Loading.show();
+                        loader.previewInfo({"depId":id},function(data){
+                            if(data.result == "success") {
+                                $scope.details = data.flows;
+                            }
+                            Loading.hide();
+                        })
+                        $scope.pageDialogDetail.show();
                     },
                     edit: function (dID,rID,name) {
                         $scope.pageDialog.title="关联word模板";
@@ -614,9 +655,11 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
+                            //class="fa fa-key" class="'+(full.status==1?'fa fa-stop':'fa fa-play')+'"  class="fa fa-trash-o"
                             // return '<i title="关联模板" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + full.id  +'\','+ full.oacontractTemplate.templateId +',\''+ full.oacontractTemplate.templateName+ '\')"></i>' +
-                            return '<i title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.status==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\')"></i>'+
-                                    '<i title="删除" class="fa fa-trash-o" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+                            return '<i><a title="预览" ng-hide="loginUserMenuMap[currentView]"   ng-click="listPage.action.browse(\'' + mData + '\')"></a></i>' +
+                                    '<i><a title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\')"></a></i>'+
+                                    '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a><';
                         }
                     }
 

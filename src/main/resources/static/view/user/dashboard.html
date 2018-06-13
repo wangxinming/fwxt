@@ -22,39 +22,66 @@
                     </div>
                 </a>
                 <a href="/index.html#/complete">
-                <div class="col-md-4 ticket-grid">
-                    <div class="tickets">
-                        <div class="grid-left">
-                            <div class="book-icon">
-                                <i class="fa fa-bell"></i>
+                    <div class="col-md-4 ticket-grid">
+                        <div class="tickets">
+                            <div class="grid-left">
+                                <div class="book-icon">
+                                    <i class="fa fa-bell"></i>
+                                </div>
                             </div>
+                            <div class="grid-right">
+                                <h3><span>归档合同</span></h3>
+                                <p id="myComplete">0</p>
+                            </div>
+                            <div class="clearfix"> </div>
                         </div>
-                        <div class="grid-right">
-                            <h3><span>归档合同</span></h3>
-                            <p id="myComplete">0</p>
-                        </div>
-                        <div class="clearfix"> </div>
                     </div>
-                </div>
                 </a>
                 <a href="/index.html#/initiator">
-                <div class="col-md-4 ticket-grid">
-                    <div class="tickets">
-                        <div class="grid-left">
-                            <div class="book-icon">
-                                <i class="fa fa-tasks"></i>
+                    <div class="col-md-4 ticket-grid">
+                        <div class="tickets">
+                            <div class="grid-left">
+                                <div class="book-icon">
+                                    <i class="fa fa-tasks"></i>
+                                </div>
                             </div>
+                            <div class="grid-right">
+                                <h3> <span>我的申请</span></h3>
+                                <p id="initiator">0</p>
+                            </div>
+                            <div class="clearfix"> </div>
                         </div>
-                        <div class="grid-right">
-                            <h3> <span>我的申请</span></h3>
-                            <p id="initiator">0</p>
-                        </div>
-                        <div class="clearfix"> </div>
                     </div>
-                </div>
                 </a>
                 <div class="clearfix"> </div>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div style="margin-top: 0px;" class="col-md-6">
+            <table width="60%" style="border-style: solid;border-width: 1px 1px 1px;">
+                <tr>
+                    <th>待办合同</th>
+                </tr>
+                <tr ng-repeat="x in pendingList">
+                    <td>{{ x.title }}</td>
+                </tr>
+            </table>
+        </div>
+        <div style="margin-top: 0px;" class="col-md-6">
+            <table width="100%" style="border-style: solid;border-width: 1px 1px 1px;">
+                <tr>
+                    <th>我的申请</th>
+                    <th>当前审批人</th>
+                    <th>停留时间</th>
+                </tr>
+
+                <tr ng-repeat="x in initiatorList">
+                    <td>{{ x.title }}</td>
+                    <td>{{ x.assignee}}</td>
+                    <td>{{ x.duringTime }}</td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>

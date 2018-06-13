@@ -69,6 +69,11 @@ public class loginController {
     @ResponseBody
     public void logOut(HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) return;
+        OAUser oaUserUpdate = new OAUser();
+        oaUserUpdate.setUserId(loginUser.getId());
+        oaUserUpdate.setParentId(0);
+        userService.updateStatus(oaUserUpdate);
 //        if(null == loginUser) throw new OAException(1101,"用户未登录");
         request.getSession().removeAttribute("isLogin");
         request.getSession().removeAttribute("loginUser");

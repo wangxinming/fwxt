@@ -6,6 +6,7 @@ public class OAContractCirculation {
     private Integer contractId;
 
     private Integer templateId;
+    private Integer contractReopen;
 
     private String processInstanceId;
 
@@ -20,6 +21,14 @@ public class OAContractCirculation {
     private String description;
 
     private Date createTime;
+
+    public Integer getContractReopen() {
+        return contractReopen;
+    }
+
+    public void setContractReopen(Integer contractReopen) {
+        this.contractReopen = contractReopen;
+    }
 
     public String getProcessInstanceId() {
         return processInstanceId;

@@ -1,0 +1,22 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<div dialog info="pageDialogDetail" data="addPageDetail.data" class="ldialog">
+    <div style="height: 130px;">
+        <img style="width: 100%" ng-src="{{hash}}"/>
+    </div>
+    <div style="margin-top: 30px;">
+        <table width="100%">
+            <tr>
+                <th>审批环节</th>
+                <th>审批人</th>
+            </tr>
+
+            <tr ng-repeat="x in details">
+                <td>{{ x.name }}</td>
+                <td>{{ x.value }}</td>
+            </tr>
+        </table>
+    </div>
+</div>

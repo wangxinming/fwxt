@@ -51,4 +51,14 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     public Integer total(String contractStatus,String contractType,Date startTime, Date endTime) {
         return oaContractCirculationMapper.total(contractStatus,contractType,startTime,endTime);
     }
+
+    @Override
+    public Integer groupCount(Date startTime, Date endTime) {
+        return oaContractCirculationMapper.groupCount(startTime,endTime);
+    }
+
+    @Override
+    public List<ReportItem> group(Date startTime, Date endTime,Integer offset,Integer limit) {
+        return oaContractCirculationMapper.group(startTime,endTime,offset,limit);
+    }
 }

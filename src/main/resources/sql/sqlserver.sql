@@ -31,6 +31,7 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'用户表', N'user', N'dbo',
 /* 字段注释 */
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_USER', N'column', N'USER_ID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户名称', N'user', N'dbo', N'table', N'OA_USER', N'column', N'USER_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'用户组编号', N'user', N'dbo', N'table', N'OA_USER', N'column', N'GROUP_ID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户手机号码', N'user', N'dbo', N'table', N'OA_USER', N'column', N'USER_MOBILE';
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户邮箱地址', N'user', N'dbo', N'table', N'OA_USER', N'column', N'USER_EMAIL';
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户密码', N'user', N'dbo', N'table', N'OA_USER', N'column', N'USER_PWD';
@@ -123,6 +124,7 @@ CREATE TABLE OA_FORM_PROPERTIES
   FIELD_MD5     NVARCHAR(255) NOT NULL,
   FIELD_TYPE    NVARCHAR(255),
   FIELD_VALID   NVARCHAR(255),
+  STATUS        INT,
   CREATE_TIME   DATETIME
 )
 GO
@@ -133,6 +135,7 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'合同模板表单项', N'us
 EXECUTE sp_addextendedproperty N'MS_Description', N'表单项编号', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'PROPERTIES_ID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同模板编号', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'TEMPLATE_ID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'表单项名称', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'FIELD_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'表单项唯一值', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'FIELD_MD5';
 EXECUTE sp_addextendedproperty N'MS_Description', N'表单项类型', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'FIELD_TYPE';
 EXECUTE sp_addextendedproperty N'MS_Description', N'表单项校验规则', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'FIELD_VALID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'表单项创建时间', N'user', N'dbo', N'table', N'OA_FORM_PROPERTIES', N'column', N'CREATE_TIME';
@@ -147,6 +150,7 @@ CREATE TABLE OA_CONTRACT_CIRCULATION
 (
   CONTRACT_ID     INT IDENTITY PRIMARY KEY,
   TEMPLATE_ID     NVARCHAR(255),
+  CONTRACT_REOPEN INT,
   PROCESSINSTANCE_ID NVARCHAR(255) not null,
   CONTRACT_NAME   NVARCHAR(255),
   USER_ID         INT,
@@ -163,13 +167,15 @@ GO
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同流转表', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', NULL, NULL;
 /* 字段注释 */
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同编号', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'模板编号', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'TEMPLATE_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'流程实例编号', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'PROCESSINSTANCE_ID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同名称', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_NAME';
 EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'USER_ID';
-EXECUTE sp_addextendedproperty N'MS_Description', N'合同状态', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_STATUS';
-EXECUTE sp_addextendedproperty N'MS_Description', N'合同开工状态', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'WORK_STATUS';
+EXECUTE sp_addextendedproperty N'MS_Description', N'合同流转状态', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_STATUS';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同描述', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'DESCRIPTION';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同原始HTML', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_HTML';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同PDF', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CONTRACT_PDF';
+EXECUTE sp_addextendedproperty N'MS_Description', N'开工状态', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'WORK_STATUS';
 EXECUTE sp_addextendedproperty N'MS_Description', N'合同创建时间', N'user', N'dbo', N'table', N'OA_CONTRACT_CIRCULATION', N'column', N'CREATE_TIME';
 
 if exists ( select *
@@ -194,30 +200,30 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'操作内容', N'user', N'db
 EXECUTE sp_addextendedproperty N'MS_Description', N'操作时间', N'user', N'dbo', N'table', N'OA_AUDIT', N'column', N'CREATE_TIME';
 
 
-if exists ( select *
- from  sysobjects
- where name = 'OA_ORGANIZATION'
- and type = 'U')
- drop table OA_ORGANIZATION
-go
-CREATE TABLE OA_ORGANIZATION
-(
-  ORGANIZATION_ID     INT IDENTITY PRIMARY KEY,
-  ORGANIZATION_NAME     NVARCHAR(255),
-  USER_ID     INT,
-  DESCRIBE         NVARCHAR(500),
-  CREATE_TIME     DATETIME
-)
-
-GO
-/* 表注释 */
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_ORGANIZATION', NULL, NULL;
-/* 字段注释 */
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_ID';
-EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_NAME';
-EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'USER_ID';
-EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'DESCRIBE';
-EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'CREATE_TIME';
+-- if exists ( select *
+--  from  sysobjects
+--  where name = 'OA_ORGANIZATION'
+--  and type = 'U')
+--  drop table OA_ORGANIZATION
+-- go
+-- CREATE TABLE OA_ORGANIZATION
+-- (
+--   ORGANIZATION_ID     INT IDENTITY PRIMARY KEY,
+--   ORGANIZATION_NAME     NVARCHAR(255),
+--   USER_ID     INT,
+--   DESCRIBE         NVARCHAR(500),
+--   CREATE_TIME     DATETIME
+-- )
+--
+-- GO
+-- /* 表注释 */
+-- EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N'dbo', N'table', N'OA_ORGANIZATION', NULL, NULL;
+-- /* 字段注释 */
+-- EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_ID';
+-- EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'ORGANIZATION_NAME';
+-- EXECUTE sp_addextendedproperty N'MS_Description', N'用户编号', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'USER_ID';
+-- EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'DESCRIBE';
+-- EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ORGANIZATION', N'column', N'CREATE_TIME';
 
 if exists ( select *
  from  sysobjects
@@ -242,7 +248,9 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'组织机构表', N'user', N
 EXECUTE sp_addextendedproperty N'MS_Description', N'组织编号', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'GROUP_ID';
 EXECUTE sp_addextendedproperty N'MS_Description', N'组织名称', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'GROUP_NAME';
 EXECUTE sp_addextendedproperty N'MS_Description', N'创建组用户编号', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'USER_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'权限信息记录', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'PRIVILEGEIDS';
 EXECUTE sp_addextendedproperty N'MS_Description', N'描述信息', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'DESCRIBE';
+EXECUTE sp_addextendedproperty N'MS_Description', N'组启用状态', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'STATUS';
 EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_GROUP', N'column', N'CREATE_TIME';
 
 if exists ( select *
@@ -336,25 +344,48 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'公司负责人手机号码'
 EXECUTE sp_addextendedproperty N'MS_Description', N'公司状态', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'COMPANY_STATUS';
 EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ENTERPRISE', N'column', N'CREATE_TIME';
 
-/*表注释*/
-SELECT [ColumnName] = [Columns].name ,
-       [Description] = [Properties].value,
-       [SystemTypeName] = [Types].name ,
-       [Precision] = [Columns].precision ,
-       [Scale] = [Columns].scale ,
-       [MaxLength] = [Columns].max_length ,
-       [IsNullable] = [Columns].is_nullable ,
-       [IsRowGUIDCol] = [Columns].is_rowguidcol ,
-       [IsIdentity] = [Columns].is_identity ,
-       [IsComputed] = [Columns].is_computed ,
-       [IsXmlDocument] = [Columns].is_xml_document
-FROM    sys.tables AS [Tables]
-  INNER JOIN sys.columns AS [Columns] ON [Tables].object_id = [Columns].object_id
-  INNER JOIN sys.types AS [Types] ON [Columns].system_type_id = [Types].system_type_id
-                                     AND is_user_defined = 0
-                                     AND [Types].name <> 'sysname'
-  LEFT OUTER JOIN sys.extended_properties AS [Properties] ON [Properties].major_id = [Tables].object_id
-                                                             AND [Properties].minor_id = [Columns].column_id
-                                                             AND [Properties].name = 'MS_Description'
-WHERE   [Tables].name ='OA_USER' -- and [Columns].name = '字段名'
-ORDER BY [Columns].column_id
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_ATTACHMENT'
+ and type = 'U')
+ drop table OA_ATTACHMENT
+go
+CREATE TABLE OA_ATTACHMENT
+(
+  ATTACHMENT_ID       INT IDENTITY PRIMARY KEY,
+  CONTRACT_ID         INT,
+  FILE_NAME            NVARCHAR(100),
+  FILE_CONTENT        IMAGE,
+  CREATE_TIME      DATETIME
+)
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'附件信息表', N'user', N'dbo', N'table', N'OA_ATTACHMENT', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'附件编号', N'user', N'dbo', N'table', N'OA_ATTACHMENT', N'column', N'ATTACHMENT_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'合同编号', N'user', N'dbo', N'table', N'OA_ATTACHMENT', N'column', N'CONTRACT_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'附件名称', N'user', N'dbo', N'table', N'OA_ATTACHMENT', N'column', N'FILE_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'附件内容', N'user', N'dbo', N'table', N'OA_ATTACHMENT', N'column', N'FILE_CONTENT';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ATTACHMENT', N'column', N'CREATE_TIME';
+-- /*表注释*/
+-- SELECT [ColumnName] = [Columns].name ,
+--        [Description] = [Properties].value,
+--        [SystemTypeName] = [Types].name ,
+--        [Precision] = [Columns].precision ,
+--        [Scale] = [Columns].scale ,
+--        [MaxLength] = [Columns].max_length ,
+--        [IsNullable] = [Columns].is_nullable ,
+--        [IsRowGUIDCol] = [Columns].is_rowguidcol ,
+--        [IsIdentity] = [Columns].is_identity ,
+--        [IsComputed] = [Columns].is_computed ,
+--        [IsXmlDocument] = [Columns].is_xml_document
+-- FROM    sys.tables AS [Tables]
+--   INNER JOIN sys.columns AS [Columns] ON [Tables].object_id = [Columns].object_id
+--   INNER JOIN sys.types AS [Types] ON [Columns].system_type_id = [Types].system_type_id
+--                                      AND is_user_defined = 0
+--                                      AND [Types].name <> 'sysname'
+--   LEFT OUTER JOIN sys.extended_properties AS [Properties] ON [Properties].major_id = [Tables].object_id
+--                                                              AND [Properties].minor_id = [Columns].column_id
+--                                                              AND [Properties].name = 'MS_Description'
+-- WHERE   [Tables].name ='OA_USER' -- and [Columns].name = '字段名'
+-- ORDER BY [Columns].column_id

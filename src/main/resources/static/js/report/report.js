@@ -14,9 +14,95 @@
                 .when('/privateReport', {
                 templateUrl: 'view/report/privateReport.html',
                 controller: 'privateReport.controller'})
+                .when('/rejectReport', {
+                    templateUrl: 'view/report/rejectReport.html',
+                    controller: 'rejectReport.controller'})
                 .when('/fawuReport', {
                     templateUrl: 'view/report/fawuReport.html',
                     controller: 'fawuReport.controller'});
+        }])
+        .controller('rejectReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+            var current = new Date();
+            $scope.searchPage = {
+                data: {
+                    startTime: $filter('date')(new Date(current.getTime() - 60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        startTime: $filter('date')(new Date(current.getTime() - 60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        limit: 10, //每页条数(即取多少条数据)
+                        offset: 0 //从第几条数据开始取
+                    }
+                },
+                action:{
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    search: function (search, fnCallback) {
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        $scope.searchPage.data.offset = search.offset;
+                        loader.rejectReport($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+                    }
+                }
+            };
+            $scope.searchPage.init();
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "用户",
+                        mData: "name",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "拒绝次数",
+                        mData: "y",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    }
+
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1]},  //第 0,10列不可排序
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
         }])
         .controller('fawuReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
             $scope.chartSeries = [{

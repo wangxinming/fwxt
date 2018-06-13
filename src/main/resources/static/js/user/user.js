@@ -344,6 +344,8 @@
                 deploymentContract: {method:'GET',url:"/api/deployments/deploymentContract", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 getTemplateHtml: {method:'GET',url:"/api/deployments/html", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 getTemplateHtmlHistory: {method:'GET',url:"/api/deployments/htmlHistory", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取审批人名字
+                previewInfo: {method:'GET',url:"/workflow/process/previewInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 commitTemplateHtml: {method:'POST',url:"/api/deployments/commitHtml", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 modeler: {method:'GET',url:"/api/deployments/modelerList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新模板关系表
@@ -398,6 +400,9 @@
                 removeDeployment: {method: "DELETE", url:  "/api/deployments/remove", isArray: false},
                 //获取word模板列表
                 getTemplateList: {method: "GET", url:  "template/templateList", isArray: false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                //获取
+                rejectReport: {method:'GET',url:"/report/rejectReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取word模板列表,所有
                 getTemplateListTotal: {method: "GET", url:  "template/templateListTotal", isArray: false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //登录菜单
@@ -414,6 +419,8 @@
                         $('#myPending').text(data.myPending);
                         $('#myComplete').text(data.myComplete);
                         $('#initiator').text(data.initiator);
+                        $scope.pendingList = data.pendingList;
+                        $scope.initiatorList = data.initiatorList;
                     }
                     Loading.hide();
                 }, function (error) {
@@ -707,10 +714,11 @@
                         sTitle: "操作",
                         mData:"enterpriseId",
                         mRender:function(mData,type,full) {
-                            return  '<i title="编辑"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                            //class="fa fa-pencil" class="fa fa-trash-o" class="'+(full.companyStatus==1?'fa fa-stop':'fa fa-play')+'"
+                            return  '<i><a title="编辑"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + mData +'\')">编辑</a></i>' +
                                 // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
-                                '<i title="删除"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>'+
-                                '<i title="'+(full.companyStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.companyStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.companyStatus==1?'false':'true')+',\''+mData+'\',\''+full.companyStatus+'\')"></i>';
+                                '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>'+
+                                '<i><a title="'+(full.companyStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.companyStatus==1?'false':'true')+',\''+mData+'\',\''+full.companyStatus+'\')">'+(full.companyStatus==1?'停用':'启用')+'</a></i>';
                             // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
@@ -1062,10 +1070,11 @@
                         sTitle: "操作",
                         mData:"groupId",
                         mRender:function(mData,type,full) {
-                            return  '<i title="编辑"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                            //class="fa fa-pencil" class="fa fa-trash-o" class="'+(full.status==1?'fa fa-stop':'fa fa-play')+'"
+                            return  '<i><a title="编辑"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + mData +'\')"> </a></i>' +
                                 // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
-                                    '<i title="删除"  ng-hide="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>'+
-                                    '<i title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.status==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\',\''+full.status+'\')"></i>';
+                                    '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a></i>'+
+                                    '<i><a title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\',\''+full.status+'\')"></a></i>';
                                 // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
@@ -1347,9 +1356,16 @@
             });
             $scope.addPage={
                 init:function(){
-                    $scope.addPage.data={userStatus:true}
+                    $scope.addPage.data={
+                        userName:"",
+                        userPwd:"",
+                        userMobile:'',
+                        userStatus:true}
                 },
                 data: {
+                    userName:"",
+                    userPwd:"",
+                    userMobile:'',
                     userStatus:true
                 }
             };
@@ -1368,6 +1384,21 @@
                     }
                 },
                 action:{
+                    searchInfo:function () {
+                        loader.userList($scope.searchPage.data, function (data) {
+                            if(data.total == 0 ){
+                                $rootScope.$confirm("查询不到该人", function () {
+                                }, '确认');
+                            }else{
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+
+                        // $scope.listPage.settings.reload(true);
+                    },
                     search:function () {
                         $scope.listPage.settings.reload(true);
                     }
@@ -1503,7 +1534,7 @@
                         }, function (error) {
                             Loading.hide();
 
-                        })
+                        });
                     }
                 }
             };
@@ -1515,14 +1546,13 @@
             };
             var resolve = function (mData, type, full) {
                 if (mData == 1) {
-                    return '<i title="激活" class="fa fa-check-circle status-icon statusOn"></i>';
+                    return '<a title="激活" class="fa fa-check-circle status-icon statusOn">激活</a>';
                 } else if (mData == 0) {
-                    return '<i title="未激活" class="fa fa-minus-circle status-icon statusOff"></i>';
+                    return '<a title="未激活" class="fa fa-minus-circle status-icon statusOff">未激活</a>';
                 } else {
-                    return '<i title="未知" class="fa fa-circle status-icon statuNull"></i>';
+                    return '<a title="未知" class="fa fa-circle status-icon statuNull">未知</a>';
                 }
             };
-
 
             $scope.listPage.settings = {
                 pageSize:10,
@@ -1571,11 +1601,14 @@
                     {
                         sTitle: "操作",
                         mData:"userId",
+                        //class="fa fa-info"  class="fa fa-pencil"  class="fa fa-user" class="+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" '
                         mRender:function(mData,type,full) {
-                            return  '<i title="详情" class="fa fa-info" ng-click="listPage.action.detail(\'' + mData +'\')"> </i>' +
-                                    '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
-                                    '<i title="修改密码" ng-hide="loginUserMenuMap[currentView]" class="fa fa-user" ng-click="listPage.action.update(\'' + mData +'\')"> </i>' +
-                                    '<i title="'+(full.userStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" class="'+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" ng-click="listPage.action.active('+(full.userStatus==1?'false':'true')+',\''+mData+'\',\''+full.userName+'\')"></i>';
+                            return  '<i><a title="详情"  ng-click="listPage.action.detail(\'' + mData +'\')">详情</a></i>' +
+                                    '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.edit(\'' + mData +'\')">编辑</a></i>' +
+                                    '<i><a title="修改密码" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.update(\'' + mData +'\')">修改密码</a></i>' +
+                                    '<i><a title="'+(full.userStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" ' +
+                                'ng-click="listPage.action.active('+(full.userStatus==1?'false':'true')+',\''+mData+'\',\''+full.userName+'\')">' + (full.userStatus==1?'停用':'启用')+
+                                '</a></i>';
                                     // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
@@ -1584,9 +1617,10 @@
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
                     {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
-                    { sWidth: "15%", aTargets: [ 0,2,5 ] },
+                    { sWidth: "12.5%", aTargets: [ 0,2] },
                     { sWidth: "20%", aTargets: [ 1,3 ] },
-                    { sWidth: "10%", aTargets: [ 4 ] }
+                    { sWidth: "10%", aTargets: [ 4 ] },
+                    { sWidth: "25%", aTargets: [ 5 ] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]

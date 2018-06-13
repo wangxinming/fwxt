@@ -7,6 +7,7 @@
     <result column="PROCESSINSTANCE_ID" property="processInstanceId" jdbcType="NVARCHAR" />
     <result column="CONTRACT_NAME" property="contractName" jdbcType="NVARCHAR" />
     <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="CONTRACT_REOPEN" property="contractReopen" jdbcType="INTEGER" />
     <result column="CONTRACT_STATUS" property="contractStatus" jdbcType="NVARCHAR" />
     <result column="WORK_STATUS" property="workStatus" jdbcType="INTEGER" />
     <result column="DESCRIPTION" property="description" jdbcType="NVARCHAR" />
@@ -22,7 +23,7 @@
     <result column="y" property="y" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
-    CONTRACT_ID, TEMPLATE_ID,PROCESSINSTANCE_ID, CONTRACT_NAME,WORK_STATUS, USER_ID, CONTRACT_STATUS, DESCRIPTION, CREATE_TIME
+    CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN,PROCESSINSTANCE_ID, CONTRACT_NAME,WORK_STATUS, USER_ID, CONTRACT_STATUS, DESCRIPTION, CREATE_TIME
   </sql>
   <sql id="Blob_Column_List" >
     CONTRACT_HTML, CONTRACT_PDF
@@ -40,6 +41,18 @@
         <if test="contractType != null" >
           and DESCRIPTION = #{contractType}
         </if>
+  </select>
+    <select id="groupCount" resultType="java.lang.Integer">
+        SELECT count(*) from (select oa_user.USER_ID from OA_CONTRACT_CIRCULATION contract LEFT OUTER JOIN OA_USER oa_user on contract.USER_ID=oa_user.USER_ID
+      where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME  <![CDATA[ <= ]]> #{endTime} and CONTRACT_REOPEN = 1 and CONTRACT_STATUS='completed' and DESCRIPTION = 'template'
+      group by oa_user.USER_ID) groupReject
+    </select>
+  <select id="group" resultMap="hashmap">
+      select  top ${limit} groupReject.TEMPLATE_NAME,groupReject.y from (select oa_user.USER_ID,oa_user.USER_NAME as TEMPLATE_NAME,count(contract.USER_ID) as y from OA_CONTRACT_CIRCULATION contract LEFT OUTER JOIN OA_USER oa_user on contract.USER_ID=oa_user.USER_ID
+      where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME  <![CDATA[ <= ]]> #{endTime} and CONTRACT_REOPEN = 1 and CONTRACT_STATUS='completed' and DESCRIPTION = 'template'
+      group by oa_user.USER_ID,oa_user.USER_NAME) groupReject where groupReject.USER_ID not in (select  top ${offset} oa_user.USER_ID as y from OA_CONTRACT_CIRCULATION contract LEFT OUTER JOIN OA_USER oa_user on contract.USER_ID=oa_user.USER_ID
+      where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME  <![CDATA[ <= ]]> #{endTime} and CONTRACT_REOPEN = 1 and CONTRACT_STATUS='completed' and DESCRIPTION = 'template'
+      group by oa_user.USER_ID,oa_user.USER_NAME)
   </select>
   <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
     select 
@@ -62,11 +75,11 @@
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
-    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID, PROCESSINSTANCE_ID,CONTRACT_NAME,WORK_STATUS
+    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN, PROCESSINSTANCE_ID,CONTRACT_NAME,WORK_STATUS
       USER_ID, CONTRACT_STATUS, DESCRIPTION, 
       CREATE_TIME, CONTRACT_HTML, CONTRACT_PDF
       )
-    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=NVARCHAR},#{PROCESSINSTANCE_ID,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
+    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{contractReopen,jdbcType=INTEGER},#{processInstanceId,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
       #{userId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARBINARY}
       )
@@ -79,6 +92,9 @@
       </if>
       <if test="templateId != null" >
         TEMPLATE_ID,
+      </if>
+      <if test="contractReopen != null" >
+        CONTRACT_REOPEN,
       </if>
       <if test="processInstanceId != null" >
         PROCESSINSTANCE_ID,
@@ -114,7 +130,10 @@
         #{contractId,jdbcType=INTEGER},
       </if>
       <if test="templateId != null" >
-        #{templateId,jdbcType=NVARCHAR},
+        #{templateId,jdbcType=INTEGER},
+      </if>
+      <if test="contractReopen != null" >
+        #{contractReopen,jdbcType=INTEGER},
       </if>
       <if test="processInstanceId != null" >
         #{processInstanceId,jdbcType=NVARCHAR},
@@ -151,6 +170,9 @@
       <if test="templateId != null" >
         TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
       </if>
+      <if test="contractReopen != null" >
+        CONTRACT_REOPEN = #{contractReopen,jdbcType=INTEGER},
+      </if>
       <if test="processInstanceId != null" >
         PROCESSINSTANCE_ID=#{processInstanceId,jdbcType=NVARCHAR},
       </if>
@@ -184,6 +206,7 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" >
     update OA_CONTRACT_CIRCULATION
     set TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
+      CONTRACT_REOPEN = #{contractReopen,jdbcType=INTEGER},
       PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
       WORK_STATUS = #{workStatus,jdbcType=INTEGER},
@@ -198,6 +221,7 @@
   <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAContractCirculation" >
     update OA_CONTRACT_CIRCULATION
     set TEMPLATE_ID = #{templateId,jdbcType=INTEGER},
+      CONTRACT_REOPEN = #{contractReopen,jdbcType=INTEGER},
       PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
       WORK_STATUS = #{workStatus,jdbcType=INTEGER},

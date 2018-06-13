@@ -183,7 +183,7 @@
             url:"/template/custom",            //需要链接到服务器地址
             dataType: 'json',
             fileElementId:'file',                        //文件选择框的id属性
-            // data:$('#picForm').serialize(),
+            // data:$('#orderFormInfo').serialize(),
             success: function(data,s, status){
                 $('#sendStatus').text("上传成功");
                 $('#custom').val(data.file);
