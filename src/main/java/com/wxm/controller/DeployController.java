@@ -288,13 +288,14 @@ public class DeployController {
                 Object object = taskService.getVariable(task.getId(), "taskDefinitionKey");
 
 //                Object refuseTask = taskService.getVariable(task.getId(), "taskDefinitionKey");
-                if (object == null || StringUtils.isBlank(object.toString())) {
+                if (object == null && StringUtils.isBlank(object.toString())) {
                     result.put("showCommit", true);
-                    Object refuseTask = runtimeService.getVariable(task.getExecutionId(),"refuseTask");
-                    result.put("refuse",refuseTask);
 
                 } else {
                     result.put("showCommit", false);
+                    Object refuseTask = runtimeService.getVariable(task.getExecutionId(),"refuseTask");
+                    result.put("refuse",refuseTask);
+
                 }
             }
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
@@ -525,13 +526,14 @@ public class DeployController {
         boolean flag = false;
         OAUser oaUser = userService.getUserById(loginUser.getId());
         if(null == oaUser.getGroupId() || oaUser.getGroupId() < 1){
-            flag = true;
-        }
-        OAGroup oaGroup = groupService.getGroupById(oaUser.getGroupId());
-        Map mapGroup = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+            flag = false;
+        }else {
+            OAGroup oaGroup = groupService.getGroupById(oaUser.getGroupId());
+            Map mapGroup = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
 
-        if (mapGroup.get("attachment")!= null && mapGroup.get("attachment").equals("true")) {
-            flag = true;
+            if (mapGroup.get("attachment") != null && mapGroup.get("attachment").equals("true")) {
+                flag = true;
+            }
         }
         List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery()
                 .processInstanceId(historicProcessInstance.getId())
@@ -668,13 +670,14 @@ public class DeployController {
         boolean flag = false;
         OAUser oaUser = userService.getUserById(loginUser.getId());
         if(null == oaUser.getGroupId() || oaUser.getGroupId() < 1){
-            flag = true;
-        }
-        OAGroup oaGroup = groupService.getGroupById(oaUser.getGroupId());
-        Map mapGroup = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+            flag = false;
+        }else {
+            OAGroup oaGroup = groupService.getGroupById(oaUser.getGroupId());
+            Map mapGroup = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
 
-        if (mapGroup.get("attachment")!= null && mapGroup.get("attachment").equals("true")) {
-            flag = true;
+            if (mapGroup.get("attachment") != null && mapGroup.get("attachment").equals("0")) {
+                flag = true;
+            }
         }
         List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery()
                 .processInstanceId(processInstance.getId())

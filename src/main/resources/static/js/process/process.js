@@ -496,8 +496,8 @@
                         mRender:function(mData,type,full) {
 
                             //class="fa fa-list-alt" class="fa fa-download"
-                            return '<i><a title="详情"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></a></i>'+
-                                     '<i><a title="下载" ng-click="listPage.action.down(\'' + mData + '\')"></a></i>';
+                            return '<i><a title="详情"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')">详情</a></i>'+
+                                     '<i><a title="下载" ng-click="listPage.action.down(\'' + mData + '\')">下载</a></i>';
                                 // '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }
@@ -691,8 +691,8 @@
                         mData:"id",
                         mRender:function(mData,type,full) {
                             // class="fa fa-pencil fa-fw" class="fa fa-trash-o"
-                            return '<i><a title="启动流程"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')"></a></i>' +
-                                '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a></i>';
+                            return '<i><a title="启动流程"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')">启动流程</a></i>' +
+                                '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>';
                         }
                     }
 
@@ -1082,7 +1082,7 @@
                         mData:"id",
                         mRender:function(mData,type,full) {
                             //class="fa fa-info"
-                            return '<i><a title="详情查看"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.detail(\'' + mData+'\')"></a></i>';
+                            return '<i><a title="详情查看"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.detail(\'' + mData+'\')">详情查看</a></i>';
                             // '<i title="查看详情" class="fa fa-list-alt" ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></i>';
                         }
                     }
@@ -1356,8 +1356,8 @@
                         mData:"id",
                         mRender:function(mData,type,full) {
                             //class="fa fa-pencil fa-fw" class="fa fa-list-alt"
-                            return '<i><a title="处理"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')"></a></i>' +
-                                    '<i><a title="详情"  ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></a></i>';
+                            return '<i><a title="处理"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')">处理</a></i>' +
+                                    '<i><a title="详情"  ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')">详情</a></i>';
                         }
                     }
 

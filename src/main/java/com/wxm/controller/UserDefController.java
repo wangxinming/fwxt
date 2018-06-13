@@ -232,22 +232,11 @@ public class UserDefController {
             res.put("result", "success");
             Map<String, Object> map = new LinkedHashMap<>();
             //工作流
-            if (groupInfo.getFlow().equals("1")) {
-                map.put("flow", "true");
-            } else {
-                map.put("flow", "false");
-            }
+            map.put("flow",groupInfo.getFlow());
             //任务
-            if (groupInfo.getTask().equals("1")) {
-                map.put("task", "true");
-            } else {
-                map.put("task", "false");
-            }
-            if (groupInfo.getAttachment().equals("1")) {
-                map.put("attachment", "true");
-            } else {
-                map.put("attachment", "false");
-            }
+            map.put("task", groupInfo.getTask());
+            map.put("attachment", groupInfo.getAttachment());
+
             Map menu = new LinkedHashMap();
             for (OAPrivilege oaPrivilege : groupInfo.getOaPrivileges()) {
                 menu.put(oaPrivilege.getPrivilegeId(), oaPrivilege.getName());
@@ -289,6 +278,45 @@ public class UserDefController {
         }
         return res;
     }
+    //组明细
+    @RequestMapping(value = "/getGroupById",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object getGroupById(@RequestParam(value = "groupId", required=true) Integer groupId,
+                               HttpServletRequest request) throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        try {
+            OAGroup oaGroup = oaGroupMapper.selectByPrimaryKey(groupId);
+            Map map = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+            Map mapMenu = (Map) map.get("menu");
+
+            List<OAPrivilege> oaPrivileges = oaPrivilegeMapper.list("menu");
+            result.put("groupName", oaGroup.getGroupName());
+            result.put("describe", oaGroup.getDescribe());
+            for (OAPrivilege oaPrivilege : oaPrivileges) {
+                oaPrivilege.setId(oaPrivilege.getPrivilegeId());
+                if (mapMenu.containsKey(oaPrivilege.getPrivilegeId().toString())) {
+                    oaPrivilege.setChecked(true);
+                } else {
+                    oaPrivilege.setChecked(false);
+                }
+            }
+            result.put("flow", map.get("flow"));
+            result.put("attachment", map.get("attachment"));
+            result.put("task", map.get("task"));
+
+            result.put("data", oaPrivileges);
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
     //更新组
     @RequestMapping(value = "/group",method = {RequestMethod.POST},produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -304,22 +332,11 @@ public class UserDefController {
         Map<String,Object> map  = new LinkedHashMap<>();
         try {
             //工作流
-            if (groupInfo.getFlow().equals("1")) {
-                map.put("flow", "true");
-            } else {
-                map.put("flow", "false");
-            }
+            map.put("flow",groupInfo.getFlow());
+            map.put("task", groupInfo.getTask());
             //任务
-            if (groupInfo.getTask().equals("1")) {
-                map.put("task", "true");
-            } else {
-                map.put("task", "false");
-            }
-            if (groupInfo.getAttachment().equals("1")) {
-                map.put("attachment", "true");
-            } else {
-                map.put("attachment", "false");
-            }
+            map.put("attachment", groupInfo.getAttachment());
+
             Map menu = new LinkedHashMap();
             for (OAPrivilege oaPrivilege : groupInfo.getOaPrivileges()) {
                 menu.put(oaPrivilege.getPrivilegeId(), oaPrivilege.getName());
@@ -402,56 +419,7 @@ public class UserDefController {
         }
         return result;
     }
-    //组明细
-    @RequestMapping(value = "/getGroupById",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
-    @ResponseBody
-    public Object getGroupById(@RequestParam(value = "groupId", required=true) Integer groupId,
-                            HttpServletRequest request) throws OAException{
-        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) {
-            LOGGER.error("用户未登录");
-            throw new OAException(1101, "用户未登录");
-        }
-        Map<String, Object> result = new HashMap<>();
-        result.put("result","success");
-        try {
-            OAGroup oaGroup = oaGroupMapper.selectByPrimaryKey(groupId);
-            Map map = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
-            Map mapMenu = (Map) map.get("menu");
 
-            List<OAPrivilege> oaPrivileges = oaPrivilegeMapper.list("menu");
-            result.put("groupName", oaGroup.getGroupName());
-            result.put("describe", oaGroup.getDescribe());
-            for (OAPrivilege oaPrivilege : oaPrivileges) {
-                oaPrivilege.setId(oaPrivilege.getPrivilegeId());
-                if (mapMenu.containsKey(oaPrivilege.getPrivilegeId().toString())) {
-                    oaPrivilege.setChecked(true);
-                } else {
-                    oaPrivilege.setChecked(false);
-                }
-            }
-            if (map.get("flow").equals("true")) {
-                result.put("flow", true);
-            } else {
-                result.put("flow", false);
-            }
-            if (map.get("attachment").equals("true")) {
-                result.put("attachment", true);
-            } else {
-                result.put("attachment", false);
-            }
-            if (map.get("task").equals("true")) {
-                result.put("task", true);
-            } else {
-                result.put("task", false);
-            }
-            result.put("data", oaPrivileges);
-        }catch (Exception e){
-            LOGGER.error("异常",e);
-            result.put("result", "failed");
-        }
-        return result;
-    }
 
     //用户菜单
     @RequestMapping(value = "/bars",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")

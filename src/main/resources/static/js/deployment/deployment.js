@@ -138,9 +138,9 @@
                         mData:"id",
                         mRender:function(mData,type,full) {
                             //class="fa fa-pencil fa-fw" class="fa fa-trash-o"  class="fa fa-cog fa-fw"
-                            return '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')"></a></i>' +
-                                    '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a></i>' +
-                                    '<i><a title="发布" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.publish(\'' + mData + '\')"></a>';
+                            return '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')">编辑</a></i>' +
+                                    '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>' +
+                                    '<i><a title="发布" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.publish(\'' + mData + '\')">发布</a>';
                         }
                     }
 
@@ -421,10 +421,10 @@
                         mData:"templateId",
                         mRender:function(mData,type,full) {
                             // class="fa fa-pencil fa-fw"  class="fa fa-key"  class="'+(full.templateStatus==1?'fa fa-stop':'fa fa-play')+'" class="fa fa-trash-o"
-                            return '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')"></a></i>' +
-                                '<i><a title="模板字段"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.fieldsList(\'' + mData + '\')"></a></i>' +
+                            return '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')">编辑</a></i>' +
+                                '<i><a title="模板字段"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.fieldsList(\'' + mData + '\')">模板字段</a></i>' +
                                 '<i><a title="'+(full.templateStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.active('+(full.templateStatus==1?'false':'true')+',\''+mData+'\')">'+(full.templateStatus==1?'停用':'启用')+'</a></i>'+
-                                '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a></i>'
+                                '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>'
                                 // '<i title="发布" class="fa fa-cog fa-fw" ng-show=userLevel.indexOf("publish")!=-1  ng-click="listPage.action.publish(\'' + mData + '\')"></i>';
                         }
                     }
@@ -657,9 +657,9 @@
                         mRender:function(mData,type,full) {
                             //class="fa fa-key" class="'+(full.status==1?'fa fa-stop':'fa fa-play')+'"  class="fa fa-trash-o"
                             // return '<i title="关联模板" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + full.id  +'\','+ full.oacontractTemplate.templateId +',\''+ full.oacontractTemplate.templateName+ '\')"></i>' +
-                            return '<i><a title="预览" ng-hide="loginUserMenuMap[currentView]"   ng-click="listPage.action.browse(\'' + mData + '\')"></a></i>' +
-                                    '<i><a title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\')"></a></i>'+
-                                    '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a><';
+                            return '<i><a title="预览" ng-hide="loginUserMenuMap[currentView]"   ng-click="listPage.action.browse(\'' + mData + '\')">预览</a></i>' +
+                                    '<i><a title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\')">'+(full.status==1?'停用':'启用')+'</a></i>'+
+                                    '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a><';
                         }
                     }
 

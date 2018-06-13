@@ -830,12 +830,14 @@
                 description:'',
                 flow:'0',
                 task:'0',
+                attachment:false,
                 oaPrivileges:[],
                 init:function(){
                     $scope.groupDialog.groupName    =        '';
                     $scope.groupDialog.description    =        '';
                     $scope.groupDialog.flow         =       '0';
                     $scope.groupDialog.task         =       '0';
+                    $scope.groupDialog.attachment         =       false;
                     $scope.groupDialog.oaPrivileges =        [];
                 }
             };
@@ -957,6 +959,7 @@
                             $scope.groupDialog.description = data.describe;
                             $scope.groupDialog.flow = data.flow;
                             $scope.groupDialog.task = data.task;
+                            $scope.groupDialog.attachment = data.attachment;
                             $scope.editPage.datas.metricTree.data = data.data;
                                 // [ {id:1,name:"123",displayName:"123",unit:"11",valType:"string",
                                 // children:[
@@ -1071,9 +1074,9 @@
                         mData:"groupId",
                         mRender:function(mData,type,full) {
                             //class="fa fa-pencil" class="fa fa-trash-o" class="'+(full.status==1?'fa fa-stop':'fa fa-play')+'"
-                            return  '<i><a title="编辑"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + mData +'\')"> </a></i>' +
+                            return  '<i><a title="编辑"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + mData +'\')"> 编辑</a></i>' +
                                 // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
-                                    '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')"></a></i>'+
+                                    '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>'+
                                     '<i><a title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\',\''+full.status+'\')"></a></i>';
                                 // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
@@ -1884,7 +1887,7 @@
             var foreachMenus=function(menus){
                 for(var i=0;i<menus.length;i++){
                     var menu=menus[i];
-                    $rootScope.loginUserMenuMap[menu.code]=!menu.permission;
+                    $rootScope.loginUserMenuMap[menu.code]= !menu.permission;
                     // if(menu.children.length>0){
                     //     foreachMenus(menu.children);
                     // }

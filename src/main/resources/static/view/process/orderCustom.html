@@ -4,8 +4,8 @@
         <input type="text" style="display:none" name="id" id="wordId"/>
         <input type="text" style="display:none" name="contract" id="contract"/>
         <input type="text" style="display:none" name="processInstanceId" id="processInstanceId"/>
-        <input type="submit" ng-hide="loginUserMenuMap[currentView] && !showCommit" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
-        <input type="submit" ng-hide="loginUserMenuMap[currentView] && !showCommit" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
+        <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
+        <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
         <input type="submit" ng-hide="showCommit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="返到上次审批人" />
 
         <span class="checkbox">
