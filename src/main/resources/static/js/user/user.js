@@ -346,6 +346,9 @@
                 getTemplateHtmlHistory: {method:'GET',url:"/api/deployments/htmlHistory", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取审批人名字
                 previewInfo: {method:'GET',url:"/workflow/process/previewInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                modelerReviewInfo: {method:'GET',url:"/workflow/process/modelerReviewInfo", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
                 commitTemplateHtml: {method:'POST',url:"/api/deployments/commitHtml", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 modeler: {method:'GET',url:"/api/deployments/modelerList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新模板关系表
@@ -686,20 +689,20 @@
                             return resolve(mData, type, full);
                         }
                     },
-                    {
-                        sTitle: "省区",
-                        mData: "companyProvince",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
-                    {
-                        sTitle: "市区",
-                        mData: "companyCity",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
+                    // {
+                    //     sTitle: "省区",
+                    //     mData: "companyProvince",
+                    //     mRender: function (mData, type, full) {
+                    //         return Util.str2Html(mData);
+                    //     }
+                    // },
+                    // {
+                    //     sTitle: "市区",
+                    //     mData: "companyCity",
+                    //     mRender: function (mData, type, full) {
+                    //         return Util.str2Html(mData);
+                    //     }
+                    // },
                     {
                         sTitle: "创建时间",
                         mData: "createTime",
@@ -726,8 +729,10 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4,5,6,7]},  //第 0,10列不可排序
-                    { sWidth: "12%", aTargets: [ 0,1,2,3 ,4,5,6,7] }
+                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
+                    { sWidth: "10%", aTargets: [ 3] },
+                    { sWidth: "15%", aTargets: [ 0,1,2,4] },
+                    { sWidth: "30%", aTargets: [5] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -830,14 +835,14 @@
                 description:'',
                 flow:'0',
                 task:'0',
-                attachment:false,
+                attachment:'0',
                 oaPrivileges:[],
                 init:function(){
                     $scope.groupDialog.groupName    =        '';
                     $scope.groupDialog.description    =        '';
                     $scope.groupDialog.flow         =       '0';
                     $scope.groupDialog.task         =       '0';
-                    $scope.groupDialog.attachment         =       false;
+                    $scope.groupDialog.attachment         =   '0';
                     $scope.groupDialog.oaPrivileges =        [];
                 }
             };

@@ -487,7 +487,8 @@ public class DeployController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         //判断当前合同是否自定义合同
-        if(null != oaContractCirculationWithBLOBs.getDescription() && oaContractCirculationWithBLOBs.getDescription().equals("custom")){
+        if(null != oaContractCirculationWithBLOBs.getContractId()){
+//        if(null != oaContractCirculationWithBLOBs.getDescription() && oaContractCirculationWithBLOBs.getDescription().equals("custom")){
             result.put("download",oaContractCirculationWithBLOBs.getContractId());
         }
 
@@ -632,9 +633,11 @@ public class DeployController {
         result.put("result","success");
         Map<String,KeyValue> map = new LinkedHashMap();
         //判断当前合同是否自定义合同
-        if(oaContractCirculationWithBLOBs.getDescription().equals("custom")){
-            result.put("download",oaContractCirculationWithBLOBs.getContractId());
+//        if(oaContractCirculationWithBLOBs.getDescription().equals("custom")){
+        if(oaContractCirculationWithBLOBs.getContractId() != null) {
+            result.put("download", oaContractCirculationWithBLOBs.getContractId());
         }
+//        }
 
         if(StringUtils.isNotBlank(processInstance.getId())){
             Map<String, VariableInstance> stringVariableInstanceMap = runtimeService.getVariableInstances(processInstance.getId());

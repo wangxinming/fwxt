@@ -43,7 +43,13 @@
                     }
                 }
             };
-
+            $scope.pageDialogDetail = Tools.dialog({
+                id:"pageDialogDetail",
+                title:"预览",
+                hiddenButton:true,
+                save:function(){
+                }
+            });
             $scope.listPage = {
                 data: [],
                 checkedList: [],
@@ -66,6 +72,17 @@
                                 Loading.hide();
                             });
                         }, '删除');
+                    },
+                    browse:function (id) {
+                        $scope.hash="/workflow/process/modelerPreviewImage?modelerId="+id;
+                        Loading.show();
+                        loader.modelerReviewInfo({"modelerId":id},function(data){
+                            if(data.result == "success") {
+                                $scope.details = data.flows;
+                            }
+                            Loading.hide();
+                        })
+                        $scope.pageDialogDetail.show();
                     },
                     update:function (id) {
                         window.open("/modeler.html?modelId="+id,"_blank");
@@ -139,6 +156,7 @@
                         mRender:function(mData,type,full) {
                             //class="fa fa-pencil fa-fw" class="fa fa-trash-o"  class="fa fa-cog fa-fw"
                             return '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.update(\'' + mData + '\')">编辑</a></i>' +
+                                    '<i><a title="预览" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.browse(\'' + mData + '\')">预览</a></i>' +
                                     '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>' +
                                     '<i><a title="发布" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.publish(\'' + mData + '\')">发布</a>';
                         }
@@ -431,7 +449,10 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,10列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,10列不可排序
+                    { sWidth: "25%", aTargets: [ 0,3] },
+                    { sWidth: "30%", aTargets: [ 4] },
+                    { sWidth: "10%", aTargets: [ 1,2] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -659,7 +680,7 @@
                             // return '<i title="关联模板" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + full.id  +'\','+ full.oacontractTemplate.templateId +',\''+ full.oacontractTemplate.templateName+ '\')"></i>' +
                             return '<i><a title="预览" ng-hide="loginUserMenuMap[currentView]"   ng-click="listPage.action.browse(\'' + mData + '\')">预览</a></i>' +
                                     '<i><a title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\')">'+(full.status==1?'停用':'启用')+'</a></i>'+
-                                    '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a><';
+                                    '<i><a title="删除" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a>';
                         }
                     }
 

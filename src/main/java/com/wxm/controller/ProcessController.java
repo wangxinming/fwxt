@@ -1,17 +1,18 @@
 package com.wxm.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wxm.entity.*;
 import com.wxm.model.*;
 import com.wxm.service.*;
-import com.wxm.util.FileByte;
-import com.wxm.util.ValidType;
-import com.wxm.util.Word2Html;
+import com.wxm.util.*;
 import com.wxm.util.exception.OAException;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.FlowElement;
 import org.activiti.bpmn.model.Process;
 import org.activiti.bpmn.model.UserTask;
+import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.*;
 import org.activiti.engine.history.*;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -232,6 +233,73 @@ public class ProcessController {
             LOGGER.info("下载异常",e);
         }
         return null;
+    }
+
+    //modeler预览
+    @RequestMapping("/modelerReviewInfo")
+    public Object modelerReviewInfo(HttpServletRequest request,HttpServletResponse response) throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        String id = request.getParameter("modelerId");
+        //获取模型
+        Model modelData = repositoryService.getModel(id);
+        byte[] bytes = repositoryService.getModelEditorSource(modelData.getId());
+
+        if (bytes == null) {
+            return ToWeb.buildResult().status(Status.FAIL)
+                    .msg("模型数据为空，请先设计流程并成功保存，再进行发布。");
+        }
+
+        JsonNode modelNode = new ObjectMapper().readTree(bytes);
+
+        BpmnModel bpmnModel = new BpmnJsonConverter().convertToBpmnModel(modelNode);
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+//        BpmnModel bpmnModel = (BpmnModel)repositoryService.createModelQuery().modelId(modelId).latestVersion().singleResult();
+        Collection<FlowElement> flowElements = bpmnModel.getProcesses().get(0).getFlowElements();
+        List<FlowElem> flowElems = new LinkedList<>();
+        for(FlowElement flowElement:flowElements){
+            if(flowElement instanceof UserTask && StringUtils.isNotBlank(((UserTask) flowElement).getAssignee() )) {
+                FlowElem flowElem = new FlowElem(flowElement.getName(),((UserTask) flowElement).getAssignee());
+                flowElems.add(flowElem);
+            }
+        }
+        result.put("flows",flowElems);
+        return result;
+
+    }
+    @RequestMapping("/modelerPreviewImage")
+    public void modelerPreviewImage(HttpServletRequest request,HttpServletResponse response) throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        String id = request.getParameter("modelerId");
+        //获取模型
+        Model modelData = repositoryService.getModel(id);
+        byte[] bytes = repositoryService.getModelEditorSource(modelData.getId());
+        if (bytes != null) {
+            JsonNode modelNode = new ObjectMapper().readTree(bytes);
+            BpmnModel bpmnModel = new BpmnJsonConverter().convertToBpmnModel(modelNode);
+
+            ProcessDiagramGenerator diagramGenerator = processEngineConfiguration.getProcessDiagramGenerator();
+            List<String> highLightedActivitis = new ArrayList<String>();
+            InputStream imageStream = diagramGenerator.generateDiagram(bpmnModel, "png", highLightedActivitis, new ArrayList<String>(), "宋体", "宋体", "宋体", null, 1.0D);
+            //单独返回流程图，不高亮显示
+            //        InputStream imageStream = diagramGenerator.generatePngDiagram(bpmnModel);
+            // 输出资源内容到相应对象
+            byte[] b = new byte[1024];
+            int len;
+            while ((len = imageStream.read(b, 0, 1024)) != -1) {
+                response.getOutputStream().write(b, 0, len);
+            }
+        }
+
+
     }
     //预览
     @RequestMapping("/previewInfo")
@@ -519,26 +587,25 @@ public class ProcessController {
                         map.put("contractStatus","0");
                     }
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
-                    //自定义模板处理
-                    if(oaContractTemplate.getTemplateName().contains("自定义")) {
-                        OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
-                        contractCirculationWithBLOBs.setContractId(oaContractCirculationWithBLOBs.getContractId());
-                        if (StringUtils.isNotBlank(custom)) {
+                    //附件处理
+//                    if(oaContractTemplate.getTemplateName().contains("自定义")) {
+                    OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
+                    contractCirculationWithBLOBs.setContractId(oaContractCirculationWithBLOBs.getContractId());
+                    if (StringUtils.isNotBlank(custom)) {
 //                        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
-
-                            // 获取word文件流，custom文件名称
-                            String filePf = contractPath + custom;
-                            byte[] word = FileByte.getByte(filePf);
-                            contractCirculationWithBLOBs.setContractPdf(word);
-                        }
-                        if (StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
-                            contractCirculationWithBLOBs.setWorkStatus(1);
-                        } else {
-                            contractCirculationWithBLOBs.setWorkStatus(0);
-                        }
-                        contractCirculationWithBLOBs.setDescription("custom");
-                        contractCirculationService.update(contractCirculationWithBLOBs);
+                        // 获取word文件流，custom文件名称
+                        String filePf = contractPath + custom;
+                        byte[] word = FileByte.getByte(filePf);
+                        contractCirculationWithBLOBs.setContractPdf(word);
                     }
+                    if (StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
+                        contractCirculationWithBLOBs.setWorkStatus(1);
+                    } else {
+                        contractCirculationWithBLOBs.setWorkStatus(0);
+                    }
+                    contractCirculationWithBLOBs.setDescription("custom");
+                    contractCirculationService.update(contractCirculationWithBLOBs);
+//                    }
 //                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
 //                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
 //                    oaContractCirculationWithBLOBs.setTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
@@ -636,15 +703,16 @@ public class ProcessController {
                     oaContractCirculationWithBLOBs.setWorkStatus(0);
                 }
                 //自定义模板处理
-                if(oaContractTemplate.getTemplateName().contains("自定义")) {
+//                if(oaContractTemplate.getTemplateName().contains("自定义")) {
+                if (StringUtils.isNotBlank(custom)) {
                     oaContractCirculationWithBLOBs.setDescription("custom");
-                    if (StringUtils.isNotBlank(custom)) {
-                        // 获取word文件流
-                        String filePf = contractPath + custom;
-                        byte[] word = FileByte.getByte(filePf);
-                        oaContractCirculationWithBLOBs.setContractPdf(word);
-                    }
-                }else {
+                    // 获取word文件流
+                    String filePf = contractPath + custom;
+                    byte[] word = FileByte.getByte(filePf);
+                    oaContractCirculationWithBLOBs.setContractPdf(word);
+                }
+//                }
+                if(null != map.get("html")) {
                     oaContractCirculationWithBLOBs.setDescription("template");
                     oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
                 }

@@ -20,13 +20,11 @@
             </span>
         </div>
 
-        <div style="margin-top: 25px;margin-bottom: 20px;overflow:hidden;" id="download">
-        </div>
-        <div  class="col-md-9" style="margin-top: 10px;">
+        <div  ng-hide="showCommit" class="col-md-9" style="margin-top: 10px;">
             <label  class="col-md-2 control-label" style="font-size: 16px;">回退原因：</label>
             <div class="col-md-6" id="refuseCause" style="margin: 0px 0px 0px -44px;">异常</div>
         </div>
-        <div class="col-md-9" style="margin-top: 10px;">
+        <div  ng-hide="showCommit" class="col-md-9" style="margin-top: 10px;">
             <label  class="col-md-2 control-label" style="font-size: 16px;">备注</label>
             <div class="col-md-6" style="margin: 0px 0px 0px -87px;">
                 <input type="text" class="form-control ng-pristine ng-valid" name="attachmentRefuse"
@@ -40,16 +38,21 @@
                 </div>
                 <div class="col-md-6">
                     <input type="submit" ng-click="uploadAttachment();" name="uploadAttachment" id="uploadAttachment" ng-hide="loginUserMenuMap[currentView]" value="附件上传" class="btn btn-primary btn-lg" >
-                    <input type="submit" ng-click="uploadAttachment();" name="uploadAttachment" id="downAttachment" ng-hide="loginUserMenuMap[currentView]" value="附件下载" class="btn btn-primary btn-lg" >
+                    <!--<input type="submit" ng-click="uploadAttachment();" name="uploadAttachment" id="downAttachment" ng-hide="loginUserMenuMap[currentView]" value="附件下载" class="btn btn-primary btn-lg" >-->
                 </div>
             </div>
         </DIV>
-        <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
-        <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
-        <input type="submit" ng-hide="showCommit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="返回到上次审批人" />
 
+        <div class="col-md-9" style="margin-top: 10px;">
+            <div id="download"></div>
+        </div>
+        <div class="col-md-9" style="margin-top: 10px;">
+            <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />
+            <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(2)" class="btn btn-primary btn-lg" value="保存草稿" />
+            <input type="submit" ng-hide="showCommit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="返回到上次审批人" />
+        </div>
 
-        <div class="col-md-9" id="orderForm" style="margin-top: 20px;"></div>
+        <div class="col-md-12" id="orderForm" style="margin-top: 20px;"></div>
         <!--<div>-->
             <!--<label  class="col-md-3 control-label" style="font-size: 16px;">附件：</label>-->
             <!--<div class="col-md-9" style="margin: -2px 0px 0px -40px;" id="attachment">-->

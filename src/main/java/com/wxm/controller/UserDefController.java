@@ -530,7 +530,7 @@ public class UserDefController {
                 Map map = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
                 String flow = map.get("flow").toString();
                 String task = map.get("task").toString();
-                if(flow.equals("true")){
+                if(flow.equals("0")){
                     Menu menu = new Menu("user","用户界面",true);
                     list.add(menu);
                     menu = new Menu("group","用户组",true);
@@ -567,7 +567,7 @@ public class UserDefController {
                     list.add(menu);
 
                 }
-                if(task.equals("true")){
+                if(task.equals("0")){
                     Menu menu = new Menu("process","流程申请",true);
                     list.add(menu);
                     menu = new Menu("myProcess","我的申请",true);

@@ -893,7 +893,7 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-                            return '<i><a title="申请单" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData+'\',\''+full.deployId + '\')"></a></i>';
+                            return '<i><a title="申请单" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData+'\',\''+full.deployId + '\')">申请单</a></i>';
                                 // '<i title="查看详情" class="fa fa-list-alt" ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')"></i>';
                         }
                     }
@@ -1258,13 +1258,11 @@
                                     }
                                 }
                                 if(data.download){
-                                    $('#customFile')[0].style.display = 'none';
+                                    // $('#customFile')[0].style.display = 'none';
                                     var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
                                     $('#download').html(html);
-                                }else{
-                                    $('#keyword').html(data.keyword);
                                 }
-
+                                $('#keyword').html(data.keyword);
                             }
                             Loading.hide();
                         })
@@ -1386,10 +1384,10 @@
         }])
         .controller('order.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster) {
 
-            $("#uploadForm").ajaxForm(function(data){
-                var html = '<i style="margin-top: 25px;" class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.file+'</i>'
-                $('#download').html(html);
-            });
+            // $("#orderFormInfo").ajaxForm(function(data){
+            //     var html = '<i style="margin-top: 25px;" class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.file+'</i>'
+            //     $('#download').html(html);
+            // });
 
             $scope.uploadAttachment = function (){
                 $.ajaxFileUpload({
@@ -1399,10 +1397,15 @@
                     fileElementId:'fileAttachment',                        //文件选择框的id属性
                     data:{id:$('#processInstanceId').val()},
                     success: function(data,s, status){
-                        $('#sendStatus').text("上传成功");
+                        // $('#sendStatus').text("上传成功");
+                        toaster.pop('success', "","上传成功");
+                        // var html = '<i class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.displayName+'</i>';
+                        var html = '<a href="javascript:void(0);" class="fa fa-download" title="下载" onclick=\'javascript:window.open(\"template/download?fileName='+data.file + '\");\'>'+data.displayName+'</a>';
+                        $('#download').html(html);
                         $('#custom').val(data.file);
                     },error: function (data, status, e){
-                        $('#sendStatus').text("上传失败");
+                        toaster.pop('failed', "","上传失败");
+                        // $('#sendStatus').text("上传失败");
                     }
                 });
             };

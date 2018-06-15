@@ -1,6 +1,7 @@
 package com.wxm.controller;
 import com.wxm.model.*;
 import com.wxm.service.*;
+import com.wxm.util.FileByte;
 import com.wxm.util.HtmlProcess;
 import com.wxm.util.Md5Utils;
 import com.wxm.util.Word2Html;
@@ -8,6 +9,7 @@ import com.wxm.util.exception.OAException;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,13 +253,14 @@ public class WordTemplateController {
             contractCirculationService.update(oaContract);
         }else {
             try {
-                String docName = file.getOriginalFilename();
-                File desFile = new File( String.format("%s%s_%s",contractPath,new Date().getTime(),docName));
+                String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
+                File desFile = new File(contractPath+docName);
                 if (!desFile.getParentFile().exists()) {
                     desFile.mkdirs();
                 }
                 file.transferTo(desFile);
                 result.put("file", docName);
+                result.put("displayName", file.getOriginalFilename());
             } catch (Exception e) {
                 LOGGER.error("异常", e);
                 result.put("result", "failed");
@@ -270,20 +273,38 @@ public class WordTemplateController {
     @ResponseBody
     public Object download(
             @RequestParam(value = "contractId", required = false, defaultValue = "") Integer contractId,
+            @RequestParam(value = "fileName", required = false, defaultValue = "") String fileName,
             HttpServletRequest request,
             HttpServletResponse response
     ) throws Exception {
-        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.querybyId(contractId);
-        byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
-        if(null != bytes) {
-            response.setContentType("application/x-download");
-            String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName() + ".doc", "UTF-8");
-            response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
-            response.setContentLength(bytes.length);
-            response.getOutputStream().write(bytes);
-            return null;
-        }else {
-            return "文件不存在！";
+        if(StringUtils.isBlank(fileName) && contractId != null ) {
+            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.querybyId(contractId);
+            byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
+            if (null != bytes) {
+                response.setContentType("application/x-download");
+                String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName() + ".doc", "UTF-8");
+                response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
+                response.setContentLength(bytes.length);
+                response.getOutputStream().write(bytes);
+                response.getOutputStream().flush();
+                return null;
+            } else {
+                return "文件不存在！";
+            }
+        }else{
+            String file = fileName.substring(fileName.indexOf('_')+1);
+            byte[] bytes = FileByte.getByte(contractPath+fileName);
+            if (null != bytes) {
+                response.setContentType("application/x-download");
+                String codedfilename = java.net.URLEncoder.encode(file, "UTF-8");
+                response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
+                response.setContentLength(bytes.length);
+                response.getOutputStream().write(bytes);
+                response.getOutputStream().flush();
+                return null;
+            }else {
+                return "文件不存在！";
+            }
         }
     }
 
