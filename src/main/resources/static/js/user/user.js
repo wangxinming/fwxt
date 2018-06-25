@@ -1674,7 +1674,7 @@
             // var form = '<li><a href="index.html#/form">合同模板字段检查</a></li>';
 
             var deployParent = '                        <li class="sidebar-dropdown">\n' +
-                '                            <a id="deploymentProcess"><i class="fa fa-tv"></i><span>合同流程管理模块</span><span class="badge"></span></a>\n' +
+                '                            <a id="deploymentProcess"><i class="fa fa-th"></i><span>合同流程管理模块</span><span class="badge"></span></a>\n' +
                 '                            <div class="sidebar-submenu" >\n' +
                 '                                <ul>';
             var modeler = '<li><a href="index.html#/modeler">合同流程设定</a></li>';
@@ -1696,7 +1696,7 @@
             var pending = ' <li><a href="/index.html#/pending">合同审核及批复</a></li>';
             var complete = ' <li><a href="/index.html#/complete">归档文件查询</a></li>';
             var reportParent = '  <li class="sidebar-dropdown">\n' +
-                '                            <a id="report"><i class="fa fa-diamond"></i><span>合同分类统计模块</span></a>\n' +
+                '                            <a id="report"><i class="fa fa-file-text"></i><span>合同分类统计模块</span></a>\n' +
                 '                            <div class="sidebar-submenu">\n' +
                 '                            <ul>';
 
