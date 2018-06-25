@@ -539,7 +539,7 @@ public class ProcessController {
         String custom = map.get("custom");
         String contract = map.get("contract");
         String contractName = map.get("contractName");
-        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
+//        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
         if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交
             try{
                 String deploymentID = map.get("id");
@@ -588,6 +588,7 @@ public class ProcessController {
                     }else{
                         map.put("contractStatus","0");
                     }
+                    map.put("title",contractName);
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
                     //附件处理
 //                    if(oaContractTemplate.getTemplateName().contains("自定义")) {
@@ -605,6 +606,7 @@ public class ProcessController {
                     } else {
                         contractCirculationWithBLOBs.setWorkStatus(0);
                     }
+                    oaContractCirculationWithBLOBs.setContractName(contractName);
                     contractCirculationWithBLOBs.setDescription("custom");
                     contractCirculationService.update(contractCirculationWithBLOBs);
 //                    }
@@ -617,6 +619,12 @@ public class ProcessController {
 //                    contractCirculationService.update(oaContractCirculationWithBLOBs);
 
                 }else{
+                    runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
+                    OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
+                    contractCirculationWithBLOBs.setContractId(oaContractCirculationWithBLOBs.getContractId());
+                    contractCirculationWithBLOBs.setContractName(contractName);
+                    contractCirculationService.update(contractCirculationWithBLOBs);
+                    map.put("title",contractName);
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
                 }
 
