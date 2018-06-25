@@ -134,7 +134,7 @@ public class ProcessController {
 
             List<TaskInfo> taskInfos = new LinkedList<>();
             List<Task> list=taskService.createTaskQuery().taskAssignee(loginUser.getName())
-                    .listPage(0,10);
+                    .listPage(0,5);
             for(Task task:list){
                 TaskInfo taskInfo = new TaskInfo();
                 VariableInstance variableInstance = runtimeService.getVariableInstance(task.getExecutionId(),"title");
@@ -167,7 +167,7 @@ public class ProcessController {
             taskInfos = new LinkedList<>();
             List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
                     .startedBy(loginUser.getName()).orderByProcessInstanceStartTime().desc()
-                    .listPage(0,10);
+                    .listPage(0,5);
             for(HistoricProcessInstance historicProcessInstance:historicProcessInstanceList){
                 TaskInfo taskInfo = new TaskInfo();
                 ProcessInstance pi = runtimeService.createProcessInstanceQuery()//

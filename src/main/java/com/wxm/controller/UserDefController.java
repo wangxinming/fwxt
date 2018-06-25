@@ -939,14 +939,23 @@ public class UserDefController {
             LOGGER.error("用户未登录");
             throw new OAException(1101, "用户未登录");
         }
-        List<com.wxm.entity.User> list = new LinkedList<>();
-        String offset = request.getParameter("offset");
-        String limit = request.getParameter("limit");
-        String userName = request.getParameter("userName");
-        if(StringUtils.isBlank(userName)){
-            userName = null;
+        if(loginUser.getName().equals("admin")) {
+            List<com.wxm.entity.User> list = new LinkedList<>();
+            String offset = request.getParameter("offset");
+            String limit = request.getParameter("limit");
+            String userName = request.getParameter("userName");
+            if (StringUtils.isBlank(userName)) {
+                userName = null;
+            }
+            return userService.getUserList(Integer.parseInt(offset), Integer.parseInt(limit), userName);
+        }else{
+            Map<String, Object> result = new HashMap<>();
+            List<OAUser> list = new LinkedList<>();
+            list.add(userService.selectByName(loginUser.getName()));
+            result.put("rows",list);
+            result.put("total",1);
+            return result;
         }
-        return userService.getUserList(Integer.parseInt(offset),Integer.parseInt(limit),userName);
     }
 
 }
