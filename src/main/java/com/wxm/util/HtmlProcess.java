@@ -24,6 +24,8 @@ public class HtmlProcess {
         }
         // 调整图片地址
         htmlStr = htmlStr.replaceAll("<IMG SRC=\"", "<IMG SRC=\"" + docImgPath + "/");
+        htmlStr = htmlStr.replaceAll("<img[^>]*>", " ");
+        htmlStr = htmlStr.replaceAll("<IMG[^>]*>", " ");
         // 把<P></P>转换成</div></div>保留样式
         htmlStr = htmlStr.replaceAll("(<P)([^>]*>.*?)(<\\/P>)", "<DIV$2</DIV>");
         // 把<P></P>转换成</div></div>并删除样式
@@ -40,7 +42,8 @@ public class HtmlProcess {
                         "<$1$2>");
 
         // 删除</U><U>
-        htmlStr = htmlStr.replaceAll("</U><U>","");
+        htmlStr = htmlStr.replaceAll("<U>","");
+        htmlStr = htmlStr.replaceAll("</U>","");
         return htmlStr;
     }
     public static void main(String[] args){

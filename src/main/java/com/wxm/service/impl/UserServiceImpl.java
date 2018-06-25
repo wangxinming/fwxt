@@ -6,6 +6,7 @@ import com.wxm.model.OAAudit;
 import com.wxm.model.OAUser;
 import com.wxm.service.UserService;
 import org.activiti.engine.IdentityService;
+import org.activiti.engine.identity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,10 +54,13 @@ public class UserServiceImpl implements UserService {
 //        oaAuditMapper.insertSelective(new OAAudit(oaUser.getUserName(),String.format("新建用户 %s",oaUser.getUserName())));
         oaUser.setUserCreatetime(new Date(System.currentTimeMillis()));
         oaUserMapper.insertSelective(oaUser);
-        org.activiti.engine.identity.User user = identityService.newUser(oaUser.getUserName());
-        user.setFirstName(oaUser.getUserId().toString());
-        user.setPassword(oaUser.getUserPwd());
-        identityService.saveUser(user);
+        User userOa = identityService.createUserQuery().userFirstName(oaUser.getUserName()).singleResult();
+        if(null == userOa) {
+            org.activiti.engine.identity.User user = identityService.newUser(oaUser.getUserName());
+            user.setFirstName(oaUser.getUserId().toString());
+            user.setPassword(oaUser.getUserPwd());
+            identityService.saveUser(user);
+        }
         return oaUser.getUserId();
     }
 

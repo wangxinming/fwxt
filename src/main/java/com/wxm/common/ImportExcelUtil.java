@@ -55,12 +55,12 @@ public class ImportExcelUtil {
                     cell = row.getCell(y);
                     cell.setCellType(Cell.CELL_TYPE_STRING);
                     switch(y){
-                        case 0://用户名称
+                        case 1://用户名称
                             if(cell != null){
                                 oaUser.setUserName(cell.getStringCellValue());
                             }
                             break;
-                        case 1://密码
+                        case 2://密码
                             if(cell == null){
                                 oaUser.setUserPwd("123");
                                 break;
@@ -68,58 +68,65 @@ public class ImportExcelUtil {
                                 oaUser.setUserPwd(cell.getStringCellValue());
                             }
                             break;
-                        case 2://手机号码
+                        case 3://手机号码
                             if(cell != null){
                                 oaUser.setUserMobile(cell.getStringCellValue());
                             }
                             break;
-                        case 3://用户组ID
+                        case 4://公司ID
                             if(cell != null){
-                                oaUser.setGroupId(Integer.parseInt(cell.getStringCellValue()));
+                                oaUser.setEnterpriseId(Integer.parseInt(cell.getStringCellValue()));
                             }
                             break;
-                        case 4://邮箱
-                            if(cell != null){
-                                oaUser.setUserEmail(cell.getStringCellValue());
-                            }
-                            break;
-                        case 5://公司
-                            if(cell != null){
-                                oaUser.setUserCompany(cell.getStringCellValue());
-                            }
-                            break;
-                        case 6://部门
-                            if(cell != null){
-                                oaUser.setUserDepartment(cell.getStringCellValue());
-                            }
-                            break;
-                        case 7://岗位
+                        case 5://职位
                             if(cell != null){
                                 oaUser.setUserPosition(cell.getStringCellValue());
                             }
                             break;
-                        case 8://住址
-                            if(cell != null){
-                                oaUser.setUserAddress(cell.getStringCellValue());
-                            }
-                            break;
-                        case 9://邮编
-                            if(cell != null){
-                                oaUser.setUserPostcode(cell.getStringCellValue());
-                            }
-                            break;
-                        case 10://微信号
+                        case 6://微信
                             if(cell != null){
                                 oaUser.setUserWeixin(cell.getStringCellValue());
                             }
                             break;
-                        case 11://状态
+                        case 7://状态
                             if(cell != null){
                                 oaUser.setUserStatus(Integer.parseInt(cell.getStringCellValue()));
                             }else{
                                 oaUser.setUserStatus(1);
                             }
                             break;
+//                        case 6://部门
+//                            if(cell != null){
+//                                oaUser.setUserDepartment(cell.getStringCellValue());
+//                            }
+//                            break;
+//                        case 7://岗位
+//                            if(cell != null){
+//                                oaUser.setUserPosition(cell.getStringCellValue());
+//                            }
+//                            break;
+//                        case 8://住址
+//                            if(cell != null){
+//                                oaUser.setUserAddress(cell.getStringCellValue());
+//                            }
+//                            break;
+//                        case 9://邮编
+//                            if(cell != null){
+//                                oaUser.setUserPostcode(cell.getStringCellValue());
+//                            }
+//                            break;
+//                        case 10://微信号
+//                            if(cell != null){
+//                                oaUser.setUserWeixin(cell.getStringCellValue());
+//                            }
+//                            break;
+//                        case 11://状态
+//                            if(cell != null){
+//                                oaUser.setUserStatus(Integer.parseInt(cell.getStringCellValue()));
+//                            }else{
+//                                oaUser.setUserStatus(1);
+//                            }
+//                            break;
 
                       default://
                             break;

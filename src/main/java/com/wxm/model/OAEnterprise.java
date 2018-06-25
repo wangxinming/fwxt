@@ -7,17 +7,37 @@ public class OAEnterprise {
 
     private String companyName;
 
+    private String subCompanyName;
+
     private String companyProvince;
 
     private String companyCity;
 
     private String companyOwner;
 
+    private String location;
+
     private String ownerMobile;
 
     private Integer companyStatus;
 
     private Date createTime;
+
+    public String getSubCompanyName() {
+        return subCompanyName;
+    }
+
+    public void setSubCompanyName(String subCompanyName) {
+        this.subCompanyName = subCompanyName;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
     public Integer getEnterpriseId() {
         return enterpriseId;

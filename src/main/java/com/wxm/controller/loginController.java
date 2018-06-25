@@ -1,7 +1,9 @@
 package com.wxm.controller;
 
 import com.wxm.entity.User;
+import com.wxm.model.OAAudit;
 import com.wxm.model.OAUser;
+import com.wxm.service.AuditService;
 import com.wxm.service.UserService;
 import com.wxm.util.Md5Utils;
 import com.wxm.util.exception.OAException;
@@ -21,6 +23,8 @@ public class loginController {
     private static final Logger LOGGER = LoggerFactory.getLogger(loginController.class);
     @Autowired
     private UserService userService;
+    @Autowired
+    private AuditService auditService;
     @Autowired
     private IdentityService identityService;
     //登陆
@@ -60,6 +64,7 @@ public class loginController {
             result.put("result", "fail");
             result.put("msg", "用户不存在");
         }
+        auditService.audit(new OAAudit(userName,String.format("登录系统")));
         LOGGER.info("用户：{}，登录时间：{}",userName,new Date());
         return result;
     }
@@ -70,6 +75,8 @@ public class loginController {
     public void logOut(HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) return;
+
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("登出系统")));
         OAUser oaUserUpdate = new OAUser();
         oaUserUpdate.setUserId(loginUser.getId());
         oaUserUpdate.setParentId(0);

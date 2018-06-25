@@ -237,8 +237,9 @@
                     default:
                         $('#mbx1').html('');
                         $('#mbx2').html('');
-                      break;
+                        break;
                 }
+
                 $(".modal-backdrop").hide();
             });
             $rootScope.confirm = {id: "myconfirm", info: "", save: function () {

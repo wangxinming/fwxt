@@ -1,7 +1,7 @@
  jQuery(function($) {
          var userName = jQuery.cookie("userName");
          if(userName){
-             $("#loginInfo").html("欢迎 "+userName +" 登录系统");
+             $("#loginInfo").html('欢迎 '+'<span style="color:#5484b1;margin:10px;">'+userName+'</span>' +'登录系统');
          }
 
         // $(".sidebar-dropdown > a").click(function(){

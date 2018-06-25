@@ -363,6 +363,7 @@ public class WordTemplateController {
             String checkboxBefore = "<input type=\"checkbox\" style=\"display:none;height:10px;zoom:180%;\" name=\"";
 
             String before = "<input type=\"text\" style=\"border:none;border-bottom:1px solid #000;\" name=\"";
+            String checkboxButton = "<input type=\"checkbox\" name=\"";
             String end = "\"/>";
             while(matcher.find()) {
                 String tmp = matcher.group();
@@ -371,8 +372,8 @@ public class WordTemplateController {
                 String type = tmp.substring(tmp.indexOf("%%")+2,tmp.indexOf("##"));
                 String length = tmp.substring(tmp.indexOf("##")+2,tmp.indexOf("!!"));
                 int start = matcher.start();
-                String name = "name_" + Md5Utils.getMd5(String.format("%s%s%s%s",var,type,length,start));
-                String checkbox = "checkbox_" + Md5Utils.getMd5(String.format("%s%s%s%s",var,type,length,start));
+                String name = "name_" + Md5Utils.getMd5(String.format("%s%s%s%s%s",docName,var,type,length,start));
+                String checkbox = "checkbox_" + Md5Utils.getMd5(String.format("%s%s%s%s%s",docName,var,type,length,start));
                 oaFormProperties.setFieldName(var);
                 oaFormProperties.setFieldMd5(name);
                 oaFormProperties.setTemplateId(id);
@@ -380,8 +381,14 @@ public class WordTemplateController {
                 oaFormProperties.setFieldValid(length);
                 oaFormProperties.setCreateTime(new Date());
                 formPropertiesService.insert(oaFormProperties);
-                String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s",before,name,name,end,checkboxBefore,checkbox,checkbox,end);
-                htmlStr = htmlStr.replace(tmp,text);
+                if(!tmp.contains("单选框")) {
+                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", before, name, name, end, checkboxBefore, checkbox, checkbox, end);
+                    htmlStr = htmlStr.replace(tmp,text);
+                }else{
+                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", checkboxButton, name, name, end, checkboxBefore, checkbox, checkbox, end);
+                    htmlStr = htmlStr.replace(tmp,text);
+
+                }
             }
             oaContractTemplate.setTemplateHtml(htmlStr);
             concactTemplateService.update(oaContractTemplate);

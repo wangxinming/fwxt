@@ -8,13 +8,22 @@
         <form class="form-horizontal" role="form" id="addForm" name="form">
             <div class="form-body">
                 <div class="form-group">
-                    <label  class="col-md-3 control-label">公司名称</label>
+                    <label  class="col-md-3 control-label">二级单位 </label>
                     <div class="col-md-9">
-                        <input type="text" class="form-control" name="companyName" id="companyName" ng-model="addPage.data.companyName" placeholder="用户名字" maxlength="20" required>
+                        <input type="text" class="form-control" name="companyName" id="companyName" ng-model="addPage.data.companyName" placeholder="二级单位" maxlength="20" required>
                         <div class="required" ng-show="form.companyName.$dirty && form.companyName.$invalid">
                             <span ng-show="form.companyName.$error.required">此项不能为空.</span>
                             <span ng-show="!form.companyName.$error.required && form.companyName.$error.maxlength">长度最大20位字符.</span>
                         </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label  class="col-md-3 control-label"> 三级单位 </label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" ng-model="addPage.data.subCompanyName" name="subCompanyName" placeholder="三级单位" maxlength="100">
+
+                        <!--<input type="text" class="form-control"  ng-model="addPage.data.userGroup" placeholder="手机号码" maxlength="19">-->
                     </div>
                 </div>
                 <div class="form-group">

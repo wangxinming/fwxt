@@ -588,6 +588,8 @@
                             $scope.addPage.data.companyCity = data.data.companyCity;
                             $scope.addPage.data.companyOwner = data.data.companyOwner;
                             $scope.addPage.data.ownerMobile = data.data.ownerMobile;
+                            $scope.addPage.data.location = data.data.location;
+                            $scope.addPage.data.subCompanyName = data.data.subCompanyName;
                             $scope.addPage.data.companyStatus = data.data.companyStatus==1?true:false;
                             $scope.addPage.data.createTime = data.data.createTime;
                             Loading.hide();
@@ -1082,7 +1084,7 @@
                             return  '<i><a title="编辑"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + mData +'\')"> 编辑</a></i>' +
                                 // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
                                     '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>'+
-                                    '<i><a title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\',\''+full.status+'\')"></a></i>';
+                                    '<i><a title="'+(full.status==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.status==1?'false':'true')+',\''+mData+'\',\''+full.status+'\')">'+(full.status==1?'停用':'启用')+'</a></i>';
                                 // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
@@ -1669,7 +1671,7 @@
                 '                            <div class="sidebar-submenu" >\n' +
                 '                                <ul>';
             var upload = '<li><a href="index.html#/upload">合同模板管理</a></li>';
-            var form = '<li><a href="index.html#/form">合同模板字段检查</a></li>';
+            // var form = '<li><a href="index.html#/form">合同模板字段检查</a></li>';
 
             var deployParent = '                        <li class="sidebar-dropdown">\n' +
                 '                            <a id="deploymentProcess"><i class="fa fa-tv"></i><span>合同流程管理模块</span><span class="badge"></span></a>\n' +
@@ -1684,7 +1686,7 @@
                 '                                <ul>';
 
             var process = '<li><a href="/index.html#/process">新合同建立</a></li>';
-            var myProcess = '<li><a href="/index.html#/myProcess">待处理合同</a></li>';
+            // var myProcess = '<li><a href="/index.html#/myProcess">待处理合同</a></li>';
             var initiator = '<li><a href="/index.html#/initiator">我发起的合同</a></li>';
 
             var pendingParent = '  <li class="sidebar-dropdown">\n' +
@@ -1731,9 +1733,9 @@
                     if(data.upload){
                         tmp += upload;
                     }
-                    if(data.form){
-                        tmp += form;
-                    }
+                    // if(data.form){
+                    //     tmp += form;
+                    // }
                     if(tmp.length > 0){
                         bars += uploadBefore;
                         bars += tmp;
@@ -1758,9 +1760,9 @@
                     if(data.pending){
                         tmp += pending;
                     }
-                    if(data.myProcess){
-                        tmp += myProcess;
-                    }
+                    // if(data.myProcess){
+                    //     tmp += myProcess;
+                    // }
                     if(data.initiator){
                         tmp += initiator;
                     }
@@ -1814,6 +1816,131 @@
                     }
 
                 });
+
+                switch ($rootScope.currentView){
+                    case 'user':
+                        $('#mbx1').html('<a href="index.html#/user"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/user"><span class="fa fa-angle-double-right"></span> 用户信息</a>');
+                        if (!$("#user").parent().hasClass("active")) {
+                            $("#user").trigger("click");
+                        }
+                        break;
+                    case 'group':
+                        $('#mbx1').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 用户组</a>');
+                        if (!$("#user").parent().hasClass("active")) {
+                            $("#user").trigger("click");
+                        }
+                        break;
+                    case 'enterprise':
+                        $('#mbx1').html('<a href="index.html#/enterprise"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/enterprise"><span class="fa fa-angle-double-right"></span> 公司管理</a>');
+                        if (!$("#user").parent().hasClass("active")) {
+                            $("#user").trigger("click");
+                        }
+                        break;
+                    case 'password':
+                        $('#mbx1').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 用户管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/group"><span class="fa fa-angle-double-right"></span> 修改密码</a>');
+                        if (!$("#user").parent().hasClass("active")) {
+                            $("#user").trigger("click");
+                        }
+                        break;
+
+                    case 'upload':
+                        $('#mbx1').html('<a href="index.html#/upload"><span class="fa fa-angle-double-right"></span> 合同模板管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/upload"><span class="fa fa-angle-double-right"></span> 合同模板管理</a>');
+                        if (!$("#deployment").parent().hasClass("active")) {
+                            $("#deployment").trigger("click");
+                        }
+                        break;
+                    case 'form':
+                        $('#mbx1').html('<a href="index.html#/form"><span class="fa fa-angle-double-right"></span> 合同模板管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/form"><span class="fa fa-angle-double-right"></span> 合同模板字段检查</a>');
+                        if (!$("#deployment").parent().hasClass("active")) {
+                            $("#deployment").trigger("click");
+                        }
+                        break;
+                    case 'modeler':
+                        $('#mbx1').html('<a href="index.html#/modeler"><span class="fa fa-angle-double-right"></span> 合同流程管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/modeler"><span class="fa fa-angle-double-right"></span> 合同流程设定</a>');
+                        if (!$("#deploymentProcess").parent().hasClass("active")) {
+                            $("#deploymentProcess").trigger("click");
+                        }
+                        break;
+
+                    case 'deployment':
+                        $('#mbx1').html('<a href="index.html#/deployment"><span class="fa fa-angle-double-right"></span> 合同流程管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/deployment"><span class="fa fa-angle-double-right"></span> 合同流程发布</a>');
+                        if (!$("#deploymentProcess").parent().hasClass("active")) {
+                            $("#deploymentProcess").trigger("click");
+                        }
+                        break;
+                    case 'process':
+                        $('#mbx1').html('<a href="index.html#/process"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
+                        $('#mbx2').html('<a href="index.html#/process"><span class="fa fa-angle-double-right"></span> 新合同建立</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'myProcess':
+                        $('#mbx1').html('<a href="index.html#/myProcess"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
+                        $('#mbx2').html('<a href="index.html#/myProcess"><span class="fa fa-angle-double-right"></span> 待处理合同</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'initiator':
+                        $('#mbx1').html('<a href="index.html#/initiator"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
+                        $('#mbx2').html('<a href="index.html#/initiator"><span class="fa fa-angle-double-right"></span> 我发起的合同</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'pending':
+                        $('#mbx1').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同同归档管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同审核及批复</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'complete':
+                        $('#mbx1').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 合同同归档管理模块</a>');
+                        $('#mbx2').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 归档文件查询</a>');
+                        if (!$("#shenpi").parent().hasClass("active")) {
+                            $("#shenpi").trigger("click");
+                        }
+                        break;
+
+                    case 'privateReport':
+                        $('#mbx1').html('<a href="index.html#/privateReport"><span class="fa fa-angle-double-right"></span> 合同分类统计模块</a>');
+                        $('#mbx2').html('<a href="index.html#/privateReport"><span class="fa fa-angle-double-right"></span> 个人任务统计</a>');
+                        if (!$("#report").parent().hasClass("active")) {
+                            $("#report").trigger("click");
+                        }
+                        break;
+                    case 'fawuReport':
+                        $('#mbx1').html('<a href="index.html#/fawuReport"><span class="fa fa-angle-double-right"></span> 合同分类统计模块</a>');
+                        $('#mbx2').html('<a href="index.html#/fawuReport"><span class="fa fa-angle-double-right"></span> 法务任务统计</a>');
+                        if (!$("#report").parent().hasClass("active")) {
+                            $("#report").trigger("click");
+                        }
+                        break;
+                    case 'audit':
+                        $('#mbx1').html('<a href="index.html#/audit"><span class="fa fa-angle-double-right"></span> 系统日志文件模块</a>');
+                        $('#mbx2').html('<a href="index.html#/audit"><span class="fa fa-angle-double-right"></span> 管理员日志查询</a>');
+                        if (!$("#log").parent().hasClass("active")) {
+                            $("#log").trigger("click");
+                        }
+                        break;
+                    case 'dashboard':
+                    default:
+                        $('#mbx1').html('');
+                        $('#mbx2').html('');
+                        break;
+                }
+
+
             }, function (error) {
                 Loading.hide();
 

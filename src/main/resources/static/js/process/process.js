@@ -375,17 +375,21 @@
 
                                 if(data.rows) {
                                     for (var j = 0; j < data.rows.length; j++) {
-                                        $('#'+data.rows[j].key).val(data.rows[j].value);
+                                        if(data.rows[j].value == 'on'){
+                                            $('#' + data.rows[j].key).attr("checked",true);
+                                        }else {
+                                            $('#' + data.rows[j].key).val(data.rows[j].value);
+                                        }
+                                        $('#'+data.rows[j].key).attr("disabled", true);
                                     }
                                 }
                                 if(data.download){
-                                    $('#customFile')[0].style.display = 'none';
+                                    // $('#customFile')[0].style.display = 'none';
                                     var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
                                     $('#download').html(html);
-                                }else{
-                                    $('#keyword').html(data.keyword);
                                 }
 
+                                $('#keyword').html(data.keyword);
                             }
                             Loading.hide();
                         })
@@ -1007,17 +1011,21 @@
                                 // var html = "<div align=\"CENTER\"><b>关键信息</b></div><div><label>甲方名称：********</label> <label>乙方名称：*****/label></div>>";
                                 if(data.rows) {
                                     for (var j = 0; j < data.rows.length; j++) {
-                                        $('#'+data.rows[j].key).val(data.rows[j].value);
+                                        // $('#'+data.rows[j].key).val(data.rows[j].value);
+                                        if(data.rows[j].value == 'on'){
+                                            $('#' + data.rows[j].key).attr("checked",true);
+                                        }else {
+                                            $('#' + data.rows[j].key).val(data.rows[j].value);
+                                        }
                                     }
                                 }
                                 if(data.download){
-                                    $('#customFile')[0].style.display = 'none';
+                                    // $('#customFile')[0].style.display = 'none';
                                     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
                                     var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
                                     $('#download').html(html);
-                                }else{
-                                    $('#keyword').html(data.keyword);
                                 }
+                                $('#keyword').html(data.keyword);
                             }
                             Loading.hide();
                         })
@@ -1254,7 +1262,12 @@
                                 // $('#keyword').html(data.keyword);
                                 if(data.rows) {
                                     for (var j = 0; j < data.rows.length; j++) {
-                                        $('#'+data.rows[j].key).val(data.rows[j].value);
+                                        // $('#'+data.rows[j].key).val(data.rows[j].value);
+                                        if(data.rows[j].value == 'on'){
+                                            $('#' + data.rows[j].key).attr("checked",true);
+                                        }else {
+                                            $('#' + data.rows[j].key).val(data.rows[j].value);
+                                        }
                                     }
                                 }
                                 if(data.download){
@@ -1441,9 +1454,11 @@
 
                     $scope.showCommit =  data.showCommit;
                     $scope.fields = data.fields;
-                    for(var i=0;i<data.fields.length;i++){
-                        if(data.fields[i].fieldType) {
-                            $('#'+data.fields[i].fieldMd5).attr('placeholder', data.fields[i].fieldType)
+                    if($scope.fields) {
+                        for (var i = 0; i < data.fields.length; i++) {
+                            if (data.fields[i].fieldType) {
+                                $('#' + data.fields[i].fieldMd5).attr('placeholder', data.fields[i].fieldType)
+                            }
                         }
                     }
                     Loading.hide();

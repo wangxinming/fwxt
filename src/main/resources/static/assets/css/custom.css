@@ -33,7 +33,7 @@
 /*----------------sidebar-wrapper----------------*/
 .sidebar-wrapper{
     width: 260px;
-    background: #1c232f;
+    background: #484848;
     height: 100%;
     max-height: 100%;
     position: fixed;
@@ -132,7 +132,7 @@
 }
 /*----------------------sidebar-menu-------------------------*/
 .sidebar-wrapper .sidebar-menu{
-    border-top: 40px solid #1c232f;
+    border-top: 10px solid #484848;
     padding-bottom: 10px;
 }
 
@@ -148,11 +148,11 @@
 .sidebar-wrapper .sidebar-menu ul li a{
     display: inline-block;
     width: 100%;
-    color: #9c9c9c;
+    color: #f3f3f3;
     text-decoration: none;
     transition:color .3s;
     position: relative;
-    padding: 5px 30px 5px 20px;
+    padding: 5px 30px 15px 20px;
 }
 
 .sidebar-wrapper .sidebar-menu ul li:hover > a{
@@ -162,7 +162,6 @@
 .sidebar-wrapper .sidebar-menu  ul li a i{
     margin-right: 10px;
     font-size: 14px;
-    background: #0c1119;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -173,7 +172,7 @@
 
 
 .sidebar-wrapper .sidebar-menu .sidebar-dropdown div {
-    background: #0c1119;
+    background: #2e2a21;
     border-bottom: 1px solid #222b35;
 }
 .sidebar-wrapper .sidebar-menu .sidebar-dropdown > a:after {
@@ -242,6 +241,10 @@
     transform:rotate(90deg);
     right: 17px;
 }
+
+.sidebar-dropdown.active {
+    background: #2e2a21;
+}
 /*--------------------------side-footer------------------------------*/
 
 .sidebar-footer{
@@ -294,12 +297,8 @@
 }
 /*---------------------toggle-sidebar button-------------------------*/
 #toggle-sidebar{
-    /*position: fixed;*/
-    /*top: 12px;*/
-    /*left: 25px;*/
-    /* color: #0f151f; */
-    color: #D5D6E2;
-    font-size: 18px;
+    color: #444;
+    font-size: 20px;
 }
 
 /*----------------  Scroll bar style   --------------- */
@@ -315,4 +314,34 @@
 .mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar
 {
     background: #657692;
+}
+
+.navbar-header img{
+    margin-top: 10px;
+    width: 120px;
+    margin-left: 24px;
+}
+/* 新增项目修改 */
+.table-header-grey  {
+    background-color: #eeefef;
+}
+.navbar .navbar-brand {
+    padding-top: 15px;
+}
+.navbar-right .glyphicon-off {
+    line-height: 1;
+    font-size: 12px;
+    vertical-align: baseline;
+}
+.navbar-inverse .navbar-nav > li > a {
+    font-size: 12px;
+    color: #333;
+}
+.navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus {
+    color: #333;
+    font-size: 12px;
+}
+.navbar-inverse .navbar-text {
+    line-height: 20px;
+    color: #333;
 }

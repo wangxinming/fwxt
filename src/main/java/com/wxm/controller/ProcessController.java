@@ -92,7 +92,8 @@ public class ProcessController {
 
     @Autowired
     private ContractCirculationService contractCirculationService;
-
+    @Autowired
+    private AuditService auditService;
     @Autowired
     private TaskProcessService taskProcessService;
     private static String formatSeconds(long seconds) {
@@ -125,6 +126,7 @@ public class ProcessController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("获取首页数据")));
         Map<String, Object> result = new HashMap<>();
         try{
             long size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
@@ -753,6 +755,7 @@ public class ProcessController {
                 int size = text.indexOf(historicVariableInstance.getVariableName());
                 if (size > 0 && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString())) {
                     String inputValue = map.get(historicVariableInstance.getVariableName());
+                    if(null == text || inputValue == null) continue;
                     int start = text.indexOf(inputValue);
                     text.replace(start,start+inputValue.length(),String.format("<u>%s</u>",historicVariableInstance.getValue().toString()));
                 }

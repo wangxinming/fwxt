@@ -200,6 +200,7 @@ public class DeployController {
             for(Map.Entry<String,String> entry : mapFieldCheck.entrySet()){
                 String key = "name"+entry.getKey().substring(8);
                 OAFormProperties oaFormPropertie = mapDBField.get(key);
+                if(null == oaFormPropertie ) continue;
                 OAFormProperties oaFormProperties = new OAFormProperties();
                 oaFormProperties.setPropertiesId(oaFormPropertie.getPropertiesId());
                 oaFormProperties.setStatus(entry.getValue().equals("on")?1:0);
@@ -233,11 +234,17 @@ public class DeployController {
     @RequestMapping(value = "/concatFile", method = RequestMethod.GET)
     @ResponseBody
     public Object concatFile(HttpServletRequest request)throws Exception {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
         String template_id = request.getParameter("template_id");
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try{
             LOGGER.info("合同模板ID，参数：{}",template_id);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("查询合同，合同编号%s",template_id)));
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(template_id));
             List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(Integer.parseInt(template_id));
             result.put("data",oaContractTemplate);
@@ -260,37 +267,23 @@ public class DeployController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try {
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("查询文件信息")));
             List<KeyValue> list = new LinkedList<>();
             //部署ID
             String id = request.getParameter("id");
-//            String template_id = request.getParameter("template_id");
-//            int tmp_id = 0;
-
             String processInstanceId = request.getParameter("processInstanceId");
             LOGGER.info("获取文件信息，参数：{}",processInstanceId);
 
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
             result.put("workStatus",oaContractCirculationWithBLOBs.getWorkStatus());
             result.put("title",oaContractCirculationWithBLOBs.getContractName());
-//            if (null == template_id) {
-//                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(id);
-//                tmp_id = oaDeploymentTemplateRelation.getRelationTemplateid();
-//            } else {
-//                tmp_id = Integer.parseInt(template_id);
-//            }
-//            String contract = request.getParameter("contract");
-//            OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.querybyId(Integer.parseInt(contract));
-
             result.put("showCommit", true);
             if(null != processInstanceId) {
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 Object object = taskService.getVariable(task.getId(), "taskDefinitionKey");
-
-//                Object refuseTask = taskService.getVariable(task.getId(), "taskDefinitionKey");
                 if (object == null && StringUtils.isBlank(object.toString())) {
                     result.put("showCommit", true);
-
                 } else {
                     result.put("showCommit", false);
                     Object refuseTask = runtimeService.getVariable(task.getExecutionId(),"refuseTask");
@@ -335,6 +328,7 @@ public class DeployController {
             //部署ID
             String contract = request.getParameter("contract");
             LOGGER.info("合同ID号，参数：{}",contract);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("查询模板以及表单信息")));
             result.put("showCommit", true);
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
             result.put("data",oaContractTemplate);
@@ -363,6 +357,7 @@ public class DeployController {
         try{
             int count = concactTemplateService.count();
             List<OAContractTemplate> oaContractTemplateList = concactTemplateService.list(offset, limit);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("分页查询模板列表")));
             result.put("result","success");
             result.put("rows", oaContractTemplateList);
             result.put("total", count);
@@ -474,12 +469,11 @@ public class DeployController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("历史任务详情查询")));
         //历史遗留
         String processInstanceId = request.getParameter("taskId");
         LOGGER.info("工作流实例ID，参数：{}",processInstanceId);
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-//        Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
-//        OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
         OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
         OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
 
@@ -487,21 +481,16 @@ public class DeployController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         //判断当前合同是否自定义合同
-        if(null != oaContractCirculationWithBLOBs.getContractId()){
-//        if(null != oaContractCirculationWithBLOBs.getDescription() && oaContractCirculationWithBLOBs.getDescription().equals("custom")){
+        if(null != oaContractCirculationWithBLOBs.getContractId() && oaContractCirculationWithBLOBs.getContractPdf() != null){
             result.put("download",oaContractCirculationWithBLOBs.getContractId());
         }
-
-
         if(StringUtils.isNotBlank(historicProcessInstance.getId())){
             List<HistoricVariableInstance> historicVariableInstances = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
-
             for (HistoricVariableInstance historicVariableInstance : historicVariableInstances) {
                 if(null == historicVariableInstance || null == historicVariableInstance.getValue() || null == historicVariableInstance.getVariableName())continue;
                 if(historicVariableInstance.getVariableName().startsWith("name")) {
                     KeyValue keyValue = new KeyValue(historicVariableInstance.getVariableName(), historicVariableInstance.getValue().toString());
                     map.put(historicVariableInstance.getVariableName(),keyValue);
-
                 }
             }
             result.put("rows",map.values());
@@ -511,7 +500,7 @@ public class DeployController {
         StringBuilder sb = new StringBuilder("<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">");
         List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
         for(OAFormProperties oaFormProperties : oaFormPropertiesList){
-            if(null == oaFormProperties  && oaFormProperties.getStatus() != 1) continue;
+            if(null == oaFormProperties  || null == oaFormProperties.getStatus()|| oaFormProperties.getStatus() != 1) continue;
             sb.append("<div align=\"LEFT\">");
             sb.append(oaFormProperties.getFieldName());
             sb.append(":");
@@ -560,15 +549,9 @@ public class DeployController {
                 }else {
                     HistoricVariableInstance hi = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicActivityInstance.getProcessInstanceId()).variableName(historicActivityInstance.getTaskId()).singleResult();
                     HistoricVariableInstance variableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicActivityInstance.getProcessInstanceId()).variableName("user").singleResult();
-
-//                    VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
-//                    Object object = runtimeService.getVariable(processInstance.getId(), historicActivityInstance.getTaskId());
                     if (null == hi) {
-                        //
                         TaskComment taskComment = new TaskComment();
-
                         if (historicActivityInstance.getAssignee() == null) {
-//                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
                             taskComment.setName(variableInstance.getValue().toString());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
                             taskComment.setDescription("提交");
@@ -619,13 +602,10 @@ public class DeployController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("查看当前任务详情")));
         String taskId = request.getParameter("taskId");
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
-//        Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(processInstance.getDeploymentId()).singleResult();
-
-//        OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
-//        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaDeploymentTemplateRelation.getRelationTemplateid());
         OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(task.getProcessInstanceId());
         OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
 
@@ -633,12 +613,9 @@ public class DeployController {
         result.put("result","success");
         Map<String,KeyValue> map = new LinkedHashMap();
         //判断当前合同是否自定义合同
-//        if(oaContractCirculationWithBLOBs.getDescription().equals("custom")){
-        if(oaContractCirculationWithBLOBs.getContractId() != null) {
+        if(oaContractCirculationWithBLOBs.getContractId() != null && oaContractCirculationWithBLOBs.getContractPdf() != null ) {
             result.put("download", oaContractCirculationWithBLOBs.getContractId());
         }
-//        }
-
         if(StringUtils.isNotBlank(processInstance.getId())){
             Map<String, VariableInstance> stringVariableInstanceMap = runtimeService.getVariableInstances(processInstance.getId());
             for (Map.Entry<String, VariableInstance> entry : stringVariableInstanceMap.entrySet()) {
@@ -646,7 +623,6 @@ public class DeployController {
                 if(entry.getKey().startsWith("name")) {
                     KeyValue keyValue = new KeyValue(entry.getKey(), entry.getValue().getTextValue());
                     map.put(entry.getKey(),keyValue);
-//                    list.add(keyValue);
                 }
             }
             result.put("rows",map.values());
@@ -656,7 +632,7 @@ public class DeployController {
         StringBuilder sb = new StringBuilder("<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">");
         List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
         for(OAFormProperties oaFormProperties : oaFormPropertiesList){
-            if(null == oaFormProperties && oaFormProperties.getStatus() != 1) continue;
+            if(null == oaFormProperties || null == oaFormProperties.getStatus()|| oaFormProperties.getStatus() != 1) continue;
             sb.append("<div align=\"LEFT\">");
             sb.append(oaFormProperties.getFieldName());
             sb.append(":");
@@ -667,9 +643,6 @@ public class DeployController {
         }
         result.put("keyword",sb.toString());
         List<TaskComment> taskCommentList = new LinkedList<>();
-
-//        List<Comment> commonts1  = taskService.getProcessInstanceComments(processInstance.getId());
-
         boolean flag = false;
         OAUser oaUser = userService.getUserById(loginUser.getId());
         if(null == oaUser.getGroupId() || oaUser.getGroupId() < 1){
@@ -795,6 +768,7 @@ public class DeployController {
                 .orderByDeploymentId().desc().listPage(offset,limit);
         long count = repositoryService.createProcessDefinitionQuery().active().count();
         List<com.wxm.entity.Deployment> list = new ArrayList<>();
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("获取部署模板列表，用于用户提交合同")));
         for(ProcessDefinition pf:pfList){
             Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(pf.getDeploymentId()).singleResult();
             com.wxm.entity.Deployment deploy= new com.wxm.entity.Deployment();
@@ -813,29 +787,6 @@ public class DeployController {
 
             list.add(deploy);
         }
-//        List<Deployment> deployments = repositoryService.createDeploymentQuery()
-//                .orderByDeploymenTime().desc()
-//                .listPage(offset, limit);
-//        long count = repositoryService.createDeploymentQuery().count();
-//        List<com.wxm.entity.Deployment> list = new ArrayList<>();
-//        for(Deployment deployment: deployments){
-//            com.wxm.entity.Deployment deploy= new com.wxm.entity.Deployment();
-//            ProcessDefinition pf = repositoryService.createProcessDefinitionQuery().deploymentId(deployment.getId()).singleResult();
-//            OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deployment.getId());
-//            if(null != oaDeploymentTemplateRelation) {
-//                OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaDeploymentTemplateRelation.getRelationTemplateid());
-//                deploy.setOAContractTemplate(oaContractTemplate);
-//            }
-//            deploy.setStatus(pf.isSuspended()?0:1);
-//            deploy.setVersion(new Integer(pf.getVersion()).toString());
-//            deploy.setId(deployment.getId());
-//            deploy.setName(deployment.getName());
-//            deploy.setCategory(deployment.getCategory());
-//            deploy.setDeploymentTime(deployment.getDeploymentTime());
-//            deploy.setTenantId(deployment.getTenantId());
-//
-//            list.add(deploy);
-//        }
         Map<String, Object> result = new HashMap<>();
         result.put("rows",list);
         result.put("total",count);
@@ -853,6 +804,7 @@ public class DeployController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("获取部署模板列表，对应审批模板")));
         List<Deployment> deployments = repositoryService.createDeploymentQuery()
                 .orderByDeploymenTime().desc()
                 .listPage(offset, limit);
@@ -894,6 +846,7 @@ public class DeployController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("获取流程列表")));
         List<Model> list = repositoryService.createModelQuery().orderByCreateTime().desc().listPage(offset, limit);
         long count = repositoryService.createModelQuery().count();
         Map<String, Object> result = new HashMap<>();
