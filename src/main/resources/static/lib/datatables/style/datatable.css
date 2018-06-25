@@ -36,6 +36,7 @@
 }
 .dataTables_wrapper i {
     margin-right: 13px;
+    font-style: normal;
 }
 .dataTables_filter input[type="text"] {
     padding: 0!important;
