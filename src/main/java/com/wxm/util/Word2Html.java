@@ -4,7 +4,7 @@ import org.artofsolving.jodconverter.OfficeDocumentConverter;
 import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
 import org.artofsolving.jodconverter.office.OfficeManager;
 
-import java.io.File;
+import java.io.*;
 
 public class Word2Html {
     /**
@@ -211,7 +211,26 @@ public class Word2Html {
 
     //测试
     public static void main(String[] args) {
-        File html = openOfficeToPDF("F:\\tmp\\服务合同模板201803.doc","C:/Program Files (x86)/OpenOffice 4");
+        File html = openOfficeToPDF("F:\\tmp\\oa\\上海隧道工程有限公司设计合同20180507.doc","C:/Program Files (x86)/OpenOffice 4");
+        // 获取html文件流
+        StringBuilder htmlSb = new StringBuilder();
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(html),"GBK"));
+            while (br.ready()) {
+                htmlSb.append(br.readLine());
+            }
+            br.close();
+            // 删除临时文件
+//            htmlFile.delete();
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+
+
+        // HTML文件字符串
+        String htmlStr = htmlSb.toString();
+        htmlStr=HtmlProcess.clearFormat(htmlStr,"" + "\\images");
         int tt = 0;
     }
 }

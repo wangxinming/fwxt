@@ -747,7 +747,8 @@ public class ProcessController {
         Map<String,String> map = new LinkedHashMap<>();
         while(matcher.find()) {
             String tmp = matcher.group();
-            String name = tmp.substring(tmp.indexOf("id=")+4,tmp.indexOf(">")-1);
+            String name = tmp.substring(tmp.indexOf("id=")+4);
+            name = name.substring(0,name.indexOf("\""));
             map.put(name,tmp);
         }
 //        for(String str : set){
