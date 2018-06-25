@@ -60,7 +60,7 @@ public class WordTemplateController {
         try{
             if(id != 0) {
                 concactTemplateService.delete(id);
-                formPropertiesService.delete(id);
+                formPropertiesService.deleteByTemplateId(id);
                 auditService.audit(new OAAudit(loginUser.getName(),String.format("删除合同模板 %s",id)));
             }
         }catch (Exception e){
@@ -365,9 +365,12 @@ public class WordTemplateController {
             String before = "<input type=\"text\" style=\"border:none;border-bottom:1px solid #000;\" name=\"";
             String checkboxButton = "<input type=\"checkbox\" name=\"";
             String end = "\"/>";
+            Map<String,String> map = new LinkedHashMap<>();
+
             while(matcher.find()) {
                 String tmp = matcher.group();
                 OAFormProperties oaFormProperties = new OAFormProperties();
+                if(StringUtils.isBlank(tmp) || !tmp.contains("##") || !tmp.contains("%%") || !tmp.contains("!!"))continue;
                 String var = tmp.substring(2,tmp.indexOf("%%"));
                 String type = tmp.substring(tmp.indexOf("%%")+2,tmp.indexOf("##"));
                 String length = tmp.substring(tmp.indexOf("##")+2,tmp.indexOf("!!"));
@@ -382,13 +385,18 @@ public class WordTemplateController {
                 oaFormProperties.setCreateTime(new Date());
                 formPropertiesService.insert(oaFormProperties);
                 if(!tmp.contains("单选框")) {
+
                     String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", before, name, name, end, checkboxBefore, checkbox, checkbox, end);
-                    htmlStr = htmlStr.replace(tmp,text);
+                    map.put(tmp,text);
+//                    htmlStr = htmlStr.replace(tmp,text);
                 }else{
                     String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", checkboxButton, name, name, end, checkboxBefore, checkbox, checkbox, end);
-                    htmlStr = htmlStr.replace(tmp,text);
-
+//                    htmlStr = htmlStr.replace(tmp,text);
+                    map.put(tmp,text);
                 }
+            }
+            for(Map.Entry<String,String> entry : map.entrySet()){
+                htmlStr = htmlStr.replace(entry.getKey(),entry.getValue());
             }
             oaContractTemplate.setTemplateHtml(htmlStr);
             concactTemplateService.update(oaContractTemplate);

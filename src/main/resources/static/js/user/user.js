@@ -1686,7 +1686,7 @@
                 '                                <ul>';
 
             var process = '<li><a href="/index.html#/process">新合同建立</a></li>';
-            // var myProcess = '<li><a href="/index.html#/myProcess">待处理合同</a></li>';
+            var myProcess = '<li><a href="/index.html#/myProcess">待处理合同</a></li>';
             var initiator = '<li><a href="/index.html#/initiator">我发起的合同</a></li>';
 
             var pendingParent = '  <li class="sidebar-dropdown">\n' +
@@ -1760,9 +1760,9 @@
                     if(data.pending){
                         tmp += pending;
                     }
-                    // if(data.myProcess){
-                    //     tmp += myProcess;
-                    // }
+                    if(data.myProcess){
+                        tmp += myProcess;
+                    }
                     if(data.initiator){
                         tmp += initiator;
                     }

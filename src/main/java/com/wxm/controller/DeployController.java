@@ -282,7 +282,7 @@ public class DeployController {
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 Object object = taskService.getVariable(task.getId(), "taskDefinitionKey");
-                if (object == null && StringUtils.isBlank(object.toString())) {
+                if (object == null || StringUtils.isBlank(object.toString())) {
                     result.put("showCommit", true);
                 } else {
                     result.put("showCommit", false);
