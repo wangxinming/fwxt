@@ -81,13 +81,12 @@ color: #ffffff;
 /*-- four-grids --*/
 .tickets{
     background: #f4f4f4;
-    padding: 15px 0 0 20px;
+    padding: 10px 0 10px 20px;
     margin-bottom: 20px;
     box-shadow: 0 -1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);
 }
 .grid-left{
     float:left;
-    width:40%;
 }
 .grid-left img{
     width:100%;
@@ -109,6 +108,9 @@ color: #ffffff;
 }
 .grid-right h3 span{
     display:block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
 }
 .grid-right p{
     color:#2a2f43;
@@ -118,8 +120,8 @@ color: #ffffff;
 .book-icon .fa-book,.book-icon .fa-rocket,.book-icon .fa-bar-chart, .book-icon .fa-envelope, .book-icon .fa-bell, .book-icon .fa-tasks, .book-icon .fa-user{
 /*.book-icon .fa-book .book-icon .fa-envelope .fa-bell .fa-tasks .fa-rocket .book-icon .fa-bar-chart .book-icon .fa-user{*/
     font-size: 3.5em !important;
-    width: 105px;
-    height: 105px;
+    width: 80px;
+    height: 80px;
     color: #2A2F43;
     background: #99CC00;
     vertical-align: middle;
@@ -129,11 +131,11 @@ color: #ffffff;
     -moz-border-radius: 50%;
     -o-border-radius: 50%;
     text-align: center;
-    line-height: 101px;
+    line-height: 80px;
 }
 .book-icon .fa-envelope{
-    color: #08eb58;
-    background: #ffffff;
+   background: #08eb58;
+   color: #ffffff;
 }
 .book-icon .fa-bell{
     background: #ff2a34;
