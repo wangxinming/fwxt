@@ -220,7 +220,9 @@ public class ProcessController {
             throw new OAException(1101,"用户未登录");
         }
         try {
+
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processId);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 下载文件：%s",loginUser.getName(),oaContractCirculationWithBLOBs.getContractName())));
             byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
             response.setContentType("application/x-download");
 //        String codedfilename = MimeUtility.encodeText( new String((oaContractCirculationWithBLOBs.getContractName()+".pdf").getBytes("UTF-8"), "ISO-8859-1"));
@@ -246,6 +248,8 @@ public class ProcessController {
             throw new OAException(1101,"用户未登录");
         }
         String id = request.getParameter("modelerId");
+
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 模型预览，modelerId：%s",loginUser.getName(),id)));
         //获取模型
         Model modelData = repositoryService.getModel(id);
         byte[] bytes = repositoryService.getModelEditorSource(modelData.getId());
@@ -281,6 +285,7 @@ public class ProcessController {
             throw new OAException(1101,"用户未登录");
         }
         String id = request.getParameter("modelerId");
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 模型预览，modelerId：%s",loginUser.getName(),id)));
         //获取模型
         Model modelData = repositoryService.getModel(id);
         byte[] bytes = repositoryService.getModelEditorSource(modelData.getId());
@@ -312,6 +317,7 @@ public class ProcessController {
             throw new OAException(1101,"用户未登录");
         }
         String docId = request.getParameter("depId");
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 模型预览，部署模型编号：%s",loginUser.getName(),docId)));
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(docId).singleResult();
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
@@ -337,7 +343,7 @@ public class ProcessController {
             throw new OAException(1101,"用户未登录");
         }
         String docId = request.getParameter("depId");
-
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 模型图片预览，部署模型编号：%s",loginUser.getName(),docId)));
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(docId).singleResult();
         Map<String, Object> result = new HashMap<>();
         BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
@@ -361,6 +367,8 @@ public class ProcessController {
             throw new OAException(1101,"用户未登录");
         }
         String taskID = request.getParameter("TaskId");
+
+
         String processInstanceId = "";
         try {
             if (!StringUtils.isBlank(taskID)) {
@@ -369,6 +377,7 @@ public class ProcessController {
             } else {
                 processInstanceId = request.getParameter("processInstanceId");
             }
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 查询任务处理进度，实例编号：%s",loginUser.getName(),processInstanceId)));
             HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
             //获取流程图
             BpmnModel bpmnModel = repositoryService.getBpmnModel(processInstance.getProcessDefinitionId());
@@ -452,6 +461,7 @@ public class ProcessController {
 //                        }
 //                    }
 //                }
+                auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 任务跳转到审批人，实例编号：%s",loginUser.getName(),processInstanceId)));
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
 
@@ -486,7 +496,7 @@ public class ProcessController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         String taskId = map.get("id");
-
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 拒绝任务，任务编号：%s",loginUser.getName(),taskId)));
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String taskDefinitionKey = task.getTaskDefinitionKey();
 //        runtimeService.setVariable(task.getProcessInstanceId(), "refuseTask", "拒绝" );
@@ -576,6 +586,7 @@ public class ProcessController {
                 String index = map.get("index");
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 if(index.equals("1")){
+                    auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 提交合同工单",loginUser.getName())));
                     Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(deploymentID).singleResult();
                     Date nowTime = new Date();
                     SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd");
@@ -619,6 +630,7 @@ public class ProcessController {
 //                    contractCirculationService.update(oaContractCirculationWithBLOBs);
 
                 }else{
+                    auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 草稿更新",loginUser.getName())));
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
                     OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
                     contractCirculationWithBLOBs.setContractId(oaContractCirculationWithBLOBs.getContractId());
@@ -636,7 +648,7 @@ public class ProcessController {
                 String deploymentID = map.get("id");
                 String index = map.get("index");
 
-
+                auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 提交工单",loginUser.getName())));
 //                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
 //                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaDeploymentTemplateRelation.getRelationTemplateid());
                 List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(Integer.parseInt(contract));
@@ -801,6 +813,7 @@ public class ProcessController {
 //
 //            }
             if (null != activity && activity.getProperty("name").equals("核对")) {
+                auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 核对合同",loginUser.getName())));
             //归档后 用户可以查
                 runtimeService.setVariable(processInstancesId,"instanceStatus","completed");
                 HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstancesId).variableName("title").singleResult();
@@ -840,9 +853,9 @@ public class ProcessController {
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
-
             }
         }else{
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 完成任务审批",loginUser.getName())));
             //合同状态 为完成状态
 //            oaContractCirculationWithBLOBs.setContractStatus("completed");
 //            contractCirculationService.update(oaContractCirculationWithBLOBs);
