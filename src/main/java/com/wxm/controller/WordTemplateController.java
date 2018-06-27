@@ -85,6 +85,7 @@ public class WordTemplateController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try {
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取合同模板字段列表",loginUser.getName())));
             result.put("rows", formPropertiesService.list(offset, limit, templateName,id));
             result.put("total", formPropertiesService.count(templateName,id));
         }catch (Exception e){
@@ -122,6 +123,7 @@ public class WordTemplateController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try {
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取所有合同模板列表",loginUser.getName())));
             result.put("rows", concactTemplateService.listTemplate());
             result.put("total", concactTemplateService.count());
 
@@ -165,6 +167,7 @@ public class WordTemplateController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try {
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 分页获取合同模板列表",loginUser.getName())));
             result.put("rows", concactTemplateService.list(offset, limit));
             result.put("total", concactTemplateService.count());
         }catch (Exception e){
@@ -200,6 +203,7 @@ public class WordTemplateController {
         }
         String id = request.getParameter("id");
         oaAttachmentService.delete(Integer.parseInt(id));
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 删除附件",loginUser.getName())));
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         return result;
@@ -220,6 +224,7 @@ public class WordTemplateController {
             oaAttachment.setFileContent(file.getBytes());
             Integer id = oaAttachmentService.save(oaAttachment);
             result.put("id", id);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 保存附件，名称：%s",loginUser.getName(),file.getOriginalFilename())));
 //            File desFile = new File(contractPath + docName);
 //            if (!desFile.getParentFile().exists()) {
 //                desFile.mkdirs();
@@ -241,6 +246,7 @@ public class WordTemplateController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 自定义模板",loginUser.getName())));
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
 
@@ -277,6 +283,12 @@ public class WordTemplateController {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 文件下载",loginUser.getName())));
         if(StringUtils.isBlank(fileName) && contractId != null ) {
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.querybyId(contractId);
             byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
@@ -316,11 +328,13 @@ public class WordTemplateController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         String htmlStr = "";
         String docName =  file.getOriginalFilename();
         String fileName = file.getOriginalFilename().substring(0,file.getOriginalFilename().indexOf("."));
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 模板导入，模板名称：%s",loginUser.getName(),docName)));
         try {
             File desFile = new File(contractPath + docName);
             if(!desFile.getParentFile().exists()){

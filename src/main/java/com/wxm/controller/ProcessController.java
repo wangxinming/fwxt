@@ -913,6 +913,7 @@ public class ProcessController {
                 .listPage(offset,limit);
 
         long size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取待办任务",loginUser.getName())));
         if (list != null && list.size() > 0) {
             for (Task task : list) {
                 ProcessDefinition pf = repositoryService.createProcessDefinitionQuery().processDefinitionId(task.getProcessDefinitionId()).singleResult();
@@ -958,6 +959,7 @@ public class ProcessController {
         long size = 0;
         List<TaskInfo> taskInfos = new LinkedList<>();
         HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 归档任务查询",loginUser.getName())));
         if(StringUtils.isNotBlank(title)) {
             historicProcessInstanceQuery =historicProcessInstanceQuery.variableValueLike("title", "%"+title+"%");
         }
@@ -1056,6 +1058,7 @@ public class ProcessController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 查询任务状态",loginUser.getName())));
         List<ProInstance> processInstanceList = new LinkedList<>();
         List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
                 .orderByProcessInstanceStartTime().desc()
@@ -1097,6 +1100,7 @@ public class ProcessController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 查询未提交任务",loginUser.getName())));
         List<ProInstance> processInstanceList = new LinkedList<>();
         List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
                 .orderByProcessInstanceStartTime().desc()

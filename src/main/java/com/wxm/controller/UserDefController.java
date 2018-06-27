@@ -74,6 +74,7 @@ public class UserDefController {
         res.put("result","success");
         try{
             res.put("data",oaEnterpriseService.getEnterpriseById(id));
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 查询企业信息",loginUser.getName())));
         }catch (Exception e){
             res.put("result","failed");
         }
@@ -94,6 +95,7 @@ public class UserDefController {
         try {
             List<OAEnterprise> list = oaEnterpriseService.getEnterpriseList(enterpriseName,offset, limit);
             Integer count = oaEnterpriseService.count(enterpriseName);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 查询企业列表查询",loginUser.getName())));
             result.put("rows", list);
             result.put("total", count);
         }catch (Exception e){
@@ -197,6 +199,7 @@ public class UserDefController {
         List<OAUser> listob = null;
         Map<String, String> result = new HashMap<>();
         try {
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 导入人员名单",loginUser.getName())));
             in = file.getInputStream();
             listob = new ImportExcelUtil().getBankListByExcel(in,file.getOriginalFilename());
             in.close();
@@ -291,6 +294,7 @@ public class UserDefController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try {
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取组明细",loginUser.getName())));
             OAGroup oaGroup = oaGroupMapper.selectByPrimaryKey(groupId);
             Map map = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
             Map mapMenu = (Map) map.get("menu");
@@ -392,6 +396,7 @@ public class UserDefController {
         Map<String, Object> result = new HashMap<>();
         List<OAGroup> list = oaGroupMapper.list(groupName,offset,limit,null,null);
         Integer count = oaGroupMapper.count(groupName,null,null);
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取组列表",loginUser.getName())));
         result.put("rows",list);
         result.put("total",count);
         return result;
@@ -409,6 +414,7 @@ public class UserDefController {
         result.put("result", "success");
         try {
             List<OAPrivilege> oaPrivileges = oaPrivilegeMapper.list("menu");
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取菜单权限",loginUser.getName())));
             for (OAPrivilege oaPrivilege : oaPrivileges) {
                 oaPrivilege.setId(oaPrivilege.getPrivilegeId());
             }
@@ -430,6 +436,8 @@ public class UserDefController {
             LOGGER.error("用户未登录");
             throw new OAException(1101, "用户未登录");
         }
+
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取菜单权限",loginUser.getName())));
         Map<String,Boolean> res = new LinkedHashMap<>();
         if(loginUser.getName().equals("admin")){
             res.put("user",true);
@@ -490,6 +498,7 @@ public class UserDefController {
             LOGGER.error("用户未登录");
             throw new OAException(1101, "用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取按钮权限",loginUser.getName())));
         List<Menu> list = new LinkedList<>();
         if(loginUser.getName().equals("admin")){
             Menu menu = new Menu("user","用户界面",true);
@@ -644,6 +653,7 @@ public class UserDefController {
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         try {
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取流程定义列表",loginUser.getName())));
             List<ProcessDef> processDefList = new LinkedList<>();
             List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery()//创建一个流程定义查询
                     /*指定查询条件,where条件*/
@@ -749,6 +759,7 @@ public class UserDefController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取组列表",loginUser.getName())));
         return userOrganizitionService.getGroupList(offset,limit);
     }
 
@@ -893,6 +904,7 @@ public class UserDefController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取USER信息，用户编号：%s",loginUser.getName(),userId)));
         Map<String,Object> map =  new LinkedHashMap<>();
         map.put("result","success");
         try {
@@ -920,6 +932,7 @@ public class UserDefController {
         Map<String,Object> map =  new LinkedHashMap<>();
         map.put("result","success");
         try {
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取组列表",loginUser.getName())));
             map.put("group", oaGroupMapper.total());
             map.put("company",oaEnterpriseService.total());
         }catch (Exception e){
@@ -939,6 +952,7 @@ public class UserDefController {
             LOGGER.error("用户未登录");
             throw new OAException(1101, "用户未登录");
         }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取用户列表",loginUser.getName())));
         if(loginUser.getName().equals("admin")) {
             List<com.wxm.entity.User> list = new LinkedList<>();
             String offset = request.getParameter("offset");
