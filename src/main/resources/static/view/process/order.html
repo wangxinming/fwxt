@@ -21,15 +21,19 @@
         </div>
 
         <div  ng-hide="showCommit" class="col-md-9" style="margin-top: 10px;">
-            <label  class="col-md-2 control-label" style="font-size: 16px;">回退原因：</label>
+            <label  class="col-md-2 control-label" >回退原因：</label>
             <div class="col-md-6" id="refuseCause" style="margin: 0px 0px 0px -44px;">异常</div>
         </div>
         <div  ng-hide="showCommit" class="col-md-9" style="margin-top: 10px;">
-            <label  class="col-md-2 control-label" style="font-size: 16px;">备注</label>
-            <div class="col-md-6" style="margin: 0px 0px 0px -87px;">
+            <label  class="col-md-2 control-label">备注</label>
+            <div class="col-md-6" style="margin: -5px 0px 0px -87px;">
                 <input type="text" class="form-control ng-pristine ng-valid" name="attachmentRefuse"
                        maxlength="300" ng-model="attachmentRefuse" placeholder="备注">
             </div>
+        </div>
+        <div  ng-hide="showCommit" class="col-md-9" style="margin-top: 10px;">
+            <label  class="col-md-2 control-label" >已上传文件：</label>
+            <div class="col-md-6" id="downloadedFile" ></div>
         </div>
         <DIV class="col-md-9" style="margin-top: 10px;">
             <div class="row" id="uploadAttachmentFile">

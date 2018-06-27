@@ -1483,7 +1483,16 @@
                         }
                     }
                     $scope.showCommit =  data.showCommit;
-                    $('#refuseCause').text(data.refuse)
+                    $('#refuseCause').text(data.refuse);
+                    if(data.download) {
+                        // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId=' + data.download + '");">附件下载</a>';
+                        var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                        $('#downloadedFile').html(html);
+                    }else{
+                        var html = '<a href="javascript:void(0);">无附件</a>';
+                        $('#downloadedFile').html(html);
+                    }
+
                     Loading.hide();
                 });
             };
@@ -1534,8 +1543,6 @@
                     if(data.result == "success"){
                         // window.open("/index.html#/myProcess");
                         window.close();
-                    }else{
-
                     }
                 })
             };

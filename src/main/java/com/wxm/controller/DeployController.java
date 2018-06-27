@@ -278,6 +278,7 @@ public class DeployController {
             result.put("workStatus",oaContractCirculationWithBLOBs.getWorkStatus());
             result.put("title",oaContractCirculationWithBLOBs.getContractName());
             result.put("showCommit", true);
+            result.put("download",oaContractCirculationWithBLOBs.getContractId());
             if(null != processInstanceId) {
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();

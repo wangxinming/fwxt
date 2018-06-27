@@ -475,6 +475,7 @@ public class ProcessController {
                 runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
                 oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
                 contractCirculationService.update(oaContractCirculationWithBLOBs);
+
             }catch (Exception e){
                 LOGGER.error("异常",e);
                 result.put("result","failed");
@@ -515,12 +516,12 @@ public class ProcessController {
                 if(task1.getAssignee() == null){
                     taskProcessService.jump(task1.getTaskDefinitionKey(), task.getProcessInstanceId());
                     runtimeService.setVariable(task.getProcessInstanceId(), "init", "start");
-                    SimpleMailMessage message = new SimpleMailMessage();
-                    message.setFrom("xxxx@qq.com");
-                    message.setTo("xxxx@qq.com");
-                    message.setSubject("流程审批");
-                    message.setText("简单邮件内容+url");
-                    mailService.send(message);
+//                    SimpleMailMessage message = new SimpleMailMessage();
+//                    message.setFrom("xxxx@qq.com");
+//                    message.setTo("xxxx@qq.com");
+//                    message.setSubject("流程审批");
+//                    message.setText("简单邮件内容+url");
+//                    mailService.send(message);
 
                     task = taskService.createTaskQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
                     taskService.setVariable(task.getId(),"taskDefinitionKey",taskDefinitionKey);
