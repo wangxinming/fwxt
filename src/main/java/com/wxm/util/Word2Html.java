@@ -106,7 +106,7 @@ public class Word2Html {
 //        }
 //        return null;
 //    }
-    public static File html2pdf(String inputFilePath,String path) {
+    public static synchronized File html2pdf(String inputFilePath,String path) {
         OfficeManager officeManager = null;
         try {
             if (inputFilePath==null||inputFilePath.trim().length()<=0) {
@@ -150,7 +150,7 @@ public class Word2Html {
      * @param inputFilePath 源文件路径，如："D:/论坛.docx"
      * @return
      */
-    public static File office2pdf(String inputFilePath,String path) {
+    public static synchronized File office2pdf(String inputFilePath,String path) {
         OfficeManager officeManager = null;
         try {
             if (inputFilePath==null||inputFilePath.trim().length()<=0) {
