@@ -161,6 +161,9 @@ CREATE TABLE OA_CONTRACT_CIRCULATION
   CONTRACT_HTML   TEXT,
   CONTRACT_PDF    IMAGE,
   WORK_STATUS     INT,
+  WORK_DATE NVARCHAR(100),
+  CONTRACT_SERIAL_NUMBER NVARCHAR(100),
+  ARCHIVE_SERIAL_NUMBER NVARCHAR(100),
   CREATE_TIME     DATETIME
 )
 GO
@@ -514,6 +517,31 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'合同编号', N'user', N'db
 EXECUTE sp_addextendedproperty N'MS_Description', N'附件名称', N'user', N'dbo', N'table', N'OA_ATTACHMENT', N'column', N'FILE_NAME';
 EXECUTE sp_addextendedproperty N'MS_Description', N'附件内容', N'user', N'dbo', N'table', N'OA_ATTACHMENT', N'column', N'FILE_CONTENT';
 EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_ATTACHMENT', N'column', N'CREATE_TIME';
+
+if exists ( select *
+ from  sysobjects
+ where name = 'OA_NOTIFY'
+ and type = 'U')
+ drop table OA_NOTIFY
+go
+CREATE TABLE OA_NOTIFY
+(
+  NOTIFY_ID       INT IDENTITY PRIMARY KEY,
+  USER_NAME          NVARCHAR(100),
+  CONTENT            NVARCHAR(500),
+  CREATE_TIME      DATETIME
+)
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'首页通知信息', N'user', N'dbo', N'table', N'OA_NOTIFY', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'信息编号', N'user', N'dbo', N'table', N'OA_NOTIFY', N'column', N'NOTIFY_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建人姓名', N'user', N'dbo', N'table', N'OA_NOTIFY', N'column', N'USER_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'通知内容', N'user', N'dbo', N'table', N'OA_NOTIFY', N'column', N'CONTENT';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_NOTIFY', N'column', N'CREATE_TIME';
+
+
+
 -- /*表注释*/
 -- SELECT [ColumnName] = [Columns].name ,
 --        [Description] = [Properties].value,

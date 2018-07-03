@@ -11,6 +11,7 @@ import java.util.List;
 public interface ContractCirculationService {
     OAContractCirculationWithBLOBs querybyId(int id);
     OAContractCirculationWithBLOBs selectByProcessInstanceId(String processInstanceId);
+    OAContractCirculation selectByMaxId();
     Integer insert(OAContractCirculationWithBLOBs oaContractTemplate);
     Integer update(OAContractCirculationWithBLOBs oaContractTemplate);
     Integer delete(int id);

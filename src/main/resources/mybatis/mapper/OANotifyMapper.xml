@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OANotifyMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OANotify" >
+    <id column="NOTIFY_ID" property="notifyId" jdbcType="INTEGER" />
+    <result column="USER_NAME" property="userName" jdbcType="NVARCHAR" />
+    <result column="CONTENT" property="content" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    NOTIFY_ID, USER_NAME, CONTENT, CREATE_TIME
+  </sql>
+
+  <select id="list" resultMap="BaseResultMap">
+    select top ${limit} * from OA_NOTIFY where NOTIFY_ID not
+    in(select top ${offset} NOTIFY_ID from OA_NOTIFY  where 1=1
+    <if test="userName != null">
+      AND USER_NAME like CONCAT('%',#{userName},'%' )
+    </if>
+    <if test="startTime != null" >
+      AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND CREATE_TIME<![CDATA[ <= ]]> #{endTime}
+    </if>
+    ORDER BY CREATE_TIME DESC )
+    <if test="userName != null" >
+      AND USER_NAME like CONCAT('%',#{userName},'%' )
+    </if>
+    <if test="startTime != null" >
+      AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME<![CDATA[ <= ]]> #{endTime}
+    </if>
+    ORDER BY CREATE_TIME DESC
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    SELECT  count(*)
+    from OA_NOTIFY where 1=1
+    <if test="userName != null" >
+      AND USER_NAME like CONCAT('%',#{userName},'%' )
+    </if>
+    <if test="startTime != null" >
+      AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME<![CDATA[ <= ]]> #{endTime}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from OA_NOTIFY
+    where NOTIFY_ID = #{notifyId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_NOTIFY
+    where NOTIFY_ID = #{notifyId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OANotify" useGeneratedKeys="true"  keyProperty = "notifyId" keyColumn = "NOTIFY_ID">
+    insert into OA_NOTIFY (NOTIFY_ID, USER_NAME, CONTENT, 
+      CREATE_TIME)
+    values (#{notifyId,jdbcType=INTEGER}, #{userName,jdbcType=NVARCHAR}, #{content,jdbcType=NVARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OANotify" useGeneratedKeys="true"  keyProperty = "notifyId" keyColumn = "NOTIFY_ID">
+    insert into OA_NOTIFY
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="notifyId != null" >
+        NOTIFY_ID,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="content != null" >
+        CONTENT,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="notifyId != null" >
+        #{notifyId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=NVARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OANotify" >
+    update OA_NOTIFY
+    <set >
+      <if test="userName != null" >
+        USER_NAME = #{userName,jdbcType=NVARCHAR},
+      </if>
+      <if test="content != null" >
+        CONTENT = #{content,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where NOTIFY_ID = #{notifyId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OANotify" >
+    update OA_NOTIFY
+    set USER_NAME = #{userName,jdbcType=NVARCHAR},
+      CONTENT = #{content,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where NOTIFY_ID = #{notifyId,jdbcType=INTEGER}
+  </update>
+</mapper>

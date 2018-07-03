@@ -8,6 +8,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 public class MailTest {
     @Autowired
     private JavaMailSender mailSender;
+    @Test
+    public void testNumber(){
+        String result = "";
+        // 保留code的位数
+        result = String.format("%02d", Integer.parseInt("111") + 1);
+        int i = 0;
+
+    }
 
     @Test
     public void sendSimpleMail() throws Exception {

@@ -8,8 +8,18 @@ public class ProInstance {
     private String deployName;
     private String deployId;
     private String title;
+    private String contractSerial;
     private Date createTime;
     private String status;
+
+    public String getContractSerial() {
+        return contractSerial;
+    }
+
+    public void setContractSerial(String contractSerial) {
+        this.contractSerial = contractSerial;
+    }
+
     public void setDeployId(String deployId){
         this.deployId = deployId;
     }

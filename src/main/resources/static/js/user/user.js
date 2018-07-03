@@ -23,6 +23,10 @@
                 templateUrl: 'view/user/enterprise.html',
                 controller: 'enterprise.controller'
             })
+            .when('/notify', {
+                templateUrl: 'view/user/notify.html',
+                controller: 'notify.controller'
+            })
             .when('/group', {
                     templateUrl: 'view/user/group.html',
                     controller: 'group.controller'
@@ -293,6 +297,14 @@
                 //获取分公司信息
                 queryCompany: {method:'GET',url:"/user/queryCompany", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
 
+                //通知消息获取
+                notifyList: {method:'GET',url:"/user/listNotify", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //创建通知
+                createNotify: {method:'PUT',url:"/user/notify", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新通知
+                updateNotify: {method:'POST',url:"/user/notify", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //删除通知
+                deleteNotify: {method:'DELETE',url:"/user/notify", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
 
                 /*用户管理*/
                 //增加用户
@@ -496,6 +508,184 @@
                 })
             }
         }])
+        .controller('notify.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout,$filter) {
+            $scope.addPage={
+                data:{
+                    notifyId:0,
+                    content:''
+                },
+                init:function(){
+                    $scope.addPage.data = {
+                        notifyId:0,
+                        content:""
+                    }
+                }
+            };
+            $scope.pageDialog=Tools.dialog({
+                id:"pageDialog",
+                title:"创建通知",
+                hiddenButton:false,
+                save:function() {
+                    Loading.show();
+                    if( $scope.pageDialog.title == "创建通知"){
+                        loader.createNotify($scope.addPage.data,function(data){
+                            Loading.hide();
+                            $scope.pageDialog.hide();
+                            $scope.addPage.init();
+                            $scope.listPage.settings.reload(true);
+
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    }else{
+                        loader.updateNotify($scope.addPage.data,function(data){
+                            Loading.hide();
+                            $scope.addPage.init();
+                            $scope.pageDialog.hide();
+                            $scope.listPage.settings.reload(true);
+
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    }
+
+                }
+            });
+            var current = new Date();
+            $scope.searchPage = {
+                data: {
+                    id: 0,
+                    startTime: $filter('date')(new Date(current.getTime() - 30 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        id:0,
+                        startTime: $filter('date')(new Date(current.getTime() - 30 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        limit: 10, //每页条数(即取多少条数据)
+                        offset: 0 //从第几条数据开始取
+                    }
+                },
+                action:{
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    add: function () {
+                        $scope.pageDialog.title = "创建通知";
+                        $scope.addPage.init();
+                        $scope.pageDialog.show();
+
+                    },
+                    edit: function (id,content) {
+                        $scope.pageDialog.title = "修改通知";
+                        $scope.addPage.data.content = content;
+                        $scope.addPage.data.notifyId = id;
+                        $scope.pageDialog.show();
+                    },
+                    remove:function (id) {
+                        $rootScope.$confirm("确定要删除吗？", function () {
+                            Loading.show();
+                            loader.deleteNotify({'notifyId': id}, function (data) {
+                                if (data.result == "success") {
+                                    Loading.hide();
+                                    $scope.listPage.settings.reload(true);
+                                }
+                            }, function (error) {
+                                Loading.hide();
+                            });
+                        }, '删除');
+                    },
+                    search: function (search, fnCallback) {
+                        $scope.searchPage.data.offset = search.offset;
+                        loader.notifyList($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    }
+                }
+            };
+
+            // $scope.submit = function(e) {
+            //     if(e.keyCode=="13"){
+            //         $scope.searchPage.action.search();
+            //     }
+            // };
+
+            $scope.listPage.settings = {
+                pageSize:10,
+                bAutoWidth:false,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "创建人",
+                        mData: "userName",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "内容",
+                        mData: "content",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "创建时间",
+                        mData: "createTime",
+                        mRender: function (mData, type, full) {
+                            if(!mData){
+                                return "";
+                            }
+                            return Util.formatSimpleDate(mData);
+                        }
+                    },
+                    {
+                        sTitle: "操作",
+                        mData:"notifyId",
+                        mRender:function(mData,type,full) {
+                            //class="fa fa-pencil" class="fa fa-trash-o" class="'+(full.companyStatus==1?'fa fa-stop':'fa fa-play')+'"
+                            return  '<i><a title="编辑"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.edit(\'' + mData +'\',\''+full.content+'\')">编辑</a></i>' +
+                                // '<i title="编辑" ng-hide="loginUserMenuMap[currentView]" class="fa fa-pencil" ng-click="listPage.action.edit(\'' + mData +'\')"> </i>' +
+                                '<i><a title="删除"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>';
+                                // '<i><a title="'+(full.companyStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.active('+(full.companyStatus==1?'false':'true')+',\''+mData+'\',\''+full.companyStatus+'\')">'+(full.companyStatus==1?'停用':'启用')+'</a></i>';
+                            // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+
+                        }
+                    }
+
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,10列不可排序
+                    // { sWidth: "10%", aTargets: [ 3] },
+                    // { sWidth: "15%", aTargets: [ 0,1,2,4] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+            $scope.searchPage.init();
+        }])
         .controller('enterprise.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
             $scope.addPage={
                 data:{
@@ -660,6 +850,7 @@
             };
             $scope.listPage.settings = {
                 pageSize:10,
+                bAutoWidth:false,
                 reload: null,
                 getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
                 columns: [
@@ -1760,9 +1951,9 @@
                     if(data.pending){
                         tmp += pending;
                     }
-                    if(data.myProcess){
-                        tmp += myProcess;
-                    }
+                    // if(data.myProcess){
+                    //     tmp += myProcess;
+                    // }
                     if(data.initiator){
                         tmp += initiator;
                     }

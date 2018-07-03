@@ -10,10 +10,20 @@ public class TaskInfo {
     private String assignee;//任务的办理人
     private Date timestamp; //任务的创建时间
     private String processInstanceId;//流程实例ID
+    private String deployId;
     private String executionId;//执行对象ID
     private String processDefinitionId;//流程定义ID
+    private Integer order;
     private Integer workStatus;
     private String duringTime;
+
+    public String getDeployId() {
+        return deployId;
+    }
+
+    public void setDeployId(String deployId) {
+        this.deployId = deployId;
+    }
 
     public String getDuringTime() {
         return duringTime;
@@ -21,6 +31,14 @@ public class TaskInfo {
 
     public void setDuringTime(String duringTime) {
         this.duringTime = duringTime;
+    }
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
     }
 
     public void setId(String id){
@@ -38,8 +56,8 @@ public class TaskInfo {
     public void setTimestamp(Date timestamp){
         this.timestamp = timestamp;
     }
-    public void setProcessInstanceId(String processDefinitionId){
-        this.processDefinitionId = processDefinitionId;
+    public void setProcessInstanceId(String processInstanceId){
+        this.processInstanceId = processInstanceId;
     }
     public void setExecutionId(String executionId){
         this.executionId = executionId;

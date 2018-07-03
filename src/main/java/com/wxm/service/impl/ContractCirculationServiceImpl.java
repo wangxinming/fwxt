@@ -28,6 +28,11 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     }
 
     @Override
+    public OAContractCirculation selectByMaxId() {
+        return oaContractCirculationMapper.selectByMaxId();
+    }
+
+    @Override
     public Integer insert(OAContractCirculationWithBLOBs oaContractTemplate) {
         return oaContractCirculationMapper.insertSelective(oaContractTemplate);
     }

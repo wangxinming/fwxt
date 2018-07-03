@@ -12,8 +12,8 @@
     background: #eee;
 }
 .table.dataTable{
-    white-space: nowrap;
-    table-layout: fixed;
+    /*white-space: nowrap;*/
+    /*table-layout: fixed;*/
     width:inherit!important;
     border-bottom: none!important;
 }

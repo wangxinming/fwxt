@@ -19,8 +19,35 @@ public class OAContractCirculation {
     private String contractStatus;
 
     private String description;
+    private String workDate;
+    private String contractSerialNumber;
+    private String archiveSerialNumber;
 
     private Date createTime;
+
+    public String getArchiveSerialNumber() {
+        return archiveSerialNumber;
+    }
+
+    public String getContractSerialNumber() {
+        return contractSerialNumber;
+    }
+
+    public String getWorkDate() {
+        return workDate;
+    }
+
+    public void setArchiveSerialNumber(String archiveSerialNumber) {
+        this.archiveSerialNumber = archiveSerialNumber;
+    }
+
+    public void setContractSerialNumber(String contractSerialNumber) {
+        this.contractSerialNumber = contractSerialNumber;
+    }
+
+    public void setWorkDate(String workDate) {
+        this.workDate = workDate;
+    }
 
     public Integer getContractReopen() {
         return contractReopen;

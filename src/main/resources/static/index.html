@@ -70,7 +70,7 @@
             </div>
         </div>
         <div class="navbar-right">
-            <p class="navbar-text navbar-center" id="loginInfo">欢迎登陆XX系统</p>
+            <p class="navbar-text navbar-center" id="loginInfo">欢迎登陆合同管理系统</p>
             <!--向右对齐-->
             <ul class="nav navbar-nav navbar-right">
                 <li><a onclick="logoutUser();"><span class="glyphicon glyphicon-off"></span>注销 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -194,5 +194,23 @@
             }
         });
     };
+    function getObjectURL(file) {
+        var url = null ;
+        // 下面函数执行的效果是一样的，只是需要针对不同的浏览器执行不同的 js 函数而已
+        if (window.createObjectURL!=undefined) { // basic
+            url = window.createObjectURL(file) ;
+        } else if (window.URL!=undefined) { // mozilla(firefox)
+            url = window.URL.createObjectURL(file) ;
+        } else if (window.webkitURL!=undefined) { // webkit or chrome
+            url = window.webkitURL.createObjectURL(file) ;
+        }
+        return url ;
+    }
+    $('#fileAttachment').change(function(){
+        var objUrl = getObjectURL(this.files[0]) ;
+        if (objUrl) {
+            $("#yulanImg").attr("src", objUrl) ;
+        }
+    }) ;
 </script>
 </html>

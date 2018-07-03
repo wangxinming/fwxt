@@ -204,13 +204,13 @@
                             return Util.str2Html(mData);
                         }
                     },
-                    {
-                        sTitle: "字段唯一标记",
-                        mData: "fieldMd5",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
+                    // {
+                    //     sTitle: "字段唯一标记",
+                    //     mData: "fieldMd5",
+                    //     mRender: function (mData, type, full) {
+                    //         return Util.str2Html(mData);
+                    //     }
+                    // },
                     {
                         sTitle: "类型",
                         mData: "fieldType",
@@ -236,9 +236,9 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,3列不可排序
-                    { sWidth: "25%", aTargets: [ 2] },
-                    { sWidth: "15%", aTargets: [ 0,1,3,4,5 ] }
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,3列不可排序
+                    // { sWidth: "25%", aTargets: [ 2] },
+                    { sWidth: "20%", aTargets: [ 0,1,2,3,4] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -449,16 +449,23 @@
                     //         return s;
                     //     }
                     // },
+                    // {
+                    //     sTitle: "流程名称",
+                    //     mData: "name",
+                    //     mRender: function (mData, type, full) {
+                    //         return Util.str2Html(mData);
+                    //     }
+                    // },
                     {
-                        sTitle: "流程名称",
-                        mData: "name",
+                        sTitle: "合同标题",
+                        mData: "title",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
-                        sTitle: "合同标题",
-                        mData: "title",
+                        sTitle: "归档编号",
+                        mData: "archiveSerialNumber",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -1062,8 +1069,15 @@
                         }
                     },
                     {
-                        sTitle: "请求标题",
+                        sTitle: "合同标题",
                         mData: "title",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "合同编号",
+                        mData: "contractSerial",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -1096,7 +1110,7 @@
                     }
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,3列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3,4,5]}  //第 0,3列不可排序
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -1123,32 +1137,46 @@
             $scope.pageDialogDetail=Tools.dialog({
                 id:"pageDialogDetail",
                 title:"新增",
-                hiddenButton:true,
+                hiddenButton:false,
                 save:function(){
-                    Loading.show();
-                    loader.completedTask({"id":$scope.listPage.info.id},{},function(data){
-                        if(data.result=="success"){
-                            Loading.hide();
-                            toaster.pop('success', "", "操作成功");
-                            $scope.listPage.settings.reload();
-                            $scope.pageDialog.hide();
-                        }else{
-                            Loading.hide();
-                            toaster.pop('warning', "", data.msg);
-                        }
-                    })
+                    if($scope.addPageDetail.data.approvalStatus == 1) {
+                        Loading.show();
+                        loader.completedTask({"id": $scope.listPage.info.id}, {}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialogDetail.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }else if ($scope.addPageDetail.data.approvalStatus == 2){
+
+                        Loading.show();
+                        //跳转任务 到任务提交人
+                        loader.rejectTask({"id": $scope.listPage.info.id,"cause":$scope.addPageDetail.data.cause}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialogDetail.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }
                 }
             });
             $scope.addPageDetail={
                 data: {
                     id: 0,
-                    process:{
-                        id:0,
-                        limit:10,
-                        offset:0
-                    },
                     limit: 10, //每页条数(即取多少条数据)
                     offset: 0, //从第几条数据开始取
+                    approvalStatus:1,
+                    cause:'',
                     orderBy: "updated",//排序字段
                     orderByType: "desc" //排序顺序
                 }
@@ -1234,52 +1262,62 @@
                     add: function (id) {
                         $scope.pageDialog.show();
                     },
-                    start:function (id) {
-                        $scope.listPage.info.id= id;
-                        $scope.pageDialog.title = "审批操作";
-                        $scope.pageDialog.show();
-                        //TODO 弹出对话框，审批操作
-                        //$("#myModalLabel").prop('innerHTML')
-                        // window.open("/demo.html#/process?id="+id,"_blank");
-                    },
-                    detail: function (id) {
-                        $('#keyword').html('');
-                        $scope.pageDialogDetail.title = "查看详情";
-                        // Loading.show();
-                        $scope.hash="/workflow/process/queryProPlan?TaskId="+id;
-                        Loading.show();
-                        loader.getTemplateHtml({"taskId":id},function(data){
-                            if(data.result == "success") {
-                                if(data.comments) {
-                                    $scope.details = data.comments;
-                                }
-                                // $timeout(function(){
-                                //     $scope.details = [{"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"发起"},
-                                //         {"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"审批"}];
-                                // },500);
-                                $('#htmlTemplate').html(data.info);
-                                // var html = "<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">甲方名称：********</div><div align=\"LEFT\"> 乙方名称：*****</div>";
-                                // $('#keyword').html(data.keyword);
-                                if(data.rows) {
-                                    for (var j = 0; j < data.rows.length; j++) {
-                                        // $('#'+data.rows[j].key).val(data.rows[j].value);
-                                        if(data.rows[j].value == 'on'){
-                                            $('#' + data.rows[j].key).attr("checked",true);
-                                        }else {
-                                            $('#' + data.rows[j].key).val(data.rows[j].value);
+                    // start:function (id,order,processId,deployId) {
+                    //     if(order == 0) {
+                    //         $scope.listPage.info.id = id;
+                    //         $scope.pageDialogDetail.title = "审批操作";
+                    //         $scope.pageDialogDetail.show();
+                    //     }else{
+                    //         window.open("/index.html#/order?state=update&id="+deployId+"&processInstanceId="+processId,"_blank");
+                    //     }
+                    //     //TODO 弹出对话框，审批操作
+                    //     //$("#myModalLabel").prop('innerHTML')
+                    //     // window.open("/demo.html#/process?id="+id,"_blank");
+                    // },
+                    // detail: function (id) {
+                    start:function (id,order,processId,deployId) {
+                        if(order == 0) {
+                            $scope.listPage.info.id = id;
+                            $('#keyword').html('');
+                            $scope.pageDialogDetail.title = "审批操作";
+                            // Loading.show();
+                            $scope.hash = "/workflow/process/queryProPlan?TaskId=" + id;
+                            Loading.show();
+                            loader.getTemplateHtml({"taskId": id}, function (data) {
+                                if (data.result == "success") {
+                                    if (data.comments) {
+                                        $scope.details = data.comments;
+                                    }
+                                    // $timeout(function(){
+                                    //     $scope.details = [{"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"发起"},
+                                    //         {"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"审批"}];
+                                    // },500);
+                                    $('#htmlTemplate').html(data.info);
+                                    // var html = "<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">甲方名称：********</div><div align=\"LEFT\"> 乙方名称：*****</div>";
+                                    // $('#keyword').html(data.keyword);
+                                    if (data.rows) {
+                                        for (var j = 0; j < data.rows.length; j++) {
+                                            // $('#'+data.rows[j].key).val(data.rows[j].value);
+                                            if (data.rows[j].value == 'on') {
+                                                $('#' + data.rows[j].key).attr("checked", true);
+                                            } else {
+                                                $('#' + data.rows[j].key).val(data.rows[j].value);
+                                            }
                                         }
                                     }
+                                    if (data.download) {
+                                        // $('#customFile')[0].style.display = 'none';
+                                        var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId=' + data.download + '\");\'>附件下载</a>';
+                                        $('#download').html(html);
+                                    }
+                                    $('#keyword').html(data.keyword);
                                 }
-                                if(data.download){
-                                    // $('#customFile')[0].style.display = 'none';
-                                    var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
-                                    $('#download').html(html);
-                                }
-                                $('#keyword').html(data.keyword);
-                            }
-                            Loading.hide();
-                        })
-                        $scope.pageDialogDetail.show();
+                                Loading.hide();
+                            })
+                            $scope.pageDialogDetail.show();
+                        }else{
+                            window.open("/index.html#/order?state=update&id="+deployId+"&processInstanceId="+processId,"_blank");
+                        }
                     },
                     update:function (id) {
                         $scope.pageDialog.title="编辑";
@@ -1367,8 +1405,9 @@
                         mData:"id",
                         mRender:function(mData,type,full) {
                             //class="fa fa-pencil fa-fw" class="fa fa-list-alt"
-                            return '<i><a title="处理"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData + '\')">处理</a></i>' +
-                                    '<i><a title="详情"  ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')">详情</a></i>';
+                            // ng-click="listPage.action.start(\'' + mData+'\',\'' +full.fieldType+'\',\'' +full.fieldValid+ '\')">编辑</a><i>' ;
+                            return '<i><a title="处理"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData +'\',\'' +full.order+'\',\'' +full.processInstanceId+'\',\'' +full.deployId+ '\')">处理</a></i>' ;
+                                    // '<i><a title="详情"  ng-show=userLevel.indexOf("detail")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')">详情</a></i>';
                         }
                     }
 
@@ -1395,13 +1434,43 @@
             }, true);
 
         }])
-        .controller('order.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster) {
+        .controller('order.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster,$filter) {
 
             // $("#orderFormInfo").ajaxForm(function(data){
             //     var html = '<i style="margin-top: 25px;" class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.file+'</i>'
             //     $('#download').html(html);
             // });
-
+            function getObjectURL(file) {
+                var url = null ;
+                // 下面函数执行的效果是一样的，只是需要针对不同的浏览器执行不同的 js 函数而已
+                if (window.createObjectURL!=undefined) { // basic
+                    url = window.createObjectURL(file) ;
+                } else if (window.URL!=undefined) { // mozilla(firefox)
+                    url = window.URL.createObjectURL(file) ;
+                } else if (window.webkitURL!=undefined) { // webkit or chrome
+                    url = window.webkitURL.createObjectURL(file) ;
+                }
+                return url ;
+            };
+            // $('#uploadAttachment').change(function(){
+            //     var objUrl = getObjectURL(this.files[0]) ;
+            //     if (objUrl) {
+            //         $("#yulanImg").attr("src", objUrl) ;
+            //     }
+            // }) ;
+            $scope.yulan = function () {
+                var file = $('#fileAttachment').get(0).files[0];
+                var reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload=function(e){
+                    //读取成功后返回的一个参数e，整个的一个进度事件
+                    console.log(e);
+                    //选择所要显示图片的img，要赋值给img的src就是e中target下result里面
+                    //的base64编码格式的地址
+                    // $('#yulanImg').get(0).src = e.target.result;
+                    $("#yulanImg").attr("src", e.target.result) ;
+                }
+            };
             $scope.uploadAttachment = function (){
                 $.ajaxFileUpload({
                     method:"POST",
@@ -1472,6 +1541,7 @@
                     $scope.fields = data.fields;
                     $scope.contractName = data.title;
                     $scope.workStatus = data.workStatus==1?true:false;
+                    $scope.dateStartwork = data.workDate;
                     if(data.rows) {
                         for (var j = 0; j < data.rows.length; j++) {
                             $('#'+data.rows[j].key).val(data.rows[j].value);
@@ -1482,6 +1552,8 @@
                             $('#'+data.fields[i].fieldMd5).attr('placeholder', data.fields[i].fieldType)
                         }
                     }
+
+                    $scope.dateStartwork = data.workDate;
                     $scope.showCommit =  data.showCommit;
                     $('#refuseCause').text(data.refuse);
                     if(data.download) {
@@ -1498,6 +1570,15 @@
             };
 
             $scope.commitResume = function () {
+                var t = $('#dateStartwork').val();
+                if(t != "") {
+                    var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                    $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                }else{
+                    toaster.pop('failed', "","请填写开工日期");
+                    $('#dateStartwork').focus();
+                    return;
+                }
                 for(i=0;i< $scope.fields.length;i++){
                     var text = $('#'+$scope.fields[i].fieldMd5).val();
                     if(!text || text.trim()==""){
@@ -1547,38 +1628,55 @@
                 })
             };
             $scope.commitOrder = function (index) {
-                for(i=0;i< $scope.fields.length;i++){
-                    var text = $('#'+$scope.fields[i].fieldMd5).val();
-                    if(!text || text.trim()==""){
-                        continue;
-                    }
-                    if(text.length > parseInt($scope.fields[i].fieldValid)){
-                        toaster.pop('failed', "",$scope.fields[i].fieldName+"超过范围");
-                        $('#'+$scope.fields[i].fieldMd5).focus();
+                var t = $('#dateStartwork').val();
+                if(t != "") {
+                    var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                    t = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                }else{
+                    toaster.pop('failed', "","请填写开工日期");
+                    $('#dateStartwork').focus();
+                    return;
+                }
+                if($scope.workStatus == true){
+                    if( $('#custom').val() == ""){
+                        $('#fileAttachment').focus();
+                        toaster.pop('failed', "","已开工项目必须上传附件");
                         return;
                     }
-                    switch($scope.fields[i].fieldType){
-                        case 'D':
-                            if (isNaN( $('#'+$scope.fields[i].fieldMd5).val())){
-                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                                $('#'+$scope.fields[i].fieldMd5).focus();
-                                return;
-                            }
-                            break;
-                        case 'T':
-                            break;
-                        case 'YYYYMMDD':
-                            var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
-                            if(r==null){
-                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                                $('#'+$scope.fields[i].fieldMd5).focus();
-                                return;
-                            }
-                            break;
-                        default:
-                            break;
+                }
+                for(i=0;i< $scope.fields.length;i++) {
+                    var text = $('#' + $scope.fields[i].fieldMd5).val();
+                    if (!text || text.trim() == "") {
+                        continue;
+                    }
+                    if (text.length > parseInt($scope.fields[i].fieldValid)) {
+                        toaster.pop('failed', "", $scope.fields[i].fieldName + "超过范围");
+                        $('#' + $scope.fields[i].fieldMd5).focus();
+                        return;
                     }
                 }
+                //     switch($scope.fields[i].fieldType){
+                //         case 'D':
+                //             if (isNaN( $('#'+$scope.fields[i].fieldMd5).val())){
+                //                 toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                //                 $('#'+$scope.fields[i].fieldMd5).focus();
+                //                 return;
+                //             }
+                //             break;
+                //         case 'T':
+                //             break;
+                //         case 'YYYYMMDD':
+                //             var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
+                //             if(r==null){
+                //                 toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                //                 $('#'+$scope.fields[i].fieldMd5).focus();
+                //                 return;
+                //             }
+                //             break;
+                //         default:
+                //             break;
+                //     }
+                // }
                 var params = $("#orderFormInfo").serializeArray();
                 var values = {workStatus:$scope.workStatus};
                 for(var i in params ){
@@ -1587,6 +1685,8 @@
                 values['html'] = $('#orderForm').prop("innerHTML");
                 values['index'] = index;
                 values['contractName'] = $scope.contractName;
+                values['dateStartwork'] = t;
+
                 //TODO 提交表单 检查，反馈结果，成功后关闭页面，不成功 需要提示
                 Loading.show();
                 loader.commitFormTask(values, function (data) {

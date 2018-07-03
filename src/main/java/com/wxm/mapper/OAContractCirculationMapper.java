@@ -19,7 +19,7 @@ public interface OAContractCirculationMapper {
     OAContractCirculationWithBLOBs selectByPrimaryKey(Integer contractId);
 
     OAContractCirculationWithBLOBs selectByProcessInstanceId(String processInstanceId);
-
+    OAContractCirculation selectByMaxId();
     int updateByPrimaryKeySelective(OAContractCirculationWithBLOBs record);
 
     int updateByPrimaryKeyWithBLOBs(OAContractCirculationWithBLOBs record);

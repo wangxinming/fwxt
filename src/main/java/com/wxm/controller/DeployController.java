@@ -276,6 +276,7 @@ public class DeployController {
 
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
             result.put("workStatus",oaContractCirculationWithBLOBs.getWorkStatus());
+            result.put("workDate",oaContractCirculationWithBLOBs.getWorkDate());
             result.put("title",oaContractCirculationWithBLOBs.getContractName());
             result.put("showCommit", true);
             result.put("download",oaContractCirculationWithBLOBs.getContractId());
@@ -555,7 +556,7 @@ public class DeployController {
                         if (historicActivityInstance.getAssignee() == null) {
                             taskComment.setName(variableInstance.getValue().toString());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            taskComment.setDescription("提交");
+                            taskComment.setDescription("待提交");
                         } else {
                             taskComment.setName(historicActivityInstance.getAssignee());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
@@ -572,7 +573,8 @@ public class DeployController {
                             if(flag) {
                                 taskComment.setDescription(hi.getValue().toString());
                             }else{
-                                taskComment.setDescription("通过");
+                                String[] tm = hi.getValue().toString().split(" ");
+                                taskComment.setDescription(tm[0]);
                             }
                         } else {
                             taskComment.setName(historicActivityInstance.getAssignee());
@@ -580,7 +582,8 @@ public class DeployController {
                             if(flag) {
                                 taskComment.setDescription(hi.getValue().toString());
                             }else{
-                                taskComment.setDescription("通过");
+                                String[] tm = hi.getValue().toString().split(" ");
+                                taskComment.setDescription(tm[0]);
                             }
                         }
                         taskCommentList.add(taskComment);
@@ -688,7 +691,7 @@ public class DeployController {
                             VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
                             taskComment.setName(variableInstance.getValue().toString());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            taskComment.setDescription("提交");
+                            taskComment.setDescription("待提交");
                         } else {
                             taskComment.setName(historicActivityInstance.getAssignee());
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
@@ -706,6 +709,8 @@ public class DeployController {
                                 taskComment.setDescription(object.toString());
                             }else{
                                 taskComment.setDescription("通过");
+                                String[] tm = object.toString().split(" ");
+                                taskComment.setDescription(tm[0]);
                             }
                         } else {
                             taskComment.setName(historicActivityInstance.getAssignee());
@@ -713,7 +718,8 @@ public class DeployController {
                             if(flag) {
                                 taskComment.setDescription(object.toString());
                             }else{
-                                taskComment.setDescription("通过");
+                                String[] tm = object.toString().split(" ");
+                                taskComment.setDescription(tm[0]);
                             }
                         }
                         taskCommentList.add(taskComment);

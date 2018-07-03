@@ -11,6 +11,9 @@
     <result column="CONTRACT_STATUS" property="contractStatus" jdbcType="NVARCHAR" />
     <result column="WORK_STATUS" property="workStatus" jdbcType="INTEGER" />
     <result column="DESCRIPTION" property="description" jdbcType="NVARCHAR" />
+    <result column="WORK_DATE" property="workDate" jdbcType="NVARCHAR" />
+    <result column="CONTRACT_SERIAL_NUMBER" property="contractSerialNumber" jdbcType="NVARCHAR" />
+    <result column="ARCHIVE_SERIAL_NUMBER" property="archiveSerialNumber" jdbcType="NVARCHAR" />
     <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.wxm.model.OAContractCirculationWithBLOBs" extends="BaseResultMap" >
@@ -23,7 +26,7 @@
     <result column="y" property="y" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
-    CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN,PROCESSINSTANCE_ID, CONTRACT_NAME,WORK_STATUS, USER_ID, CONTRACT_STATUS, DESCRIPTION, CREATE_TIME
+    CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN,PROCESSINSTANCE_ID, CONTRACT_NAME,WORK_STATUS, USER_ID, CONTRACT_STATUS, DESCRIPTION,WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,CREATE_TIME
   </sql>
   <sql id="Blob_Column_List" >
     CONTRACT_HTML, CONTRACT_PDF
@@ -33,6 +36,9 @@
     (SELECT TEMPLATE_ID,count(CONTRACT_ID) as y from OA_CONTRACT_CIRCULATION
      where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME <![CDATA[ <= ]]> #{endTime} and CONTRACT_STATUS='completed' and DESCRIPTION = 'template'
      group by TEMPLATE_ID) t2 where t1.TEMPLATE_ID=t2.TEMPLATE_ID ORDER by t2.y DESC
+  </select>
+  <select id="selectByMaxId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" /> from OA_CONTRACT_CIRCULATION WHERE CONTRACT_ID=(select max(CONTRACT_ID) from OA_CONTRACT_CIRCULATION)
   </select>
   <select id="total" resultType="java.lang.Integer">
     SELECT count(CONTRACT_ID) from OA_CONTRACT_CIRCULATION
@@ -76,11 +82,11 @@
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
     insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN, PROCESSINSTANCE_ID,CONTRACT_NAME,WORK_STATUS
-      USER_ID, CONTRACT_STATUS, DESCRIPTION, 
+      USER_ID, CONTRACT_STATUS, DESCRIPTION, WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,
       CREATE_TIME, CONTRACT_HTML, CONTRACT_PDF
       )
     values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{contractReopen,jdbcType=INTEGER},#{processInstanceId,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
-      #{userId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, 
+      #{userId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, #{workDate,jdbcType=NVARCHAR}, #{contractSerialNumber,jdbcType=NVARCHAR}, #{archiveSerialNumber,jdbcType=NVARCHAR},
       #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARBINARY}
       )
   </insert>
@@ -114,6 +120,15 @@
       </if>
       <if test="description != null" >
         DESCRIPTION,
+      </if>
+      <if test="workDate != null" >
+        WORK_DATE,
+      </if>
+      <if test="contractSerialNumber != null" >
+        CONTRACT_SERIAL_NUMBER,
+      </if>
+      <if test="archiveSerialNumber != null" >
+        ARCHIVE_SERIAL_NUMBER,
       </if>
       <if test="createTime != null" >
         CREATE_TIME,
@@ -153,6 +168,15 @@
       <if test="description != null" >
         #{description,jdbcType=NVARCHAR},
       </if>
+      <if test="workDate != null" >
+        #{workDate,jdbcType=NVARCHAR},
+      </if>
+      <if test="contractSerialNumber != null" >
+        #{contractSerialNumber,jdbcType=NVARCHAR},
+      </if>
+      <if test="archiveSerialNumber != null" >
+        #{archiveSerialNumber,jdbcType=NVARCHAR},
+      </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -191,6 +215,15 @@
       <if test="description != null" >
         DESCRIPTION = #{description,jdbcType=NVARCHAR},
       </if>
+      <if test="workDate != null" >
+        WORK_DATE = #{workDate,jdbcType=NVARCHAR},
+      </if>
+      <if test="contractSerialNumber != null" >
+        CONTRACT_SERIAL_NUMBER = #{contractSerialNumber,jdbcType=NVARCHAR},
+      </if>
+      <if test="archiveSerialNumber != null" >
+        ARCHIVE_SERIAL_NUMBER = #{archiveSerialNumber,jdbcType=NVARCHAR},
+      </if>
       <if test="createTime != null" >
         CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -213,6 +246,9 @@
       USER_ID = #{userId,jdbcType=INTEGER},
       CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
       DESCRIPTION = #{description,jdbcType=NVARCHAR},
+      WORK_DATE = #{workDate,jdbcType=NVARCHAR},
+      CONTRACT_SERIAL_NUMBER = #{contractSerialNumber,jdbcType=NVARCHAR},
+      ARCHIVE_SERIAL_NUMBER = #{archiveSerialNumber,jdbcType=NVARCHAR},
       CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
       CONTRACT_HTML = #{contractHtml,jdbcType=LONGVARCHAR},
       CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARBINARY}
@@ -228,6 +264,9 @@
       USER_ID = #{userId,jdbcType=INTEGER},
       CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
       DESCRIPTION = #{description,jdbcType=NVARCHAR},
+      WORK_DATE = #{workDate,jdbcType=NVARCHAR},
+      CONTRACT_SERIAL_NUMBER = #{contractSerialNumber,jdbcType=NVARCHAR},
+      ARCHIVE_SERIAL_NUMBER = #{archiveSerialNumber,jdbcType=NVARCHAR},
       CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </update>

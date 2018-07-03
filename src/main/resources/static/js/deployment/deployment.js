@@ -461,13 +461,16 @@
 
 
             $scope.searchPage.init();
-            $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
+            $scope.$watch("pageDialog.model.checkAllRow", function (newVal, oldVal) {
                 if (newVal) {
-                    $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
+                    // $('#checkbox'+data.fields[i].fieldMd5.substring(4)).prop("checked",true);
+                    $("[type='checkbox']").attr("checked",'true');//全选
+                    // $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
                 } else {
-                    if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
-                        $scope.listPage.checkedList = [];
-                    }
+                    // if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
+                    //     $scope.listPage.checkedList = [];
+                    // }
+                    $("[type='checkbox']").removeAttr("checked");//取消全选
                 }
             }, false);
 

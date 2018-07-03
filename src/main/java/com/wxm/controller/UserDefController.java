@@ -7,10 +7,7 @@ import com.wxm.entity.*;
 import com.wxm.mapper.OAGroupMapper;
 import com.wxm.mapper.OAPrivilegeMapper;
 import com.wxm.model.*;
-import com.wxm.service.AuditService;
-import com.wxm.service.OAEnterpriseService;
-import com.wxm.service.UserOrganizitionService;
-import com.wxm.service.UserService;
+import com.wxm.service.*;
 import com.wxm.util.Md5Utils;
 import com.wxm.util.exception.OAException;
 import org.activiti.bpmn.converter.EndEventXMLConverter;
@@ -30,6 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,7 +57,114 @@ public class UserDefController {
     @Autowired
     private OAEnterpriseService oaEnterpriseService;
     @Autowired
+    private OANotifyService oaNotifyService;
+    @Autowired
     private OAPrivilegeMapper oaPrivilegeMapper;
+
+    //通知消息列表查询
+    @RequestMapping(value = "/listNotify",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object listNotify(@RequestParam(value = "offset", required=true) Integer offset,
+                             @RequestParam(value = "limit", required=true) Integer limit,
+                             @RequestParam(value = "startTime", required = true) String startTime,
+                             @RequestParam(value = "endTime", required = true) String endTime,
+                             HttpServletRequest request) throws OAException {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        Date start=null,end=null;
+        if(StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)){
+            start = null;
+            end = null;
+        }else{
+            SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            try {
+                start = time.parse(startTime);
+                end = time.parse(endTime);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        List<OANotify> oaNotifyList = oaNotifyService.list(null,offset,limit,start,end);
+        Integer size = oaNotifyService.count(null,start,end);
+//        OAUser oaUser = userService.selectByName(loginUser.getName());
+//        List<OAEnterprise> list = new LinkedList<>();
+        auditService.audit(new OAAudit(loginUser.getName(), String.format("%s 查询通知消息", loginUser.getName())));
+//        if(oaUser.getEnterpriseId() != null){
+//            OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(oaUser.getEnterpriseId());
+//            list.add(oaEnterprise);
+//        }
+        result.put("rows", oaNotifyList);
+        result.put("total", size);
+        return result;
+
+    }
+    //通知信息创建
+    @RequestMapping(value = "/notify",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object notify(@RequestBody OANotify oaNotify, HttpServletRequest request) throws OAException {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String,String> res = new LinkedHashMap<>();
+        res.put("result","success");
+        try{
+            if(oaNotify.getNotifyId() == 0 ){
+                oaNotify.setNotifyId(null);
+            }
+            oaNotify.setUserName(loginUser.getName());
+            oaNotify.setCreateTime(new Date());
+            oaNotifyService.create(oaNotify);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("创建通知 内容:%s",oaNotify.getContent())));
+        }catch (Exception e){
+            res.put("result","failed");
+            LOGGER.error("异常",e);
+        }
+        return res;
+    }
+    //通知信息修改
+    @RequestMapping(value = "/notify",method = {RequestMethod.POST},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object notifyUpdate(@RequestBody OANotify oaNotify, HttpServletRequest request) throws OAException {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String,String> res = new LinkedHashMap<>();
+        res.put("result","success");
+        try{
+            oaNotifyService.update(oaNotify);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("修改通知 内容:%s",oaNotify.getContent())));
+        }catch (Exception e){
+            res.put("result","failed");
+        }
+        return res;
+    }
+    //通知数据删除
+    @RequestMapping(value = "/notify",method = {RequestMethod.DELETE},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object notifyDelete(@RequestParam (value = "notifyId", required=true)Integer notifyId, HttpServletRequest request) throws OAException {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String,String> res = new LinkedHashMap<>();
+        res.put("result","success");
+        try{
+            oaNotifyService.delete(notifyId);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("删除通知 id:%s",notifyId)));
+        }catch (Exception e){
+            res.put("result","failed");
+        }
+        return res;
+    }
+
 
     //企业信息查询
     @RequestMapping(value = "/queryCompany",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
@@ -91,17 +197,30 @@ public class UserDefController {
         if(null == loginUser) {
             throw new OAException(1101, "用户未登录");
         }
-        Map<String, Object> result = new HashMap<>();
-        try {
-            List<OAEnterprise> list = oaEnterpriseService.getEnterpriseList(enterpriseName,offset, limit);
-            Integer count = oaEnterpriseService.count(enterpriseName);
-            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 查询企业列表查询",loginUser.getName())));
+        auditService.audit(new OAAudit(loginUser.getName(), String.format("%s 查询企业列表查询", loginUser.getName())));
+        if(loginUser.getName().equals("admin")) {
+            Map<String, Object> result = new HashMap<>();
+            try {
+                List<OAEnterprise> list = oaEnterpriseService.getEnterpriseList(enterpriseName, offset, limit);
+                Integer count = oaEnterpriseService.count(enterpriseName);
+                result.put("rows", list);
+                result.put("total", count);
+            } catch (Exception e) {
+                LOGGER.error("异常：{}",e);
+            }
+            return result;
+        }else{
+            Map<String, Object> result = new HashMap<>();
+            OAUser oaUser = userService.selectByName(loginUser.getName());
+            List<OAEnterprise> list = new LinkedList<>();
+            if(oaUser.getEnterpriseId() != null){
+                OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(oaUser.getEnterpriseId());
+                list.add(oaEnterprise);
+            }
             result.put("rows", list);
-            result.put("total", count);
-        }catch (Exception e){
-
+            result.put("total", list.size());
+            return result;
         }
-        return result;
     }
     //企业信息创建
     @RequestMapping(value = "/enterprise",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
