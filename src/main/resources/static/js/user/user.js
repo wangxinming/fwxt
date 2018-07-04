@@ -289,10 +289,7 @@
                     // id : "@",
                     data : "="
                 },
-                template : "<li ng-repeat = 'dt in data'>{{dt.content}}</li>",
-                link : function(scope,elem,attrs) {
-                    // scope.$apply(attrs.data);
-                }
+                template : "<li ng-repeat = 'dt in data'>{{dt.content}}</li>"
             };
         }])
         .factory('user.loader', function($resource){
@@ -449,29 +446,49 @@
                 $timeout(function(){
                     var className = $(".slideUl");
                     var i = 0,sh;
-                    var liLength = className.children("li").length;
-                    var liHeight = className.children("li").height() + parseInt(className.children("li").css('border-bottom-width'));
-                    className.html(className.html() + className.html());
-                    // 开启定时器
-                    sh = setInterval(slide,4000);
-                    function slide(){
-                        if (parseInt(className.css("margin-top")) > (-liLength * liHeight)) {
-                            i++;
-                            className.animate({
-                                marginTop : -liHeight * i + "px"
-                            },"slow");
-                        } else {
-                            i = 0;
-                            className.css("margin-top","0px");
-                        }
-                    }
+
+                    var settime;
+                    $(".slide").hover(function(){
+                        clearInterval(settime);
+                    }, function(){
+                        settime=setInterval(function(){
+                            var $first=className;
+                            var height=$first.find("li:first").height();
+                            $first.animate({"marginTop":-height + "px" },600,function(){
+                                $first.css({ marginTop: 0 }).find("li:first").appendTo($first);
+                            });
+                        },3000);
+                    }).trigger("mouseleave");
+                    // var liLength = className.children("li").length;
+                    // var liHeight = className.children("li").height() + parseInt(className.children("li").css('border-bottom-width'));
+                    // // className.html(className.html() + className.html());
+                    //
+                    // // var $first = $("ul:first");
+                    // var height = className.find("li:first").height();
+                    // // 开启定时器
+                    // sh = setInterval(slide,4000);
+                    // function slide(){
+                    //     // if (parseInt(className.css("margin-top")) > (-liLength * liHeight)) {
+                    //     //     i++;
+                    //         className.animate({
+                    //             "marginTop":-height+"px"},600,function(){
+                    //             className.css({
+                    //                 marginTop: 0
+                    //             }).find("li:first").appendTo(className);
+                    //             // marginTop : -liHeight * i + "px"
+                    //         },"slow");
+                    //     // } else {
+                    //     //     i = 0;
+                    //     //     className.css("margin-top","0px");
+                    //     // }
+                    // };
                     // 清除定时器
-                    className.hover(function(){
-                        clearInterval(sh);
-                    },function(){
-                        clearInterval(sh);
-                        sh = setInterval(slide,4000);
-                    })
+                    // className.hover(function(){
+                    //     clearInterval(sh);
+                    // },function(){
+                    //     clearInterval(sh);
+                    //     sh = setInterval(slide,4000);
+                    // })
                 },0);
             };
 
