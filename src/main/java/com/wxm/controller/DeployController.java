@@ -489,10 +489,14 @@ public class DeployController {
         if(StringUtils.isNotBlank(historicProcessInstance.getId())){
             List<HistoricVariableInstance> historicVariableInstances = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
             for (HistoricVariableInstance historicVariableInstance : historicVariableInstances) {
-                if(null == historicVariableInstance || null == historicVariableInstance.getValue() || null == historicVariableInstance.getVariableName())continue;
-                if(historicVariableInstance.getVariableName().startsWith("name")) {
-                    KeyValue keyValue = new KeyValue(historicVariableInstance.getVariableName(), historicVariableInstance.getValue().toString());
-                    map.put(historicVariableInstance.getVariableName(),keyValue);
+//                if(null == historicVariableInstance || null == historicVariableInstance.getValue() || null == historicVariableInstance.getVariableName())continue;
+                if(null != historicVariableInstance && null != historicVariableInstance.getVariableName() && historicVariableInstance.getVariableName().startsWith("name")) {
+                    if(null == historicVariableInstance || null == historicVariableInstance.getValue() ){
+                        map.put(historicVariableInstance.getVariableName(), new KeyValue(historicVariableInstance.getVariableName(),null));
+                    }else {
+                        KeyValue keyValue = new KeyValue(historicVariableInstance.getVariableName(), historicVariableInstance.getValue().toString());
+                        map.put(historicVariableInstance.getVariableName(), keyValue);
+                    }
                 }
             }
             result.put("rows",map.values());
@@ -623,10 +627,13 @@ public class DeployController {
         if(StringUtils.isNotBlank(processInstance.getId())){
             Map<String, VariableInstance> stringVariableInstanceMap = runtimeService.getVariableInstances(processInstance.getId());
             for (Map.Entry<String, VariableInstance> entry : stringVariableInstanceMap.entrySet()) {
-                if(null == entry.getValue() || StringUtils.isBlank(entry.getValue().getTextValue()))continue;
-                if(entry.getKey().startsWith("name")) {
-                    KeyValue keyValue = new KeyValue(entry.getKey(), entry.getValue().getTextValue());
-                    map.put(entry.getKey(),keyValue);
+                if(null!=entry && null != entry.getKey() && entry.getKey().startsWith("name")) {
+                    if(null == entry.getValue() || StringUtils.isBlank(entry.getValue().getTextValue())){
+                        map.put(entry.getKey(), new KeyValue(entry.getKey(), null));
+                    }else {
+                        KeyValue keyValue = new KeyValue(entry.getKey(), entry.getValue().getTextValue());
+                        map.put(entry.getKey(), keyValue);
+                    }
                 }
             }
             result.put("rows",map.values());

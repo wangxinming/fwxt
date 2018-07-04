@@ -189,13 +189,13 @@
                 reload: null,
                 getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
                 columns: [
-                    {
-                        sTitle: "模板名称",
-                        mData: "templateName",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
+                    // {
+                    //     sTitle: "模板名称",
+                    //     mData: "templateName",
+                    //     mRender: function (mData, type, full) {
+                    //         return Util.str2Html(mData);
+                    //     }
+                    // },
 
                     {
                         sTitle: "原始字段值",
@@ -229,16 +229,17 @@
                         sTitle: "操作",
                         mData:"propertiesId",
                         mRender:function(mData,type,full) {
-                            return '<i><a title="编辑" class="fa fa-pencil fa-fw" ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData+'\',\'' +full.fieldName+'\',\'' +full.fieldType+'\',\'' +full.fieldValid+ '\')">编辑</a><i>' ;
+                            //class="fa fa-pencil fa-fw"
+                            return '<i><a title="编辑"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData+'\',\'' +full.fieldName+'\',\'' +full.fieldType+'\',\'' +full.fieldValid+ '\')">编辑</a><i>' ;
                                 // '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,3列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3]}  //第 0,3列不可排序
                     // { sWidth: "25%", aTargets: [ 2] },
-                    { sWidth: "20%", aTargets: [ 0,1,2,3,4] }
+                    // { sWidth: "20%", aTargets: [ 0,1,2,3,4] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -1024,6 +1025,7 @@
                                         }else {
                                             $('#' + data.rows[j].key).val(data.rows[j].value);
                                         }
+                                        $('#'+data.rows[j].key).attr("disabled", true);
                                     }
                                 }
                                 if(data.download){
@@ -1303,6 +1305,7 @@
                                             } else {
                                                 $('#' + data.rows[j].key).val(data.rows[j].value);
                                             }
+                                            $('#'+data.rows[j].key).attr("disabled", true);
                                         }
                                     }
                                     if (data.download) {
