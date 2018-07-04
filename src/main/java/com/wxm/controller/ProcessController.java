@@ -846,7 +846,7 @@ public class ProcessController {
                     tmp.setArchiveSerialNumber(date.format(new Date())+"01");
                 }else{
                     Integer serial = Integer.parseInt(oaContractCirculationWithBLOBs.getContractSerialNumber().substring("yyyyMMdd".length()));
-                    tmp.setArchiveSerialNumber(date.format(new Date())+String.format("%02d", ++serial));
+                    tmp.setArchiveSerialNumber(date.format(new Date())+String.format("%02d", serial));
                 }
                 contractCirculationService.update(tmp);
             }
@@ -1051,7 +1051,8 @@ public class ProcessController {
                     }
                 }
             }
-
+            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(historicProcessInstance.getId());
+            taskInfo.setArchiveSerialNumber(oaContractCirculationWithBLOBs.getArchiveSerialNumber());
             taskInfo.setId(historicProcessInstance.getId());
             taskInfo.setName(deployment.getName());
             taskInfo.setTimestamp(historicProcessInstance.getStartTime());

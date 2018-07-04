@@ -6,6 +6,7 @@ public class TaskInfo {
     private String id;//任务ID
     private String name;//任务名称
     private String title;//任务名称
+    private String archiveSerialNumber;//归档编号
     private String starter;//任务发起人
     private String assignee;//任务的办理人
     private Date timestamp; //任务的创建时间
@@ -16,6 +17,14 @@ public class TaskInfo {
     private Integer order;
     private Integer workStatus;
     private String duringTime;
+
+    public void setArchiveSerialNumber(String archiveSerialNumber) {
+        this.archiveSerialNumber = archiveSerialNumber;
+    }
+
+    public String getArchiveSerialNumber() {
+        return archiveSerialNumber;
+    }
 
     public String getDeployId() {
         return deployId;

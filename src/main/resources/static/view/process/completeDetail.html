@@ -1,0 +1,32 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<div dialog info="pageDialogDetail" data="addPageDetail.data" class="ldialog">
+    <form class="form-horizontal" role="form">
+        <div class="form-body">
+            <div style="height: 130px;">
+                <img style="width: 100%" ng-src="{{hash}}"/>
+            </div>
+            <div style="margin-top: 10px;" id="download"></div>
+            <div style="width: 60%;float: left;display: inline;" id="htmlTemplate"></div>
+            <div style="width: 40%;display: inline;" id="keyword">
+            </div>
+            <div style="margin-top: 30px;">
+                <table width="100%">
+                    <tr>
+                        <th>角色</th>
+                        <th>操作时间</th>
+                        <th>审批意见</th>
+                    </tr>
+
+                    <tr ng-repeat="x in details">
+                        <td>{{ x.name }}</td>
+                        <td>{{ x.createTime | date:"yyyy-MM-dd HH:mm:ss"}}</td>
+                        <td>{{ x.description }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </form>
+</div>
