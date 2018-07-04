@@ -561,6 +561,7 @@ public class UserDefController {
         if(loginUser.getName().equals("admin")){
             res.put("user",true);
             res.put("password",true);
+            res.put("notify",true);
             res.put("group",true);
             res.put("enterprise",true);
             res.put("upload",true);
@@ -592,6 +593,7 @@ public class UserDefController {
             res.put("user",true);
             res.put("password",true);
             res.put("enterprise",true);
+            res.put("notify",false);
             res.put("group",false);
             res.put("upload",false);
             res.put("form",false);
@@ -623,6 +625,8 @@ public class UserDefController {
             Menu menu = new Menu("user","用户界面",true);
             list.add(menu);
             menu = new Menu("group","用户组",true);
+            list.add(menu);
+            menu = new Menu("notify","通知消息",true);
             list.add(menu);
             menu = new Menu("enterprise","公司管理",true);
             list.add(menu);
@@ -680,6 +684,8 @@ public class UserDefController {
                     Menu menu = new Menu("user","用户界面",false);
                     list.add(menu);
                     menu = new Menu("group","用户组",false);
+                    list.add(menu);
+                    menu = new Menu("notify","通知消息",false);
                     list.add(menu);
                     menu = new Menu("enterprise","公司管理",false);
                     list.add(menu);

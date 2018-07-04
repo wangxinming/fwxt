@@ -95,6 +95,8 @@ public class ProcessController {
     @Autowired
     private AuditService auditService;
     @Autowired
+    private OANotifyService oaNotifyService;
+    @Autowired
     private TaskProcessService taskProcessService;
     private static String formatSeconds(long seconds) {
         String timeStr = seconds + "秒";
@@ -160,7 +162,8 @@ public class ProcessController {
 
 
             }
-
+            List<OANotify> oaNotifyList = oaNotifyService.list(null,0,5,null,null);
+            result.put("notify",oaNotifyList);
             size = historyService.createHistoricProcessInstanceQuery().startedBy(loginUser.getName()).count();
             result.put("initiator",size);
 

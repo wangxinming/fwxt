@@ -1,6 +1,19 @@
 <div class="portlet box"  style="margin: 15px 0px 0px 0px;" ng-keypress="submit($event)">
     <link rel="stylesheet" type="text/css" href="../../css/stylecopy.css">
     <!-- main content start-->
+    <style type="text/css">
+        *{margin: 0px;padding: 0px;}
+        /*.slide {width: 200px;height:200px;border:1px solid #dcdcdc;margin: 0 auto;margin-top: 50px;overflow: hidden;}*/
+        .slide {overflow: hidden;}
+        /*.slide li {height: 49px;line-height: 49px;text-align: left;padding: 0 10px;font-size: 16px;list-style: none;border-bottom: 1px dashed #dcdcdc;cursor: pointer;}*/
+        .slide li {height: 49px;line-height: 49px;text-align: left;padding: 0 10px;font-size: 16px;list-style: none;cursor: pointer;}
+        .slide li:hover{background: #ccc;}
+    </style>
+    <div class="slide">
+        <ul class="slideUl">
+            <slide-follow id="slide" data = "list"></slide-follow>
+        </ul>
+    </div>
     <div>
         <div class="main-page">
             <!-- four-grids -->
@@ -73,7 +86,7 @@
                 <tr class="table-header-grey">
                     <th>我的申请</th>
                     <th>当前审批人</th>
-                    <th>停留时间</th>
+                    <th>等待审批时间</th>
                 </tr>
 
                 <tr ng-repeat="x in initiatorList">

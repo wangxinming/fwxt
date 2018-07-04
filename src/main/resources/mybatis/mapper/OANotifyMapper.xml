@@ -17,16 +17,16 @@
     <if test="userName != null">
       AND USER_NAME like CONCAT('%',#{userName},'%' )
     </if>
-    <if test="startTime != null" >
-      AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND CREATE_TIME<![CDATA[ <= ]]> #{endTime}
-    </if>
+    <!--<if test="startTime != null" >-->
+      <!--AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND CREATE_TIME<![CDATA[ <= ]]> #{endTime}-->
+    <!--</if>-->
     ORDER BY CREATE_TIME DESC )
     <if test="userName != null" >
       AND USER_NAME like CONCAT('%',#{userName},'%' )
     </if>
-    <if test="startTime != null" >
-      AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME<![CDATA[ <= ]]> #{endTime}
-    </if>
+    <!--<if test="startTime != null" >-->
+      <!--AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME<![CDATA[ <= ]]> #{endTime}-->
+    <!--</if>-->
     ORDER BY CREATE_TIME DESC
   </select>
   <select id="count" resultType="java.lang.Integer">

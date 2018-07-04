@@ -281,6 +281,20 @@
                 }
             };
         }])
+        .directive("slideFollow",["$timeout",function($timeout){
+            return {
+                restrict : 'E',
+                replace : true,
+                scope : {
+                    // id : "@",
+                    data : "="
+                },
+                template : "<li ng-repeat = 'dt in data'>{{dt.content}}</li>",
+                link : function(scope,elem,attrs) {
+                    // scope.$apply(attrs.data);
+                }
+            };
+        }])
         .factory('user.loader', function($resource){
             return $resource(web_path+'/:id', {}, {
                 /*企业管理*/
@@ -427,6 +441,40 @@
             });
         })
         .controller('dashboard.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            // $scope.list = [
+            //     {id:1,content : "123"},
+            //     {id:1,content : "456"}
+            // ];
+            $scope.timeout = function () {
+                $timeout(function(){
+                    var className = $(".slideUl");
+                    var i = 0,sh;
+                    var liLength = className.children("li").length;
+                    var liHeight = className.children("li").height() + parseInt(className.children("li").css('border-bottom-width'));
+                    className.html(className.html() + className.html());
+                    // 开启定时器
+                    sh = setInterval(slide,4000);
+                    function slide(){
+                        if (parseInt(className.css("margin-top")) > (-liLength * liHeight)) {
+                            i++;
+                            className.animate({
+                                marginTop : -liHeight * i + "px"
+                            },"slow");
+                        } else {
+                            i = 0;
+                            className.css("margin-top","0px");
+                        }
+                    }
+                    // 清除定时器
+                    className.hover(function(){
+                        clearInterval(sh);
+                    },function(){
+                        clearInterval(sh);
+                        sh = setInterval(slide,4000);
+                    })
+                },0);
+            };
+
             $scope.dashBoard = function () {
                 Loading.show();
                 loader.dashboard({},function (data) {
@@ -434,8 +482,18 @@
                         $('#myPending').text(data.myPending);
                         $('#myComplete').text(data.myComplete);
                         $('#initiator').text(data.initiator);
+                        $scope.list = data.notify;
+                        // $scope.datasetData = [
+                        //     {id:1,content : "这个是第一条数据"},
+                        //     {id:1,content : "这个是第二条数据"},
+                        //     {id:1,content : "这个是第三条数据"},
+                        //     {id:1,content : "这个是第四条数据"},
+                        //     {id:1,content : "这个是第五条数据"},
+                        //     {id:1,content : "这个是第六条数据"}
+                        // ];
                         $scope.pendingList = data.pendingList;
                         $scope.initiatorList = data.initiatorList;
+                        $scope.timeout();
                     }
                     Loading.hide();
                 }, function (error) {
@@ -1853,6 +1911,7 @@
             var group = '<li><a href="/index.html#/group">用户组 <span class="label label-success"></span></a> </li>';
             var password = '<li><a href="/index.html#/password">修改密码 <span class="label label-success"></span></a> </li>';
             var enterprise = '<li><a href="/index.html#/enterprise">公司管理 <span class="label label-success"></span></a> </li>';
+            var notify = '<li><a href="/index.html#/notify">通知消息 <span class="label label-success"></span></a> </li>';
             var end = '                                </ul>\n' +
                 '                            </div>\n' +
                 '                        </li>';
@@ -1914,6 +1973,9 @@
                     }
                     if(data.password){
                         tmp += password;
+                    }
+                    if(data.notify){
+                        tmp += notify;
                     }
                     if(tmp.length > 0){
                         bars += userParentBefore;
