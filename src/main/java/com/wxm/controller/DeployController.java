@@ -280,7 +280,11 @@ public class DeployController {
             result.put("title",oaContractCirculationWithBLOBs.getContractName());
             result.put("showCommit", true);
             result.put("download",oaContractCirculationWithBLOBs.getContractId());
+            result.put("pms", userService.getPMUser());
+
             if(null != processInstanceId) {
+                Object pm = runtimeService.getVariable(processInstanceId, "pmApprove");
+                result.put("pm", pm);
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 Object object = taskService.getVariable(task.getId(), "taskDefinitionKey");
@@ -334,6 +338,7 @@ public class DeployController {
             result.put("showCommit", true);
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
             result.put("data",oaContractTemplate);
+            result.put("pms", userService.getPMUser());
             List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
             result.put("fields",oaFormPropertiesList);
         }catch (Exception e){
@@ -660,10 +665,13 @@ public class DeployController {
             flag = false;
         }else {
             OAGroup oaGroup = groupService.getGroupById(oaUser.getGroupId());
-            Map mapGroup = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
-
-            if (mapGroup.get("attachment") != null && mapGroup.get("attachment").equals("0")) {
-                flag = true;
+            if(oaGroup == null){
+                flag = false;
+            }else {
+                Map mapGroup = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+                if (mapGroup.get("attachment") != null && mapGroup.get("attachment").equals("0")) {
+                    flag = true;
+                }
             }
         }
         List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery()

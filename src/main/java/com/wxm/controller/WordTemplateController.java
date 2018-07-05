@@ -294,7 +294,7 @@ public class WordTemplateController {
             byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
             if (null != bytes) {
                 response.setContentType("application/x-download");
-                String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName() + ".doc", "UTF-8");
+                String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName() + ".jpg", "UTF-8");
                 response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
                 response.setContentLength(bytes.length);
                 response.getOutputStream().write(bytes);

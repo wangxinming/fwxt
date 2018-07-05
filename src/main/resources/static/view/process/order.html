@@ -25,6 +25,12 @@
               </label>
             </span>
         </div>
+        <div  class="col-md-9" style="margin-top: 10px;">
+            <label  style="font-size: 16px;" class="col-md-2 control-label" >项目经理</label>
+            <select ng-model="pm" name="pmList" ng-options="''+ template.userName as template.userName for template in pms" class="col-md-4">
+                <option value=""> --- 请选择 --- </option>
+            </select>
+        </div>
 
         <div  ng-hide="showCommit" class="col-md-9" style="margin-top: 10px;">
             <label  class="col-md-2 control-label" >回退原因：</label>

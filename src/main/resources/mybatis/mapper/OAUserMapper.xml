@@ -34,6 +34,11 @@
     <include refid="Base_Column_List" />
     from OA_USER
   </select>
+  <select id="listUserPM" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from OA_USER where USER_POSITION like '%项目经理%'
+  </select>
   <select id="selectByName" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select
     <include refid="Base_Column_List" />

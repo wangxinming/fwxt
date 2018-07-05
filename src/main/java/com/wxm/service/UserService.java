@@ -9,6 +9,7 @@ public interface UserService {
      Map getUserList(Integer offset, Integer limit, String userName);
      OAUser getUserById(Integer id);
      List<OAUser> getAllUser();
+     List<OAUser> getPMUser();
      OAUser selectByName(String userName);
      Integer create(OAUser oaUser);
      Integer update(OAUser oaUser);

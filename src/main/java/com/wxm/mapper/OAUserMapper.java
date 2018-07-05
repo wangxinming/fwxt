@@ -21,6 +21,8 @@ public interface OAUserMapper {
 
     int updateByPrimaryKey(OAUser record);
 
+    List<OAUser> listUserPM();
+
     List<OAUser> list(@Param("offset") Integer offset, @Param("limit") Integer limit, @Param("userName") String userName);
 
     int count(@Param("userName") String userName);

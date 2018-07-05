@@ -1522,8 +1522,7 @@
                     $('#contract').val($scope.search.contract);
                     $('#processInstanceId').val($scope.search.processInstanceId);
                     $('#orderForm').html(data.data.templateHtml);
-
-
+                    $scope.pms = data.pms;
                     $scope.showCommit =  data.showCommit;
                     $scope.fields = data.fields;
                     if($scope.fields) {
@@ -1541,6 +1540,8 @@
                     $('#wordId').val($scope.search.id);
                     $('#processInstanceId').val($scope.search.processInstanceId);
                     $('#orderForm').html(data.data.templateHtml);
+                    $scope.pms = data.pms;
+                    $scope.pms = data.pms;
                     $scope.fields = data.fields;
                     $scope.contractName = data.title;
                     $scope.workStatus = data.workStatus==1?true:false;
@@ -1689,7 +1690,7 @@
                 values['index'] = index;
                 values['contractName'] = $scope.contractName;
                 values['dateStartwork'] = t;
-
+                values['pm'] =  $scope.pm;
                 //TODO 提交表单 检查，反馈结果，成功后关闭页面，不成功 需要提示
                 Loading.show();
                 loader.commitFormTask(values, function (data) {

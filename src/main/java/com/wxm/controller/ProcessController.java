@@ -440,30 +440,6 @@ public class ProcessController {
                 String deploymentID = map.get("id");
 //                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
-//                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
-//                for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
-//                    String md5 = oaFormProperties.getFieldMd5();
-//                    String type = oaFormProperties.getFieldType();
-//                    String length = oaFormProperties.getFieldValid();
-//                    if( StringUtils.isBlank(md5) ||  StringUtils.isBlank(type) ||  StringUtils.isBlank(length)) continue;
-//                    md5 = md5.trim();
-//                    type = type.trim();
-//                    length = length.trim();
-//                    String value = map.get(md5).toString();
-//                    if( StringUtils.isBlank(value))continue;
-//                    if (value.length() > Integer.parseInt(length)) {
-//                        info = oaFormProperties.getFieldMd5() + " 字段长度过长";
-//                        result.put("info", info);
-//                        break;
-//                    }
-//                    if (type.equals("D")) {
-//                        if (!ValidType.isNumeric(value)) {
-//                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
-//                            result.put("info", info);
-//                            break;
-//                        }
-//                    }
-//                }
                 auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 任务跳转到审批人，实例编号：%s",loginUser.getName(),processInstanceId)));
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
@@ -514,7 +490,7 @@ public class ProcessController {
                 .finished()
                 .processInstanceId(task.getProcessInstanceId())
                 .orderByTaskCreateTime().asc().listPage(0,1);
-        if(null != historicTaskInstanceList){
+        if(null != historicTaskInstanceList && historicTaskInstanceList.size() > 0 ){
             for(HistoricTaskInstance task1 : historicTaskInstanceList){
                 if(task1.getAssignee() == null){
                     taskProcessService.jump(task1.getTaskDefinitionKey(), task.getProcessInstanceId());
@@ -534,6 +510,10 @@ public class ProcessController {
                     break;
                 }
             }
+        }else{
+            runtimeService.setVariable(task.getProcessInstanceId(), "init", "start");
+            String userStart = runtimeService.getVariable(task.getProcessInstanceId(),"user").toString();
+            taskService.setAssignee(task.getId(),userStart);
         }
         return result;
     }
@@ -556,6 +536,7 @@ public class ProcessController {
         String workDate = map.get("dateStartwork");
         String contract = map.get("contract");
         String contractName = map.get("contractName");
+        String pm = map.get("pm");
 //        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
         if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交
             try{
@@ -599,7 +580,18 @@ public class ProcessController {
 //                    SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd");
                     Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");
-                    taskService.complete(task.getId());
+
+                    if(StringUtils.isBlank(pm) ){
+                        taskService.complete(task.getId());
+                    }else {
+                        org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(pm).singleResult();
+                        if(null == userOa){
+                            taskService.complete(task.getId());
+                        }else {
+                            taskService.setAssignee(task.getId(), pm);
+                            runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
+                        }
+                    }
                     map.put("init","");
                     if(StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
                         map.put("contractStatus","1");
@@ -765,7 +757,20 @@ public class ProcessController {
                 if (index.equals("1")) {
                     Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");
-                    taskService.complete(task.getId());
+
+//                    taskService.setAssignee(task.getId(),"wxm");
+                    if(StringUtils.isBlank(pm) ){
+                        taskService.complete(task.getId());
+                    }else {
+                        org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(pm).singleResult();
+                        if(null == userOa){
+                            taskService.complete(task.getId());
+                        }else {
+                            taskService.setAssignee(task.getId(), pm);
+                            runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
+                        }
+                    }
+//                    taskService.complete(task.getId());
                     runtimeService.setVariable(processInstance.getProcessInstanceId(), "init", "");
                 }else{
                     Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();

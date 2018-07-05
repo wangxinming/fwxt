@@ -45,6 +45,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<OAUser> getPMUser() {
+        return oaUserMapper.listUserPM();
+    }
+
+    @Override
     public OAUser selectByName(String userName) {
         return oaUserMapper.selectByName(userName);
     }
