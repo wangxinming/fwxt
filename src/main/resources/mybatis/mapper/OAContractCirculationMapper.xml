@@ -6,6 +6,7 @@
     <result column="TEMPLATE_ID" property="templateId" jdbcType="INTEGER" />
     <result column="PROCESSINSTANCE_ID" property="processInstanceId" jdbcType="NVARCHAR" />
     <result column="CONTRACT_NAME" property="contractName" jdbcType="NVARCHAR" />
+    <result column="ATTACHMENT_NAME" property="attachmentName" jdbcType="NVARCHAR" />
     <result column="USER_ID" property="userId" jdbcType="INTEGER" />
     <result column="CONTRACT_REOPEN" property="contractReopen" jdbcType="INTEGER" />
     <result column="CONTRACT_STATUS" property="contractStatus" jdbcType="NVARCHAR" />
@@ -19,6 +20,7 @@
   <resultMap id="ResultMapWithBLOBs" type="com.wxm.model.OAContractCirculationWithBLOBs" extends="BaseResultMap" >
     <result column="CONTRACT_HTML" property="contractHtml" jdbcType="LONGVARCHAR" />
     <result column="CONTRACT_PDF" property="contractPdf" jdbcType="LONGVARBINARY" />
+    <result column="ATTACHMENT_CONTENT" property="attachmentContent" jdbcType="LONGVARBINARY" />
   </resultMap>
 
   <resultMap id="hashmap" type="com.wxm.entity.ReportItem" >
@@ -26,10 +28,10 @@
     <result column="y" property="y" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
-    CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN,PROCESSINSTANCE_ID, CONTRACT_NAME,WORK_STATUS, USER_ID, CONTRACT_STATUS, DESCRIPTION,WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,CREATE_TIME
+    CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN,PROCESSINSTANCE_ID, CONTRACT_NAME,ATTACHMENT_NAME,WORK_STATUS, USER_ID, CONTRACT_STATUS, DESCRIPTION,WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,CREATE_TIME
   </sql>
   <sql id="Blob_Column_List" >
-    CONTRACT_HTML, CONTRACT_PDF
+    CONTRACT_HTML, CONTRACT_PDF,ATTACHMENT_CONTENT
   </sql>
   <select id="count" resultMap="hashmap" >
     SELECT t1.TEMPLATE_NAME,t2.y from OA_CONTRACT_TEMPLATE t1,
@@ -81,13 +83,13 @@
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
-    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN, PROCESSINSTANCE_ID,CONTRACT_NAME,WORK_STATUS
+    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN, PROCESSINSTANCE_ID,CONTRACT_NAME,ATTACHMENT_NAME,WORK_STATUS
       USER_ID, CONTRACT_STATUS, DESCRIPTION, WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,
-      CREATE_TIME, CONTRACT_HTML, CONTRACT_PDF
+      CREATE_TIME, CONTRACT_HTML, CONTRACT_PDF,ATTACHMENT_CONTENT
       )
-    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{contractReopen,jdbcType=INTEGER},#{processInstanceId,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
+    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{contractReopen,jdbcType=INTEGER},#{processInstanceId,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},#{attachmentName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
       #{userId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, #{workDate,jdbcType=NVARCHAR}, #{contractSerialNumber,jdbcType=NVARCHAR}, #{archiveSerialNumber,jdbcType=NVARCHAR},
-      #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARBINARY}
+      #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARBINARY}, #{attachmentContent,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" >
@@ -108,6 +110,9 @@
 
       <if test="contractName != null" >
         CONTRACT_NAME,
+      </if>
+      <if test="attachmentName != null" >
+        ATTACHMENT_NAME,
       </if>
       <if test="workStatus != null" >
         WORK_STATUS,
@@ -139,6 +144,9 @@
       <if test="contractPdf != null" >
         CONTRACT_PDF,
       </if>
+      <if test="attachmentContent != null" >
+        ATTACHMENT_CONTENT,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="contractId != null" >
@@ -155,6 +163,9 @@
       </if>
       <if test="contractName != null" >
         #{contractName,jdbcType=NVARCHAR},
+      </if>
+      <if test="attachmentName != null" >
+        #{attachmentName,jdbcType=NVARCHAR},
       </if>
       <if test="workStatus != null" >
         #{workStatus,jdbcType=INTEGER},
@@ -186,6 +197,9 @@
       <if test="contractPdf != null" >
         #{contractPdf,jdbcType=LONGVARBINARY},
       </if>
+      <if test="attachmentContent != null" >
+        #{attachmentContent,jdbcType=LONGVARBINARY},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
@@ -202,6 +216,9 @@
       </if>
       <if test="contractName != null" >
         CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      </if>
+      <if test="attachmentName != null" >
+        ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
       </if>
       <if test="workStatus != null" >
         WORK_STATUS = #{workStatus,jdbcType=INTEGER},
@@ -233,6 +250,9 @@
       <if test="contractPdf != null" >
         CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARBINARY},
       </if>
+      <if test="attachmentContent != null" >
+        ATTACHMENT_CONTENT = #{attachmentContent,jdbcType=LONGVARBINARY},
+      </if>
     </set>
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </update>
@@ -242,6 +262,7 @@
       CONTRACT_REOPEN = #{contractReopen,jdbcType=INTEGER},
       PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
       WORK_STATUS = #{workStatus,jdbcType=INTEGER},
       USER_ID = #{userId,jdbcType=INTEGER},
       CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
@@ -251,7 +272,8 @@
       ARCHIVE_SERIAL_NUMBER = #{archiveSerialNumber,jdbcType=NVARCHAR},
       CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
       CONTRACT_HTML = #{contractHtml,jdbcType=LONGVARCHAR},
-      CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARBINARY}
+      CONTRACT_PDF = #{contractPdf,jdbcType=LONGVARBINARY},
+      ATTACHMENT_CONTENT = #{attachmentContent,jdbcType=LONGVARBINARY}
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAContractCirculation" >
@@ -260,6 +282,7 @@
       CONTRACT_REOPEN = #{contractReopen,jdbcType=INTEGER},
       PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
       WORK_STATUS = #{workStatus,jdbcType=INTEGER},
       USER_ID = #{userId,jdbcType=INTEGER},
       CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},

@@ -255,7 +255,7 @@ public class WordTemplateController {
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(contract);
             OAContractCirculationWithBLOBs oaContract = new OAContractCirculationWithBLOBs();
             oaContract.setContractId(oaContractCirculationWithBLOBs.getContractId());
-            oaContract.setContractPdf( file.getBytes());
+            oaContract.setAttachmentContent( file.getBytes());
             contractCirculationService.update(oaContract);
         }else {
             try {
@@ -291,10 +291,10 @@ public class WordTemplateController {
         auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 文件下载",loginUser.getName())));
         if(StringUtils.isBlank(fileName) && contractId != null ) {
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.querybyId(contractId);
-            byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
+            byte[] bytes = oaContractCirculationWithBLOBs.getAttachmentContent();
             if (null != bytes) {
                 response.setContentType("application/x-download");
-                String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName() + ".jpg", "UTF-8");
+                String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getAttachmentName(), "UTF-8");
                 response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
                 response.setContentLength(bytes.length);
                 response.getOutputStream().write(bytes);

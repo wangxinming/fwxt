@@ -488,7 +488,7 @@ public class DeployController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         //判断当前合同是否自定义合同
-        if(null != oaContractCirculationWithBLOBs.getContractId() && oaContractCirculationWithBLOBs.getContractPdf() != null){
+        if(null != oaContractCirculationWithBLOBs.getContractId() && oaContractCirculationWithBLOBs.getAttachmentContent() != null){
             result.put("download",oaContractCirculationWithBLOBs.getContractId());
         }
         if(StringUtils.isNotBlank(historicProcessInstance.getId())){
@@ -554,7 +554,12 @@ public class DeployController {
                             taskComment.setName(comment.getUserId());
                         }
                         taskComment.setCreateTime(comment.getTime());
-                        taskComment.setDescription(comment.getFullMessage());
+                        if(flag) {
+                            taskComment.setDescription(comment.getFullMessage());
+                        }else{
+                            String[] tm = comment.getFullMessage().split(" ");
+                            taskComment.setDescription(tm[0]);
+                        }
                         taskCommentList.add(taskComment);
                     }
                 }else {
@@ -573,26 +578,38 @@ public class DeployController {
                         }
                         taskCommentList.add(taskComment);
                     }else{
-                        //当前节点没有审批信息，表明处于当前节点用户审批状态下
                         TaskComment taskComment = new TaskComment();
-                        if (historicActivityInstance.getAssignee() == null) {
-//                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
-                            taskComment.setName(variableInstance.getValue().toString());
+                        if(hi.getValue() instanceof  Map){
+                            Map<String,String> mapComment = (Map)hi.getValue();
+                            taskComment.setName(mapComment.get("user"));
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            if(flag) {
-                                taskComment.setDescription(hi.getValue().toString());
-                            }else{
-                                String[] tm = hi.getValue().toString().split(" ");
+                            if (flag) {
+                                taskComment.setDescription(mapComment.get("cause"));
+                            } else {
+                                String[] tm = mapComment.get("cause").split(" ");
                                 taskComment.setDescription(tm[0]);
                             }
-                        } else {
-                            taskComment.setName(historicActivityInstance.getAssignee());
-                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            if(flag) {
-                                taskComment.setDescription(hi.getValue().toString());
-                            }else{
-                                String[] tm = hi.getValue().toString().split(" ");
-                                taskComment.setDescription(tm[0]);
+                        }else {
+                            //当前节点没有审批信息，表明处于当前节点用户审批状态下
+                            if (historicActivityInstance.getAssignee() == null) {
+//                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
+                                taskComment.setName(variableInstance.getValue().toString());
+                                taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                                if (flag) {
+                                    taskComment.setDescription(hi.getValue().toString());
+                                } else {
+                                    String[] tm = hi.getValue().toString().split(" ");
+                                    taskComment.setDescription(tm[0]);
+                                }
+                            } else {
+                                taskComment.setName(historicActivityInstance.getAssignee());
+                                taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                                if (flag) {
+                                    taskComment.setDescription(hi.getValue().toString());
+                                } else {
+                                    String[] tm = hi.getValue().toString().split(" ");
+                                    taskComment.setDescription(tm[0]);
+                                }
                             }
                         }
                         taskCommentList.add(taskComment);
@@ -626,7 +643,7 @@ public class DeployController {
         result.put("result","success");
         Map<String,KeyValue> map = new LinkedHashMap();
         //判断当前合同是否自定义合同
-        if(oaContractCirculationWithBLOBs.getContractId() != null && oaContractCirculationWithBLOBs.getContractPdf() != null ) {
+        if(oaContractCirculationWithBLOBs.getContractId() != null && oaContractCirculationWithBLOBs.getAttachmentContent() != null ) {
             result.put("download", oaContractCirculationWithBLOBs.getContractId());
         }
         if(StringUtils.isNotBlank(processInstance.getId())){
@@ -693,7 +710,12 @@ public class DeployController {
                             taskComment.setName(comment.getUserId());
                         }
                         taskComment.setCreateTime(comment.getTime());
-                        taskComment.setDescription(comment.getFullMessage());
+                        if(flag) {
+                            taskComment.setDescription(comment.getFullMessage());
+                        }else{
+                            String[] tm = comment.getFullMessage().split(" ");
+                            taskComment.setDescription(tm[0]);
+                        }
                         taskCommentList.add(taskComment);
                     }
                 }else {
@@ -714,27 +736,39 @@ public class DeployController {
                         }
                         taskCommentList.add(taskComment);
                     }else{
-                        //当前节点没有审批信息，表明处于当前节点用户审批状态下
                         TaskComment taskComment = new TaskComment();
-                        if (historicActivityInstance.getAssignee() == null) {
-                            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
-                            taskComment.setName(variableInstance.getValue().toString());
+                        if(object instanceof  Map){
+                            Map<String,String> mapComment = (Map)object;
+                            taskComment.setName(mapComment.get("user"));
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            if(flag) {
-                                taskComment.setDescription(object.toString());
+                            if (flag) {
+                                taskComment.setDescription(mapComment.get("cause"));
                             }else{
-                                taskComment.setDescription("通过");
-                                String[] tm = object.toString().split(" ");
+                                String[] tm = mapComment.get("cause").split(" ");
                                 taskComment.setDescription(tm[0]);
                             }
-                        } else {
-                            taskComment.setName(historicActivityInstance.getAssignee());
-                            taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            if(flag) {
-                                taskComment.setDescription(object.toString());
-                            }else{
-                                String[] tm = object.toString().split(" ");
-                                taskComment.setDescription(tm[0]);
+                        }else {
+                            //当前节点没有审批信息，表明处于当前节点用户审批状态下
+                            if (historicActivityInstance.getAssignee() == null) {
+                                VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
+                                taskComment.setName(variableInstance.getValue().toString());
+                                taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                                if (flag) {
+                                    taskComment.setDescription(object.toString());
+                                } else {
+//                                taskComment.setDescription("通过");
+                                    String[] tm = object.toString().split(" ");
+                                    taskComment.setDescription(tm[0]);
+                                }
+                            } else {
+                                taskComment.setName(historicActivityInstance.getAssignee());
+                                taskComment.setCreateTime(historicActivityInstance.getStartTime());
+                                if (flag) {
+                                    taskComment.setDescription(object.toString());
+                                } else {
+                                    String[] tm = object.toString().split(" ");
+                                    taskComment.setDescription(tm[0]);
+                                }
                             }
                         }
                         taskCommentList.add(taskComment);

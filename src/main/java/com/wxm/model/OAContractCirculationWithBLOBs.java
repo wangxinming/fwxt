@@ -5,6 +5,16 @@ public class OAContractCirculationWithBLOBs extends OAContractCirculation {
 
     private byte[] contractPdf;
 
+    private byte[] attachmentContent;
+
+    public void setAttachmentContent(byte[] attachmentContent) {
+        this.attachmentContent = attachmentContent;
+    }
+
+    public byte[] getAttachmentContent() {
+        return attachmentContent;
+    }
+
     public String getContractHtml() {
         return contractHtml;
     }

@@ -9,7 +9,7 @@ public class OAContractCirculation {
     private Integer contractReopen;
 
     private String processInstanceId;
-
+    private String attachmentName;
     private String contractName;
 
     private Integer userId;
@@ -24,6 +24,14 @@ public class OAContractCirculation {
     private String archiveSerialNumber;
 
     private Date createTime;
+
+    public String getAttachmentName() {
+        return attachmentName;
+    }
+
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
+    }
 
     public String getArchiveSerialNumber() {
         return archiveSerialNumber;

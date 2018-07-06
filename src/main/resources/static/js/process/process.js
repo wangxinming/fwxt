@@ -386,7 +386,8 @@
                                 }
                                 if(data.download){
                                     // $('#customFile')[0].style.display = 'none';
-                                    var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
+                                    // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
+                                    var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
                                     $('#download').html(html);
                                 }
 
@@ -1032,6 +1033,7 @@
                                     // $('#customFile')[0].style.display = 'none';
                                     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
                                     var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                                    // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
                                     $('#download').html(html);
                                 }
                                 $('#keyword').html(data.keyword);
@@ -1311,6 +1313,7 @@
                                     if (data.download) {
                                         // $('#customFile')[0].style.display = 'none';
                                         var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId=' + data.download + '\");\'>附件下载</a>';
+                                        // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
                                         $('#download').html(html);
                                     }
                                     $('#keyword').html(data.keyword);
@@ -1541,7 +1544,7 @@
                     $('#processInstanceId').val($scope.search.processInstanceId);
                     $('#orderForm').html(data.data.templateHtml);
                     $scope.pms = data.pms;
-                    $scope.pms = data.pms;
+                    $scope.pm = data.pm;
                     $scope.fields = data.fields;
                     $scope.contractName = data.title;
                     $scope.workStatus = data.workStatus==1?true:false;
@@ -1563,6 +1566,7 @@
                     if(data.download) {
                         // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId=' + data.download + '");">附件下载</a>';
                         var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                        // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
                         $('#downloadedFile').html(html);
                     }else{
                         var html = '<a href="javascript:void(0);">无附件</a>';
@@ -1572,7 +1576,9 @@
                     Loading.hide();
                 });
             };
+            $scope.searchPage = {data:{
 
+                }};
             $scope.commitResume = function () {
                 var t = $('#dateStartwork').val();
                 if(t != "") {

@@ -1,5 +1,6 @@
 package com.wxm.controller;
 
+import com.alibaba.druid.support.json.JSONUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wxm.entity.*;
@@ -432,6 +433,7 @@ public class ProcessController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        identityService.setAuthenticatedUserId(loginUser.getName());
         Map<String, Object> result = new HashMap<>();
         String processInstanceId = map.get("processInstanceId");
         String info = "";
@@ -446,6 +448,7 @@ public class ProcessController {
 
                 String attachmentRefuse = map.get("attachmentRefuse");
                 runtimeService.setVariable(task.getProcessInstanceId(), task.getId(), "重新提交 "+attachmentRefuse);
+                taskService.addComment(task.getId(), task.getProcessInstanceId(), "重新提交 "+attachmentRefuse);
                 result.put("result", "success");
                 String taskDefinitionKey = taskService.getVariable(task.getId(), "taskDefinitionKey").toString();
                 taskService.setVariable(task.getId(), "taskDefinitionKey",null);
@@ -472,6 +475,7 @@ public class ProcessController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        identityService.setAuthenticatedUserId(loginUser.getName());
         String cause = map.get("cause");
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
@@ -481,18 +485,28 @@ public class ProcessController {
         String taskDefinitionKey = task.getTaskDefinitionKey();
 //        runtimeService.setVariable(task.getProcessInstanceId(), "refuseTask", "拒绝" );
         runtimeService.setVariable(task.getProcessInstanceId(), "refuseTask", cause );
+        Map<String,String> mapComment = new LinkedHashMap();
+        mapComment.put("user",loginUser.getName());
         if(StringUtils.isNotBlank(cause)) {
-            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝  " + cause);
+            mapComment.put("cause", "拒绝 "+cause);
         }else{
-            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝" );
+            mapComment.put("cause", "拒绝");
         }
+//            JSONUtils.toJSONString(mapComment);
+            runtimeService.setVariable(task.getProcessInstanceId(), taskId, mapComment);
+//            taskService.addComment(task.getId(), task.getProcessInstanceId(), "拒绝  " + cause);
+//        }else{
+//            taskService.addComment(task.getId(), task.getProcessInstanceId(), "拒绝");
+////            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝" );
+//        }
         List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
                 .finished()
                 .processInstanceId(task.getProcessInstanceId())
                 .orderByTaskCreateTime().asc().listPage(0,1);
         if(null != historicTaskInstanceList && historicTaskInstanceList.size() > 0 ){
             for(HistoricTaskInstance task1 : historicTaskInstanceList){
-                if(task1.getAssignee() == null){
+//                if(task1.getAssignee() == null){
+
                     taskProcessService.jump(task1.getTaskDefinitionKey(), task.getProcessInstanceId());
                     runtimeService.setVariable(task.getProcessInstanceId(), "init", "start");
 //                    SimpleMailMessage message = new SimpleMailMessage();
@@ -508,7 +522,7 @@ public class ProcessController {
                     taskService.setAssignee(task.getId(),userStart);
                     runtimeService.setVariable(task.getProcessInstanceId(),"taskDefinitionKeyShow",taskDefinitionKey);
                     break;
-                }
+//                }
             }
         }else{
             runtimeService.setVariable(task.getProcessInstanceId(), "init", "start");
@@ -537,6 +551,7 @@ public class ProcessController {
         String contract = map.get("contract");
         String contractName = map.get("contractName");
         String pm = map.get("pm");
+        identityService.setAuthenticatedUserId(loginUser.getName());
 //        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
         if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交
             try{
@@ -609,7 +624,8 @@ public class ProcessController {
                         // 获取word文件流，custom文件名称
                         String filePf = contractPath + custom;
                         byte[] word = FileByte.getByte(filePf);
-                        contractCirculationWithBLOBs.setContractPdf(word);
+                        oaContractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
+                        contractCirculationWithBLOBs.setAttachmentContent(word);
                     }
                     if (StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
                         contractCirculationWithBLOBs.setWorkStatus(1);
@@ -710,7 +726,7 @@ public class ProcessController {
                     mapInfo.put("contractStatus",0);
                 }
                 mapInfo.putAll(map);
-                identityService.setAuthenticatedUserId(loginUser.getName());
+
                 ProcessInstance processInstance = runtimeService.startProcessInstanceById(pd.getId(), mapInfo);
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
                 oaContractCirculationWithBLOBs.setUserId(loginUser.getId());
@@ -737,7 +753,8 @@ public class ProcessController {
                     // 获取word文件流
                     String filePf = contractPath + custom;
                     byte[] word = FileByte.getByte(filePf);
-                    oaContractCirculationWithBLOBs.setContractPdf(word);
+                    oaContractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
+                    oaContractCirculationWithBLOBs.setAttachmentContent(word);
                 }
 //                }
                 if(null != map.get("html")) {
