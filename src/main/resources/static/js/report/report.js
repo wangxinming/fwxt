@@ -176,7 +176,7 @@
                     yAxis: {
                         min: 0,
                         title: {
-                            text: '合同统计'
+                            text: ''
                         }
                     },
                     legend: {
@@ -217,6 +217,7 @@
                                 $scope.profile.custom = data.data.customNum;
 
                                 // $scope.listPage.settings.reload();
+                                $scope.chartColumn.yAxis.title.text = "模板合同统计";
                                 $scope.chartSeries[0].data= data.data.reportItemList;
                                 //     [
                                 //     ['Shanghai', 24.2],
@@ -337,7 +338,7 @@
                 },
                 series: $scope.chartSeries,
                 title: {
-                    text: '工单'
+                    text: ''
                 }
             };
             $scope.chartConfigColumn = {
@@ -440,6 +441,7 @@
                                         data: []
                                     }]
                                 }else {
+                                    $scope.chartConfigPie.title.text="工单";
                                     $scope.chartConfigPie.series = [{
                                         type: 'pie',
                                         name: '任务',
