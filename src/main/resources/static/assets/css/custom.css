@@ -202,7 +202,7 @@
 }
 
 .sidebar-wrapper .sidebar-menu .sidebar-dropdown .sidebar-submenu li a:before {
-        content: "\f10c";
+        /*content: "\f10c";*/
         font-family: FontAwesome;
         font-weight: 400;
         font-style: normal;

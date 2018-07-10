@@ -859,7 +859,7 @@ public class ProcessController {
         OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstancesId);
         if(pi != null) {
             ActivityImpl activity = ((ProcessDefinitionEntity) repositoryService.getProcessDefinition(task.getProcessDefinitionId())).findActivity(pi.getActivityId());
-            if (null != activity && activity.getProperty("name").equals("归档")) {
+            if (null != activity && activity.getProperty("name").toString().contains("归档")) {
                 OAContractCirculationWithBLOBs tmp = new OAContractCirculationWithBLOBs();
                 tmp.setContractId(oaContractCirculationWithBLOBs.getContractId());
                 //归档后 用户可以查
@@ -872,7 +872,7 @@ public class ProcessController {
                 }
                 contractCirculationService.update(tmp);
             }
-            if (null != activity && activity.getProperty("name").equals("核对")) {
+            if (null != activity && activity.getProperty("name").toString().contains("核对")) {
                 OAContractCirculationWithBLOBs tmp = new OAContractCirculationWithBLOBs();
                 tmp.setContractId(oaContractCirculationWithBLOBs.getContractId());
                 auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 核对合同",loginUser.getName())));
