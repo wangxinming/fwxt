@@ -33,7 +33,7 @@
 /*----------------sidebar-wrapper----------------*/
 .sidebar-wrapper{
     width: 260px;
-    background: #484848;
+    background: #18181a;
     height: 100%;
     max-height: 100%;
     position: fixed;
@@ -132,7 +132,7 @@
 }
 /*----------------------sidebar-menu-------------------------*/
 .sidebar-wrapper .sidebar-menu{
-    border-top: 10px solid #484848;
+    border-top: 10px solid #18181a;
     padding-bottom: 10px;
 }
 
@@ -172,7 +172,7 @@
 
 
 .sidebar-wrapper .sidebar-menu .sidebar-dropdown div {
-    background: #2e2a21;
+    background: #21232e;
     border-bottom: 1px solid #222b35;
 }
 .sidebar-wrapper .sidebar-menu .sidebar-dropdown > a:after {
@@ -243,7 +243,7 @@
 }
 
 .sidebar-dropdown.active {
-    background: #2e2a21;
+    background: #21232e;
 }
 /*--------------------------side-footer------------------------------*/
 
