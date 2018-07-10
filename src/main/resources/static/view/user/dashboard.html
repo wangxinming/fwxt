@@ -8,16 +8,26 @@
         /*!*.slide li {height: 49px;line-height: 49px;text-align: left;padding: 0 10px;font-size: 16px;list-style: none;border-bottom: 1px dashed #dcdcdc;cursor: pointer;}*!*/
         /*.slide li {height: 49px;line-height: 49px;text-align: left;padding: 0 10px;font-size: 16px;list-style: none;cursor: pointer;}*/
         /*.slide li:hover{background: #ccc;}*/
-
+        .notice-scroll {
+            position: absolute;
+            top:77px;
+            left:360px;
+            padding: 15px 0px;
+        }
+        .notice-scroll .grid-left {
+            color: #ff2a34;
+            font-size: 17px;
+        }
         .slide{
-            width:100%;
             height:20px;
             overflow:hidden;
             background:#ffffff;
-            border:0px solid #aaaaaa;
+            font-size: 17px;
+            color: #333;
         }
         .slide ul{
-            padding:2px 5px 5px 25px;
+            padding:0px 10px;
+            line-height: 26px;
         }
         .slide ul li{
             height:20px;
@@ -25,10 +35,15 @@
             font-size:small;
         }
     </style>
-    <div class="slide">
-        <ul class="slideUl">
-            <slide-follow id="slide" data = "list"></slide-follow>
-        </ul>
+    <div class="notice-scroll">
+        <div class="grid-left">
+            通知 :
+        </div>
+        <div class="slide">
+            <ul class="slideUl">
+                <slide-follow id="slide" data = "list"></slide-follow>
+            </ul>
+        </div>
     </div>
     <div>
         <div class="main-page">
