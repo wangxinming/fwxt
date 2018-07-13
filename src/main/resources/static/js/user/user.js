@@ -936,20 +936,20 @@
                             return Util.str2Html(mData);
                         }
                     },
-                    {
-                        sTitle: "负责人",
-                        mData: "companyOwner",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
-                    {
-                        sTitle: "手机号码",
-                        mData: "ownerMobile",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
+                    // {
+                    //     sTitle: "负责人",
+                    //     mData: "companyOwner",
+                    //     mRender: function (mData, type, full) {
+                    //         return Util.str2Html(mData);
+                    //     }
+                    // },
+                    // {
+                    //     sTitle: "手机号码",
+                    //     mData: "ownerMobile",
+                    //     mRender: function (mData, type, full) {
+                    //         return Util.str2Html(mData);
+                    //     }
+                    // },
                     {
                         sTitle: "公司状态",
                         mData: "companyStatus",
@@ -997,10 +997,9 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
-                    { sWidth: "10%", aTargets: [ 3] },
-                    { sWidth: "15%", aTargets: [ 0,1,2,4] },
-                    { sWidth: "30%", aTargets: [5] }
+                    {bSortable: false, aTargets: [0,1,2,3]},  //第 0,10列不可排序
+                    { sWidth: "40%", aTargets: [ 0] },
+                    { sWidth: "20%", aTargets: [ 1,2,3] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -1924,12 +1923,15 @@
                 '                            <a id="user"><i class="fa fa-user" ></i><span>用户管理模块</span><span class="label label-danger"></span></a>\n' +
                 '                            <div class="sidebar-submenu">\n' +
                 '                                <ul>';
-            //
-            var user = '<li><a href="/index.html#/user"><img src="/assets/img/m1.png" style="width: 25px;margin-right: 10px;"/>用户信息 <span class="label label-success"></span></a> </li>';
-            var group = '<li><a href="/index.html#/group"><img src="/assets/img/m2.png" style="width: 25px;margin-right: 10px;"/>用户组 <span class="label label-success"></span></a> </li>';
-            var password = '<li><a href="/index.html#/password"><img src="/assets/img/m3.png" style="width: 25px;margin-right: 10px;"/>修改密码 <span class="label label-success"></span></a> </li>';
-            var enterprise = '<li><a href="/index.html#/enterprise"><img src="/assets/img/m4.png" style="width: 25px;margin-right: 10px;"/>公司管理 <span class="label label-success"></span></a> </li>';
-            var notify = '<li><a href="/index.html#/notify"><img src="/assets/img/u18.png" style="width: 25px;margin-right: 10px;"/>通知消息 <span class="label label-success"></span></a> </li>';
+            //<img src="/assets/img/m1.png" style="width: 25px;margin-right: 10px;"/> <img src="/assets/img/m2.png" style="width: 25px;margin-right: 10px;"/>
+            //<img src="/assets/img/m3.png" style="width: 25px;margin-right: 10px;"/>
+            //<img src="/assets/img/m4.png" style="width: 25px;margin-right: 10px;"/>
+            //<img src="/assets/img/u18.png" style="width: 25px;margin-right: 10px;"/>
+            var user = '<li><a href="/index.html#/user">用户信息 <span class="label label-success"></span></a> </li>';
+            var group = '<li><a href="/index.html#/group">用户组 <span class="label label-success"></span></a> </li>';
+            var password = '<li><a href="/index.html#/password">修改密码 <span class="label label-success"></span></a> </li>';
+            var enterprise = '<li><a href="/index.html#/enterprise">公司管理 <span class="label label-success"></span></a> </li>';
+            var notify = '<li><a href="/index.html#/notify">通知消息 <span class="label label-success"></span></a> </li>';
             var end = '                                </ul>\n' +
                 '                            </div>\n' +
                 '                        </li>';
@@ -1938,45 +1940,54 @@
                 '                            <a id="deployment"><i class="fa fa-calendar"></i><span>合同模板管理模块</span><span class="badge"></span></a>\n' +
                 '                            <div class="sidebar-submenu" >\n' +
                 '                                <ul>';
-            var upload = '<li><a href="index.html#/upload"><img src="/assets/img/m6.png" style="width: 25px;margin-right: 10px;"/>合同模板管理</a></li>';
+            //<img src="/assets/img/m6.png" style="width: 25px;margin-right: 10px;"/>
+            var upload = '<li><a href="index.html#/upload">合同模板管理</a></li>';
             // var form = '<li><a href="index.html#/form">合同模板字段检查</a></li>';
 
             var deployParent = '                        <li class="sidebar-dropdown">\n' +
                 '                            <a id="deploymentProcess"><i class="fa fa-th"></i><span>合同流程管理模块</span><span class="badge"></span></a>\n' +
                 '                            <div class="sidebar-submenu" >\n' +
                 '                                <ul>';
-            var modeler = '<li><a href="index.html#/modeler"><img src="/assets/img/m7.png" style="width: 25px;margin-right: 10px;"/>合同流程设定</a></li>';
-            var deployment = '<li><a href="index.html#/deployment"><img src="/assets/img/m8.png" style="width: 25px;margin-right: 10px;"/>合同流程发布</a></li>';
+            //<img src="/assets/img/m7.png" style="width: 25px;margin-right: 10px;"/>
+            //<img src="/assets/img/m8.png" style="width: 25px;margin-right: 10px;"/>
+            var modeler = '<li><a href="index.html#/modeler">合同流程设定</a></li>';
+            var deployment = '<li><a href="index.html#/deployment">合同流程发布</a></li>';
 
             var processParent = ' <li class="sidebar-dropdown">\n' +
                 '                            <a  id="process"><i class="fa fa-film"></i><span>合同日常流转模块</span></a>\n' +
                 '                            <div class="sidebar-submenu">\n' +
                 '                                <ul>';
-
-            var process = '<li><a href="/index.html#/process"><img src="/assets/img/m9.png" style="width: 25px;margin-right: 10px;"/>新合同建立</a></li>';
-            var myProcess = '<li><a href="/index.html#/myProcess"><img src="/assets/img/m10.png" style="width: 25px;margin-right: 10px;"/>待处理合同</a></li>';
-            var initiator = '<li><a href="/index.html#/initiator"><img src="/assets/img/m11.png" style="width: 25px;margin-right: 10px;"/>我发起的合同</a></li>';
+            //<img src="/assets/img/m9.png" style="width: 25px;margin-right: 10px;"/>
+            //<img src="/assets/img/m10.png" style="width: 25px;margin-right: 10px;"/>
+            //<img src="/assets/img/m11.png" style="width: 25px;margin-right: 10px;"/>
+            var process = '<li><a href="/index.html#/process">新合同建立</a></li>';
+            var myProcess = '<li><a href="/index.html#/myProcess">待处理合同</a></li>';
+            var initiator = '<li><a href="/index.html#/initiator">我发起的合同</a></li>';
 
             var pendingParent = '  <li class="sidebar-dropdown">\n' +
-                '                            <a id="shenpi"><i class="fa fa-tasks"></i><span>合同同归档管理模块</span></a>\n' +
+                '                            <a id="shenpi"><i class="fa fa-tasks"></i><span>合同归档管理模块</span></a>\n' +
                 '                            <div class="sidebar-submenu" >\n' +
                 '                                <ul>';
-            var pending = ' <li><a href="/index.html#/pending"><img src="/assets/img/m12.png" style="width: 25px;margin-right: 10px;"/>合同审核及批复</a></li>';
-            var complete = ' <li><a href="/index.html#/complete"><img src="/assets/img/m13.png" style="width: 25px;margin-right: 10px;"/>归档文件查询</a></li>';
+            //
+            //<img src="/assets/img/m12.png" style="width: 25px;margin-right: 10px;"/>
+            //<img src="/assets/img/m13.png" style="width: 25px;margin-right: 10px;"/>
+            var pending = ' <li><a href="/index.html#/pending">合同审核及批复</a></li>';
+            var complete = ' <li><a href="/index.html#/complete">归档文件查询</a></li>';
             var reportParent = '  <li class="sidebar-dropdown">\n' +
                 '                            <a id="report"><i class="fa fa-file-text"></i><span>合同分类统计模块</span></a>\n' +
                 '                            <div class="sidebar-submenu">\n' +
                 '                            <ul>';
-
-            var privateReport  = ' <li><a href="/index.html#/privateReport"><img src="/assets/img/m14.png" style="width: 25px;margin-right: 10px;"/>个人任务统计</a></li>';
-            var fawu = '<li><a href="/index.html#/fawuReport"><img src="/assets/img/m15.png" style="width: 25px;margin-right: 10px;"/>法务任务统计</a></li>';
+            //<img src="/assets/img/m14.png" style="width: 25px;margin-right: 10px;"/>
+            //<img src="/assets/img/m15.png" style="width: 25px;margin-right: 10px;"/>
+            var privateReport  = ' <li><a href="/index.html#/privateReport">个人任务统计</a></li>';
+            var fawu = '<li><a href="/index.html#/fawuReport">法务任务统计</a></li>';
 
             var logParent = '                <li class="sidebar-dropdown">\n' +
                 '                            <a id="log"><i class="fa fa-bar-chart-o"></i><span>系统日志文件模块</span></a>\n' +
                 '                            <div class="sidebar-submenu" >\n' +
                 '                                <ul>';
-
-            var log = '<li><a href="/index.html#/audit"><img src="/assets/img/m16.png" style="width: 25px;margin-right: 10px;"/>管理员日志查询</a></li>';
+            //<img src="/assets/img/m16.png" style="width: 25px;margin-right: 10px;"/>
+            var log = '<li><a href="/index.html#/audit">管理员日志查询</a></li>';
             var bars = totalBefore;
             loader.loginBar(null, function (data) {
                     var tmp = '';
@@ -2169,14 +2180,14 @@
                         }
                         break;
                     case 'pending':
-                        $('#mbx1').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同同归档管理模块</a>');
+                        $('#mbx1').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同归档管理模块</a>');
                         $('#mbx2').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同审核及批复</a>');
                         if (!$("#process").parent().hasClass("active")) {
                             $("#process").trigger("click");
                         }
                         break;
                     case 'complete':
-                        $('#mbx1').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 合同同归档管理模块</a>');
+                        $('#mbx1').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 合同归档管理模块</a>');
                         $('#mbx2').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 归档文件查询</a>');
                         if (!$("#shenpi").parent().hasClass("active")) {
                             $("#shenpi").trigger("click");
@@ -2257,7 +2268,7 @@
             //     '                            </div>\n' +
             //     '                        </li>\n' +
             //     '                        <li class="sidebar-dropdown">\n' +
-            //     '                            <a id="shenpi"><i class="fa fa-tasks"></i><span>合同同归档管理模块</span></a>\n' +
+            //     '                            <a id="shenpi"><i class="fa fa-tasks"></i><span>合同归档管理模块</span></a>\n' +
             //     '                            <div class="sidebar-submenu" >\n' +
             //     '                                <ul>\n' +
             //     '                                    <li><a href="/index.html#/pending">合同审核及批复</a></li>\n' +

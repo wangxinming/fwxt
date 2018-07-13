@@ -198,14 +198,14 @@
                         }
                         break;
                     case 'pending':
-                        $('#mbx1').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同同归档管理模块</a>');
+                        $('#mbx1').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同归档管理模块</a>');
                         $('#mbx2').html('<a href="index.html#/pending"><span class="fa fa-angle-double-right"></span> 合同审核及批复</a>');
                         if (!$("#process").parent().hasClass("active")) {
                             $("#process").trigger("click");
                         }
                         break;
                     case 'complete':
-                        $('#mbx1').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 合同同归档管理模块</a>');
+                        $('#mbx1').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 合同归档管理模块</a>');
                         $('#mbx2').html('<a href="index.html#/complete"><span class="fa fa-angle-double-right"></span> 归档文件查询</a>');
                         if (!$("#shenpi").parent().hasClass("active")) {
                             $("#shenpi").trigger("click");
