@@ -552,8 +552,8 @@ public class ProcessController {
         String contractName = map.get("contractName");
         String pm = map.get("pm");
         identityService.setAuthenticatedUserId(loginUser.getName());
-//        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
-        if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交
+        OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
+        if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交s
             try{
                 String deploymentID = map.get("id");
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
@@ -634,7 +634,13 @@ public class ProcessController {
                     }
                     oaContractCirculationWithBLOBs.setWorkDate(workDate);
                     oaContractCirculationWithBLOBs.setContractName(contractName);
-                    contractCirculationWithBLOBs.setDescription("custom");
+                    //自定义模板处理
+                    if(oaContractTemplate.getTemplateName().contains("自定义")) {
+                        oaContractCirculationWithBLOBs.setDescription("custom");
+                    }else{
+                        contractCirculationWithBLOBs.setDescription("template");
+                    }
+
                     contractCirculationService.update(contractCirculationWithBLOBs);
 //                    }
 //                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
@@ -747,9 +753,12 @@ public class ProcessController {
                     oaContractCirculationWithBLOBs.setWorkStatus(0);
                 }
                 //自定义模板处理
-//                if(oaContractTemplate.getTemplateName().contains("自定义")) {
-                if (StringUtils.isNotBlank(custom)) {
+                if(oaContractTemplate.getTemplateName().contains("自定义")) {
                     oaContractCirculationWithBLOBs.setDescription("custom");
+                }else{
+                    oaContractCirculationWithBLOBs.setDescription("template");
+                }
+                if (StringUtils.isNotBlank(custom)) {
                     // 获取word文件流
                     String filePf = contractPath + custom;
                     byte[] word = FileByte.getByte(filePf);
@@ -758,7 +767,7 @@ public class ProcessController {
                 }
 //                }
                 if(null != map.get("html")) {
-                    oaContractCirculationWithBLOBs.setDescription("template");
+
                     oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
                 }
 
