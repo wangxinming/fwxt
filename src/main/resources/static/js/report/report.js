@@ -192,7 +192,7 @@
             var current = new Date();
             $scope.searchPage = {
                 data:{
-                    startTime: $filter('date')(new Date(current.getTime() - 30 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    startTime: $filter('date')(new Date(current.getTime() - 365 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss')
                 },
                 action:{
@@ -422,11 +422,21 @@
             var current = new Date();
             $scope.searchPage = {
                 data:{
-                    startTime: $filter('date')(new Date(current.getTime() - 30 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    startTime: $filter('date')(new Date(current.getTime() - 365 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss')
                 },
                 action:{
                     search:function () {
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
                         Loading.show();
                         loader.myReport({"startTime": $scope.searchPage.data.startTime,"endTime":$scope.searchPage.data.endTime},function(data){
                             if(data.result=="success"){
