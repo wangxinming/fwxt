@@ -164,6 +164,8 @@
     TEXT-DECORATION: none;
     /*color: #ccc;*/
 }
+
+
 /*.sidebar-wrapper .sidebar-menu ul li a:hover {*/
     /*!*color: #ccc;*!*/
     /*COLOR:#562505;*/
@@ -258,7 +260,11 @@
     background: #21232e;
 }
 /*--------------------------side-footer------------------------------*/
-
+.li-active {
+    COLOR: #565447;
+    BACKGROUND-COLOR: #3c3e3c;
+    TEXT-DECORATION: none;
+}
 .sidebar-footer{
     position: absolute;
     width: 100%;

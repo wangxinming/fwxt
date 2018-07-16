@@ -751,9 +751,9 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,10列不可排序
-                    // { sWidth: "10%", aTargets: [ 3] },
-                    // { sWidth: "15%", aTargets: [ 0,1,2,4] }
+                    {bSortable: false, aTargets: [0,1,2,3]},  //第 0,10列不可排序
+                    { sWidth: "20%", aTargets: [ 0,2,3] },
+                    { sWidth: "40%", aTargets: [ 1] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -2091,13 +2091,23 @@
                     if ($(this).parent().hasClass("active")){
                         $(".sidebar-dropdown").removeClass("active");
                         $(this).parent().removeClass("active");
+                        // $(this).parent().removeClass("li-active");
                     }else{
                         $(".sidebar-dropdown").removeClass("active");
                         $(this).next(".sidebar-submenu").slideDown(250);
                         $(this).parent().addClass("active");
+                        // $(this).parent().addClass("li-active");
                     }
 
                 });
+                $(".sidebar-submenu ul li").click(function () {
+                    $(this).siblings().removeClass();
+                    $(this).toggleClass("li-active");
+
+                });
+                // $(function () {
+                //
+                // });
 
                 switch ($rootScope.currentView){
                     case 'user':
