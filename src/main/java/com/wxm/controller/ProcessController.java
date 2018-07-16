@@ -119,7 +119,7 @@ public class ProcessController {
         return timeStr;
     }
 
-
+    //获取首页合同统计
     @RequestMapping(value = "/dashboard", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public Object dashboard(HttpServletRequest request){
@@ -136,7 +136,7 @@ public class ProcessController {
             result.put("myPending",size);
 
             List<TaskInfo> taskInfos = new LinkedList<>();
-            List<Task> list=taskService.createTaskQuery().taskAssignee(loginUser.getName())
+            List<Task> list=taskService.createTaskQuery().taskAssignee(loginUser.getName()).orderByTaskCreateTime().desc()
                     .listPage(0,5);
             for(Task task:list){
                 TaskInfo taskInfo = new TaskInfo();
@@ -151,12 +151,12 @@ public class ProcessController {
             result.put("pendingList",taskInfos);
 
             if(loginUser.getName().equals("admin")){
-                size = historyService.createHistoricProcessInstanceQuery()
+                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
                         .variableValueEquals("instanceStatus","completed")
                         .count();
                 result.put("myComplete", size);
             }else {
-                size = historyService.createHistoricProcessInstanceQuery()
+                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
                         .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
                         .count();
                 result.put("myComplete", size);
