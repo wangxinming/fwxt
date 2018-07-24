@@ -1088,6 +1088,24 @@ public class UserDefController {
             }
             return userService.getUserList(Integer.parseInt(offset), Integer.parseInt(limit), userName);
         }else{
+            OAUser oaUser = userService.getUserById(loginUser.getId());
+            if(null != oaUser && null != oaUser.getGroupId() && oaUser.getGroupId() > 0){
+                OAGroup oaGroup = oaGroupMapper.selectByPrimaryKey(oaUser.getGroupId());
+                if(null != oaGroup && oaGroup.getStatus()== 1){
+                    Map map = JsonUtils.jsonToMap(oaGroup.getPrivilegeids());
+                    if(map.get("attachment") != null && map.get("attachment").equals("0")){
+                        List<com.wxm.entity.User> list = new LinkedList<>();
+                        String offset = request.getParameter("offset");
+                        String limit = request.getParameter("limit");
+                        String userName = request.getParameter("userName");
+                        if (StringUtils.isBlank(userName)) {
+                            userName = null;
+                        }
+                        return userService.getUserList(Integer.parseInt(offset), Integer.parseInt(limit), userName);
+                    }
+                }
+            }
+
             Map<String, Object> result = new HashMap<>();
             List<OAUser> list = new LinkedList<>();
             list.add(userService.selectByName(loginUser.getName()));
