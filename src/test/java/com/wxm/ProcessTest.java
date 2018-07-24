@@ -27,15 +27,15 @@ public class ProcessTest {
 
     @Before
     public void setUp() {
-        processEngine = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
-                .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
-                .setJdbcUrl("jdbc:sqlserver://127.0.0.1:1433;DatabaseName=oa")
-                .setJdbcDriver("com.microsoft.sqlserver.jdbc.SQLServerDriver")
-                .setJdbcUsername("sa")
-                .setJdbcPassword("123456")
-                .setDatabaseSchemaUpdate("true")
-                .setJobExecutorActivate(false)
-                .buildProcessEngine();
+//        processEngine = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
+//                .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
+//                .setJdbcUrl("jdbc:sqlserver://127.0.0.1:1433;DatabaseName=oa")
+//                .setJdbcDriver("com.microsoft.sqlserver.jdbc.SQLServerDriver")
+//                .setJdbcUsername("sa")
+//                .setJdbcPassword("123456")
+//                .setDatabaseSchemaUpdate("true")
+//                .setJobExecutorActivate(false)
+//                .buildProcessEngine();
     }
 
     //5.1、查询历史记录ACT_HI_PROCINST
@@ -194,7 +194,7 @@ public class ProcessTest {
     }
     @Test
     public void testHtml2Pdf(){
-        File htmlFile = Word2Html.html2pdf("F:\\tmp\\oa\\demo.html","C:/Program Files (x86)/OpenOffice 4");
+        File htmlFile = Word2Html.html2pdf("F:\\tmp\\oa\\上海隧道工程有限公司专业分包合同20180507.html","C:/Program Files (x86)/OpenOffice 4");
     }
     @Test
     public void testHtml(){

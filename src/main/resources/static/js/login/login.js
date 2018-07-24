@@ -26,6 +26,7 @@
                             jQuery.cookie("wxm_url",null);
                             location.href=url;
                         }else{
+                            // location.href="./login.html";
                             location.href="./index.html#/dashboard";
                         }
                     }else{

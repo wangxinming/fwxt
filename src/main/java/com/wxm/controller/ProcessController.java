@@ -773,7 +773,7 @@ public class ProcessController {
 
                 OAContractCirculation max = contractCirculationService.selectByMaxId();
                 SimpleDateFormat date = new SimpleDateFormat("yyyyMMdd");
-                if(StringUtils.isBlank(max.getContractSerialNumber())){
+                if(null == max || StringUtils.isBlank(max.getContractSerialNumber())){
                     oaContractCirculationWithBLOBs.setContractSerialNumber(date.format(new Date())+"01");
                 }else{
                     Integer serial = Integer.parseInt(max.getContractSerialNumber().substring("yyyyMMdd".length()));

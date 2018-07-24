@@ -302,7 +302,7 @@
             //     templateUrl: 'view/user/user.html',
             //     controller: 'user.controller'
             // });
-            $routeProvider.otherwise({redirectTo: '/dashboard'});
+            // $routeProvider.otherwise({redirectTo: '/dashboard'});
 
             $httpProvider.interceptors.push("interceptor");}])
         .factory('interceptor', function ($q, $rootScope) {

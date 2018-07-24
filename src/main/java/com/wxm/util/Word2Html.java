@@ -37,7 +37,8 @@ public class Word2Html {
 
         // 设置OpenOffice.org 4的安装目录
         config.setOfficeHome(path);
-
+        config.setTaskExecutionTimeout(1000 * 60 * 25L);
+        config.setTaskQueueTimeout(1000 * 60 * 60 * 24L);
         // 启动OpenOffice的服务
         OfficeManager officeManager = config.buildOfficeManager();
         officeManager.start();
