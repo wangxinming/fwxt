@@ -895,8 +895,20 @@
                             });
                         }, '删除');
                     },
+                    all: function (search, fnCallback) {
+                        $scope.searchPage.data.offset = 0;
+                        $scope.searchPage.data.limit=10000;
+                        loader.enterpriseList($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    },
                     search: function (search, fnCallback) {
                         $scope.searchPage.data.offset = search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.enterpriseList($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -1801,8 +1813,20 @@
                             });
                         }, '删除');
                     },
+                    all: function (search, fnCallback) {
+                        $scope.searchPage.data.offset = 0;
+                        $scope.searchPage.data.limit=10000;
+                        loader.userList($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    },
                     search: function (search, fnCallback) {
                         $scope.searchPage.data.offset = search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.userList($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -1830,7 +1854,7 @@
             };
 
             $scope.listPage.settings = {
-                pageSize:10,
+                // pageSize:10,
                 reload: null,
                 getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
                 columns: [
@@ -2087,14 +2111,14 @@
                 bars+=totalEnd;
                 $('#menuBar').html(bars);
                 $(".sidebar-dropdown > a").click(function(){
-                    $(".sidebar-submenu").slideUp(250);
+                    // $(".sidebar-submenu").slideUp(250);
                     if ($(this).parent().hasClass("active")){
                         $(".sidebar-dropdown").removeClass("active");
                         $(this).parent().removeClass("active");
                         // $(this).parent().removeClass("li-active");
                     }else{
                         $(".sidebar-dropdown").removeClass("active");
-                        $(this).next(".sidebar-submenu").slideDown(250);
+                        // $(this).next(".sidebar-submenu").slideDown(250);
                         $(this).parent().addClass("active");
                         // $(this).parent().addClass("li-active");
                     }

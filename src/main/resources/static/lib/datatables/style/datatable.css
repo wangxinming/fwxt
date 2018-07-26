@@ -32,7 +32,7 @@
     float: right;
 }
 .dataTables_wrapper .row:first-child {
-    display: none;
+    /*display: none;*/
 }
 .dataTables_wrapper i {
     margin-right: 13px;
@@ -153,7 +153,7 @@
     position: absolute;
     bottom: 0;
     left: 10px;
-    display: none;
+    display: contents;
 }
 .table-bordered {
     border: none;

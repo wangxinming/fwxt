@@ -93,13 +93,24 @@ public class TaskFlowControlServiceTest {
                 .setJdbcUrl("jdbc:sqlserver://127.0.0.1:1433;DatabaseName=oa")
                 .setJdbcDriver("com.microsoft.sqlserver.jdbc.SQLServerDriver")
                 .setJdbcUsername("sa")
-                .setJdbcPassword("123456")
+                .setJdbcPassword("1qaz@WSX")
                 .setDatabaseSchemaUpdate("true")
                 .setJobExecutorActivate(false)
                 .buildProcessEngine();
     }
 
-
+    @Test
+    public void testTemplate(){
+        ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceById("process:11:442508");
+        TaskService taskService = processEngine.getTaskService();
+        Task task1 = taskService.createTaskQuery().processInstanceId(instance.getId()).singleResult();
+        Map<String, Object> vars = new HashMap<String, Object>();
+        vars.put("user_approve", "张三");
+        taskService.complete(task1.getId(),vars);
+        Task task2 = taskService.createTaskQuery().processInstanceId(instance.getId()).singleResult();
+        vars.put("user_approve", "李四");
+        taskService.complete(task2.getId(),vars);
+    }
     @Test
     public void testTaskSequence(){
         ProcessInstance instance = processEngine.getRuntimeService().startProcessInstanceByKey("请假");

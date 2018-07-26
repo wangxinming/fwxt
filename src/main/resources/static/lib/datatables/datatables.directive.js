@@ -167,7 +167,7 @@ angular.module('dataTablesDirective', [])
                 "bFilter": false, //自带的搜索框,默认值true
 //                "bJQueryUI": true ,//启用jQuery UI样式.默认值false
 //                "aaData": aDataSet, //使用的js array格式数据
-//                "bLengthChange": false,//每页的条数选择框,默认true
+               "bLengthChange": true,//每页的条数选择框,默认true
                 "bPaginate": paging , //分页，默认true
                 "bInfo":paging,
                 "bProcessing": true, //正在加载数据提示，默认false
@@ -237,9 +237,9 @@ angular.module('dataTablesDirective', [])
 				"aoColumns": settings.columns,
                 "aoColumnDefs": settings.columnDefs,
                 "aaSorting": settings.defaultOrderBy,
-                "iDisplayLength": pageSize,
+                // "iDisplayLength": pageSize,
 //                "aLengthMenu": [[10,20,50,-1], [10,20,50,"All"]]
-                "aLengthMenu": [20,50]
+                "aLengthMenu": [10,20,50,1000]
             });
 
             settings.reload = function(cancelSort){

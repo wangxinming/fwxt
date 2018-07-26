@@ -21,7 +21,7 @@
         .slide{
             height:20px;
             overflow:hidden;
-            background:#ffffff;
+            /*background:#ffffff;*/
             font-size: 17px;
             color: #333;
         }
@@ -49,22 +49,6 @@
         <div class="main-page">
             <!-- four-grids -->
             <div class="row four-grids" style="width: 1050px;padding: 40px;">
-                <a href="/index.html#/pending">
-                    <div class="col-md-4 ticket-grid">
-                        <div class="tickets">
-                            <div class="grid-left">
-                                <div class="book-icon">
-                                    <i class="fa fa-bell"></i>
-                                </div>
-                            </div>
-                            <div class="grid-right">
-                                <h3><span>待办合同</span></h3>
-                                <p id="myPending">0</p>
-                            </div>
-                            <div class="clearfix"> </div>
-                        </div>
-                    </div>
-                </a>
                 <a href="/index.html#/initiator">
                     <div class="col-md-4 ticket-grid">
                         <div class="tickets">
@@ -76,6 +60,22 @@
                             <div class="grid-right">
                                 <h3> <span>我的申请</span></h3>
                                 <p id="initiator">0</p>
+                            </div>
+                            <div class="clearfix"> </div>
+                        </div>
+                    </div>
+                </a>
+                <a href="/index.html#/pending">
+                    <div class="col-md-4 ticket-grid">
+                        <div class="tickets">
+                            <div class="grid-left">
+                                <div class="book-icon">
+                                    <i class="fa fa-bell"></i>
+                                </div>
+                            </div>
+                            <div class="grid-right">
+                                <h3><span>待办合同</span></h3>
+                                <p id="myPending">0</p>
                             </div>
                             <div class="clearfix"> </div>
                         </div>
@@ -101,7 +101,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" style="width: 1050px;padding: 40px;">
         <div style="margin-top: 0px;" class="col-md-4 " >
             <table width="100%"  class="table-striped ">
                 <tr  class="table-header-grey">
@@ -112,7 +112,7 @@
                 </tr>
             </table>
         </div>
-        <div style="margin-top: 0px;" class="col-md-7">
+        <div style="margin-top: 0px;" class="col-md-8">
             <table width="100%" class="table-striped " >
                 <tr class="table-header-grey">
                     <th>我的申请</th>

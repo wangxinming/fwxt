@@ -22,6 +22,7 @@
     .page-wrapper.toggled .page-content{
         padding-left: 280px;
         padding-right: 8px;
+        background-color:#eff3f8;
     }
 }
 
@@ -249,7 +250,7 @@
     background: #384558;
 }
 .sidebar-wrapper .sidebar-menu .sidebar-submenu{
-    display: none;
+    display: block;
 }
 .sidebar-wrapper .sidebar-menu .sidebar-dropdown.active > a:after{
     transform:rotate(90deg);

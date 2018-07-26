@@ -1000,7 +1000,7 @@ public class ProcessController {
                     taskInfo.setTitle(variableInstance.getTextValue());
                 }
                 variableInstance = runtimeService.getVariableInstance(task.getExecutionId(),"init");
-                if(variableInstance.getTextValue().equals("start")){
+                if(null == variableInstance || null == variableInstance.getTextValue() || variableInstance.getTextValue().equals("start")){
                     taskInfo.setOrder(1);
                 }else{
                     taskInfo.setOrder(0);
