@@ -60,7 +60,8 @@ public class UserDefController {
     private OANotifyService oaNotifyService;
     @Autowired
     private OAPrivilegeMapper oaPrivilegeMapper;
-
+    @Autowired
+    private OAPositionRelationService oaPositionRelationService;
     //通知消息列表查询
     @RequestMapping(value = "/listNotify",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -1115,4 +1116,110 @@ public class UserDefController {
         }
     }
 
+
+
+    //用户职位管理
+    @RequestMapping(value = "/positionList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object positionList(HttpServletRequest request)throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取职位列表",loginUser.getName())));
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String offset = request.getParameter("offset");
+            String limit = request.getParameter("limit");
+            List<OAPositionRelation> list = oaPositionRelationService.list(Integer.parseInt(offset),Integer.parseInt(limit));
+            result.put("rows",list);
+            result.put("total",oaPositionRelationService.count());
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+        }
+        return result;
+    }
+    @RequestMapping(value = "/positionById",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object position(@RequestParam(value = "positionId", required=true) Integer positionId,
+                               HttpServletRequest request)throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser){
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取职位信息",loginUser.getName())));
+        Map<String,Object> map =  new LinkedHashMap<>();
+        map.put("result","success");
+        try {
+            map.put("data", oaPositionRelationService.getById(positionId));
+        }catch (Exception e){
+            map.put("result", "failed");
+            LOGGER.error("异常",e);
+        }
+        return map;
+    }
+
+    @RequestMapping(value = "/updatePosition",method = {RequestMethod.POST},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object updatePosition(@RequestBody OAPositionRelation oaPositionRelation,HttpServletRequest request)throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try {
+            oaPositionRelationService.update(oaPositionRelation);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("更新职位信息")));
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
+    @RequestMapping(value = "/createPosition",method = {RequestMethod.PUT},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object createPosition(@RequestBody OAPositionRelation oaPositionRelation, HttpServletRequest request)throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try {
+            oaPositionRelation.setCreateTime(new Date());
+            oaPositionRelationService.create(oaPositionRelation);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("新建职位关系")));
+        }catch (Exception e){
+            LOGGER.warn("异常",e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
+
+
+    @RequestMapping(value = "/deletePosition",method = {RequestMethod.DELETE},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object deletePosition(@RequestParam (value = "positionRelationId", required=true)Integer positionRelationId, HttpServletRequest request){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try {
+            oaPositionRelationService.delete(positionRelationId);
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("删除职位")));
+        }catch (Exception e){
+            LOGGER.warn("异常",e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
 }

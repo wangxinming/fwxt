@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 public class User implements Serializable {
     private static final long serialVersionUID = 8809101560720973267L;
     private Integer id;
+    private Integer enterpriseId;
     private String name;
     private String password;
     private String email;
@@ -20,6 +21,14 @@ public class User implements Serializable {
     private Integer parentId;
     private boolean active;
     private Timestamp createTime;
+
+    public void setEnterpriseId(Integer enterpriseId) {
+        this.enterpriseId = enterpriseId;
+    }
+
+    public Integer getEnterpriseId() {
+        return enterpriseId;
+    }
 
     public void setParentId(Integer parentId) {
         this.parentId = parentId;

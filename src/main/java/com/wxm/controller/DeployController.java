@@ -48,7 +48,8 @@ public class DeployController {
     private ContractCirculationService contractCirculationService;
     @Autowired
     private FormPropertiesService formPropertiesService;
-
+    @Autowired
+    private OAEnterpriseService oaEnterpriseService;
     @Autowired
     private OADeploymentTemplateService oaDeploymentTemplateService;
     @Autowired
@@ -63,6 +64,8 @@ public class DeployController {
     private UserService userService;
     @Autowired
     private GroupService groupService;
+    @Autowired
+    private OAPositionRelationService oaPositionRelationService;
 
     @RequestMapping(value = "/updateTemRelation",method = RequestMethod.POST,produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -776,6 +779,13 @@ public class DeployController {
                 }
             }
             result.put("comments",taskCommentList);
+            OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
+            List<OAPositionRelation> oaPositionRelations = oaPositionRelationService.getByCompanyPosition(oaEnterprise.getCompanyName(),loginUser.getPosition());
+            List<OAUser> oaUserList = new LinkedList<>();
+            for(OAPositionRelation oaPositionRelation:oaPositionRelations){
+                oaUserList.addAll(userService.listUserLeader(oaPositionRelation.getHighCompany(),oaPositionRelation.getHighPositionName()));
+            }
+            result.put("leader",oaUserList);
         }
         result.put("info",oaContractTemplate.getTemplateHtml());
         return result;

@@ -529,6 +529,33 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'db
 
 if exists ( select *
  from  sysobjects
+ where name = 'OA_POSITION_RELATION'
+ and type = 'U')
+ drop table OA_POSITION_RELATION
+go
+CREATE TABLE OA_POSITION_RELATION
+(
+  POSITION_RELATION_ID       INT IDENTITY PRIMARY KEY,
+  COMPANY         NVARCHAR(255),
+  POSITION_NAME            NVARCHAR(255),
+  HIGH_COMPANY         NVARCHAR(255),
+  HIGH_POSITION_NAME  NVARCHAR(255),
+  CREATE_TIME      DATETIME
+)
+GO
+/* 表注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'附件信息表', N'user', N'dbo', N'table', N'OA_POSITION_RELATION', NULL, NULL;
+/* 字段注释 */
+EXECUTE sp_addextendedproperty N'MS_Description', N'职位编号', N'user', N'dbo', N'table', N'OA_POSITION_RELATION', N'column', N'POSITION_RELATION_ID';
+EXECUTE sp_addextendedproperty N'MS_Description', N'当前公司', N'user', N'dbo', N'table', N'OA_POSITION_RELATION', N'column', N'COMPANY';
+EXECUTE sp_addextendedproperty N'MS_Description', N'职位名称', N'user', N'dbo', N'table', N'OA_POSITION_RELATION', N'column', N'POSITION_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'上级公司', N'user', N'dbo', N'table', N'OA_POSITION_RELATION', N'column', N'HIGH_COMPANY';
+EXECUTE sp_addextendedproperty N'MS_Description', N'上级职位名称', N'user', N'dbo', N'table', N'OA_POSITION_RELATION', N'column', N'HIGH_POSITION_NAME';
+EXECUTE sp_addextendedproperty N'MS_Description', N'创建时间', N'user', N'dbo', N'table', N'OA_POSITION_RELATION', N'column', N'CREATE_TIME';
+
+
+if exists ( select *
+ from  sysobjects
  where name = 'OA_NOTIFY'
  and type = 'U')
  drop table OA_NOTIFY

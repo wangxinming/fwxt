@@ -854,12 +854,21 @@ public class ProcessController {
             throw new OAException(1101,"用户未登录");
         }
         String taskId = request.getParameter("id");
+        String approve = request.getParameter("approve");
+        Map<String, Object> map = new HashMap<String, Object>();
+        if(StringUtils.isNotBlank(approve)){
+            map.put("user_approve", approve);
+        }else{
+            Map<String, Object> result = new HashMap<>();
+            result.put("result","failed");
+            return result;
+        }
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
 //利用任务对象，获取流程实例id
         String processInstancesId = task.getProcessInstanceId();
 //         Authentication.setAuthenticatedUserId("cmc"); // 添加批注时候的审核人，通常应该从session获取
         taskService.addComment(taskId, processInstancesId, "同意");
-        taskService.complete(taskId);
+        taskService.complete(taskId,map);
 
         ProcessInstance pi = runtimeService.createProcessInstanceQuery()//
                 .processInstanceId(processInstancesId)//使用流程实例ID查询

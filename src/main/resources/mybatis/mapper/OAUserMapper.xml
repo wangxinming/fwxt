@@ -52,6 +52,19 @@
     where USER_ID  = #{parentId,jdbcType=INTEGER}
   </select>
 
+  <select id="listUserLeader" resultMap="BaseResultMap">
+    select
+    oa_user.USER_ID, oa_user.USER_NAME, oa_user.PARENT_ID,oa_user.GROUP_ID,oa_user.USER_MOBILE, oa_user.USER_EMAIL, oa_user.USER_PWD,
+    oa_user.ENTERPRISE_ID,oa_user.USER_COMPANY, oa_user.USER_DEPARTMENT,
+    oa_user.USER_POSITION, oa_user.USER_ADDRESS, oa_user.USER_POSTCODE, oa_user.USER_WEIXIN, oa_user.USER_STATUS, oa_user.USER_CREATETIME
+    from OA_USER oa_user,OA_ENTERPRISE enterprise where oa_user.ENTERPRISE_ID=enterprise.ENTERPRISE_ID
+    <if test="position != null">
+      AND oa_user.USER_POSITION = #{position}
+    </if>
+    <if test="company != null">
+      AND enterprise.COMPANY_NAME = #{company}
+    </if>
+  </select>
   <select id="list" resultMap="BaseResultMap">
     select top ${limit} * from OA_USER oa_user where oa_user.USER_ID not
     in(select top ${offset} USER_ID from OA_USER  where 1=1

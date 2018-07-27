@@ -100,5 +100,10 @@ public class UserServiceImpl implements UserService {
         return oaUserMapper.getLeader(oaUser);
     }
 
+    @Override
+    public List<OAUser> listUserLeader(String company, String position) {
+        return oaUserMapper.listUserLeader(company,position);
+    }
+
 
 }

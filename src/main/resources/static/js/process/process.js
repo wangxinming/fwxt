@@ -1199,7 +1199,7 @@
                 save:function(){
                     if($scope.addPage.data.approvalStatus == 1) {
                         Loading.show();
-                        loader.completedTask({"id": $scope.listPage.info.id}, {}, function (data) {
+                        loader.completedTask({"id": $scope.listPage.info.id,"approve":$scope.leaderApprove}, {}, function (data) {
                             if (data.result == "success") {
                                 Loading.hide();
                                 toaster.pop('success', "", "操作成功");
@@ -1297,6 +1297,7 @@
                                     if (data.comments) {
                                         $scope.details = data.comments;
                                     }
+                                    $scope.pms = data.leader;
                                     // $timeout(function(){
                                     //     $scope.details = [{"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"发起"},
                                     //         {"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"审批"}];
@@ -1315,6 +1316,7 @@
                                             $('#'+data.rows[j].key).attr("disabled", true);
                                         }
                                     }
+
                                     if (data.download) {
                                         // $('#customFile')[0].style.display = 'none';
                                         var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId=' + data.download + '\");\'>附件下载</a>';

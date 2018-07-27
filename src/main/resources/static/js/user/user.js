@@ -27,6 +27,10 @@
                 templateUrl: 'view/user/notify.html',
                 controller: 'notify.controller'
             })
+            .when('/relation', {
+                templateUrl: 'view/user/position.html',
+                controller: 'relation.controller'
+            })
             .when('/group', {
                     templateUrl: 'view/user/group.html',
                     controller: 'group.controller'
@@ -294,6 +298,17 @@
         }])
         .factory('user.loader', function($resource){
             return $resource(web_path+'/:id', {}, {
+                /*职位管理*/
+                //创建职位
+                createPosition: {method:'PUT',url:"/user/createPosition", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //更新职位
+                updatePosition: {method:'POST',url:"/user/updatePosition", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                deletePosition: {method:'DELETE',url:"/user/deletePosition", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取职位列表
+                PositionList: {method:'GET',url:"/user/positionList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取职位信息
+                queryPosition: {method:'GET',url:"/user/positionById", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
                 /*企业管理*/
                 //创建分公司
                 createEnterprise: {method:'PUT',url:"/user/enterprise", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
@@ -1379,6 +1394,253 @@
             };
             $scope.searchPage.init();
         }])
+        .controller('relation.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+
+            $scope.pageDialog=Tools.dialog({
+                id:"pageDialog",
+                title:"新增职位关系",
+                hiddenButton:true,
+                save:function() {
+                    if ($scope.pageDialog.title === "新增职位关系") {
+                        Loading.show();
+                        loader.createPosition($scope.addPage.data,function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+
+                    } else if ($scope.pageDialog.title === "修改职位关系") {
+                        Loading.show();
+                        loader.updatePosition($scope.addPage.data,function(data){
+                            if(data.result=="success"){
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                                $scope.addPage.init();
+                            }else{
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+
+                        })
+                    }
+                }
+            });
+            $scope.addPage={
+                init:function(){
+                    $scope.addPage.data={
+                        company:"",
+                        positionName:"",
+                        highCompany:'',
+                        highPositionName:""}
+                },
+                data: {
+                    company:"",
+                    positionName:"",
+                    highCompany:'',
+                    highPositionName:""
+                }
+            };
+            $scope.searchPage = {
+                data: {
+                    id: 0,
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        id:0,
+                        limit: 10, //每页条数(即取多少条数据)
+                        offset: 0 //从第几条数据开始取
+                    }
+                },
+                action:{
+                    searchInfo:function () {
+                        loader.userList($scope.searchPage.data, function (data) {
+                            if(data.total == 0 ){
+                                $rootScope.$confirm("查询不到该人", function () {
+                                }, '确认');
+                            }else{
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+
+                        // $scope.listPage.settings.reload(true);
+                    },
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    add: function () {
+                        $scope.pageDialog.title = "新增职位关系";
+                        // Loading.show();
+                        // loader.createPosition({},{},function (data) {
+                        //     $scope.approvalGroup = data.group;
+                        //     $scope.approvalEnterprise = data.company;
+                        //     Loading.hide();
+                        // }, function (error) {
+                        //     Loading.hide();
+                        //
+                        // });
+                        $scope.pageDialog.show();
+                        $scope.addPage.init();
+                    },
+                    edit: function (id) {
+                        $scope.pageDialog.title = "修改职位关系";
+                        Loading.show();
+                        // $timeout(function(){
+                            loader.queryPosition({"positionId":id},{},function (data) {
+                                $scope.addPage.data.positionRelationId = data.data.positionRelationId;
+                                $scope.addPage.data.company = data.data.company;
+                                $scope.addPage.data.positionName = data.data.positionName;
+                                $scope.addPage.data.highCompany = data.data.highCompany;
+                                $scope.addPage.data.highPositionName = data.data.highPositionName;
+                                Loading.hide();
+                                $scope.pageDialog.show();
+                            }, function (error) {
+                                Loading.hide();
+
+                            })
+                        // },500);
+                    },
+                    remove:function (id) {
+                        $rootScope.$confirm("确定要删除吗？", function () {
+                            Loading.show();
+                            loader.deletePosition({'positionRelationId': id}, function (data) {
+                                if (data.result == "success") {
+                                    Loading.hide();
+                                    $scope.listPage.settings.reload(true);
+                                }
+                            }, function (error) {
+                                Loading.hide();
+                            });
+                        }, '删除');
+                    },
+                    search: function (search, fnCallback) {
+                        $scope.searchPage.data.offset = search.offset;
+                        $scope.searchPage.data.limit = search.limit;
+                        loader.PositionList($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+                    }
+                }
+            };
+
+            $scope.submit = function(e) {
+                if(e.keyCode=="13"){
+                    $scope.searchPage.action.search();
+                }
+            };
+            $scope.listPage.settings = {
+                // pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "公司名称",
+                        mData: "company",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "职位",
+                        mData: "positionName",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+
+                    {
+                        sTitle: "上级公司",
+                        mData: "highCompany",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "上级公司职位",
+                        mData: "highPositionName",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "创建时间",
+                        mData: "createTime",
+                        mRender: function (mData, type, full) {
+                            if(!mData){
+                                return "";
+                            }
+                            return Util.formatSimpleDate(mData);
+                        }
+                    },
+                    {
+                        sTitle: "操作",
+                        mData:"positionRelationId",
+                        //class="fa fa-info"  class="fa fa-pencil"  class="fa fa-user" class="+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" '
+                        mRender:function(mData,type,full) {
+                            return'<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.edit(\'' + mData +'\')">编辑</a></i>' +
+                                    '<i><a title="删除" ng-disabled="loginUserMenuMap[currentView]" ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>';
+                        }
+                    }
+
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
+                    { sWidth: "12.5%", aTargets: [ 0,2] },
+                    { sWidth: "20%", aTargets: [ 1,3 ] },
+                    { sWidth: "10%", aTargets: [ 4 ] },
+                    { sWidth: "25%", aTargets: [ 5 ] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+            $scope.searchPage.init();
+            $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
+                if (newVal) {
+                    $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
+                } else {
+                    if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
+                        $scope.listPage.checkedList = [];
+                    }
+                }
+            }, false);
+            $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
+                $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+            }, true);
+        }])
         .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
             $scope.editPage = {
                 datas:{
@@ -1546,37 +1808,37 @@
                 title:"修改密码",
                 hiddenButton:false,
                 save:function() {
-                        // if($scope.addPageUpdate.data.userPwdNew != $scope.addPageUpdate.data.userPwdRenew){
-                        //     $scope.addPageUpdate.data.userPwdNew = "";
-                        //     $scope.addPageUpdate.data.userPwdRenew = "";
-                        //     toaster.pop('failed', "", "新密码不一致");
-                        //     return;
-                        // }
-                        // if($scope.addPageUpdate.data.userPwd == $scope.addPageUpdate.data.userPwdRenew){
-                        //     $scope.addPageUpdate.data.userPwdNew = "";
-                        //     $scope.addPageUpdate.data.userPwdRenew = "";
-                        //     toaster.pop('failed', "", "新密码和老密码不能一样");
-                        // }
-                        if($scope.addPageUpdate.data.userPwdNew){
+                    // if($scope.addPageUpdate.data.userPwdNew != $scope.addPageUpdate.data.userPwdRenew){
+                    //     $scope.addPageUpdate.data.userPwdNew = "";
+                    //     $scope.addPageUpdate.data.userPwdRenew = "";
+                    //     toaster.pop('failed', "", "新密码不一致");
+                    //     return;
+                    // }
+                    // if($scope.addPageUpdate.data.userPwd == $scope.addPageUpdate.data.userPwdRenew){
+                    //     $scope.addPageUpdate.data.userPwdNew = "";
+                    //     $scope.addPageUpdate.data.userPwdRenew = "";
+                    //     toaster.pop('failed', "", "新密码和老密码不能一样");
+                    // }
+                    if($scope.addPageUpdate.data.userPwdNew){
 
-                        }
-
-                        Loading.show();
-                        loader.updatePassword($scope.addPageUpdate.data,function(data){
-                            if(data.result=="success"){
-                                Loading.hide();
-                                toaster.pop('success', "", "操作成功");
-                                $scope.listPage.settings.reload();
-                                $scope.pageDialogUpdate.hide();
-                                $scope.addPageUpdate.init();
-                            }else{
-                                Loading.hide();
-                                toaster.pop('warning', "", data.msg);
-                            }
-                        }, function (error) {
-                            Loading.hide();
-                        })
                     }
+
+                    Loading.show();
+                    loader.updatePassword($scope.addPageUpdate.data,function(data){
+                        if(data.result=="success"){
+                            Loading.hide();
+                            toaster.pop('success', "", "操作成功");
+                            $scope.listPage.settings.reload();
+                            $scope.pageDialogUpdate.hide();
+                            $scope.addPageUpdate.init();
+                        }else{
+                            Loading.hide();
+                            toaster.pop('warning', "", data.msg);
+                        }
+                    }, function (error) {
+                        Loading.hide();
+                    })
+                }
             });
             $scope.addPageUpdate={
                 init:function(){
@@ -1727,31 +1989,31 @@
                         $('#userName').attr("disabled","disabled");
                         Loading.show();
                         // $timeout(function(){
-                            loader.userInfo({"userId":id},{},function (data) {
+                        loader.userInfo({"userId":id},{},function (data) {
 
-                                $scope.addPage.data.userId = data.data.userId;
-                                $scope.addPage.data.userName = data.data.userName;
-                                $scope.addPage.data.userPwd = data.data.userPwd;
-                                $scope.addPage.data.userMobile = data.data.userMobile;
-                                $scope.addPage.data.userEmail = data.data.userEmail;
-                                $scope.addPage.data.enterpriseId = data.data.enterpriseId;
-                                $scope.addPage.data.userDepartment = data.data.userDepartment;
-                                $scope.addPage.data.userPosition = data.data.userPosition;
-                                $scope.addPage.data.userAddress = data.data.userAddress;
-                                $scope.addPage.data.userPostcode = data.data.userPostcode;
-                                $scope.addPage.data.userWeixin = data.data.userWeixin;
-                                $scope.addPage.data.userStatus = data.data.userStatus===1?true:false;
-                                $scope.approvalGroup = data.group;
-                                $scope.approvalEnterprise = data.company;
-                                $scope.addPage.data.groupId = data.data.groupId;
-                                Loading.hide();
-                                // $('#userName').attr("disabled","disabled");
-                                $scope.pageDialog.show();
-                                // $scope.addPage.init();
-                            }, function (error) {
-                                Loading.hide();
+                            $scope.addPage.data.userId = data.data.userId;
+                            $scope.addPage.data.userName = data.data.userName;
+                            $scope.addPage.data.userPwd = data.data.userPwd;
+                            $scope.addPage.data.userMobile = data.data.userMobile;
+                            $scope.addPage.data.userEmail = data.data.userEmail;
+                            $scope.addPage.data.enterpriseId = data.data.enterpriseId;
+                            $scope.addPage.data.userDepartment = data.data.userDepartment;
+                            $scope.addPage.data.userPosition = data.data.userPosition;
+                            $scope.addPage.data.userAddress = data.data.userAddress;
+                            $scope.addPage.data.userPostcode = data.data.userPostcode;
+                            $scope.addPage.data.userWeixin = data.data.userWeixin;
+                            $scope.addPage.data.userStatus = data.data.userStatus===1?true:false;
+                            $scope.approvalGroup = data.group;
+                            $scope.approvalEnterprise = data.company;
+                            $scope.addPage.data.groupId = data.data.groupId;
+                            Loading.hide();
+                            // $('#userName').attr("disabled","disabled");
+                            $scope.pageDialog.show();
+                            // $scope.addPage.init();
+                        }, function (error) {
+                            Loading.hide();
 
-                            })
+                        })
                         // },500);
                     },
                     detail:function (id) {
@@ -1904,12 +2166,12 @@
                         //class="fa fa-info"  class="fa fa-pencil"  class="fa fa-user" class="+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" '
                         mRender:function(mData,type,full) {
                             return  '<i><a title="详情"  ng-click="listPage.action.detail(\'' + mData +'\')">详情</a></i>' +
-                                    '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.edit(\'' + mData +'\')">编辑</a></i>' +
-                                    '<i><a title="修改密码" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.update(\'' + mData +'\')">修改密码</a></i>' +
-                                    '<i><a title="'+(full.userStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" ' +
+                                '<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.edit(\'' + mData +'\')">编辑</a></i>' +
+                                '<i><a title="修改密码" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.update(\'' + mData +'\')">修改密码</a></i>' +
+                                '<i><a title="'+(full.userStatus==1?'停用':'启用')+'" ng-hide="loginUserMenuMap[currentView]" ' +
                                 'ng-click="listPage.action.active('+(full.userStatus==1?'false':'true')+',\''+mData+'\',\''+full.userName+'\')">' + (full.userStatus==1?'停用':'启用')+
                                 '</a></i>';
-                                    // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
+                            // '<i title="删除" ng-disabled="loginUserMenuMap[currentView]" class="fa fa-trash-o" ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
 
                         }
                     }
