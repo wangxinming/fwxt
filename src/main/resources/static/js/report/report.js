@@ -64,6 +64,7 @@
                             $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
                         }
                         $scope.searchPage.data.offset = search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.rejectReport($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);

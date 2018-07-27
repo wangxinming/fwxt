@@ -1291,6 +1291,7 @@
                     },
                     search: function (search, fnCallback) {
                         $scope.searchPage.data.offset = search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.groupList($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);

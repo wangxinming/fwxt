@@ -177,6 +177,7 @@
                     },
                     search: function (search, fnCallback) {
                         $scope.searchPage.data.offset = search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.getFieldList($scope.searchPage.data,function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -430,6 +431,7 @@
                         var k = ''==$scope.key? 'NULL' : $scope.key;
                         // $scope.searchPage.data.key =k;
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.getTaskCompleted($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -661,6 +663,7 @@
                         var k = ''==$scope.key? 'NULL' : $scope.key;
                         // $scope.searchPage.data.key =k;
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.deployment($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -848,6 +851,7 @@
                         var k = ''==$scope.key? 'NULL' : $scope.key;
                         // $scope.searchPage.data.key =k;
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.getMyTask($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -1045,6 +1049,7 @@
 
                     search: function (search, fnCallback) {
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.commitedTask($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -1355,6 +1360,7 @@
                         var k = ''==$scope.key? 'NULL' : $scope.key;
                         // $scope.searchPage.data.key =k;
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.getTaskPending($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -1806,6 +1812,7 @@
                         var k = ''==$scope.key? 'NULL' : $scope.key;
                         // $scope.searchPage.data.key =k;
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.deploymentContract($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);

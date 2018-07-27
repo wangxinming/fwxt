@@ -33,6 +33,7 @@
                 action:{
                     search: function (search, fnCallback) {
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         var t   = $('#fromDateEx').val();
                         if(t != "") {
                             var date = new Date(Date.parse(t.replace(/-/g, "/")));

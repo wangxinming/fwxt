@@ -105,6 +105,7 @@
                         var k = ''==$scope.key? 'NULL' : $scope.key;
                         // $scope.searchPage.data.key =k;
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.modeler($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -376,6 +377,7 @@
                         var k = ''==$scope.key? 'NULL' : $scope.key;
                         // $scope.searchPage.data.key =k;
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.uploadFile($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
@@ -617,6 +619,7 @@
                         var k = ''==$scope.key? 'NULL' : $scope.key;
                         // $scope.searchPage.data.key =k;
                         $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
                         loader.deployment($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
