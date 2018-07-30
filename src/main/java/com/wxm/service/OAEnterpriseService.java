@@ -12,4 +12,5 @@ public interface OAEnterpriseService {
     Integer count(String name);
     Integer create(OAEnterprise oaEnterprise);
     Integer update(OAEnterprise oaEnterprise);
+    List<OAEnterprise> groupByName();
 }

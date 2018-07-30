@@ -30,7 +30,7 @@
             <div class="form-group" style="margin-top: 30px;">
                 <label class="col-md-2" >下一级审批人<span class="required">*</span></label>
                 <div class="col-md-8">
-                    <select class="form-control"  ng-model="leaderApprove" name="leaderApprove" ng-options="''+ template.userName as template.userName for template in pms" class="col-md-4">
+                    <select class="form-control"  ng-model="addPageDetail.data.leaderApprove" id="leaderApprove" ng-options="''+ template.userName as template.userName for template in pms" class="col-md-4">
                         <option value=""> --- 请选择 --- </option>
                     </select>
                 </div>

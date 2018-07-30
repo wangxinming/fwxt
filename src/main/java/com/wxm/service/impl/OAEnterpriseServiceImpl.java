@@ -45,4 +45,9 @@ public class OAEnterpriseServiceImpl implements OAEnterpriseService {
     public Integer update(OAEnterprise oaEnterprise) {
         return oaEnterpriseMapper.updateByPrimaryKeySelective(oaEnterprise);
     }
+
+    @Override
+    public List<OAEnterprise> groupByName() {
+        return oaEnterpriseMapper.groupByName();
+    }
 }

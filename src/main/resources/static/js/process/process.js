@@ -1149,8 +1149,11 @@
                 hiddenButton:false,
                 save:function(){
                     if($scope.addPageDetail.data.approvalStatus == 1) {
+                        if(!$scope.addPageDetail.data.leaderApprove){
+                            $('#leaderApprove').focus();
+                        }
                         Loading.show();
-                        loader.completedTask({"id": $scope.listPage.info.id}, {}, function (data) {
+                        loader.completedTask({"id": $scope.listPage.info.id,"approve":$scope.addPageDetail.data.leaderApprove}, {}, function (data) {
                             if (data.result == "success") {
                                 Loading.hide();
                                 toaster.pop('success', "", "操作成功");

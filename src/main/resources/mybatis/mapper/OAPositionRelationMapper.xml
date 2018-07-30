@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wxm.mapper.OAPositionRelationMapper" >
+  <resultMap id="BaseResultMap" type="com.wxm.model.OAPositionRelation" >
+    <id column="POSITION_RELATION_ID" property="positionRelationId" jdbcType="INTEGER" />
+    <result column="COMPANY" property="company" jdbcType="NVARCHAR" />
+    <result column="POSITION_NAME" property="positionName" jdbcType="NVARCHAR" />
+    <result column="HIGH_COMPANY" property="highCompany" jdbcType="NVARCHAR" />
+    <result column="HIGH_POSITION_NAME" property="highPositionName" jdbcType="NVARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    POSITION_RELATION_ID, COMPANY, POSITION_NAME, HIGH_COMPANY, HIGH_POSITION_NAME, CREATE_TIME
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from OA_POSITION_RELATION
+    where POSITION_RELATION_ID = #{positionRelationId,jdbcType=INTEGER}
+  </select>
+  <select id="list" resultMap="BaseResultMap">
+    select top ${limit} * from OA_POSITION_RELATION where POSITION_RELATION_ID not
+    in(select top ${offset} POSITION_RELATION_ID from OA_POSITION_RELATION  where 1=1
+    <!--<if test="startTime != null" >-->
+    <!--AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND CREATE_TIME<![CDATA[ <= ]]> #{endTime}-->
+    <!--</if>-->
+    ORDER BY CREATE_TIME DESC )
+    <!--<if test="startTime != null" >-->
+    <!--AND CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME<![CDATA[ <= ]]> #{endTime}-->
+    <!--</if>-->
+    ORDER BY CREATE_TIME DESC
+  </select>
+
+  <select id="count" resultType="java.lang.Integer">
+    SELECT  count(*)
+    from OA_POSITION_RELATION where 1=1
+  </select>
+<select id="queryByCompanyPosition" resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List" />
+  from OA_POSITION_RELATION
+  where 1=1
+  <if test="company != null" >
+    AND COMPANY=#{company}
+  </if>
+  <if test="position != null" >
+    AND POSITION_NAME=#{position}
+  </if>
+</select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from OA_POSITION_RELATION
+    where POSITION_RELATION_ID = #{positionRelationId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wxm.model.OAPositionRelation" >
+    insert into OA_POSITION_RELATION (POSITION_RELATION_ID, COMPANY, POSITION_NAME, 
+      HIGH_COMPANY, HIGH_POSITION_NAME, CREATE_TIME
+      )
+    values (#{positionRelationId,jdbcType=INTEGER}, #{company,jdbcType=NVARCHAR}, #{positionName,jdbcType=NVARCHAR}, 
+      #{highCompany,jdbcType=NVARCHAR}, #{highPositionName,jdbcType=NVARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wxm.model.OAPositionRelation" >
+    insert into OA_POSITION_RELATION
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="positionRelationId != null" >
+        POSITION_RELATION_ID,
+      </if>
+      <if test="company != null" >
+        COMPANY,
+      </if>
+      <if test="positionName != null" >
+        POSITION_NAME,
+      </if>
+      <if test="highCompany != null" >
+        HIGH_COMPANY,
+      </if>
+      <if test="highPositionName != null" >
+        HIGH_POSITION_NAME,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="positionRelationId != null" >
+        #{positionRelationId,jdbcType=INTEGER},
+      </if>
+      <if test="company != null" >
+        #{company,jdbcType=NVARCHAR},
+      </if>
+      <if test="positionName != null" >
+        #{positionName,jdbcType=NVARCHAR},
+      </if>
+      <if test="highCompany != null" >
+        #{highCompany,jdbcType=NVARCHAR},
+      </if>
+      <if test="highPositionName != null" >
+        #{highPositionName,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wxm.model.OAPositionRelation" >
+    update OA_POSITION_RELATION
+    <set >
+      <if test="company != null" >
+        COMPANY = #{company,jdbcType=NVARCHAR},
+      </if>
+      <if test="positionName != null" >
+        POSITION_NAME = #{positionName,jdbcType=NVARCHAR},
+      </if>
+      <if test="highCompany != null" >
+        HIGH_COMPANY = #{highCompany,jdbcType=NVARCHAR},
+      </if>
+      <if test="highPositionName != null" >
+        HIGH_POSITION_NAME = #{highPositionName,jdbcType=NVARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where POSITION_RELATION_ID = #{positionRelationId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wxm.model.OAPositionRelation" >
+    update OA_POSITION_RELATION
+    set COMPANY = #{company,jdbcType=NVARCHAR},
+      POSITION_NAME = #{positionName,jdbcType=NVARCHAR},
+      HIGH_COMPANY = #{highCompany,jdbcType=NVARCHAR},
+      HIGH_POSITION_NAME = #{highPositionName,jdbcType=NVARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where POSITION_RELATION_ID = #{positionRelationId,jdbcType=INTEGER}
+  </update>
+</mapper>

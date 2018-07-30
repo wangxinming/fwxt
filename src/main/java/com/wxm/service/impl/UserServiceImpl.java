@@ -105,5 +105,10 @@ public class UserServiceImpl implements UserService {
         return oaUserMapper.listUserLeader(company,position);
     }
 
+    @Override
+    public List<OAUser> groupByPosition() {
+        return oaUserMapper.groupByPosition();
+    }
+
 
 }

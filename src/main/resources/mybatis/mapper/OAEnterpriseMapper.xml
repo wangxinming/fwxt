@@ -23,6 +23,12 @@
     from OA_ENTERPRISE
     where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}
   </select>
+  <select id="groupByName" resultMap="BaseResultMap">
+    select
+     COMPANY_NAME
+    from OA_ENTERPRISE
+    group by COMPANY_NAME
+  </select>
   <select id="count" resultType="java.lang.Integer">
     SELECT  count(*)
     from OA_ENTERPRISE where 1=1

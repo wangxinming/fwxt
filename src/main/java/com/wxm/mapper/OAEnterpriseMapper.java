@@ -22,4 +22,6 @@ public interface OAEnterpriseMapper {
 
     List<OAEnterprise> list(@Param("name") String name, @Param("offset") Integer offset, @Param("limit") Integer limit);
     List<OAEnterprise> total();
+
+    List<OAEnterprise> groupByName();
 }

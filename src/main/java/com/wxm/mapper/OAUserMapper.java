@@ -32,4 +32,6 @@ public interface OAUserMapper {
     OAUser getLeader(OAUser record);
 
     List<OAUser> getAllUser();
+
+    List<OAUser> groupByPosition();
 }

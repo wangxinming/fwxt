@@ -17,4 +17,5 @@ public interface UserService {
      Integer updatePsw(OAUser oaUser);
      OAUser getLeader(OAUser oaUser);
      List<OAUser> listUserLeader(String company,String position);
+     List<OAUser> groupByPosition();
 }

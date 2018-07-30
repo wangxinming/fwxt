@@ -1222,4 +1222,26 @@ public class UserDefController {
         }
         return result;
     }
+    //获取 企业名称列表 以及 职位列表
+    @RequestMapping(value = "/relationList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object relationList(HttpServletRequest request)throws OAException{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取职位列表",loginUser.getName())));
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try {
+            result.put("company",oaEnterpriseService.groupByName());
+            result.put("position", userService.groupByPosition());
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result", "failed");
+        }
+
+        return result;
+    }
 }

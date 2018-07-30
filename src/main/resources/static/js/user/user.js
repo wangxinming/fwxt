@@ -306,8 +306,10 @@
                 deletePosition: {method:'DELETE',url:"/user/deletePosition", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取职位列表
                 PositionList: {method:'GET',url:"/user/positionList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                relationList: {method:'GET',url:"/user/relationList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取职位信息
                 queryPosition: {method:'GET',url:"/user/positionById", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
 
                 /*企业管理*/
                 //创建分公司
@@ -1499,15 +1501,15 @@
                 action:{
                     add: function () {
                         $scope.pageDialog.title = "新增职位关系";
-                        // Loading.show();
-                        // loader.createPosition({},{},function (data) {
-                        //     $scope.approvalGroup = data.group;
-                        //     $scope.approvalEnterprise = data.company;
-                        //     Loading.hide();
-                        // }, function (error) {
-                        //     Loading.hide();
-                        //
-                        // });
+                        Loading.show();
+                        loader.relationList({},{},function (data) {
+                            $scope.positions = data.position;
+                            $scope.approvalEnterprise = data.company;
+                            Loading.hide();
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
                         $scope.pageDialog.show();
                         $scope.addPage.init();
                     },
