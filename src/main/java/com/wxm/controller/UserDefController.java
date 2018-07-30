@@ -563,6 +563,7 @@ public class UserDefController {
             res.put("user",true);
             res.put("password",true);
             res.put("notify",true);
+            res.put("roleRelation",true);
             res.put("group",true);
             res.put("enterprise",true);
             res.put("upload",true);
@@ -595,6 +596,7 @@ public class UserDefController {
             res.put("password",true);
             res.put("enterprise",true);
             res.put("notify",false);
+            res.put("roleRelation",false);
             res.put("group",false);
             res.put("upload",false);
             res.put("form",false);
@@ -630,6 +632,8 @@ public class UserDefController {
             menu = new Menu("notify","通知消息",true);
             list.add(menu);
             menu = new Menu("enterprise","公司管理",true);
+            list.add(menu);
+            menu = new Menu("roleRelation","角色管理",true);
             list.add(menu);
             menu = new Menu("audit","审计界面",true);
             list.add(menu);
@@ -688,6 +692,8 @@ public class UserDefController {
                     list.add(menu);
                     menu = new Menu("notify","通知消息",false);
                     list.add(menu);
+                    menu = new Menu("roleRelation","角色管理",false);
+                    list.add(menu);
                     menu = new Menu("enterprise","公司管理",false);
                     list.add(menu);
                     menu = new Menu("audit","审计界面",false);
@@ -740,6 +746,8 @@ public class UserDefController {
             menu = new Menu("enterprise","公司管理",false);
             list.add(menu);
             menu = new Menu("audit","审计界面",false);
+            list.add(menu);
+            menu = new Menu("roleRelation","角色管理",false);
             list.add(menu);
             menu = new Menu("modeler","流程设计界面",false);
             list.add(menu);

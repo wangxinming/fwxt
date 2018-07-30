@@ -260,12 +260,12 @@
 }
 
 .sidebar-dropdown.active {
-    background: #e7e7e7;
+    /*background: #e7e7e7;*/
 }
 /*--------------------------side-footer------------------------------*/
 .li-active {
     COLOR: #565447;
-    BACKGROUND-COLOR: #3c3e3c;
+    BACKGROUND-COLOR: #d3b9b5;
     TEXT-DECORATION: none;
 }
 .sidebar-footer{

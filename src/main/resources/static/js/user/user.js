@@ -1504,6 +1504,7 @@
                         Loading.show();
                         loader.relationList({},{},function (data) {
                             $scope.positions = data.position;
+                            $scope.positionbak= data.position;
                             $scope.approvalEnterprise = data.company;
                             Loading.hide();
                         }, function (error) {
@@ -1630,18 +1631,18 @@
                 ]  //定义默认排序列为第8列倒序
             };
             $scope.searchPage.init();
-            $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
-                if (newVal) {
-                    $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
-                } else {
-                    if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
-                        $scope.listPage.checkedList = [];
-                    }
-                }
-            }, false);
-            $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
-                $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
-            }, true);
+
+            // $scope.$watch("addPage.data.company", function (newVal, oldVal) {
+            //     if (newVal) {
+            //         $scope.positions = [];
+            //         for(var i=0;i<$scope.positionbak.length;i++){
+            //             if($scope.positionbak[i].)
+            //         }
+            //         $scope.positions = $scope.positionbak;
+            //     } else {
+            //     }
+            // }, false);
+
         }])
         .controller('user.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
             $scope.editPage = {
@@ -2221,6 +2222,7 @@
             var password = '<li><a href="/index.html#/password">修改密码 <span class="label label-success"></span></a> </li>';
             var enterprise = '<li><a href="/index.html#/enterprise">公司管理 <span class="label label-success"></span></a> </li>';
             var notify = '<li><a href="/index.html#/notify">通知消息 <span class="label label-success"></span></a> </li>';
+            var relation = '<li><a href="/index.html#/relation">角色关系管理 <span class="label label-success"></span></a> </li>';
             var end = '                                </ul>\n' +
                 '                            </div>\n' +
                 '                        </li>';
@@ -2294,6 +2296,9 @@
                     }
                     if(data.notify){
                         tmp += notify;
+                    }
+                    if(data.roleRelation){
+                        tmp += relation;
                     }
                     if(tmp.length > 0){
                         bars += userParentBefore;
@@ -2390,8 +2395,10 @@
 
                 });
                 $(".sidebar-submenu ul li").click(function () {
+                    $('.sidebar-submenu ul li').removeClass("li-active");
                     $(this).siblings().removeClass();
-                    $(this).toggleClass("li-active");
+                    // $(this).toggleClass("li-active");
+                    $(this).addClass("li-active");
 
                 });
                 // $(function () {

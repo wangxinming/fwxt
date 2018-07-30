@@ -19,7 +19,9 @@ import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.persistence.entity.VariableInstance;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -779,6 +781,13 @@ public class DeployController {
                 }
             }
             result.put("comments",taskCommentList);
+            result.put("approve_last",false);
+            if(processInstance != null) {
+                ActivityImpl activity = ((ProcessDefinitionEntity) repositoryService.getProcessDefinition(task.getProcessDefinitionId())).findActivity(processInstance.getActivityId());
+                if (null != activity && activity.getProperty("name").toString().contains("核对")) {
+                    result.put("approve_last",true);
+                }
+            }
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
             List<OAPositionRelation> oaPositionRelations = oaPositionRelationService.getByCompanyPosition(oaEnterprise.getCompanyName(),loginUser.getPosition());
             List<OAUser> oaUserList = new LinkedList<>();

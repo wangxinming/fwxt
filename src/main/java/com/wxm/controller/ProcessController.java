@@ -858,11 +858,12 @@ public class ProcessController {
         Map<String, Object> map = new HashMap<String, Object>();
         if(StringUtils.isNotBlank(approve)){
             map.put("user_approve", approve);
-        }else{
-            Map<String, Object> result = new HashMap<>();
-            result.put("result","failed");
-            return result;
         }
+//        else{
+//            Map<String, Object> result = new HashMap<>();
+//            result.put("result","failed");
+//            return result;
+//        }
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
 //利用任务对象，获取流程实例id
         String processInstancesId = task.getProcessInstanceId();

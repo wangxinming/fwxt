@@ -27,10 +27,10 @@
                     </tr>
                 </table>
             </div>
-            <div class="form-group" style="margin-top: 30px;">
+            <div class="form-group" style="margin-top: 30px;" ng-hide="approveLast">
                 <label class="col-md-2" >下一级审批人<span class="required">*</span></label>
                 <div class="col-md-8">
-                    <select class="form-control"  ng-model="addPageDetail.data.leaderApprove" id="leaderApprove" ng-options="''+ template.userName as template.userName for template in pms" class="col-md-4">
+                    <select class="form-control"  ng-model="addPageDetail.data.leaderApprove" id="leaderApprove" ng-options="''+ template.userName as template.userName+' :'+template.userPosition for template in pms" class="col-md-4">
                         <option value=""> --- 请选择 --- </option>
                     </select>
                 </div>

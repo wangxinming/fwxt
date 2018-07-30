@@ -1149,8 +1149,9 @@
                 hiddenButton:false,
                 save:function(){
                     if($scope.addPageDetail.data.approvalStatus == 1) {
-                        if(!$scope.addPageDetail.data.leaderApprove){
+                        if(!$scope.addPageDetail.data.leaderApprove && !$scope.approveLast){
                             $('#leaderApprove').focus();
+                            return;
                         }
                         Loading.show();
                         loader.completedTask({"id": $scope.listPage.info.id,"approve":$scope.addPageDetail.data.leaderApprove}, {}, function (data) {
@@ -1300,6 +1301,8 @@
                                     if (data.comments) {
                                         $scope.details = data.comments;
                                     }
+
+                                    $scope.approveLast = data.approve_last;
                                     $scope.pms = data.leader;
                                     // $timeout(function(){
                                     //     $scope.details = [{"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"发起"},
@@ -1600,6 +1603,11 @@
                     $('#dateStartwork').focus();
                     return;
                 }
+                if(!$scope.pm){
+                    toaster.pop('failed', "","请指定项目经理");
+                    $('#pmList').focus();
+                    return;
+                }
                 for(i=0;i< $scope.fields.length;i++){
                     var text = $('#'+$scope.fields[i].fieldMd5).val();
                     if(!text || text.trim()==""){
@@ -1656,6 +1664,11 @@
                 }else{
                     toaster.pop('failed', "","请填写开工日期");
                     $('#dateStartwork').focus();
+                    return;
+                }
+                if(!$scope.pm){
+                    toaster.pop('failed', "","请指定项目经理");
+                    $('#pmList').focus();
                     return;
                 }
                 if($scope.workStatus == true){
