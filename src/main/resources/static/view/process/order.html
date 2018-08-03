@@ -5,41 +5,65 @@
         <input type="text" style="display:none" name="contract" id="contract"/>
         <input type="text" style="display:none" name="processInstanceId" id="processInstanceId"/>
         <input type="text" style="display:none" name="custom" id="custom" value=""/>
-        <div class="col-md-4" style="font-size: 16px;">
-            <label  class="col-md-3 control-label" style="font-size: 16px;">标题</label>
-            <div class="col-md-9" style="margin: -2px 0px 0px -40px;">
-                <input type="text" class="form-control ng-pristine ng-valid"
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <label style="font-size: 16px;">标题</label>
+                <input type="text" style="width: 88%"
                        maxlength="300" ng-model="contractName" placeholder="合同名称（默认名称为流程名称）">
             </div>
+            <div class="col-md-6">
+                <span>
+                  <label style="font-size: 16px;">
+                      <input class="ace reverse ng-pristine ng-valid" type="checkbox" ng-model="workStatus" id="workStatus">已开工<span style="margin-left: 5px;" class="lbl"></span>
+                  </label>
+                </span>
+                <span style="margin-left: 10%;">
+                  <label style="display: inline-block;font-size: 16px;">开工日期<span class="required">*</span>
+                        <input type="text" placeholder="开工日期" value="" ng-model="dateStartwork"
+                               id="dateStartwork" name="dateStartwork" datepicker
+                               onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+                  </label>
+                </span>
+            </div>
         </div>
-        <div style="float: left;margin: -4px 0 0 -60px;">
-            <span class="checkbox">
-              <label style="font-size: 16px;">
-                  <input class="ace reverse ng-pristine ng-valid" type="checkbox" ng-model="workStatus" id="workStatus">已开工<span style="margin-left: 5px;" class="lbl"></span>
-              </label>
-
-              <label style="display: inline-block;font-size: 16px;">
-                    <input type="text" placeholder="开工日期" value="" ng-model="dateStartwork"
-                           id="dateStartwork" name="dateStartwork" datepicker class="form-control"
-                           onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
-              </label>
-            </span>
+        <div  class="col-md-12" style="margin-top: 10px;">
+            <div  class="col-md-4">
+                <label  style="font-size: 16px;"  >甲方</label>
+                <input type="text" style="width: 80%;"
+                       maxlength="300" ng-model="buyer" placeholder="甲方">
+            </div>
+            <div class="col-md-4">
+                <label  style="font-size: 16px;"  >乙方</label>
+                <input type="text" style="width: 80%;"
+                       maxlength="300" ng-model="seller" placeholder="乙方">
+            </div>
+            <div class="col-md-4">
+                <label  style="font-size: 16px;"  >金额<span class="required">*</span></label>
+                <input type="text" id="money"
+                       maxlength="300" ng-model="money" placeholder="￥">
+            </div>
         </div>
         <div  class="col-md-9" style="margin-top: 10px;">
-            <label  style="font-size: 16px;" class="col-md-2 control-label" >项目经理<span class="required">*</span></label>
-            <select ng-model="pm" name="pmList" id="pmList" ng-options="template.userName as template.userName+' :' + template.userPosition for template in pms" class="col-md-4">
-                <option value=""> --- 请选择 --- </option>
-            </select>
+            <div  class="col-md-6" >
+                <label  style="font-size: 16px;" >项目经理<span class="required">*</span></label>
+                <select ng-model="pm" name="pmList" id="pmList" ng-options="template.userName as template.userName+' :' + template.userPosition for template in pms" >
+                    <option value=""> --- 请选择 --- </option>
+                </select>
+            </div>
         </div>
 
-        <div  ng-hide="showCommit" class="col-md-9" style="margin-top: 10px;">
-            <label  class="col-md-2 control-label" >回退原因：</label>
-            <div class="col-md-6" id="refuseCause" style="margin: 0px 0px 0px -44px;">异常</div>
+        <div  ng-hide="showCommit" class="col-md-12" style="margin-top: 10px;">
+        <!--<div  ng-hide="" class="col-md-12" style="margin-top: 10px;">-->
+            <div class="col-md-12" >
+                <label style="font-size: 16px;"  >回退原因：</label>
+                <label id="refuseCause">异常</label>
+            </div>
         </div>
-        <div  ng-hide="showCommit" class="col-md-9" style="margin-top: 10px;">
-            <label  class="col-md-2 control-label">备注</label>
-            <div class="col-md-6" style="margin: -5px 0px 0px -87px;">
-                <input type="text" class="form-control ng-pristine ng-valid" name="attachmentRefuse"
+        <div  ng-hide="showCommit" class="col-md-12" style="margin-top: 10px;">
+        <!--<div  ng-hide="" class="col-md-12" style="margin-top: 10px;">-->
+            <div class="col-md-12" >
+                <label style="font-size: 16px;" >备注</label>
+                <input type="text"  name="attachmentRefuse" style="width: 80%;"
                        maxlength="300" ng-model="attachmentRefuse" placeholder="备注">
             </div>
         </div>

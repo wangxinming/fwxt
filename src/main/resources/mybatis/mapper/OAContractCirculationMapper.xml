@@ -6,8 +6,12 @@
     <result column="TEMPLATE_ID" property="templateId" jdbcType="INTEGER" />
     <result column="PROCESSINSTANCE_ID" property="processInstanceId" jdbcType="NVARCHAR" />
     <result column="CONTRACT_NAME" property="contractName" jdbcType="NVARCHAR" />
+    <result column="CONTRACT_BUYER" property="contractBuyer" jdbcType="NVARCHAR" />
+    <result column="CONTRACT_SELLER" property="contractSeller" jdbcType="NVARCHAR" />
+    <result column="CONTRACT_MONEY" property="contractMoney" jdbcType="INTEGER" />
     <result column="ATTACHMENT_NAME" property="attachmentName" jdbcType="NVARCHAR" />
     <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="ENTERPRISE_ID" property="enterpriseId" jdbcType="INTEGER" />
     <result column="CONTRACT_REOPEN" property="contractReopen" jdbcType="INTEGER" />
     <result column="CONTRACT_STATUS" property="contractStatus" jdbcType="NVARCHAR" />
     <result column="WORK_STATUS" property="workStatus" jdbcType="INTEGER" />
@@ -28,7 +32,8 @@
     <result column="y" property="y" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
-    CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN,PROCESSINSTANCE_ID, CONTRACT_NAME,ATTACHMENT_NAME,WORK_STATUS, USER_ID, CONTRACT_STATUS, DESCRIPTION,WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,CREATE_TIME
+    CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN,PROCESSINSTANCE_ID, CONTRACT_NAME,CONTRACT_BUYER,CONTRACT_SELLER,CONTRACT_MONEY,
+    ATTACHMENT_NAME,WORK_STATUS, USER_ID, ENTERPRISE_ID,CONTRACT_STATUS, DESCRIPTION,WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,CREATE_TIME
   </sql>
   <sql id="Blob_Column_List" >
     CONTRACT_HTML, CONTRACT_PDF,ATTACHMENT_CONTENT
@@ -41,6 +46,41 @@
   </select>
   <select id="selectByMaxId" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List" /> from OA_CONTRACT_CIRCULATION WHERE CONTRACT_ID=(select max(CONTRACT_ID) from OA_CONTRACT_CIRCULATION)
+  </select>
+
+  <select id="groupUserReport" resultType="java.lang.Integer">
+    select count(*) from OA_CONTRACT_CIRCULATION where  CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME <![CDATA[ <= ]]> #{endTime}
+    <if test="userId != null" >
+      and USER_ID=#{userId}
+    </if>
+    <if test="templateId != null" >
+      and TEMPLATE_ID=#{templateId}
+    </if>
+    <if test="contractStatus != null" >
+      and CONTRACT_STATUS=#{contractStatus}
+    </if>
+    <if test="contractReopen != null" >
+      and CONTRACT_REOPEN=#{contractReopen}
+    </if>
+  </select>
+
+  <select id="groupEnterpriseReport" resultMap="hashmap">
+    select ENTERPRISE_ID as id,count(*) as y from OA_CONTRACT_CIRCULATION where
+    CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME <![CDATA[ <= ]]> #{endTime}
+    <if test="enterpriseId != null" >
+      and ENTERPRISE_ID=#{enterpriseId}
+    </if>
+    <if test="templateId != null" >
+      and TEMPLATE_ID=#{templateId}
+    </if>
+    <if test="contractStatus != null" >
+      and CONTRACT_STATUS=#{contractStatus}
+    </if>
+    <if test="contractReopen != null" >
+      and CONTRACT_REOPEN=#{contractReopen}
+    </if>
+    and ENTERPRISE_ID != ''
+    group by ENTERPRISE_ID
   </select>
   <select id="total" resultType="java.lang.Integer">
     SELECT count(CONTRACT_ID) from OA_CONTRACT_CIRCULATION
@@ -62,14 +102,21 @@
       where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME  <![CDATA[ <= ]]> #{endTime} and CONTRACT_REOPEN = 1 and CONTRACT_STATUS='completed' and DESCRIPTION = 'template'
       group by oa_user.USER_ID,oa_user.USER_NAME)
   </select>
-  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+  <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
+    <include refid="Base_Column_List" />
+    from OA_CONTRACT_CIRCULATION
+    where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
     from OA_CONTRACT_CIRCULATION
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </select>
+
   <select id="selectByProcessInstanceId"  resultMap="ResultMapWithBLOBs" parameterType="java.lang.String">
     select
     <include refid="Base_Column_List" />
@@ -78,17 +125,26 @@
     from OA_CONTRACT_CIRCULATION
     where PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR}
   </select>
+
+  <select id="selectBaseByProcessInstanceId"  resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List" />
+    from OA_CONTRACT_CIRCULATION
+    where PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR}
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from OA_CONTRACT_CIRCULATION
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
-    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN, PROCESSINSTANCE_ID,CONTRACT_NAME,ATTACHMENT_NAME,WORK_STATUS
-      USER_ID, CONTRACT_STATUS, DESCRIPTION, WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,
+    insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN, PROCESSINSTANCE_ID,CONTRACT_NAME,
+    CONTRACT_BUYER,CONTRACT_SELLER,CONTRACT_MONEY,ATTACHMENT_NAME,WORK_STATUS
+      USER_ID,ENTERPRISE_ID, CONTRACT_STATUS, DESCRIPTION, WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,
       CREATE_TIME, CONTRACT_HTML, CONTRACT_PDF,ATTACHMENT_CONTENT
       )
     values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{contractReopen,jdbcType=INTEGER},#{processInstanceId,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},#{attachmentName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
-      #{userId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, #{workDate,jdbcType=NVARCHAR}, #{contractSerialNumber,jdbcType=NVARCHAR}, #{archiveSerialNumber,jdbcType=NVARCHAR},
+      #{userId,jdbcType=INTEGER},#{enterpriseId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, #{workDate,jdbcType=NVARCHAR}, #{contractSerialNumber,jdbcType=NVARCHAR}, #{archiveSerialNumber,jdbcType=NVARCHAR},
       #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARBINARY}, #{attachmentContent,jdbcType=LONGVARBINARY}
       )
   </insert>
@@ -111,6 +167,15 @@
       <if test="contractName != null" >
         CONTRACT_NAME,
       </if>
+      <if test="contractBuyer != null" >
+        CONTRACT_BUYER,
+      </if>
+      <if test="contractSeller != null" >
+        CONTRACT_SELLER,
+      </if>
+      <if test="contractMoney != null" >
+        CONTRACT_MONEY,
+      </if>
       <if test="attachmentName != null" >
         ATTACHMENT_NAME,
       </if>
@@ -119,6 +184,9 @@
       </if>
       <if test="userId != null" >
         USER_ID,
+      </if>
+      <if test="enterpriseId != null" >
+        ENTERPRISE_ID,
       </if>
       <if test="contractStatus != null" >
         CONTRACT_STATUS,
@@ -164,6 +232,15 @@
       <if test="contractName != null" >
         #{contractName,jdbcType=NVARCHAR},
       </if>
+      <if test="contractBuyer != null" >
+        #{contractBuyer,jdbcType=NVARCHAR},
+      </if>
+      <if test="contractSeller != null" >
+        #{contractSeller,jdbcType=NVARCHAR},
+      </if>
+      <if test="contractMoney != null" >
+        #{contractMoney,jdbcType=INTEGER},
+      </if>
       <if test="attachmentName != null" >
         #{attachmentName,jdbcType=NVARCHAR},
       </if>
@@ -172,6 +249,9 @@
       </if>
       <if test="userId != null" >
         #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="enterpriseId != null" >
+        #{enterpriseId,jdbcType=INTEGER},
       </if>
       <if test="contractStatus != null" >
         #{contractStatus,jdbcType=NVARCHAR},
@@ -217,6 +297,15 @@
       <if test="contractName != null" >
         CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
       </if>
+      <if test="contractBuyer != null" >
+        CONTRACT_BUYER = #{contractBuyer,jdbcType=NVARCHAR},
+      </if>
+      <if test="contractSeller != null" >
+        CONTRACT_SELLER = #{contractSeller,jdbcType=NVARCHAR},
+      </if>
+      <if test="contractMoney != null" >
+        CONTRACT_MONEY = #{contractMoney,jdbcType=INTEGER},
+      </if>
       <if test="attachmentName != null" >
         ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
       </if>
@@ -225,6 +314,9 @@
       </if>
       <if test="userId != null" >
         USER_ID = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="enterpriseId != null" >
+        ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER},
       </if>
       <if test="contractStatus != null" >
         CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
@@ -262,9 +354,13 @@
       CONTRACT_REOPEN = #{contractReopen,jdbcType=INTEGER},
       PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      CONTRACT_BUYER = #{contractBuyer,jdbcType=NVARCHAR},
+      CONTRACT_SELLER = #{contractSeller,jdbcType=NVARCHAR},
+      CONTRACT_MONEY = #{contractMoney,jdbcType=INTEGER},
       ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
       WORK_STATUS = #{workStatus,jdbcType=INTEGER},
       USER_ID = #{userId,jdbcType=INTEGER},
+      ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER},
       CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
       DESCRIPTION = #{description,jdbcType=NVARCHAR},
       WORK_DATE = #{workDate,jdbcType=NVARCHAR},
@@ -282,9 +378,13 @@
       CONTRACT_REOPEN = #{contractReopen,jdbcType=INTEGER},
       PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR},
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
+      CONTRACT_BUYER = #{contractBuyer,jdbcType=NVARCHAR},
+      CONTRACT_SELLER = #{contractSeller,jdbcType=NVARCHAR},
+      CONTRACT_MONEY = #{contractMoney,jdbcType=INTEGER},
       ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
       WORK_STATUS = #{workStatus,jdbcType=INTEGER},
       USER_ID = #{userId,jdbcType=INTEGER},
+      ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER},
       CONTRACT_STATUS = #{contractStatus,jdbcType=NVARCHAR},
       DESCRIPTION = #{description,jdbcType=NVARCHAR},
       WORK_DATE = #{workDate,jdbcType=NVARCHAR},

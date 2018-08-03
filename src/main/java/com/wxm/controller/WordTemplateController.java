@@ -252,9 +252,9 @@ public class WordTemplateController {
 
         String contract = request.getParameter("processInstanceId");
         if(StringUtils.isNotBlank(contract)){
-            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(contract);
+            OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(contract);
             OAContractCirculationWithBLOBs oaContract = new OAContractCirculationWithBLOBs();
-            oaContract.setContractId(oaContractCirculationWithBLOBs.getContractId());
+            oaContract.setContractId(oaContractCirculation.getContractId());
             oaContract.setAttachmentContent( file.getBytes());
             contractCirculationService.update(oaContract);
         }else {

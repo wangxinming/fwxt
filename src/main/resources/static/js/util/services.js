@@ -162,7 +162,12 @@
 
             //table 内容过长加title
             this.str2Html = function(text){
-                if(text == null || text == ""){
+                if(text == 0 ){
+                    var $span=jQuery("<span></span>");
+                    $span.text(text);
+                    $span.attr("title",text);
+                    return $span.prop("outerHTML");
+                }else if(text == null || text == ""){
                     return ""
                 }else{
                     var $span=jQuery("<span></span>");

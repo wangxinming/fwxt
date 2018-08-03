@@ -23,8 +23,18 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     }
 
     @Override
+    public OAContractCirculation queryBasebyId(int id) {
+        return oaContractCirculationMapper.selectById(id);
+    }
+
+    @Override
     public OAContractCirculationWithBLOBs selectByProcessInstanceId(String processInstanceId) {
         return oaContractCirculationMapper.selectByProcessInstanceId(processInstanceId);
+    }
+
+    @Override
+    public OAContractCirculation selectBaseByProcessInstanceId(String processInstanceId) {
+        return oaContractCirculationMapper.selectBaseByProcessInstanceId(processInstanceId);
     }
 
     @Override
@@ -65,5 +75,15 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     @Override
     public List<ReportItem> group(Date startTime, Date endTime,Integer offset,Integer limit) {
         return oaContractCirculationMapper.group(startTime,endTime,offset,limit);
+    }
+
+    @Override
+    public Integer groupUserReport(Date startTime, Date endTime, String contractStatus, Integer userId, Integer templateId, Integer contractReopen) {
+        return oaContractCirculationMapper.groupUserReport(startTime,endTime,contractStatus,userId,templateId,contractReopen);
+    }
+
+    @Override
+    public List<ReportItem> groupEnterpriseReport(Date startTime, Date endTime, String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen) {
+        return oaContractCirculationMapper.groupEnterpriseReport(startTime,endTime,contractStatus,enterpriseId,templateId,contractReopen);
     }
 }

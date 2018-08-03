@@ -23,6 +23,11 @@
     from OA_ENTERPRISE
     where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}
   </select>
+  <select id="listByName" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from OA_ENTERPRISE where COMPANY_NAME like CONCAT('%',#{name},'%' ) and COMPANY_SUBNAME !=''
+  </select>
   <select id="groupByName" resultMap="BaseResultMap">
     select
      COMPANY_NAME

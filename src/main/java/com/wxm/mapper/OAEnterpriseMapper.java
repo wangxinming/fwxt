@@ -24,4 +24,6 @@ public interface OAEnterpriseMapper {
     List<OAEnterprise> total();
 
     List<OAEnterprise> groupByName();
+
+    List<OAEnterprise> listByName(@Param("name") String name);
 }

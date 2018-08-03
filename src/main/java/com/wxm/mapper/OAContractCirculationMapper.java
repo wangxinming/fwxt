@@ -17,8 +17,10 @@ public interface OAContractCirculationMapper {
     int insertSelective(OAContractCirculationWithBLOBs record);
 
     OAContractCirculationWithBLOBs selectByPrimaryKey(Integer contractId);
+    OAContractCirculation selectById(Integer contractId);
 
     OAContractCirculationWithBLOBs selectByProcessInstanceId(String processInstanceId);
+    OAContractCirculation selectBaseByProcessInstanceId(String processInstanceId);
     OAContractCirculation selectByMaxId();
     int updateByPrimaryKeySelective(OAContractCirculationWithBLOBs record);
 
@@ -34,4 +36,12 @@ public interface OAContractCirculationMapper {
     List<ReportItem> group(@Param("startTime") Date startTime, @Param("endTime") Date endTime,@Param("offset") Integer offset, @Param("limit") Integer limit);
 
     Integer groupCount(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
+
+    Integer groupUserReport(@Param("startTime") Date startTime, @Param("endTime") Date endTime,
+                                 @Param("contractStatus") String contractStatus,
+                                 @Param("userId") Integer userId, @Param("templateId") Integer templateId, @Param("contractReopen") Integer contractReopen);
+
+    List<ReportItem> groupEnterpriseReport(@Param("startTime") Date startTime, @Param("endTime") Date endTime,
+                                 @Param("contractStatus") String contractStatus,
+                                 @Param("enterpriseId") Integer enterpriseId, @Param("templateId") Integer templateId, @Param("contractReopen") Integer contractReopen);
 }

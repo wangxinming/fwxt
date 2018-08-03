@@ -6,12 +6,15 @@ public class OAContractCirculation {
     private Integer contractId;
 
     private Integer templateId;
+    private Integer enterpriseId;
     private Integer contractReopen;
 
     private String processInstanceId;
     private String attachmentName;
     private String contractName;
-
+    private String contractBuyer;
+    private String contractSeller;
+    private Integer contractMoney;
     private Integer userId;
 
     private  Integer workStatus;
@@ -24,6 +27,38 @@ public class OAContractCirculation {
     private String archiveSerialNumber;
 
     private Date createTime;
+
+    public String getContractBuyer() {
+        return contractBuyer;
+    }
+
+    public Integer getContractMoney() {
+        return contractMoney;
+    }
+
+    public String getContractSeller() {
+        return contractSeller;
+    }
+
+    public void setContractBuyer(String contractBuyer) {
+        this.contractBuyer = contractBuyer;
+    }
+
+    public void setContractMoney(Integer contractMoney) {
+        this.contractMoney = contractMoney;
+    }
+
+    public void setContractSeller(String contractSeller) {
+        this.contractSeller = contractSeller;
+    }
+
+    public Integer getEnterpriseId() {
+        return enterpriseId;
+    }
+
+    public void setEnterpriseId(Integer enterpriseId) {
+        this.enterpriseId = enterpriseId;
+    }
 
     public String getAttachmentName() {
         return attachmentName;

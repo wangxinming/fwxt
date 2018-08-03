@@ -78,21 +78,19 @@ public class ProcessController {
     private ManagementService managementService;
     @Autowired
     private FormPropertiesService formPropertiesService;
-
+    @Autowired
+    private ContractCirculationService contractCirculationService;
     @Autowired
     private OADeploymentTemplateService oaDeploymentTemplateService;
-
     @Autowired
     ProcessEngine processEngine;
-
     @Autowired
     private MailService mailService;
 
     @Autowired
     private OAAttachmentService oaAttachmentService;
-
-    @Autowired
-    private ContractCirculationService contractCirculationService;
+//    @Autowired
+//    private ContractCirculationService contractCirculationService;
     @Autowired
     private AuditService auditService;
     @Autowired
@@ -499,6 +497,11 @@ public class ProcessController {
 //            taskService.addComment(task.getId(), task.getProcessInstanceId(), "拒绝");
 ////            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝" );
 //        }
+        OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(task.getProcessInstanceId());
+        OAContractCirculationWithBLOBs oa = new OAContractCirculationWithBLOBs();
+        oa.setContractId(oaContractCirculation.getContractId());
+        oa.setContractReopen(1);
+        contractCirculationService.update(oa);
         List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
                 .finished()
                 .processInstanceId(task.getProcessInstanceId())
@@ -547,6 +550,10 @@ public class ProcessController {
         String processInstanceId = map.get("processInstanceId");
         String workStatus = map.get("workStatus");
         String custom = map.get("custom");
+        String buyer =  map.get("buyer");
+        String seller =  map.get("seller");
+        String money =  map.get("money");
+
         String workDate = map.get("dateStartwork");
         String contract = map.get("contract");
         String contractName = map.get("contractName");
@@ -556,36 +563,7 @@ public class ProcessController {
         if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交s
             try{
                 String deploymentID = map.get("id");
-                OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
-//                List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
-//                for (OAFormProperties oaFormProperties : oaFormPropertiesList) {
-//                    String md5 = oaFormProperties.getFieldMd5();
-//                    String type = oaFormProperties.getFieldType();
-//                    String length = oaFormProperties.getFieldValid();
-//                    if( StringUtils.isBlank(md5) ||  StringUtils.isBlank(type) ||  StringUtils.isBlank(length)) continue;
-//                    md5 = md5.trim();
-//                    type = type.trim();
-//                    length = length.trim();
-//                    String value = map.get(md5).toString();
-//                    if( StringUtils.isBlank(value))continue;
-//                    if (value.length() > Integer.parseInt(length)) {
-//                        info = oaFormProperties.getFieldMd5() + " 字段长度过长";
-//                        result.put("info", info);
-//                        break;
-//                    }
-//                    if (type.equals("D")) {
-//                        if (!ValidType.isNumeric(value)) {
-//                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
-//                            result.put("info", info);
-//                            break;
-//                        }
-//                    }else if(type.equals("YYYY-MM-DD")){
-//                        if (!ValidType.isDate(value)) {
-//                            info = oaFormProperties.getFieldMd5() + " 字段类型错误";
-//                            result.put("info", info);
-//                        }
-//                    }
-//                }
+                OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(processInstanceId);
                 String index = map.get("index");
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 if(index.equals("1")){
@@ -618,13 +596,13 @@ public class ProcessController {
                     //附件处理
 //                    if(oaContractTemplate.getTemplateName().contains("自定义")) {
                     OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
-                    contractCirculationWithBLOBs.setContractId(oaContractCirculationWithBLOBs.getContractId());
+                    contractCirculationWithBLOBs.setContractId(oaContractCirculation.getContractId());
                     if (StringUtils.isNotBlank(custom)) {
 //                        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
                         // 获取word文件流，custom文件名称
                         String filePf = contractPath + custom;
                         byte[] word = FileByte.getByte(filePf);
-                        oaContractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
+                        contractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
                         contractCirculationWithBLOBs.setAttachmentContent(word);
                     }
                     if (StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
@@ -632,15 +610,17 @@ public class ProcessController {
                     } else {
                         contractCirculationWithBLOBs.setWorkStatus(0);
                     }
-                    oaContractCirculationWithBLOBs.setWorkDate(workDate);
-                    oaContractCirculationWithBLOBs.setContractName(contractName);
+                    contractCirculationWithBLOBs.setWorkDate(workDate);
+                    contractCirculationWithBLOBs.setContractName(contractName);
                     //自定义模板处理
                     if(oaContractTemplate.getTemplateName().contains("自定义")) {
-                        oaContractCirculationWithBLOBs.setDescription("custom");
+                        contractCirculationWithBLOBs.setDescription("custom");
                     }else{
                         contractCirculationWithBLOBs.setDescription("template");
                     }
-
+                    contractCirculationWithBLOBs.setContractBuyer(buyer);
+                    contractCirculationWithBLOBs.setContractSeller(seller);
+                    contractCirculationWithBLOBs.setContractMoney(Integer.parseInt(money));
                     contractCirculationService.update(contractCirculationWithBLOBs);
 //                    }
 //                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
@@ -659,9 +639,12 @@ public class ProcessController {
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
                     taskService.setAssignee(task.getId(),loginUser.getName());
                     OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
-                    contractCirculationWithBLOBs.setContractId(oaContractCirculationWithBLOBs.getContractId());
+                    contractCirculationWithBLOBs.setContractId(oaContractCirculation.getContractId());
                     contractCirculationWithBLOBs.setContractName(contractName);
                     contractCirculationWithBLOBs.setWorkDate(workDate);
+                    contractCirculationWithBLOBs.setContractBuyer(buyer);
+                    contractCirculationWithBLOBs.setContractSeller(seller);
+                    contractCirculationWithBLOBs.setContractMoney(Integer.parseInt(money));
                     contractCirculationService.update(contractCirculationWithBLOBs);
                     map.put("title",contractName);
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
@@ -736,6 +719,7 @@ public class ProcessController {
                 ProcessInstance processInstance = runtimeService.startProcessInstanceById(pd.getId(), mapInfo);
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
                 oaContractCirculationWithBLOBs.setUserId(loginUser.getId());
+                oaContractCirculationWithBLOBs.setEnterpriseId(loginUser.getEnterpriseId());
                 oaContractCirculationWithBLOBs.setTemplateId(Integer.parseInt(contract));
                 oaContractCirculationWithBLOBs.setWorkDate(workDate);
                 if(StringUtils.isBlank(contractName)) {
@@ -767,10 +751,11 @@ public class ProcessController {
                 }
 //                }
                 if(null != map.get("html")) {
-
                     oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
                 }
-
+                oaContractCirculationWithBLOBs.setContractBuyer(buyer);
+                oaContractCirculationWithBLOBs.setContractSeller(seller);
+                oaContractCirculationWithBLOBs.setContractMoney(Integer.parseInt(money));
                 OAContractCirculation max = contractCirculationService.selectByMaxId();
                 SimpleDateFormat date = new SimpleDateFormat("yyyyMMdd");
                 if(null == max || StringUtils.isBlank(max.getContractSerialNumber())){
@@ -780,10 +765,9 @@ public class ProcessController {
                     oaContractCirculationWithBLOBs.setContractSerialNumber(date.format(new Date())+String.format("%02d", ++serial));
                 }
                 contractCirculationService.insert(oaContractCirculationWithBLOBs);
+                Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 if (index.equals("1")) {
-                    Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");
-
 //                    taskService.setAssignee(task.getId(),"wxm");
                     if(StringUtils.isBlank(pm) ){
                         taskService.complete(task.getId());
@@ -799,10 +783,10 @@ public class ProcessController {
 //                    taskService.complete(task.getId());
                     runtimeService.setVariable(processInstance.getProcessInstanceId(), "init", "");
                 }else{
-                    Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                     taskService.addComment(task.getId(), processInstance.getId(), "草稿");
 //                    String userStart = runtimeService.getVariable(task.getProcessInstanceId(),"user").toString();
                     taskService.setAssignee(task.getId(),loginUser.getName());
+                    runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
                 }
             } catch (Exception e) {
                 LOGGER.error("异常",e);
@@ -1092,8 +1076,8 @@ public class ProcessController {
                     }
                 }
             }
-            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(historicProcessInstance.getId());
-            taskInfo.setArchiveSerialNumber(oaContractCirculationWithBLOBs.getArchiveSerialNumber());
+            OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(historicProcessInstance.getId());
+            taskInfo.setArchiveSerialNumber(oaContractCirculation.getArchiveSerialNumber());
             taskInfo.setId(historicProcessInstance.getId());
             taskInfo.setName(deployment.getName());
             taskInfo.setTimestamp(historicProcessInstance.getStartTime());
@@ -1159,12 +1143,12 @@ public class ProcessController {
             ProInstance proInstance = new ProInstance();
             processInstanceList.add(proInstance);
 
-            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getId());
+            OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(processInstance.getId());
 
-            if(oaContractCirculationWithBLOBs != null){
-                proInstance.setContractSerial(oaContractCirculationWithBLOBs.getContractSerialNumber());
-                proInstance.setTitle(oaContractCirculationWithBLOBs.getContractName());
-                proInstance.setCreateTime(oaContractCirculationWithBLOBs.getCreateTime());
+            if(oaContractCirculation != null){
+                proInstance.setContractSerial(oaContractCirculation.getContractSerialNumber());
+                proInstance.setTitle(oaContractCirculation.getContractName());
+                proInstance.setCreateTime(oaContractCirculation.getCreateTime());
             }else{
                 HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstance.getId()).variableName("title").singleResult();
                 if(historicVariableInstance != null) {

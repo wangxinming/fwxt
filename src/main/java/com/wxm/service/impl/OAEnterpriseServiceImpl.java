@@ -50,4 +50,9 @@ public class OAEnterpriseServiceImpl implements OAEnterpriseService {
     public List<OAEnterprise> groupByName() {
         return oaEnterpriseMapper.groupByName();
     }
+
+    @Override
+    public List<OAEnterprise> listByName(String name) {
+        return oaEnterpriseMapper.listByName(name);
+    }
 }

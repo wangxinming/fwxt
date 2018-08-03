@@ -1561,6 +1561,9 @@
                     $scope.pm = data.pm;
                     $scope.fields = data.fields;
                     $scope.contractName = data.title;
+                    $scope.buyer = data.buyer;
+                    $scope.seller = data.seller;
+                    $scope.money = data.money;
                     $scope.workStatus = data.workStatus==1?true:false;
                     $scope.dateStartwork = data.workDate;
                     if(data.rows) {
@@ -1601,6 +1604,11 @@
                 }else{
                     toaster.pop('failed', "","请填写开工日期");
                     $('#dateStartwork').focus();
+                    return;
+                }
+                if(!$scope.money){
+                    toaster.pop('failed', "","请输入合同金额！");
+                    $('#money').focus();
                     return;
                 }
                 if(!$scope.pm){
@@ -1662,19 +1670,24 @@
                     var date = new Date(Date.parse(t.replace(/-/g, "/")));
                     t = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
                 }else{
-                    toaster.pop('failed', "","请填写开工日期");
+                    toaster.pop('failed', "","请填写开工日期！");
                     $('#dateStartwork').focus();
                     return;
                 }
                 if(!$scope.pm){
-                    toaster.pop('failed', "","请指定项目经理");
+                    toaster.pop('failed', "","请指定项目经理！");
                     $('#pmList').focus();
+                    return;
+                }
+                if(!$scope.money){
+                    toaster.pop('failed', "","请输入合同金额！");
+                    $('#money').focus();
                     return;
                 }
                 if($scope.workStatus == true){
                     if( $('#custom').val() == ""){
                         $('#fileAttachment').focus();
-                        toaster.pop('failed', "","已开工项目必须上传附件");
+                        toaster.pop('failed', "","已开工项目必须上传附件！");
                         return;
                     }
                 }
@@ -1719,6 +1732,11 @@
                 values['html'] = $('#orderForm').prop("innerHTML");
                 values['index'] = index;
                 values['contractName'] = $scope.contractName;
+
+                values['buyer'] = $scope.buyer;
+                values['seller'] = $scope.seller;
+                values['money'] = $scope.money;
+
                 values['dateStartwork'] = t;
                 values['pm'] =  $scope.pm;
                 //TODO 提交表单 检查，反馈结果，成功后关闭页面，不成功 需要提示

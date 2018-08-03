@@ -279,12 +279,15 @@ public class DeployController {
             String processInstanceId = request.getParameter("processInstanceId");
             LOGGER.info("获取文件信息，参数：{}",processInstanceId);
 
-            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
-            result.put("workStatus",oaContractCirculationWithBLOBs.getWorkStatus());
-            result.put("workDate",oaContractCirculationWithBLOBs.getWorkDate());
-            result.put("title",oaContractCirculationWithBLOBs.getContractName());
+            OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(processInstanceId);
+            result.put("workStatus",oaContractCirculation.getWorkStatus());
+            result.put("workDate",oaContractCirculation.getWorkDate());
+            result.put("title",oaContractCirculation.getContractName());
             result.put("showCommit", true);
-            result.put("download",oaContractCirculationWithBLOBs.getContractId());
+            result.put("buyer", oaContractCirculation.getContractBuyer());
+            result.put("seller", oaContractCirculation.getContractSeller());
+            result.put("money", oaContractCirculation.getContractMoney());
+            result.put("download",oaContractCirculation.getContractId());
             result.put("pms", userService.getPMUser());
 
             if(null != processInstanceId) {
@@ -302,7 +305,7 @@ public class DeployController {
 
                 }
             }
-            OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
+            OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculation.getTemplateId());
             if (StringUtils.isNotBlank(processInstanceId)) {
                 Map<String, VariableInstance> stringVariableInstanceMap = runtimeService.getVariableInstances(processInstanceId);
                 for (Map.Entry<String, VariableInstance> entry : stringVariableInstanceMap.entrySet()) {
@@ -488,7 +491,7 @@ public class DeployController {
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
         OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
-
+        LOGGER.info("获取合同信息");
         Map<String,KeyValue> map = new LinkedHashMap();
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
@@ -526,7 +529,7 @@ public class DeployController {
 
         }
         result.put("keyword",sb.toString());
-
+        LOGGER.info("获取合同关键字段信息");
         List<TaskComment> taskCommentList = new LinkedList<>();
 //        List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery().finished().processInstanceId(historicProcessInstance.getId()).orderByTaskCreateTime().desc().list();
         boolean flag = false;
@@ -541,12 +544,13 @@ public class DeployController {
                 flag = true;
             }
         }
+        LOGGER.info("获取合同附件信息");
         List<HistoricActivityInstance> hais = historyService.createHistoricActivityInstanceQuery()
                 .processInstanceId(historicProcessInstance.getId())
                 .activityType("userTask")
                 .orderByHistoricActivityInstanceStartTime().desc()
                 .list();
-
+        LOGGER.info("获取流程信息");
         if(null != hais){
             for(HistoricActivityInstance historicActivityInstance : hais){
                 List<Comment> taskList1 = taskService.getTaskComments(historicActivityInstance.getTaskId());
@@ -622,6 +626,7 @@ public class DeployController {
                 }
             }
             result.put("comments",taskCommentList);
+            LOGGER.info("获取批注信息");
         }
         result.put("info",oaContractTemplate.getTemplateHtml());
         return result;
@@ -637,13 +642,14 @@ public class DeployController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+        LOGGER.info("合同详情");
         auditService.audit(new OAAudit(loginUser.getName(),String.format("查看当前任务详情")));
         String taskId = request.getParameter("taskId");
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
         OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(task.getProcessInstanceId());
         OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
-
+        LOGGER.info("完成合同详情");
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         Map<String,KeyValue> map = new LinkedHashMap();
@@ -679,6 +685,7 @@ public class DeployController {
             sb.append("</div>");
 
         }
+        LOGGER.info("关键信息填写");
         result.put("keyword",sb.toString());
         List<TaskComment> taskCommentList = new LinkedList<>();
         boolean flag = false;
@@ -781,6 +788,7 @@ public class DeployController {
                 }
             }
             result.put("comments",taskCommentList);
+            LOGGER.info("批注信息填写");
             result.put("approve_last",false);
             if(processInstance != null) {
                 ActivityImpl activity = ((ProcessDefinitionEntity) repositoryService.getProcessDefinition(task.getProcessDefinitionId())).findActivity(processInstance.getActivityId());
@@ -795,6 +803,7 @@ public class DeployController {
                 oaUserList.addAll(userService.listUserLeader(oaPositionRelation.getHighCompany(),oaPositionRelation.getHighPositionName()));
             }
             result.put("leader",oaUserList);
+            LOGGER.info("下级审批人信息");
         }
         result.put("info",oaContractTemplate.getTemplateHtml());
         return result;
