@@ -79,7 +79,6 @@
     <if test="contractReopen != null" >
       and CONTRACT_REOPEN=#{contractReopen}
     </if>
-    and ENTERPRISE_ID != ''
     group by ENTERPRISE_ID
   </select>
   <select id="total" resultType="java.lang.Integer">

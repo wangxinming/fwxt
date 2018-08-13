@@ -10,18 +10,34 @@
     <result column="COMPANY_CITY" property="companyCity" jdbcType="NVARCHAR" />
     <result column="COMPANY_OWNER" property="companyOwner" jdbcType="NVARCHAR" />
     <result column="OWNER_MOBILE" property="ownerMobile" jdbcType="NVARCHAR" />
+    <result column="COMPANY_LEVEL" property="companyLevel" jdbcType="INTEGER" />
+    <result column="COMPANY_PARENT" property="companyParent" jdbcType="INTEGER" />
     <result column="COMPANY_STATUS" property="companyStatus" jdbcType="INTEGER" />
     <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
     ENTERPRISE_ID, COMPANY_NAME,COMPANY_SUBNAME,COMPANY_LOCATION, COMPANY_PROVINCE, COMPANY_CITY, COMPANY_OWNER, OWNER_MOBILE,
-    COMPANY_STATUS, CREATE_TIME
+    COMPANY_LEVEL,COMPANY_PARENT,COMPANY_STATUS, CREATE_TIME
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
     from OA_ENTERPRISE
     where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}
+  </select>
+
+  <select id="getEnterpriseByLevel" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from OA_ENTERPRISE
+    where COMPANY_LEVEL = #{level,jdbcType=INTEGER}
+  </select>
+
+  <select id="getEnterpriseByParentId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    select
+    <include refid="Base_Column_List" />
+    from OA_ENTERPRISE
+    where COMPANY_PARENT = #{id,jdbcType=INTEGER}
   </select>
   <select id="listByName" resultMap="BaseResultMap">
     select
@@ -65,11 +81,11 @@
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAEnterprise" >
     insert into OA_ENTERPRISE (ENTERPRISE_ID, COMPANY_NAME,COMPANY_SUBNAME,COMPANY_LOCATION, COMPANY_PROVINCE,
-      COMPANY_CITY, COMPANY_OWNER, OWNER_MOBILE, 
+      COMPANY_CITY, COMPANY_OWNER, OWNER_MOBILE, COMPANY_LEVEL,COMPANY_PARENT,
       COMPANY_STATUS, CREATE_TIME)
     values (#{enterpriseId,jdbcType=INTEGER}, #{companyName,jdbcType=NVARCHAR},#{subCompanyName,jdbcType=NVARCHAR}, #{location,jdbcType=NVARCHAR}, #{companyProvince,jdbcType=NVARCHAR},
       #{companyCity,jdbcType=NVARCHAR}, #{companyOwner,jdbcType=NVARCHAR}, #{ownerMobile,jdbcType=NVARCHAR}, 
-      #{companyStatus,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP})
+      #{companyLevel,jdbcType=INTEGER},#{companyParent,jdbcType=INTEGER},#{companyStatus,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.wxm.model.OAEnterprise" useGeneratedKeys="true"  keyProperty = "enterpriseId" keyColumn = "ENTERPRISE_ID">
     insert into OA_ENTERPRISE
@@ -97,6 +113,12 @@
       </if>
       <if test="ownerMobile != null" >
         OWNER_MOBILE,
+      </if>
+      <if test="companyLevel != null" >
+        COMPANY_LEVEL,
+      </if>
+      <if test="companyParent != null" >
+        COMPANY_PARENT,
       </if>
       <if test="companyStatus != null" >
         COMPANY_STATUS,
@@ -130,6 +152,12 @@
       <if test="ownerMobile != null" >
         #{ownerMobile,jdbcType=NVARCHAR},
       </if>
+      <if test="companyLevel != null" >
+        #{companyLevel,jdbcType=INTEGER},
+      </if>
+      <if test="companyParent != null" >
+        #{companyParent,jdbcType=INTEGER},
+      </if>
       <if test="companyStatus != null" >
         #{companyStatus,jdbcType=INTEGER},
       </if>
@@ -162,6 +190,12 @@
       <if test="ownerMobile != null" >
         OWNER_MOBILE = #{ownerMobile,jdbcType=NVARCHAR},
       </if>
+      <if test="companyLevel != null" >
+        COMPANY_LEVEL = #{companyLevel,jdbcType=INTEGER},
+      </if>
+      <if test="companyParent != null" >
+        COMPANY_PARENT = #{companyParent,jdbcType=INTEGER},
+      </if>
       <if test="companyStatus != null" >
         COMPANY_STATUS = #{companyStatus,jdbcType=INTEGER},
       </if>
@@ -180,6 +214,8 @@
       COMPANY_CITY = #{companyCity,jdbcType=NVARCHAR},
       COMPANY_OWNER = #{companyOwner,jdbcType=NVARCHAR},
       OWNER_MOBILE = #{ownerMobile,jdbcType=NVARCHAR},
+      COMPANY_LEVEL = #{companyLevel,jdbcType=INTEGER},
+      COMPANY_PARENT = #{companyParent,jdbcType=INTEGER},
       COMPANY_STATUS = #{companyStatus,jdbcType=INTEGER},
       CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
     where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}

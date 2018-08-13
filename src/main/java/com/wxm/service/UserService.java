@@ -18,5 +18,5 @@ public interface UserService {
      OAUser getLeader(OAUser oaUser);
      List<OAUser> listUserLeader(String company,String position);
      List<OAUser> groupByPosition();
-     List<OAUser> listUserByCompany(String company,String position);
+     List<OAUser> listUserByCompany(Integer companyId,String position);
 }

@@ -3,27 +3,29 @@
     <form name="queryForm" role="form" w5c-form-validate novalidate>
         <div class="row">
             <div class="col-md-4 form-group">
-                <label class="col-lg-4 control-label">三级公司名称</label>
+                <label class="col-lg-4 control-label">大区域统计</label>
                 <div class="col-lg-8">
                     <select  class="form-control"  ng-model="searchPage.data.parentCompany"  ng-options="item.enterpriseId as item.subCompanyName for item in parentEnterprise ">
-                        <option value=""> --- 请选择部门 --- </option>
+                        <option value=""> --- 请选择大区 --- </option>
                     </select>
                 </div>
             </div>
 
             <div class="col-md-4 form-group">
-                <label class="col-lg-4 control-label">合同发起人</label>
+                <label class="col-lg-4 control-label">省级区域统计</label>
                 <div class="col-lg-8">
                     <select  class="form-control"  ng-model="searchPage.data.contractPromoter"  ng-options="item.userId as item.userName for item in contractPromoters ">
-                        <option value=""> --- 请选择合同发起人 --- </option>
+                        <option value=""> --- 请选择省级区域 --- </option>
                     </select>
                 </div>
             </div>
 
             <div class="col-md-4 form-group">
-                <label class="col-lg-4 control-label">下级公司</label>
+                <label class="col-lg-4 control-label">市级区域统计</label>
                 <div class="col-lg-8">
-                    <input type="checkbox"  ng-model="searchPage.data.subCompany" />
+                    <select  class="form-control"  ng-model="searchPage.data.contractPromoter"  ng-options="item.userId as item.userName for item in contractPromoters ">
+                        <option value=""> --- 请选择市级区域 --- </option>
+                    </select>
                 </div>
             </div>
 
@@ -58,6 +60,8 @@
                 </div>
             </div>
         </div>
+</div>
+<div class="row">
         <div class="row">
             <div class="col-md-2 form-group">
                 <div class="list_button" >

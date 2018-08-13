@@ -52,8 +52,7 @@ public class ReportController {
     @RequestMapping(value = "/parentEnterpriseList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object parentEnterpriseList(HttpServletRequest request,
-                       @RequestParam(value = "startTime", required = false) String startTime,
-                       @RequestParam(value = "endTime", required = false) String endTime)throws Exception{
+                       @RequestParam(value = "level", required = true) Integer level)throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) {
             LOGGER.error("用户未登录");
@@ -64,7 +63,9 @@ public class ReportController {
         try{
             List<OAContractTemplate> templateList = concactTemplateService.listTemplate();
             result.put("templates",templateList);
-            List<OAEnterprise> enterpriseList = oaEnterpriseService.getEnterpriseList("盾构工程分公司",0,100);
+
+            List<OAEnterprise> enterpriseList = oaEnterpriseService.getEnterpriseByLevel(level);
+//            List<OAEnterprise> enterpriseList = oaEnterpriseService.getEnterpriseList("盾构工程分公司",0,100);
             result.put("enterprises",enterpriseList);
 
         }catch (Exception e){
@@ -77,15 +78,21 @@ public class ReportController {
     @RequestMapping(value = "/getContractPromoter",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object getContractPromoter(HttpServletRequest request,
-                                       @RequestParam(value = "company", required = true) String company)throws Exception{
+                                       @RequestParam(value = "company", required = false) Integer company)throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
+        if(company == null ||  company < 1) {
+            result.put("result","failed");
+            return result;
+        }
         try{
+//            OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(company);
             List<OAUser> oaUserList = userService.listUserByCompany(company,null);
             result.put("users",oaUserList);
 
@@ -103,7 +110,8 @@ public class ReportController {
     @RequestMapping(value = "/parentEnterpriseReport",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
     public Object parentEnterpriseReport(HttpServletRequest request,
-                                         @RequestParam(value = "headOffice", required = true) String headOffice,
+                                         @RequestParam(value = "headOffice", required = true) Integer headOffice,
+                                         @RequestParam(value = "subCompany", required = false) boolean subCompany,
                                          @RequestParam(value = "parentCompany", required = false) Integer parentCompany,
                                          @RequestParam(value = "contractPromoter", required = false) Integer contractPromoter,
                                          @RequestParam(value = "contractType", required = false) Integer contractType,
@@ -144,7 +152,7 @@ public class ReportController {
                         NumberFormat numberFormat = NumberFormat.getInstance();
                         // 设置精确到小数点后2位
                         numberFormat.setMaximumFractionDigits(2);
-                        reportResult.setRate(numberFormat.format((float)reportItemList1/(float)reportItemList3*100));
+                        reportResult.setRate(numberFormat.format((float)reportItemList1/(float)reportItemList3*100)+"%");
                     }
                     result.put("rows",reportResults);
                     result.put("total",reportResults.size());
@@ -164,11 +172,11 @@ public class ReportController {
                 }else{
 
                     // 归档数量
-                    Integer reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"completed",contractPromoter,null,null);
+                    Integer reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"completed",contractPromoter,contractType,null);
                     // 退回数量
-                    Integer reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,null,contractPromoter,null,1);
+                    Integer reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,null,contractPromoter,contractType,1);
                     //发起数量
-                    Integer reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,null,contractPromoter,null,null);
+                    Integer reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,null,contractPromoter,contractType,null);
                     ReportResult reportResult = new ReportResult();
                     List<ReportResult> reportResults = new LinkedList<>();
                     reportResults.add(reportResult);
@@ -182,7 +190,7 @@ public class ReportController {
                         NumberFormat numberFormat = NumberFormat.getInstance();
                         // 设置精确到小数点后2位
                         numberFormat.setMaximumFractionDigits(2);
-                        reportResult.setRate(numberFormat.format((float)reportItemList1/(float)reportItemList3*100));
+                        reportResult.setRate(numberFormat.format((float)reportItemList1/(float)reportItemList3*100)+"%");
                     }
                     result.put("rows",reportResults);
                     result.put("total",reportResults.size());
@@ -202,43 +210,118 @@ public class ReportController {
                 }
             }else{
                 if(null != parentCompany && parentCompany >0){
+                    Map<Integer,OAEnterprise> map = new LinkedHashMap<>();
                     OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(parentCompany);
+                    map.put(oaEnterprise.getEnterpriseId(),oaEnterprise);
+                    List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByLevel(headOffice);
+                    for(OAEnterprise oaEnterprise1 : oaEnterpriseList){
+                        map.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+                    }
+                    if(subCompany){
+                        oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyLevel());
+                        for(OAEnterprise oaEnterprise1 : oaEnterpriseList){
+                            map.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+                        }
+                    }
 
                     // 归档数量
-                    List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"completed",parentCompany,null,null);
+                    List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"completed",null,contractType,null);
                     // 退回数量
-                    List<ReportItem> reportItemList2 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,parentCompany,null,1);
+                    List<ReportItem> reportItemList2 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,null,contractType,1);
                     //发起数量
-                    List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,parentCompany,null,null);
-
-
+                    List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,null,contractType,null);
                     List<ReportResult> reportResults = new LinkedList<>();
                     for(ReportItem ri:reportItemList3 ){
+                        if(!map.containsKey(ri.getId())) continue;
                         ReportResult reportResult = new ReportResult();
                         reportResults.add(reportResult);
-                        reportResult.setEnterprise(oaEnterprise.getCompanyName());
+                        reportResult.setEnterprise(map.get(ri.getId()).getCompanyName());
                         reportResult.setTotal(ri.getY());
                         for(ReportItem reportItem:reportItemList1) {
-                            if(reportItem.getId() == ri.getId())
+                            if(reportItem.getId() == ri.getId()) {
                                 reportResult.setComplete(reportItem.getY());
+                            }else{
+                                reportResult.setComplete(0);
+                            }
                         }
                         for(ReportItem reportItem:reportItemList2) {
-                            if(reportItem.getId() == ri.getId())
+                            if(reportItem.getId() == ri.getId()) {
                                 reportResult.setRefuse(reportItem.getY());
+                            }else{
+                                reportResult.setRefuse(0);
+                            }
                         }
 
                         if(reportResult.getTotal() > 0 && reportResult.getComplete() != null){
                             NumberFormat numberFormat = NumberFormat.getInstance();
                             // 设置精确到小数点后2位
                             numberFormat.setMaximumFractionDigits(2);
-                            reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100));
+                            reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100)+"%");
                         }else{
                             reportResult.setRate("0.00%");
                         }
                     }
+                    List<ReportResult> reportResults1 = new LinkedList<>();
+                    ReportResult reportResult1 = new ReportResult();
+                    reportResults1.add(reportResult1);
+                    Integer total =0,refuse=0,complete = 0;
+                    Integer totalOther =0,refuseOther =0,completeOther  = 0;
+                    for(ReportResult reportResult:reportResults){
+                        if(reportResult.getTotal() != null)
+                            total+=reportResult.getTotal();
+                        if(reportResult.getRefuse() != null)
+                            refuse+=reportResult.getRefuse();
+                        if(reportResult.getComplete() != null)
+                            complete+=reportResult.getComplete();
+                        if(reportResult.getEnterprise().equals(oaEnterprise.getCompanyName())){
+                            reportResults1.add(reportResult);
+                        }else{
+                            if(reportResult.getTotal() != null)
+                                totalOther+=reportResult.getTotal();
+                            if(reportResult.getRefuse() != null)
+                                refuseOther+=reportResult.getRefuse();
+                            if(reportResult.getComplete() != null)
+                                completeOther+=reportResult.getComplete();
+                        }
+                    }
+                    if(headOffice == 1) {
+                        reportResult1.setEnterprise("其他部门合计");
+                    }else if(headOffice == 2){
+                        reportResult1.setEnterprise("其他二级公司合计");
+                    }else if(headOffice == 3){
+                        reportResult1.setEnterprise("其他三级公司合计");
+                    }else{
+                        reportResult1.setEnterprise("其他");
+                    }
+                    reportResult1.setTotal(totalOther);
+                    reportResult1.setRefuse(refuseOther);
+                    reportResult1.setComplete(completeOther);
+                    if(reportResult1.getTotal() > 0 && reportResult1.getComplete() != null){
+                        NumberFormat numberFormat = NumberFormat.getInstance();
+                        // 设置精确到小数点后2位
+                        numberFormat.setMaximumFractionDigits(2);
+                        reportResult1.setRate(numberFormat.format((float)reportResult1.getComplete()/(float)reportResult1.getTotal()*100)+"%");
+                    }else{
+                        reportResult1.setRate("0.00%");
+                    }
 
-                    result.put("rows",reportResults);
-                    result.put("total",reportResults.size());
+                    ReportResult reportResult2 = new ReportResult();
+                    reportResults1.add(reportResult2);
+                    reportResult2.setEnterprise("总计");
+                    reportResult2.setTotal(total);
+                    reportResult2.setRefuse(refuse);
+                    reportResult2.setComplete(complete);
+                    if(reportResult2.getTotal() > 0 && reportResult2.getComplete() != null){
+                        NumberFormat numberFormat = NumberFormat.getInstance();
+                        // 设置精确到小数点后2位
+                        numberFormat.setMaximumFractionDigits(2);
+                        reportResult2.setRate(numberFormat.format((float)reportResult2.getComplete()/(float)reportResult2.getTotal()*100)+"%");
+                    }else{
+                        reportResult2.setRate("0.00%");
+                    }
+
+                    result.put("rows",reportResults1);
+                    result.put("total",reportResults1.size());
                         /*
 
                     -- 归档数量
@@ -254,14 +337,14 @@ public class ReportController {
                         * */
                 }else {
 //                    List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseList("总公司",0,500);
-                    List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.listByName(headOffice);
+                    List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByLevel(headOffice);
                     Map<Integer,OAEnterprise> map = new LinkedHashMap<>();
                     for(OAEnterprise oaEnterprise : oaEnterpriseList){
                         map.put(oaEnterprise.getEnterpriseId(),oaEnterprise);
                     }
                     Map<Integer,ReportItem> mapCompleted = new LinkedHashMap<>();
                     // 归档数量
-                    List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"completed",null,null,null);
+                    List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"completed",null,contractType,null);
                     for(ReportItem reportItem:reportItemList1){
                         if(map.containsKey(reportItem.getId())){
                             reportItem.setName(map.get(reportItem.getId()).getCompanyName());
@@ -271,7 +354,7 @@ public class ReportController {
 
                     // 退回数量
                     Map<Integer,ReportItem> mapRefused = new LinkedHashMap<>();
-                    List<ReportItem> reportItemList2 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,null,null,1);
+                    List<ReportItem> reportItemList2 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,null,contractType,1);
                     for(ReportItem reportItem:reportItemList2){
                         if(map.containsKey(reportItem.getId())){
                             reportItem.setName(map.get(reportItem.getId()).getCompanyName());
@@ -280,7 +363,7 @@ public class ReportController {
                     }
                     //发起数量
                     Map<Integer,ReportItem> mapTotal = new LinkedHashMap<>();
-                    List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,null,null,null);
+                    List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,null,contractType,null);
                     for(ReportItem reportItem:reportItemList3){
                         if(map.containsKey(reportItem.getId())){
                             reportItem.setName(map.get(reportItem.getId()).getCompanyName());
@@ -296,15 +379,19 @@ public class ReportController {
                         reportResult.setTotal(ri.getY());
                         if(mapCompleted.containsKey(ri.getId())) {
                             reportResult.setComplete(mapCompleted.get(ri.getId()).getY());
+                        }else{
+                            reportResult.setComplete(0);
                         }
                         if(mapRefused.containsKey(ri.getId())) {
                             reportResult.setRefuse(mapRefused.get(ri.getId()).getY());
+                        }else{
+                            reportResult.setRefuse(0);
                         }
                         if(reportResult.getTotal() > 0 && reportResult.getComplete() != null){
                             NumberFormat numberFormat = NumberFormat.getInstance();
                             // 设置精确到小数点后2位
                             numberFormat.setMaximumFractionDigits(2);
-                            reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100));
+                            reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100)+"%");
                         }else{
                             reportResult.setRate("0.00%");
                         }
@@ -329,7 +416,7 @@ public class ReportController {
                         NumberFormat numberFormat = NumberFormat.getInstance();
                         // 设置精确到小数点后2位
                         numberFormat.setMaximumFractionDigits(2);
-                        reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100));
+                        reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100)+"%");
                     }else{
                         reportResult.setRate("0.00%");
                     }

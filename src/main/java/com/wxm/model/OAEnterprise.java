@@ -19,9 +19,29 @@ public class OAEnterprise {
 
     private String ownerMobile;
 
+    private Integer companyLevel;
+
+    private Integer companyParent;
+
     private Integer companyStatus;
 
     private Date createTime;
+
+    public Integer getCompanyLevel() {
+        return companyLevel;
+    }
+
+    public Integer getCompanyParent() {
+        return companyParent;
+    }
+
+    public void setCompanyLevel(Integer companyLevel) {
+        this.companyLevel = companyLevel;
+    }
+
+    public void setCompanyParent(Integer companyParent) {
+        this.companyParent = companyParent;
+    }
 
     public String getSubCompanyName() {
         return subCompanyName;

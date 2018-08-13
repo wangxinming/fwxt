@@ -76,12 +76,12 @@
     oa_user.USER_ID, oa_user.USER_NAME, oa_user.PARENT_ID,oa_user.GROUP_ID,oa_user.USER_MOBILE, oa_user.USER_EMAIL, oa_user.USER_PWD,
     oa_user.ENTERPRISE_ID,oa_user.USER_COMPANY, oa_user.USER_DEPARTMENT,
     oa_user.USER_POSITION, oa_user.USER_ADDRESS, oa_user.USER_POSTCODE, oa_user.USER_WEIXIN, oa_user.USER_STATUS, oa_user.USER_CREATETIME
-    from OA_USER oa_user,OA_ENTERPRISE enterprise where oa_user.ENTERPRISE_ID=enterprise.ENTERPRISE_ID
+    from OA_USER oa_user where 1=1
     <if test="position != null">
       AND oa_user.USER_POSITION = #{position}
     </if>
     <if test="company != null">
-      AND enterprise.COMPANY_SUBNAME = #{company}
+      AND oa_user.ENTERPRISE_ID = #{company}
     </if>
   </select>
 

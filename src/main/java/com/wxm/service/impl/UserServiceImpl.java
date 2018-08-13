@@ -111,8 +111,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<OAUser> listUserByCompany(String company,String position) {
-        return oaUserMapper.listUserByCompany(company,position);
+    public List<OAUser> listUserByCompany(Integer companyId,String position) {
+        return oaUserMapper.listUserByCompany(companyId,position);
     }
 
 

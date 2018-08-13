@@ -21,6 +21,16 @@ public class OAEnterpriseServiceImpl implements OAEnterpriseService {
     }
 
     @Override
+    public List<OAEnterprise> getEnterpriseByLevel (Integer level) {
+        return oaEnterpriseMapper.getEnterpriseByLevel(level);
+    }
+
+    @Override
+    public List<OAEnterprise> getEnterpriseByParentId(Integer id) {
+        return oaEnterpriseMapper.getEnterpriseByParentId(id);
+    }
+
+    @Override
     public List<OAEnterprise> total() {
         return oaEnterpriseMapper.total();
     }

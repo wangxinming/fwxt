@@ -7,6 +7,8 @@ import java.util.Map;
 
 public interface OAEnterpriseService {
     List<OAEnterprise> getEnterpriseList(String name,Integer offset, Integer limit);
+    List<OAEnterprise> getEnterpriseByLevel(Integer level);
+    List<OAEnterprise> getEnterpriseByParentId(Integer id);
     List<OAEnterprise> total();
     OAEnterprise getEnterpriseById(Integer id);
     Integer count(String name);
