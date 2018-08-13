@@ -798,6 +798,9 @@ public class DeployController {
             }
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
             List<OAPositionRelation> oaPositionRelations = oaPositionRelationService.getByCompanyPosition(oaEnterprise.getCompanyName(),loginUser.getPosition());
+            if(null == oaPositionRelations || oaPositionRelations.size() ==0){
+                oaPositionRelations =  oaPositionRelationService.getByCompanyPosition(null,loginUser.getPosition());
+            }
             List<OAUser> oaUserList = new LinkedList<>();
             for(OAPositionRelation oaPositionRelation:oaPositionRelations){
                 oaUserList.addAll(userService.listUserLeader(oaPositionRelation.getHighCompany(),oaPositionRelation.getHighPositionName()));

@@ -35,7 +35,7 @@ public class OAPositionRelationServiceImpl implements OAPositionRelationService 
 
     @Override
     public Integer update(OAPositionRelation oaPositionRelation) {
-        return oaPositionRelationMapper.updateByPrimaryKeySelective(oaPositionRelation);
+        return oaPositionRelationMapper.updateByPrimaryKey(oaPositionRelation);
     }
 
     @Override

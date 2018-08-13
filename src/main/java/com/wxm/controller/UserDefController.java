@@ -1162,6 +1162,8 @@ public class UserDefController {
         map.put("result","success");
         try {
             map.put("data", oaPositionRelationService.getById(positionId));
+            map.put("company",oaEnterpriseService.groupByName());
+            map.put("position", userService.groupByPosition());
         }catch (Exception e){
             map.put("result", "failed");
             LOGGER.error("异常",e);
@@ -1181,6 +1183,7 @@ public class UserDefController {
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         try {
+            oaPositionRelation.setCreateTime(new Date());
             oaPositionRelationService.update(oaPositionRelation);
             auditService.audit(new OAAudit(loginUser.getName(),String.format("更新职位信息")));
         }catch (Exception e){

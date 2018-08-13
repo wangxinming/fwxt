@@ -1524,6 +1524,9 @@
                         Loading.show();
                         // $timeout(function(){
                             loader.queryPosition({"positionId":id},{},function (data) {
+                                $scope.positions = data.position;
+                                $scope.positionbak= data.position;
+                                $scope.approvalEnterprise = data.company;
                                 $scope.addPage.data.positionRelationId = data.data.positionRelationId;
                                 $scope.addPage.data.company = data.data.company;
                                 $scope.addPage.data.positionName = data.data.positionName;
@@ -1535,7 +1538,7 @@
                                 Loading.hide();
 
                             })
-                        // },500);
+                        // },200);
                     },
                     remove:function (id) {
                         $rootScope.$confirm("确定要删除吗？", function () {

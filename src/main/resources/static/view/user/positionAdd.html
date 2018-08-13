@@ -5,7 +5,7 @@
 <div dialog info="pageDialog" data="addPage.data" class="ldialog">
 
     <div class="portlet-body form">
-        <form class="form-horizontal" role="form" id="addForm" name="userForm">
+        <form class="form-horizontal" role="form" id="positionForm" name="positionForm">
             <div class="form-body">
                 <div class="form-group">
                     <label  class="col-md-3 control-label">公司</label>
@@ -14,7 +14,8 @@
                         <!--<select class="form-control"  ng-model="addPageDetail.data.leaderApprove" id="leaderApprove" ng-options="''+ template.userName as template.userName for template in pms" class="col-md-4">-->
                             <!--<option value=""> -&#45;&#45; 请选择 -&#45;&#45; </option>-->
                         <!--</select>-->
-                        <select  class="form-control"  ng-model="addPage.data.company" name="companyName" ng-options="item.companyName as item.companyName for item in approvalEnterprise" required>
+                        <select  class="form-control"  ng-model="addPage.data.company" name="companyName" ng-options="item.companyName as item.companyName for item in approvalEnterprise">
+                            <option value=""> --- 请选择公司 --- </option>
                         </select>
                     </div>
                 </div>
@@ -23,14 +24,17 @@
                     <div class="col-md-8">
                         <!--<input type="text" class="form-control" ng-model="addPage.data.positionName" placeholder="职位" >-->
                         <select  class="form-control"  ng-model="addPage.data.positionName" name="positionName" ng-options="item.userPosition as item.userPosition for item in positions" required>
+                            <option value=""> --- 请选择职位 --- </option>
                         </select>
                     </div>
+                    <span class="required">*</span>
                 </div>
                 <div class="form-group">
                     <label  class="col-md-3 control-label">上级公司</label>
                     <div class="col-md-8">
                      <!--<input type="text" class="form-control" ng-model="addPage.data.highCompany" placeholder="上级公司" >-->
-                        <select  class="form-control"  ng-model="addPage.data.highCompany" name="highCompany" ng-options="item.companyName as item.companyName for item in approvalEnterprise" required>
+                        <select  class="form-control"  ng-model="addPage.data.highCompany" name="highCompany" ng-options="item.companyName as item.companyName for item in approvalEnterprise" >
+                            <option value=""> --- 请选择上级公司 --- </option>
                         </select>
                     </div>
                 </div>
@@ -39,12 +43,14 @@
                     <div class="col-md-8">
                         <!--<input type="text" class="form-control" ng-model="addPage.data.highPositionName" placeholder="上级职位" >-->
                         <select  class="form-control"  ng-model="addPage.data.highPositionName" name="highPositionName" ng-options="item.userPosition as item.userPosition for item in positions" required>
+                            <option value=""> --- 请选择上级职位 --- </option>
                         </select>
                     </div>
+                    <span class="required">*</span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" ng-disabled="!userForm.$valid" class="btn btn-primary" ng-click="pageDialog.save()"> {{dialog.buttonText==null?"确定":dialog.buttonText}}</button>
+                <button type="button" ng-disabled="!positionForm.$valid" class="btn btn-primary" ng-click="pageDialog.save()"> {{dialog.buttonText==null?"确定":dialog.buttonText}}</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             </div>
         </form>
