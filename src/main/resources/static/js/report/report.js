@@ -116,7 +116,7 @@
         }])
         .controller('parentEnterpriseReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
             var current = new Date();
-            $scope.chartSeriesPie =  [{type: 'pie',data:[{name:'chrome',y:10},{name:'fire',y:20}]}];
+            $scope.chartSeriesPie =  [{type: 'pie',data:[]}];
             $scope.categories=[];
             $scope.chartSeriesColumn =  [];
             $scope.searchPage = {
@@ -150,15 +150,12 @@
 
                         if($scope.listPage.total){
                             i++;
-
                         }
                         if($scope.listPage.refuse){
                             i++;
-
                         }
                         if($scope.listPage.complete){
                             i++;
-
                         }
                         // if($scope.listPage.rate)i++;
                         if(i > 1) {
@@ -176,9 +173,15 @@
                                     complete.data.push($scope.listPage.data[i].complete);
                             }
                             $scope.chartConfigColumn.xAxis.categories = $scope.categories;
-                            $scope.chartSeriesColumn.push(total);
-                            $scope.chartSeriesColumn.push(refuse);
-                            $scope.chartSeriesColumn.push(complete);
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
                             $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
                         }
                         else {
