@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
 //        oaAuditMapper.insertSelective(new OAAudit(oaUser.getUserName(),String.format("新建用户 %s",oaUser.getUserName())));
         oaUser.setUserCreatetime(new Date(System.currentTimeMillis()));
         oaUserMapper.insertSelective(oaUser);
-        User userOa = identityService.createUserQuery().userFirstName(oaUser.getUserName()).singleResult();
+        User userOa = identityService.createUserQuery().userId(oaUser.getUserName()).singleResult();
         if(null == userOa) {
             org.activiti.engine.identity.User user = identityService.newUser(oaUser.getUserName());
             user.setFirstName(oaUser.getUserId().toString());

@@ -843,6 +843,7 @@ public class ProcessController {
         if(StringUtils.isNotBlank(approve)){
             map.put("user_approve", approve);
         }
+        identityService.setAuthenticatedUserId(loginUser.getName());
 //        else{
 //            Map<String, Object> result = new HashMap<>();
 //            result.put("result","failed");
