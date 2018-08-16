@@ -59,11 +59,14 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <div class="list_button" >
                     <div class="input-group">
                         <span class="input-group-btn">
 						    <button class="btn blue" ng-click="searchPage.action.search()" type="button">统计</button>
+                        </span>
+                        <span class="input-group-btn">
+						    <button class="btn blue" ng-click="searchPage.action.export()" type="button">导出excel</button>
                         </span>
                         <span class="input-group-btn">
 						    <button class="btn blue" ng-click="searchPage.action.reset()" type="button">条件重置</button>
@@ -89,11 +92,11 @@
 
     <div class="col-sm-5" ng-show="listPage.graph==true">
         <!--<div id="container" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"> </div>-->
-        <highchart id="chartPie" config="chartConfigPie" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"></highchart>
+        <highchart id="chartConfigPie" config="chartConfigPie" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"></highchart>
     </div>
     <div class="col-sm-6" ng-show="listPage.graph==false">
         <!--<div id="container" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"> </div>-->
-        <highchart id="chartColumn" config="chartConfigColumn" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"></highchart>
+        <highchart id="chartConfigColumn" config="chartConfigColumn" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"></highchart>
         <!--<highchart id="chartColumn" config="chartConfigColumn" ></highchart>-->
     </div>
 </div>

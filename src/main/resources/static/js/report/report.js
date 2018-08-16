@@ -356,8 +356,11 @@
                 },
                 xAxis: {
                     // categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-                    categories: $scope.categories,
+                    categories: ['Jan','Feb','Mar'],
+                    type:'category',
+                    visible:true,
                     labels: {
+                        enabled:false,
                         rotation: 0,
                         style: {
                             fontSize: 12
@@ -475,6 +478,13 @@
                     reset:function () {
                         $scope.searchPage.init();
                     },
+                    export:function () {
+                        window.open("report/export?headOffice="+ $scope.searchPage.data.headOffice+
+                            "&startTime="+ $scope.searchPage.data.startTime+
+                            "&endTime="+ $scope.searchPage.data.endTime+
+                            "&subCompany="+$scope.searchPage.data.subCompany
+                        );
+                    },
                     pie:function () {
                         var i = 0;
                         var total = {name: '发起合同数量', data: []};
@@ -506,6 +516,7 @@
                                     complete.data.push($scope.listPage.data[i].complete);
                             }
                             $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            // $scope.chartConfigColumn.xAxis.categories =['Jan','Feb','Mar'];
                             if($scope.listPage.total) {
                                 $scope.chartSeriesColumn.push(total);
                             }
@@ -662,8 +673,8 @@
                     },
                     chart: {
                         type: 'column',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         series: {
@@ -686,11 +697,12 @@
                     }
                 },
                 yAxis:{
+                    title:'',
                     min: 0,
                 },
                 xAxis: {
                     // categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-                    categories: $scope.categories,
+                    categories: [],
                     labels: {
                         rotation: 0,
                         style: {
@@ -703,7 +715,7 @@
                     enabled: false
                 },
                 legend: {
-                    enabled: true
+                    enabled: false
                 },
                 series: $scope.chartSeriesColumn
                 //     [{

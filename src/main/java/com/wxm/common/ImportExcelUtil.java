@@ -2,6 +2,7 @@ package com.wxm.common;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

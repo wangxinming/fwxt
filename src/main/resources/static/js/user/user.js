@@ -302,7 +302,7 @@
                 queryParentsEnterprise: {method:'GET',url:"/report/parentEnterpriseList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 contractPromoter: {method:'GET',url:"/report/getContractPromoter", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 parentEnterpriseReport: {method:'GET',url:"/report/parentEnterpriseReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
+                // reportExport: {method:'GET',url:"/report/parentEnterpriseList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 /*职位管理*/
                 //创建职位
                 createPosition: {method:'PUT',url:"/user/createPosition", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
