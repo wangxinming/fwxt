@@ -46,9 +46,17 @@
         <div  class="col-md-9" style="margin-top: 10px;">
             <div  class="col-md-6" >
                 <label  style="font-size: 16px;" >项目经理<span class="required">*</span></label>
-                <select ng-model="pm" name="pmList" id="pmList" ng-options="template.userName as template.userName+' :' + template.userPosition for template in pms" >
+                <!--<select ui-select2="{allowClear : true}" class="select2" ng-model="pm" name="pmList" style="width: 70%" id="pmList" ng-options="template.userName as template.userName+' :' + template.userPosition for template in pms" >-->
+                <select ui-select2="{allowClear : true}" class="select2" ng-model="pm" name="pmList" style="width: 70%" id="pmList"  >
                     <option value=""> --- 请选择 --- </option>
+                    <option ng-repeat="template in pms" value="{{template.userName}}">{{template.userName}}: {{template.userPosition}}</option>
                 </select>
+                <!--<select ui-select2 ng-model="number" data-placeholder="Pick a number" ng-required="true">-->
+                    <!--<option value=""></option>-->
+                    <!--<option value="one">First</option>-->
+                    <!--<option value="two">Second</option>-->
+                    <!--<option value="three">Third</option>-->
+                <!--</select>-->
             </div>
         </div>
 

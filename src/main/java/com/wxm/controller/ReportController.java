@@ -110,6 +110,73 @@ public class ReportController {
         binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"), true));
     }
 
+    //获取区域信息
+    @RequestMapping(value = "/locationList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object locationList(HttpServletRequest request)throws Exception {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        try{
+            List<OAEnterprise> enterpriseList = oaEnterpriseService.getEnterpriseByLoction();
+            result.put("locations",enterpriseList);
+
+        }catch (Exception e){
+            result.put("result","failed");
+            LOGGER.error("参数异常",e);
+        }
+        return result;
+    }
+    //获取省区
+    @RequestMapping(value = "/provinceList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object provinceList(HttpServletRequest request,
+                               @RequestParam(value = "location", required = false) String location)throws Exception {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        try{
+            List<OAEnterprise> enterpriseList = oaEnterpriseService.getEnterpriseByProvince(location);
+            result.put("provinces",enterpriseList);
+        }catch (Exception e){
+            result.put("result","failed");
+            LOGGER.error("参数异常",e);
+        }
+        return result;
+    }
+    //获取市区
+    @RequestMapping(value = "/cityList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object cityList(HttpServletRequest request,
+                           @RequestParam(value = "location", required = false) String location,
+                           @RequestParam(value = "province", required = false) String province)throws Exception {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        try{
+            List<OAEnterprise> enterpriseList = oaEnterpriseService.getEnterpriseByCity(location,province);
+            result.put("cities",enterpriseList);
+        }catch (Exception e){
+            result.put("result","failed");
+            LOGGER.error("参数异常",e);
+        }
+        return result;
+    }
     //excel导出
     @RequestMapping(value = "/export",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -235,6 +302,87 @@ public class ReportController {
 //        util.exportExcel(userVOList, "用户信息", 65536, out);// 导出
         return null;
     }
+    //区域统计报表
+    @RequestMapping(value = "/locationReport",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object locationReport(HttpServletRequest request,
+
+                                         @RequestParam(value = "location", required = false) String location,
+                                         @RequestParam(value = "province", required = false) String province,
+                                         @RequestParam(value = "city", required = false) String city,
+                                         @RequestParam(value = "contractType", required = false) Integer contractType,
+                                         @RequestParam(value = "startTime", required = true) Date startTime,
+                                         @RequestParam(value = "endTime", required = true) Date endTime)throws Exception {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        try{
+            List<OAEnterprise>  oaEnterpriseList = oaEnterpriseService.listEnterprise(location,province,city);
+            Map<Integer,OAEnterprise> map = new LinkedHashMap<>();
+            for(OAEnterprise oaEnterprise : oaEnterpriseList){
+                map.put(oaEnterprise.getEnterpriseId(),oaEnterprise);
+            }
+            // 归档数量
+            List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"completed",null,contractType,null);
+            // 退回数量
+            List<ReportItem> reportItemList2 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,null,contractType,1);
+            //发起数量
+            List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,null,null,contractType,null);
+
+            List<ReportResult> reportResults = new LinkedList<>();
+            //计算公司报告
+            for(ReportItem ri:reportItemList3 ){
+                if(!map.containsKey(ri.getId())) continue;
+                ReportResult reportResult = new ReportResult();
+                reportResults.add(reportResult);
+                reportResult.setEnterprise(map.get(ri.getId()).getCompanyName());
+                reportResult.setEnterpriseId(ri.getId());
+                reportResult.setTotal(ri.getY());
+                for(ReportItem reportItem:reportItemList1) {
+                    if(reportItem.getId() == ri.getId()) {
+                        reportResult.setComplete(reportItem.getY());
+                    }else{
+                        reportResult.setComplete(0);
+                    }
+                }
+                for(ReportItem reportItem:reportItemList2) {
+                    if(reportItem.getId() == ri.getId()) {
+                        reportResult.setRefuse(reportItem.getY());
+                    }else{
+                        reportResult.setRefuse(0);
+                    }
+                }
+
+                if(reportResult.getTotal() > 0 && reportResult.getComplete() != null){
+                    NumberFormat numberFormat = NumberFormat.getInstance();
+                    // 设置精确到小数点后2位
+                    numberFormat.setMaximumFractionDigits(2);
+                    reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100)+"%");
+                }else{
+                    reportResult.setRate("0.00%");
+                }
+            }
+            if(StringUtils.isNotBlank(location)){
+//                reportResults.clear();
+                for(ReportResult reportResult :reportResults){
+
+                }
+            }
+
+
+            result.put("rows",reportResults);
+            result.put("total",reportResults.size());
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+        }
+        return result;
+    }
+
+
     //报表统计,统计发起合同数量、被打回合同数量、存档合同数量、存档/发起比例
     @RequestMapping(value = "/parentEnterpriseReport",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody

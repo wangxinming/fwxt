@@ -44,6 +44,47 @@
     <include refid="Base_Column_List" />
     from OA_ENTERPRISE where COMPANY_NAME like CONCAT('%',#{name},'%' ) and COMPANY_SUBNAME !=''
   </select>
+  <select id="getEnterpriseByLoction" resultMap="BaseResultMap">
+        select
+         COMPANY_LOCATION
+        from OA_ENTERPRISE
+        group by COMPANY_LOCATION
+  </select>
+  <select id="getEnterpriseByProvince" resultMap="BaseResultMap">
+            select
+           COMPANY_PROVINCE
+          from OA_ENTERPRISE where 1=1
+          <if test="location != null">
+            and COMPANY_LOCATION = #{location}
+          </if>
+          group by COMPANY_PROVINCE
+  </select>
+  <select id="getEnterpriseByCity" resultMap="BaseResultMap">
+    select
+    COMPANY_CITY
+    from OA_ENTERPRISE where 1=1
+    <if test="location != null">
+      and COMPANY_LOCATION = #{location}
+    </if>
+    <if test="province != null">
+      and COMPANY_PROVINCE = #{province}
+    </if>
+    group by COMPANY_CITY
+  </select>
+  <select id="listEnterprise" resultMap="BaseResultMap">
+        select
+          <include refid="Base_Column_List" />
+        from OA_ENTERPRISE where 1=1
+        <if test="location != null">
+          and COMPANY_LOCATION = #{location}
+        </if>
+        <if test="province != null">
+          and COMPANY_PROVINCE = #{province}
+        </if>
+        <if test="city != null">
+          and COMPANY_CITY = #{city}
+        </if>
+  </select>
   <select id="groupByName" resultMap="BaseResultMap">
     select
      COMPANY_NAME

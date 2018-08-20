@@ -374,11 +374,13 @@ public class WordTemplateController {
             Pattern pattern = Pattern.compile("@@([\\s\\S]*?)!!");
             Matcher matcher = pattern.matcher(htmlStr);
 
+            String longTextBefore = "<textarea rows=\"50\" cols=\"30\" style=\"width: 100%;height: 100px; name=\"";
             String checkboxBefore = "<input type=\"checkbox\" style=\"display:none;height:10px;zoom:180%;\" name=\"";
 
             String before = "<input type=\"text\" style=\"border:none;border-bottom:1px solid #000;\" name=\"";
             String checkboxButton = "<input type=\"checkbox\" name=\"";
             String end = "\"/>";
+            String longTextEnd = "\"></textarea>";
             Map<String,String> map = new LinkedHashMap<>();
 
             while(matcher.find()) {
@@ -398,14 +400,14 @@ public class WordTemplateController {
                 oaFormProperties.setFieldValid(length);
                 oaFormProperties.setCreateTime(new Date());
                 formPropertiesService.insert(oaFormProperties);
-                if(!tmp.contains("单选框")) {
-
-                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", before, name, name, end, checkboxBefore, checkbox, checkbox, end);
-                    map.put(tmp,text);
-//                    htmlStr = htmlStr.replace(tmp,text);
-                }else{
+                if(tmp.contains("单选框")) {
                     String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", checkboxButton, name, name, end, checkboxBefore, checkbox, checkbox, end);
-//                    htmlStr = htmlStr.replace(tmp,text);
+                    map.put(tmp,text);
+                }else if(tmp.contains("多行数据")){
+                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", longTextBefore, name, name, longTextEnd, checkboxBefore, checkbox, checkbox, end);
+                    map.put(tmp,text);
+                } else{
+                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", before, name, name, end, checkboxBefore, checkbox, checkbox, end);
                     map.put(tmp,text);
                 }
             }

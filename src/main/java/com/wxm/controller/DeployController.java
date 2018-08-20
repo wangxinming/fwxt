@@ -801,11 +801,14 @@ public class DeployController {
             if(null == oaPositionRelations || oaPositionRelations.size() ==0){
                 oaPositionRelations =  oaPositionRelationService.getByCompanyPosition(null,loginUser.getPosition());
             }
-            List<OAUser> oaUserList = new LinkedList<>();
+            LinkedHashMap<String,OAUser> oaUserMap = new LinkedHashMap<>();
             for(OAPositionRelation oaPositionRelation:oaPositionRelations){
-                oaUserList.addAll(userService.listUserLeader(oaPositionRelation.getHighCompany(),oaPositionRelation.getHighPositionName()));
+                List<OAUser> userList = userService.listUserLeader(oaPositionRelation.getHighCompany(),oaPositionRelation.getHighPositionName());
+                for(OAUser oaUser1 : userList) {
+                    oaUserMap.put(oaUser1.getUserName(),oaUser1);
+                }
             }
-            result.put("leader",oaUserList);
+            result.put("leader",oaUserMap.values());
             LOGGER.info("下级审批人信息");
         }
         result.put("info",oaContractTemplate.getTemplateHtml());

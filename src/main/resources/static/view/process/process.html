@@ -11,7 +11,7 @@
                 <div class="col-md-9  form-group">
                     <label  class="col-md-2 control-label">模板</label>
                     <div class="col-md-8" style="margin: -5px 0px 0px -35px;">
-                        <select  class="form-control"  ng-model="row.rID"  ng-options="item.templateId as item.templateName for item in sites ">
+                        <select  class="form-control"  ng-model="row.rID" class="select2" ng-options="item.templateId as item.templateName for item in sites ">
                             <option value=""> --- 请选择合同模板 --- </option>
                         </select>
                     </div>
@@ -19,7 +19,7 @@
                 <div class="col-md-9 form-group">
                     <label  class="col-md-2 control-label">流程</label>
                     <div class="col-md-8" style="margin: -5px 0px 0px -35px;">
-                        <select  class="form-control"  ng-model="row.dID"  ng-options="item.id as item.name for item in deploys ">
+                        <select  class="form-control"  ng-model="row.dID"  class="select2" ng-options="item.id as item.name for item in deploys ">
                             <option value=""> --- 请选择流程 --- </option>
                         </select>
                     </div>

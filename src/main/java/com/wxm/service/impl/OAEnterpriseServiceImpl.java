@@ -65,4 +65,24 @@ public class OAEnterpriseServiceImpl implements OAEnterpriseService {
     public List<OAEnterprise> listByName(String name) {
         return oaEnterpriseMapper.listByName(name);
     }
+
+    @Override
+    public List<OAEnterprise> getEnterpriseByLoction() {
+        return oaEnterpriseMapper.getEnterpriseByLoction();
+    }
+
+    @Override
+    public List<OAEnterprise> getEnterpriseByProvince(String location) {
+        return oaEnterpriseMapper.getEnterpriseByProvince(location);
+    }
+
+    @Override
+    public List<OAEnterprise> getEnterpriseByCity(String location, String province) {
+        return oaEnterpriseMapper.getEnterpriseByCity(location,province);
+    }
+
+    @Override
+    public List<OAEnterprise> listEnterprise(String location, String province, String city) {
+        return oaEnterpriseMapper.listEnterprise(location,province,city);
+    }
 }

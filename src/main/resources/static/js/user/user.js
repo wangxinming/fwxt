@@ -302,7 +302,11 @@
                 queryParentsEnterprise: {method:'GET',url:"/report/parentEnterpriseList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 contractPromoter: {method:'GET',url:"/report/getContractPromoter", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 parentEnterpriseReport: {method:'GET',url:"/report/parentEnterpriseReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-                // reportExport: {method:'GET',url:"/report/parentEnterpriseList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                locationReport: {method:'GET',url:"/report/locationReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+                locationList: {method:'GET',url:"/report/locationList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                provinceList: {method:'GET',url:"/report/provinceList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                cityList: {method:'GET',url:"/report/cityList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 /*职位管理*/
                 //创建职位
                 createPosition: {method:'PUT',url:"/user/createPosition", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},

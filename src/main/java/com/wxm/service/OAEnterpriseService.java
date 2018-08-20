@@ -16,4 +16,10 @@ public interface OAEnterpriseService {
     Integer update(OAEnterprise oaEnterprise);
     List<OAEnterprise> groupByName();
     List<OAEnterprise> listByName(String name);
+    List<OAEnterprise> getEnterpriseByLoction();
+    List<OAEnterprise> getEnterpriseByProvince(String location);
+    List<OAEnterprise> getEnterpriseByCity(String location,String province);
+    List<OAEnterprise> listEnterprise(String location,String province,String city);
+
+
 }

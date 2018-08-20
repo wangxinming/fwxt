@@ -24,9 +24,12 @@ public interface OAEnterpriseMapper {
     List<OAEnterprise> total();
     List<OAEnterprise> getEnterpriseByLevel(Integer level);
     List<OAEnterprise> getEnterpriseByParentId(Integer id);
-
-
+    List<OAEnterprise> getEnterpriseByLoction();
+    List<OAEnterprise> getEnterpriseByProvince(@Param("location") String location);
+    List<OAEnterprise> getEnterpriseByCity(@Param("location")String location,@Param("province")String province);
     List<OAEnterprise> groupByName();
-
     List<OAEnterprise> listByName(@Param("name") String name);
+
+    List<OAEnterprise> listEnterprise(@Param("location")String location,@Param("province")String province,@Param("city")String city);
+
 }

@@ -46,7 +46,7 @@
   </select>
   <select id="list" resultMap="BaseResultMapUser">
     select top ${limit} *,oaUser.USER_NAME from OA_CONTRACT_TEMPLATE template,OA_USER oaUser where TEMPLATE_ID not
-    in(select top ${offset} TEMPLATE_ID from OA_CONTRACT_TEMPLATE  where 1=1
+    in (select top ${offset} TEMPLATE_ID from OA_CONTRACT_TEMPLATE  where 1=1
     ORDER BY TEMPLATE_CREATETIME DESC ) and oaUser.USER_ID = template.USER_ID ORDER BY TEMPLATE_CREATETIME DESC
   </select>
   <select id="count" resultType="java.lang.Integer">

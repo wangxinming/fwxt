@@ -3,7 +3,7 @@
  */
 (function(angular){
     'use strict';
-    angular.module('process',['ngRoute','ngResource','dataTablesDirective','util.services','checkListDirective','toaster','ngSanitize'])
+    angular.module('process',['ngRoute','ui.select2','ngResource','dataTablesDirective','util.services','checkListDirective','toaster','ngSanitize'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/process', {
                 templateUrl: 'view/process/process.html',
@@ -1472,6 +1472,11 @@
                 }
                 return url ;
             };
+
+            // $('#pmList').select2({
+            //     placeholder: "请选择",
+            //     language: "zh-CN"
+            // });
             // $('#uploadAttachment').change(function(){
             //     var objUrl = getObjectURL(this.files[0]) ;
             //     if (objUrl) {
