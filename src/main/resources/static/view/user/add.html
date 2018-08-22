@@ -111,7 +111,11 @@
                 <div class="form-group">
                     <label  class="col-md-3 control-label">岗位</label>
                     <div class="col-md-8">
-                        <input type="text" class="form-control"  ng-model="addPage.data.userPosition" placeholder="岗位" maxlength="190">
+                        <input type="text" class="form-control"  name="userPosition" id="userPosition" ng-model="addPage.data.userPosition" placeholder="岗位" maxlength="190" required>
+                        <div class="required" ng-show="userForm.userPosition.$dirty && userForm.userPosition.$invalid">
+                            <span ng-show="userForm.userPosition.$error.required">此项不能为空.</span>
+                            <span ng-show="!userForm.userPosition.$error.required && userForm.userPosition.$error.maxlength">长度最大190位字符.</span>
+                        </div>
                     </div>
                 </div>
 

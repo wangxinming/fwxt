@@ -30,8 +30,9 @@
             <div class="form-group" style="margin-top: 30px;" ng-hide="approveLast">
                 <label class="col-md-2" >下一级审批人<span class="required">*</span></label>
                 <div class="col-md-8">
-                    <select class="form-control"  ng-model="addPageDetail.data.leaderApprove" id="leaderApprove" ng-options="''+ template.userName as template.userName+' :'+template.userPosition for template in pms" class="col-md-4">
-                        <option value=""> --- 请选择 --- </option>
+                    <select ui-select2="{allowClear : true}"  class="form-control"  ng-model="addPageDetail.data.leaderApprove" id="leaderApprove" class="col-md-4">
+                        <option value=""> --- 请选择审批人 --- </option>
+                        <option ng-repeat="template in pms" value="{{template.userName}}">{{template.userName}}: {{template.userPosition}}</option>
                     </select>
                 </div>
             </div>

@@ -14,8 +14,9 @@
                         <!--<select class="form-control"  ng-model="addPageDetail.data.leaderApprove" id="leaderApprove" ng-options="''+ template.userName as template.userName for template in pms" class="col-md-4">-->
                             <!--<option value=""> -&#45;&#45; 请选择 -&#45;&#45; </option>-->
                         <!--</select>-->
-                        <select  class="form-control"  ng-model="addPage.data.company" name="companyName" ng-options="item.companyName as item.companyName for item in approvalEnterprise">
+                        <select  ui-select2="{allowClear : true}" class="form-control"  ng-model="addPage.data.company" id="companyName" name="companyName">
                             <option value=""> --- 请选择公司 --- </option>
+                            <option ng-repeat="item in approvalEnterprise" value="{{item.companyName}}">{{item.companyName}}</option>
                         </select>
                     </div>
                 </div>
@@ -23,8 +24,9 @@
                     <label  class="col-md-3 control-label">职位</label>
                     <div class="col-md-8">
                         <!--<input type="text" class="form-control" ng-model="addPage.data.positionName" placeholder="职位" >-->
-                        <select  class="form-control"  ng-model="addPage.data.positionName" name="positionName" ng-options="item.userPosition as item.userPosition for item in positions" required>
+                        <select ui-select2="{allowClear : true}" class="form-control"   ng-model="addPage.data.positionName" id="positionName" name="positionName"  required>
                             <option value=""> --- 请选择职位 --- </option>
+                            <option ng-repeat="item in positions" value="{{item.userPosition}}">{{item.userPosition}}</option>
                         </select>
                     </div>
                     <span class="required">*</span>
@@ -33,8 +35,9 @@
                     <label  class="col-md-3 control-label">上级公司</label>
                     <div class="col-md-8">
                      <!--<input type="text" class="form-control" ng-model="addPage.data.highCompany" placeholder="上级公司" >-->
-                        <select  class="form-control"  ng-model="addPage.data.highCompany" name="highCompany" ng-options="item.companyName as item.companyName for item in approvalEnterprise" >
+                        <select  ui-select2="{allowClear : true}" class="form-control"   ng-model="addPage.data.highCompany" id="highCompany" name="highCompany">
                             <option value=""> --- 请选择上级公司 --- </option>
+                            <option ng-repeat="item in approvalEnterprise" value="{{item.companyName}}">{{item.companyName}}</option>
                         </select>
                     </div>
                 </div>
@@ -42,8 +45,9 @@
                     <label  class="col-md-3 control-label">上级职位</label>
                     <div class="col-md-8">
                         <!--<input type="text" class="form-control" ng-model="addPage.data.highPositionName" placeholder="上级职位" >-->
-                        <select  class="form-control"  ng-model="addPage.data.highPositionName" name="highPositionName" ng-options="item.userPosition as item.userPosition for item in positions" required>
+                        <select  ui-select2="{allowClear : true}" class="form-control"   ng-model="addPage.data.highPositionName" id="highPositionName" name="highPositionName" required>
                             <option value=""> --- 请选择上级职位 --- </option>
+                            <option ng-repeat="item in positions" value="{{item.userPosition}}">{{item.userPosition}}</option>
                         </select>
                     </div>
                     <span class="required">*</span>

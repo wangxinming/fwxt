@@ -5,7 +5,7 @@
 //    var web_path = "./data/user";
     var web_path = "/api";
     'use strict';
-    angular.module('webportal.user', ['ngRoute','ngResource','dataTablesDirective','util.services','checkListDirective','toaster','zTreeDirective'])
+    angular.module('webportal.user', ['ngRoute','ui.select2','ngResource','dataTablesDirective','util.services','checkListDirective','toaster','zTreeDirective'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/user', {
                 templateUrl: 'view/user/user.html',
@@ -1532,10 +1532,19 @@
                                 $scope.positionbak= data.position;
                                 $scope.approvalEnterprise = data.company;
                                 $scope.addPage.data.positionRelationId = data.data.positionRelationId;
+
                                 $scope.addPage.data.company = data.data.company;
+                                if(data.data.company)
+                                    $("#companyName").val(data.data.company);
                                 $scope.addPage.data.positionName = data.data.positionName;
+                                if(data.data.positionName)
+                                    $("#positionName").val(data.data.positionName);
                                 $scope.addPage.data.highCompany = data.data.highCompany;
+                                if(data.data.highCompany)
+                                    $("#highCompany").val(data.data.highCompany);
                                 $scope.addPage.data.highPositionName = data.data.highPositionName;
+                                if(data.data.highPositionName)
+                                    $("#highPositionName").val(data.data.highPositionName);
                                 Loading.hide();
                                 $scope.pageDialog.show();
                             }, function (error) {

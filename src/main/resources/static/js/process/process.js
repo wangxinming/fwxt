@@ -1564,6 +1564,8 @@
                     $('#orderForm').html(data.data.templateHtml);
                     $scope.pms = data.pms;
                     $scope.pm = data.pm;
+                    if(data.pm)
+                        $("#pmList").val(data.pm);
                     $scope.fields = data.fields;
                     $scope.contractName = data.title;
                     $scope.buyer = data.buyer;

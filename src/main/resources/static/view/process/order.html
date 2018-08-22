@@ -48,7 +48,7 @@
                 <label  style="font-size: 16px;" >项目经理<span class="required">*</span></label>
                 <!--<select ui-select2="{allowClear : true}" class="select2" ng-model="pm" name="pmList" style="width: 70%" id="pmList" ng-options="template.userName as template.userName+' :' + template.userPosition for template in pms" >-->
                 <select ui-select2="{allowClear : true}" class="select2" ng-model="pm" name="pmList" style="width: 70%" id="pmList"  >
-                    <option value=""> --- 请选择 --- </option>
+                    <option value=""> --- 请选择项目经理 --- </option>
                     <option ng-repeat="template in pms" value="{{template.userName}}">{{template.userName}}: {{template.userPosition}}</option>
                 </select>
                 <!--<select ui-select2 ng-model="number" data-placeholder="Pick a number" ng-required="true">-->

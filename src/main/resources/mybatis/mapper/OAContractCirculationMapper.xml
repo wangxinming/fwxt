@@ -81,6 +81,59 @@
     </if>
     group by ENTERPRISE_ID
   </select>
+
+
+  <select id="groupFieldEnterpriseReport" resultMap="hashmap">
+    SELECT tmp.ENTERPRISE_ID,count(tmp.ENTERPRISE_ID) as y FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,
+        circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
+        from OA_CONTRACT_CIRCULATION circulation LEFT OUTER JOIN ACT_HI_VARINST var
+    ON circulation.PROCESSINSTANCE_ID = var.PROC_INST_ID_ WHERE 1=1
+      <if test="enterpriseId != null" >
+        and circulation.ENTERPRISE_ID=#{enterpriseId}
+      </if>
+      <if test="templateId != null" >
+        and circulation.TEMPLATE_ID=#{templateId}
+      </if>
+      <if test="contractStatus != null" >
+        and circulation.CONTRACT_STATUS=#{contractStatus}
+      </if>
+      <if test="contractReopen != null" >
+        and circulation.CONTRACT_REOPEN=#{contractReopen}
+      </if>
+      <if test="field != null" >
+        and var.NAME_=#{field}
+      </if>
+      <if test="condition != null" >
+        and var.TEXT_ like CONCAT('%',#{condition},'%' )
+      </if>
+       ) tmp group by tmp.ENTERPRISE_ID
+  </select>
+
+  <select id="groupFieldUserReport" resultMap="hashmap">
+    SELECT tmp.USER_ID,count(tmp.USER_ID) as y FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,
+    circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
+    from OA_CONTRACT_CIRCULATION circulation LEFT OUTER JOIN ACT_HI_VARINST var
+    ON circulation.PROCESSINSTANCE_ID = var.PROC_INST_ID_ WHERE 1=1
+    <if test="userId != null" >
+      and circulation.USER_ID=#{userId}
+    </if>
+    <if test="templateId != null" >
+      and circulation.TEMPLATE_ID=#{templateId}
+    </if>
+    <if test="contractStatus != null" >
+      and circulation.CONTRACT_STATUS=#{contractStatus}
+    </if>
+    <if test="contractReopen != null" >
+      and circulation.CONTRACT_REOPEN=#{contractReopen}
+    </if>
+    <if test="field != null" >
+      and var.NAME_=#{field}
+    </if>
+    <if test="condition != null" >
+      and var.TEXT_ like CONCAT('%',#{condition},'%' )
+    </if>
+    ) tmp group by tmp.USER_ID
+  </select>
   <select id="total" resultType="java.lang.Integer">
     SELECT count(CONTRACT_ID) from OA_CONTRACT_CIRCULATION
          where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME <![CDATA[ <= ]]> #{endTime}

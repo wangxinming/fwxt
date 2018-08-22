@@ -8,7 +8,9 @@ public class ReportResult {
     private Integer refuse;
     private String rate;
     public ReportResult(){
-
+        this.total = 0;
+        this.complete = 0;
+        this.refuse = 0;
     }
     public ReportResult(String enterprise,Integer enterpriseId,Integer total,Integer complete,Integer refuse,String rate){
         this.enterprise = enterprise;

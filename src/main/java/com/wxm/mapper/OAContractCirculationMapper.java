@@ -44,4 +44,22 @@ public interface OAContractCirculationMapper {
     List<ReportItem> groupEnterpriseReport(@Param("startTime") Date startTime, @Param("endTime") Date endTime,
                                  @Param("contractStatus") String contractStatus,
                                  @Param("enterpriseId") Integer enterpriseId, @Param("templateId") Integer templateId, @Param("contractReopen") Integer contractReopen);
+
+
+    List<ReportItem> groupFieldEnterpriseReport(@Param("startTime") Date startTime, @Param("endTime") Date endTime,
+                                                @Param("field") String field,
+                                                @Param("condition") String condition,
+                                                @Param("contractStatus") String contractStatus,
+                                                @Param("enterpriseId") Integer enterpriseId,
+                                                @Param("templateId") Integer templateId,
+                                                @Param("contractReopen") Integer contractReopen);
+
+
+    List<ReportItem> groupFieldUserReport(@Param("startTime") Date startTime, @Param("endTime") Date endTime,
+                                                @Param("field") String field,
+                                                @Param("condition") String condition,
+                                                @Param("contractStatus") String contractStatus,
+                                                @Param("userId") Integer userId,
+                                                @Param("templateId") Integer templateId,
+                                                @Param("contractReopen") Integer contractReopen);
 }

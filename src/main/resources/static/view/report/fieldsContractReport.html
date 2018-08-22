@@ -64,16 +64,24 @@
                     </select>
                 </div>
             </div>
-
             <div class="col-md-4 form-group">
                 <label for="fromDateEx" class="col-lg-4 control-label">统计字段</label>
                 <div class="col-lg-8">
                     <!--<input type="text" placeholder="合同类别" value="" ng-model="searchPage.data.parentCompany" required>-->
                     <select  class="form-control"  ng-model="searchPage.data.contractType"  ng-options="item.templateId as item.templateName for item in templates ">
-                        <option value=""> --- 请选择合同类别 --- </option>
+                        <option value=""> --- 请选择合同字段 --- </option>
                     </select>
                 </div>
             </div>
+            <div class="col-md-4 form-group">
+                <label for="fromDateEx" class="col-lg-4 control-label">统计条件</label>
+                <div class="col-lg-8">
+                    <input type="text" placeholder="关键字" value="" ng-model="searchPage.data.condition" required>
+                </div>
+            </div>
+
+
+
         </div>
     </form>
         <div class="row">
