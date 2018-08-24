@@ -63,8 +63,8 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     }
 
     @Override
-    public Integer total(String contractStatus,String contractType,Date startTime, Date endTime) {
-        return oaContractCirculationMapper.total(contractStatus,contractType,startTime,endTime);
+    public Integer total(String contractStatus,Integer templateId,Integer contractReopen,String contractType,Date startTime, Date endTime) {
+        return oaContractCirculationMapper.total(contractStatus,templateId,contractReopen,contractType,startTime,endTime);
     }
 
     @Override
@@ -78,12 +78,22 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     }
 
     @Override
-    public Integer groupUserReport(Date startTime, Date endTime, String contractStatus, Integer userId, Integer templateId, Integer contractReopen) {
-        return oaContractCirculationMapper.groupUserReport(startTime,endTime,contractStatus,userId,templateId,contractReopen);
+    public Integer groupUserReport(Date startTime, Date endTime, String contractType, String contractStatus, Integer userId, Integer templateId, Integer contractReopen) {
+        return oaContractCirculationMapper.groupUserReport(startTime,endTime,contractType,contractStatus,userId,templateId,contractReopen);
     }
 
     @Override
-    public List<ReportItem> groupEnterpriseReport(Date startTime, Date endTime, String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen) {
-        return oaContractCirculationMapper.groupEnterpriseReport(startTime,endTime,contractStatus,enterpriseId,templateId,contractReopen);
+    public List<ReportItem> groupEnterpriseReport(Date startTime, Date endTime, String contractType, String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen) {
+        return oaContractCirculationMapper.groupEnterpriseReport(startTime,endTime,contractType,contractStatus,enterpriseId,templateId,contractReopen);
+    }
+
+    @Override
+    public List<ReportItem> groupFieldEnterpriseReport(Date startTime, Date endTime, String contractType, String field, String condition, String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen) {
+        return oaContractCirculationMapper.groupFieldEnterpriseReport(startTime,endTime,contractType,field,condition,contractStatus,enterpriseId,templateId,contractReopen);
+    }
+
+    @Override
+    public List<ReportItem> groupFieldUserReport(Date startTime, Date endTime, String contractType, String field, String condition, String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen) {
+        return oaContractCirculationMapper.groupFieldUserReport(startTime,endTime,contractType,field,condition,contractStatus,enterpriseId,templateId,contractReopen);
     }
 }

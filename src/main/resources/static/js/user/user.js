@@ -303,6 +303,8 @@
                 contractPromoter: {method:'GET',url:"/report/getContractPromoter", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 parentEnterpriseReport: {method:'GET',url:"/report/parentEnterpriseReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 locationReport: {method:'GET',url:"/report/locationReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                fieldReport: {method:'GET',url:"/report/fieldReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                nonFormatReport: {method:'GET',url:"/report/nonFormatReport", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
 
                 locationList: {method:'GET',url:"/report/locationList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 provinceList: {method:'GET',url:"/report/provinceList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
@@ -2291,8 +2293,15 @@
                 '                            <ul>';
             //<img src="/assets/img/m14.png" style="width: 25px;margin-right: 10px;"/>
             //<img src="/assets/img/m15.png" style="width: 25px;margin-right: 10px;"/>
-            var privateReport  = ' <li><a href="/index.html#/privateReport">个人任务统计</a></li>';
-            var fawu = '<li><a href="/index.html#/fawuReport">法务任务统计</a></li>';
+            var parentEnterpriseReport          = ' <li><a href="/index.html#/parentEnterpriseReport">总公司合同统计</a></li>';
+            var secondaryEnterpriseReport       = ' <li><a href="/index.html#/secondaryEnterpriseReport">二级公司合同统计</a></li>';
+            var thirdEnterpriseReport           = ' <li><a href="/index.html#/thirdEnterpriseReport">三级公司合同统计</a></li>';
+            var locationEnterpriseReport        = ' <li><a href="/index.html#/locationEnterpriseReport">区域公司合同统计</a></li>';
+            var fieldEnterpriseReport           = ' <li><a href="/index.html#/fieldEnterpriseReport">特别字段合同统计</a></li>';
+            var nonFormatEnterpriseReport       = ' <li><a href="/index.html#/nonFormatEnterpriseReport">非格式合同统计</a></li>';
+
+            var privateReport                   = ' <li><a href="/index.html#/privateReport">个人任务统计</a></li>';
+            var fawu                            = '<li><a href="/index.html#/fawuReport">法务任务统计</a></li>';
 
             var logParent = '                <li class="sidebar-dropdown">\n' +
                 '                            <a id="log"><i class="fa fa-bar-chart-o"></i><span>系统日志文件模块</span></a>\n' +
@@ -2382,6 +2391,13 @@
                         tmp += privateReport;
                     }
                     if(data.fawuReport){
+
+                        tmp+=parentEnterpriseReport;
+                        tmp+=secondaryEnterpriseReport;
+                        tmp+=thirdEnterpriseReport;
+                        tmp+=locationEnterpriseReport;
+                        tmp+=fieldEnterpriseReport;
+                        tmp+=nonFormatEnterpriseReport;
                         tmp += fawu;
                     }
                     if(tmp.length > 0){

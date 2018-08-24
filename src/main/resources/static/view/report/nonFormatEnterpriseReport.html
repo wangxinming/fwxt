@@ -19,14 +19,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-md-4 form-group">
-                <label class="col-lg-4 control-label">合同发起人</label>
-                <div class="col-lg-8">
-                    <select  class="form-control"  ng-model="searchPage.data.contractPromoter"  ng-options="item.userId as item.userName for item in contractPromoters ">
-                        <option value=""> --- 请选择合同发起人 --- </option>
-                    </select>
-                </div>
-            </div>
+
 
             <div class="col-md-4 form-group">
                 <label class="col-lg-4 control-label">下级公司</label>
@@ -56,9 +49,17 @@
                            required/>
                 </div>
             </div>
+            <div class="col-md-4 form-group">
+                <label class="col-lg-4 control-label">合同发起人</label>
+                <div class="col-lg-8">
+                    <select  class="form-control"  ng-model="searchPage.data.contractPromoter"  ng-options="item.userId as item.userName for item in contractPromoters ">
+                        <option value=""> --- 请选择合同发起人 --- </option>
+                    </select>
+                </div>
+            </div>
         </div>
         <div class="row">
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <div class="list_button" >
                     <div class="input-group">
                         <span class="input-group-btn">
@@ -73,4 +74,25 @@
         </div>
     </form>
     <table jq-table="listPage.settings" class="table"></table>
+    <div style="margin-top: 20px">
+        <div class="col-md-2 form-group">
+            <div class="list_button" >
+                <div class="input-group">
+                    <span class="input-group-btn">
+						    <button class="btn blue" ng-click="searchPage.action.pie()" type="button">图形输出</button>
+                        </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-5" ng-show="listPage.graph==true">
+        <!--<div id="container" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"> </div>-->
+        <highchart id="chartConfigPie" config="chartConfigPie" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"></highchart>
+    </div>
+    <div class="col-sm-6" ng-show="listPage.graph==false">
+        <!--<div id="container" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"> </div>-->
+        <highchart id="chartConfigColumn" config="chartConfigColumn" style="min-width: 310px; height: 310px; max-width: 600px; margin: 0 auto"></highchart>
+        <!--<highchart id="chartColumn" config="chartConfigColumn" ></highchart>-->
+    </div>
 </div>

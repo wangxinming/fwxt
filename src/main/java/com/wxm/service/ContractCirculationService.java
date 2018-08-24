@@ -20,10 +20,12 @@ public interface ContractCirculationService {
     Integer update(OAContractCirculationWithBLOBs oaContractTemplate);
     Integer delete(int id);
     List<ReportItem> count(Date startTime, Date endTime);
-    Integer total(String contractStatus,String contractType,Date startTime, Date endTime);
+    Integer total(String contractStatus,Integer templateId,Integer contractReopen,String contractType,Date startTime, Date endTime);
     Integer groupCount(Date startTime, Date endTime);
     List<ReportItem> group(Date startTime, Date endTime, Integer offset,  Integer limit);
-    Integer groupUserReport(Date startTime, Date endTime, String contractStatus, Integer userId, Integer templateId, Integer contractReopen);
-    List<ReportItem> groupEnterpriseReport(Date startTime, Date endTime, String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen);
+    Integer groupUserReport(Date startTime, Date endTime, String contractType, String contractStatus, Integer userId, Integer templateId, Integer contractReopen);
+    List<ReportItem> groupEnterpriseReport(Date startTime, Date endTime, String contractType,String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen);
+    List<ReportItem> groupFieldEnterpriseReport(Date startTime, Date endTime, String contractType, String field,String condition,String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen);
+    List<ReportItem> groupFieldUserReport(Date startTime, Date endTime, String contractType, String field,String condition, String contractStatus, Integer enterpriseId, Integer templateId, Integer contractReopen);
 
 }

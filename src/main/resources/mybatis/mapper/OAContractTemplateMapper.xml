@@ -42,7 +42,7 @@
   <select id="listTemplate" resultMap="BaseResultMap" >
     SELECT
     <include refid="Base_Column_List" />
-    from OA_CONTRACT_TEMPLATE where TEMPLATE_STATUS=1
+    from OA_CONTRACT_TEMPLATE where TEMPLATE_STATUS=1 and TEMPLATE_NAME not LIKE '%自定义%'
   </select>
   <select id="list" resultMap="BaseResultMapUser">
     select top ${limit} *,oaUser.USER_NAME from OA_CONTRACT_TEMPLATE template,OA_USER oaUser where TEMPLATE_ID not

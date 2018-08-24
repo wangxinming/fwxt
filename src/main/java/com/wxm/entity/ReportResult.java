@@ -15,9 +15,9 @@ public class ReportResult {
     public ReportResult(String enterprise,Integer enterpriseId,Integer total,Integer complete,Integer refuse,String rate){
         this.enterprise = enterprise;
         this.enterpriseId = enterpriseId;
-        this.total = 0;
-        this.complete = 0;
-        this.refuse = 0;
+        this.total = total;
+        this.complete = complete;
+        this.refuse = refuse;
         this.rate = rate;
     }
 

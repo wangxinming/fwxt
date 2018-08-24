@@ -53,6 +53,9 @@
     <if test="userId != null" >
       and USER_ID=#{userId}
     </if>
+    <if test="contractType != null" >
+      and DESCRIPTION=#{contractType}
+    </if>
     <if test="templateId != null" >
       and TEMPLATE_ID=#{templateId}
     </if>
@@ -70,6 +73,9 @@
     <if test="enterpriseId != null" >
       and ENTERPRISE_ID=#{enterpriseId}
     </if>
+    <if test="contractType != null" >
+      and DESCRIPTION=#{contractType}
+    </if>
     <if test="templateId != null" >
       and TEMPLATE_ID=#{templateId}
     </if>
@@ -84,12 +90,15 @@
 
 
   <select id="groupFieldEnterpriseReport" resultMap="hashmap">
-    SELECT tmp.ENTERPRISE_ID,count(tmp.ENTERPRISE_ID) as y FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,
+    SELECT tmp.ENTERPRISE_ID as id,count(tmp.ENTERPRISE_ID) as y FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,
         circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
         from OA_CONTRACT_CIRCULATION circulation LEFT OUTER JOIN ACT_HI_VARINST var
     ON circulation.PROCESSINSTANCE_ID = var.PROC_INST_ID_ WHERE 1=1
       <if test="enterpriseId != null" >
         and circulation.ENTERPRISE_ID=#{enterpriseId}
+      </if>
+      <if test="contractType != null" >
+        and circulation.DESCRIPTION=#{contractType}
       </if>
       <if test="templateId != null" >
         and circulation.TEMPLATE_ID=#{templateId}
@@ -117,6 +126,9 @@
     <if test="userId != null" >
       and circulation.USER_ID=#{userId}
     </if>
+    <if test="contractType != null" >
+      and circulation.DESCRIPTION=#{contractType}
+    </if>
     <if test="templateId != null" >
       and circulation.TEMPLATE_ID=#{templateId}
     </if>
@@ -137,9 +149,17 @@
   <select id="total" resultType="java.lang.Integer">
     SELECT count(CONTRACT_ID) from OA_CONTRACT_CIRCULATION
          where CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME <![CDATA[ <= ]]> #{endTime}
-          and CONTRACT_STATUS= #{contractStatus}
         <if test="contractType != null" >
           and DESCRIPTION = #{contractType}
+        </if>
+        <if test="contractStatus != null" >
+          and CONTRACT_STATUS = #{contractStatus}
+        </if>
+        <if test="templateId != null" >
+          and TEMPLATE_ID = #{templateId}
+        </if>
+        <if test="contractReopen != null" >
+          and CONTRACT_REOPEN = #{contractReopen}
         </if>
   </select>
     <select id="groupCount" resultType="java.lang.Integer">

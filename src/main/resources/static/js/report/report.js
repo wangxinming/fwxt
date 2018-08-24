@@ -30,7 +30,7 @@
                     templateUrl: 'view/report/nonFormatEnterpriseReport.html',
                     controller: 'nonFormatEnterpriseReport.controller'})
                 .when('/fieldEnterpriseReport', {
-                    templateUrl: 'view/report/fieldEnterpriseReport.html',
+                    templateUrl: 'view/report/fieldsContractReport.html',
                     controller: 'fieldEnterpriseReport.controller'})
                 .when('/rejectReport', {
                     templateUrl: 'view/report/rejectReport.html',
@@ -45,8 +45,6 @@
                 data: {
                     startTime: $filter('date')(new Date(current.getTime() - 60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss')
-
-
                 },
                 init: function () {
                     $scope.searchPage.data = {
@@ -280,8 +278,8 @@
                     },
                     chart: {
                         type: 'pie',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         pie: {
@@ -335,8 +333,8 @@
                     },
                     chart: {
                         type: 'column',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         series: {
@@ -625,8 +623,8 @@
                     },
                     chart: {
                         type: 'pie',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         pie: {
@@ -1016,8 +1014,8 @@
                     },
                     chart: {
                         type: 'pie',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         pie: {
@@ -1071,8 +1069,8 @@
                     },
                     chart: {
                         type: 'column',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         series: {
@@ -1212,6 +1210,11 @@
                     reset:function () {
                         $scope.searchPage.init();
                     },
+                    export:function () {
+                        window.open("report/locationReportExcel?startTime="+ $scope.searchPage.data.startTime+
+                            "&endTime="+ $scope.searchPage.data.endTime
+                        );
+                    },
                     pie:function () {
                         var i = 0;
                         var total = {name: '发起合同数量', data: []};
@@ -1292,7 +1295,7 @@
                         loader.locationList({}, function (data) {
                             if (data.result == "success") {
                                 $scope.locations = data.locations;
-                                // $scope.templates = data.templates;
+                                $scope.templates = data.templates;
                                 Loading.hide();
                                 $scope.listPage.settings.reload(true);
                             }
@@ -1398,8 +1401,8 @@
                     },
                     chart: {
                         type: 'pie',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         pie: {
@@ -1453,8 +1456,8 @@
                     },
                     chart: {
                         type: 'column',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         series: {
@@ -1769,7 +1772,7 @@
                         }
                         // $scope.searchPage.data.offset = search.offset;
                         // $scope.searchPage.data.limit = search.limit;
-                        loader.locationReport($scope.searchPage.data, function (data) {
+                        loader.nonFormatReport($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
                         }, function (error) {
@@ -1791,8 +1794,8 @@
                     },
                     chart: {
                         type: 'pie',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         pie: {
@@ -1846,8 +1849,8 @@
                     },
                     chart: {
                         type: 'column',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         series: {
@@ -2170,7 +2173,7 @@
                         }
                         // $scope.searchPage.data.offset = search.offset;
                         // $scope.searchPage.data.limit = search.limit;
-                        loader.parentEnterpriseReport($scope.searchPage.data, function (data) {
+                        loader.fieldReport($scope.searchPage.data, function (data) {
                             $scope.listPage.data = data.rows;
                             fnCallback(data);
                         }, function (error) {
@@ -2192,8 +2195,8 @@
                     },
                     chart: {
                         type: 'pie',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         pie: {
@@ -2247,8 +2250,8 @@
                     },
                     chart: {
                         type: 'column',
-                        backgroundColor:'#eff3f8',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         series: {
@@ -2557,8 +2560,8 @@
                         enabled: false
                     },
                     chart: {
-                        type: 'pie',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        type: 'pie'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         pie: {
@@ -2807,8 +2810,8 @@
                         enabled: false
                     },
                     chart: {
-                        type: 'pie',
-                        margin: [0, 0, 0, 0] //距离上下左右的距离值
+                        type: 'pie'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },
                     plotOptions: {
                         pie: {

@@ -25,15 +25,6 @@
                     <input type="checkbox"  ng-model="searchPage.data.subCompany" />
                 </div>
             </div>
-
-            <div class="col-md-4 form-group">
-                <label class="col-lg-4 control-label">合同发起人</label>
-                <div class="col-lg-8">
-                    <select  class="form-control"  ng-model="searchPage.data.contractPromoter"  ng-options="item.userId as item.userName for item in contractPromoters ">
-                        <option value=""> --- 请选择合同发起人 --- </option>
-                    </select>
-                </div>
-            </div>
         </div>
         <div class="row">
             <div class="col-md-4 form-group">
@@ -56,6 +47,16 @@
                 </div>
             </div>
             <div class="col-md-4 form-group">
+                <label class="col-lg-4 control-label">合同发起人</label>
+                <div class="col-lg-8">
+                    <select  class="form-control"  ng-model="searchPage.data.contractPromoter"  ng-options="item.userId as item.userName for item in contractPromoters ">
+                        <option value=""> --- 请选择合同发起人 --- </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 form-group">
                 <label for="fromDateEx" class="col-lg-4 control-label">合同类别</label>
                 <div class="col-lg-8">
                     <!--<input type="text" placeholder="合同类别" value="" ng-model="searchPage.data.parentCompany" required>-->
@@ -68,7 +69,7 @@
                 <label for="fromDateEx" class="col-lg-4 control-label">统计字段</label>
                 <div class="col-lg-8">
                     <!--<input type="text" placeholder="合同类别" value="" ng-model="searchPage.data.parentCompany" required>-->
-                    <select  class="form-control"  ng-model="searchPage.data.contractType"  ng-options="item.templateId as item.templateName for item in templates ">
+                    <select  class="form-control"  ng-model="searchPage.data.field"  ng-options="item.templateId as item.templateName for item in templates ">
                         <option value=""> --- 请选择合同字段 --- </option>
                     </select>
                 </div>
@@ -79,21 +80,21 @@
                     <input type="text" placeholder="关键字" value="" ng-model="searchPage.data.condition" required>
                 </div>
             </div>
-
-
-
         </div>
     </form>
         <div class="row">
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                     <div class="list_button" >
                         <div class="input-group">
-                                <span class="input-group-btn">
-                                    <button class="btn blue" ng-click="searchPage.action.search()" type="button">统计</button>
-                                </span>
                             <span class="input-group-btn">
-                                    <button class="btn blue" ng-click="searchPage.action.reset()" type="button">条件重置</button>
-                                </span>
+                                <button class="btn blue" ng-click="searchPage.action.search()" type="button">统计</button>
+                            </span>
+                            <span class="input-group-btn">
+                                <button class="btn blue" ng-click="searchPage.action.export()" type="button">导出excel</button>
+                            </span>
+                            <span class="input-group-btn">
+                                <button class="btn blue" ng-click="searchPage.action.reset()" type="button">条件重置</button>
+                            </span>
                         </div>
                     </div>
                 </div>
