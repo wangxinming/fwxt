@@ -473,6 +473,7 @@
                 data: {
                     startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    subCompany:true,
                     headOffice:2
                     // limit: 10, //每页条数(即取多少条数据)
                     // offset: 0 //从第几条数据开始取
@@ -482,6 +483,7 @@
                     $scope.searchPage.data = {
                         startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                         endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        subCompany:true,
                         headOffice:2
                     }
                 },
@@ -811,6 +813,7 @@
                 data: {
                     startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    subCompany:true,
                     headOffice:3
                     // limit: 10, //每页条数(即取多少条数据)
                     // offset: 0 //从第几条数据开始取
@@ -820,6 +823,7 @@
                     $scope.searchPage.data = {
                         startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                         endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        subCompany:true,
                         headOffice:3
                     }
                 },
@@ -2010,6 +2014,7 @@
                 data: {
                     startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    subCompany:true,
                     headOffice:2
                     // limit: 10, //每页条数(即取多少条数据)
                     // offset: 0 //从第几条数据开始取
@@ -2018,6 +2023,7 @@
                     $scope.searchPage.data = {
                         startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                         endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        subCompany:true,
                         headOffice:2
                     }
                 },
