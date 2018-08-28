@@ -32,7 +32,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public ReportResult caculateTotal(List<ReportResult> reportResults) {
+    public ReportResult caculateTotal(List<ReportResult> reportResults,String name) {
         Integer total = 0,complete = 0,refuse = 0;
         for(ReportResult reportResult:reportResults){
             if(null != reportResult.getTotal())
@@ -42,7 +42,7 @@ public class ReportServiceImpl implements ReportService {
             if(null != reportResult.getRefuse())
                 refuse += reportResult.getRefuse();
         }
-        return new ReportResult("总计",-1,total,complete,refuse,"");
+        return new ReportResult(name,-1,total,complete,refuse,"");
     }
 
     @Override
@@ -141,6 +141,57 @@ public class ReportServiceImpl implements ReportService {
                 }else {
                     reportResult.setEnterprise(tmp.getLocation()+"-"+tmp.getCompanyProvince());
                 }
+            }
+        }
+
+        Map<String, Integer> sumTotal = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingInt(ReportResult::getTotal)));
+
+        Map<String, Integer> sumComplete = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingInt(ReportResult::getComplete)));
+
+        Map<String, Integer> sumRefuse = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingInt(ReportResult::getRefuse)));
+
+        reportResults.clear();
+        for(Map.Entry entry : sumTotal.entrySet()){
+            ReportResult reportResult = new ReportResult((String) entry.getKey(),-1,
+                    (Integer) entry.getValue(),
+                    sumComplete.get(entry.getKey()).intValue(),sumRefuse.get(entry.getKey()).intValue(),"0.00%");
+            reportResults.add(reportResult);
+        }
+        return reportResults;
+    }
+
+    @Override
+    public List<ReportResult> typeByCompanyLevel(Map<Integer, OAEnterprise> map, List<ReportResult> reportResults, Integer level,boolean subCompany) {
+        for(ReportResult reportResult :reportResults){
+            if(level == 1){
+                if(map.get(reportResult.getEnterpriseId()).getCompanyLevel() != 1){
+                    continue;
+                }
+                reportResult.setEnterprise(map.get(reportResult.getEnterpriseId()).getCompanyName());
+            }else if(level == 2){
+                if(map.get(reportResult.getEnterpriseId()).getCompanyLevel() == 1){
+                    continue;
+                }
+                if(subCompany){
+                    if(map.get(reportResult.getEnterpriseId()).getCompanyLevel() == 3) {
+                        reportResult.setEnterprise(map.get(map.get(reportResult.getEnterpriseId()).getCompanyParent()).getCompanyName());
+                    }else{
+                        reportResult.setEnterprise(map.get(reportResult.getEnterpriseId()).getCompanyName());
+                    }
+                }else{
+                    if(map.get(reportResult.getEnterpriseId()).getCompanyLevel() != 2){
+                        continue;
+                    }
+                    reportResult.setEnterprise(map.get(reportResult.getEnterpriseId()).getCompanyName());
+                }
+            }else{
+                if(map.get(reportResult.getEnterpriseId()).getCompanyLevel() != 3){
+                    continue;
+                }
+                reportResult.setEnterprise(map.get(reportResult.getEnterpriseId()).getCompanyName());
             }
         }
 

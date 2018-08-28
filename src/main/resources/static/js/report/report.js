@@ -1980,21 +1980,22 @@
             }, true);
         }])
         .controller('fieldEnterpriseReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+
+            $scope.companyLevels = [{id:1,name:'总公司部门'},{id:2,name:'二级单位'},{id:3,name:'三级单位'}];
             var current = new Date();
             $scope.searchPage = {
                 data: {
                     startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
-                    headOffice:3
+                    headOffice:2
                     // limit: 10, //每页条数(即取多少条数据)
                     // offset: 0 //从第几条数据开始取
-
                 },
                 init: function () {
                     $scope.searchPage.data = {
                         startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                         endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
-                        headOffice:3
+                        headOffice:2
                     }
                 },
                 action:{
@@ -2077,7 +2078,7 @@
                 ready: false,
                 action:{
                     getContractPromoter:function () {
-                        loader.contractPromoter({"company":$scope.searchPage.data.parentCompany}, function (data) {
+                        loader.contractPromoter({"company":$scope.searchPage.data.parentCompany,"subCompany":$scope.searchPage.data.subCompany}, function (data) {
                             if (data.result == "success") {
                                 $scope.contractPromoters = data.users;
                             }
@@ -2086,7 +2087,7 @@
                     },
                     load:function(){
                         Loading.show();
-                        loader.queryParentsEnterprise({level:3}, function (data) {
+                        loader.queryParentsEnterprise({level:$scope.searchPage.data.headOffice}, function (data) {
                             if (data.result == "success") {
                                 $scope.parentEnterprise = data.enterprises;
                                 $scope.templates = data.templates;
@@ -2096,6 +2097,11 @@
                         }, function (error) {
                             Loading.hide();
                         });
+                    },
+                    export:function () {
+                        window.open("report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+
+                            "&endTime="+ $scope.searchPage.data.endTime
+                        );
                     },
                     pie:function () {
                         var i = 0;
@@ -2362,6 +2368,28 @@
                     [1, "desc"]
                 ]  //定义默认排序列为第8列倒序
             };
+
+            $scope.$watch("searchPage.data.headOffice", function (newVal, oldVal) {
+                $scope.listPage.action.load();
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                // $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+            $scope.$watch("searchPage.data.contractType", function (newVal, oldVal) {
+                // $scope.listPage.action.load();
+                Loading.show();
+                loader.getFieldList({id:$scope.searchPage.data.contractType,offset:0,limit:10000}, function (data) {
+                    if (data.result == "success") {
+                        $scope.templateFields = data.rows;
+                        Loading.hide();
+                    }
+                }, function (error) {
+                    Loading.hide();
+                });
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                // $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
 
             $scope.$watch("searchPage.data.parentCompany", function (newVal, oldVal) {
                 // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;

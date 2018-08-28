@@ -91,7 +91,7 @@
 
   <select id="groupFieldEnterpriseReport" resultMap="hashmap">
     SELECT tmp.ENTERPRISE_ID as id,count(tmp.ENTERPRISE_ID) as y FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,
-        circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
+        circulation.PROCESSINSTANCE_ID,circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
         from OA_CONTRACT_CIRCULATION circulation LEFT OUTER JOIN ACT_HI_VARINST var
     ON circulation.PROCESSINSTANCE_ID = var.PROC_INST_ID_ WHERE 1=1
       <if test="enterpriseId != null" >
@@ -120,7 +120,7 @@
 
   <select id="groupFieldUserReport" resultMap="hashmap">
     SELECT tmp.USER_ID,count(tmp.USER_ID) as y FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,
-    circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
+    circulation.PROCESSINSTANCE_ID,circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
     from OA_CONTRACT_CIRCULATION circulation LEFT OUTER JOIN ACT_HI_VARINST var
     ON circulation.PROCESSINSTANCE_ID = var.PROC_INST_ID_ WHERE 1=1
     <if test="userId != null" >
