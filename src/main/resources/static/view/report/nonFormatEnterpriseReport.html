@@ -5,7 +5,7 @@
             <div class="col-md-4 form-group">
                 <label class="col-lg-4 control-label">公司级别</label>
                 <div class="col-lg-8">
-                    <select  class="form-control"  ng-model="searchPage.data.parentCompany"  ng-options="item.enterpriseId as item.subCompanyName for item in parentEnterprise ">
+                    <select  class="form-control"  ng-model="searchPage.data.headOffice"  ng-options="item.id as item.name for item in companyLevels ">
                         <option value=""> --- 请选择公司级别 --- </option>
                     </select>
                 </div>
@@ -14,7 +14,7 @@
             <div class="col-md-4 form-group">
                 <label class="col-lg-4 control-label">公司名称</label>
                 <div class="col-lg-8">
-                    <select  class="form-control"  ng-model="searchPage.data.contractPromoter"  ng-options="item.userId as item.userName for item in contractPromoters ">
+                    <select  class="form-control"  ng-model="searchPage.data.parentCompany"  ng-options="item.enterpriseId as item.companyName for item in parentEnterprise ">
                         <option value=""> --- 请选择公司名称 --- </option>
                     </select>
                 </div>
@@ -64,6 +64,9 @@
                     <div class="input-group">
                         <span class="input-group-btn">
 						    <button class="btn blue" ng-click="searchPage.action.search()" type="button">统计</button>
+                        </span>
+                        <span class="input-group-btn">
+                            <button class="btn blue" ng-click="searchPage.action.export()" type="button">导出excel</button>
                         </span>
                         <span class="input-group-btn">
 						    <button class="btn blue" ng-click="searchPage.action.reset()" type="button">条件重置</button>

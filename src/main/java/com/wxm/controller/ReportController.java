@@ -457,34 +457,15 @@ public class ReportController {
                     reportResult.setTotal(ri.getY());
                     if (mapCompleted.containsKey(ri.getId())) {
                         reportResult.setComplete(mapCompleted.get(ri.getId()).getY());
-                    } else {
-                        reportResult.setComplete(0);
                     }
                     if (mapRefused.containsKey(ri.getId())) {
                         reportResult.setRefuse(mapRefused.get(ri.getId()).getY());
-                    } else {
-                        reportResult.setRefuse(0);
                     }
-                    if (reportResult.getTotal() > 0 && reportResult.getComplete() != null) {
-                        NumberFormat numberFormat = NumberFormat.getInstance();
-                        // 设置精确到小数点后2位
-                        numberFormat.setMaximumFractionDigits(2);
-                        reportResult.setRate(numberFormat.format((float) reportResult.getComplete() / (float) reportResult.getTotal() * 100) + "%");
-                    } else {
-                        reportResult.setRate("0.00%");
-                    }
+                    reportResults = reportService.caculateRate(reportResults);
                 }
                 result.put("rows",reportResults);
                 result.put("total",reportResults.size());
             }
-
-
-//            List<HistoricVariableInstance> historicVariableInstanceList = historyService
-//                    .createHistoricVariableInstanceQuery()
-//                    .variableValueLikeIgnoreCase(field,condition)
-//                    .list();
-
-
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result", "failed");
@@ -502,7 +483,7 @@ public class ReportController {
                                     @RequestParam(value = "contractPromoter", required = false) Integer contractPromoter,
                                     @RequestParam(value = "contractType", required = false) Integer contractType,
                                     @RequestParam(value = "startTime", required = true) Date startTime,
-                                 @RequestParam(value = "endTime", required = true) Date endTime)throws Exception {
+                                    @RequestParam(value = "endTime", required = true) Date endTime)throws Exception {
         com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
         if (null == loginUser) {
             LOGGER.error("用户未登录");
@@ -510,100 +491,137 @@ public class ReportController {
         }
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
+        List<ReportResult> reportResults = new LinkedList<>();
         try{
-            //查询 所有公司
-//                    List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseList("总公司",0,500);
-            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByLevel(headOffice);
-            Map<Integer,OAEnterprise> map = new LinkedHashMap<>();
-            for(OAEnterprise oaEnterprise : oaEnterpriseList){
-                map.put(oaEnterprise.getEnterpriseId(),oaEnterprise);
-                if(subCompany){
-                    oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getEnterpriseId());
-                    for(OAEnterprise oaEnterprise1 : oaEnterpriseList){
-                        map.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+            if(parentCompany == null || parentCompany < 1 ){
+                List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByLevel(headOffice);
+                Map<Integer,OAEnterprise> map = reportService.listEnterprise(oaEnterpriseList,subCompany);
+                Map<Integer,ReportItem> mapCompleted = new LinkedHashMap<>();
+                // 归档数量
+                List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom","completed",null,contractType,null);
+                for(ReportItem reportItem:reportItemList1){
+                    if(map.containsKey(reportItem.getId())){
+                        reportItem.setName(map.get(reportItem.getId()).getCompanyName());
+                        mapCompleted.put(reportItem.getId(),reportItem);
                     }
                 }
-            }
 
-            Map<Integer,ReportItem> mapCompleted = new LinkedHashMap<>();
-            // 归档数量
-            List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom","completed",null,contractType,null);
-            for(ReportItem reportItem:reportItemList1){
-                if(map.containsKey(reportItem.getId())){
-                    reportItem.setName(map.get(reportItem.getId()).getCompanyName());
-                    mapCompleted.put(reportItem.getId(),reportItem);
+                // 退回数量
+                Map<Integer,ReportItem> mapRefused = new LinkedHashMap<>();
+                List<ReportItem> reportItemList2 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom",null,null,contractType,1);
+                for(ReportItem reportItem:reportItemList2){
+                    if(map.containsKey(reportItem.getId())){
+                        reportItem.setName(map.get(reportItem.getId()).getCompanyName());
+                        mapRefused.put(reportItem.getId(),reportItem);
+                    }
                 }
-            }
-
-            // 退回数量
-            Map<Integer,ReportItem> mapRefused = new LinkedHashMap<>();
-            List<ReportItem> reportItemList2 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom",null,null,contractType,1);
-            for(ReportItem reportItem:reportItemList2){
-                if(map.containsKey(reportItem.getId())){
-                    reportItem.setName(map.get(reportItem.getId()).getCompanyName());
-                    mapRefused.put(reportItem.getId(),reportItem);
+                //发起数量
+                Map<Integer,ReportItem> mapTotal = new LinkedHashMap<>();
+                List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom",null,null,contractType,null);
+                for(ReportItem reportItem:reportItemList3){
+                    if(map.containsKey(reportItem.getId())){
+                        reportItem.setName(map.get(reportItem.getId()).getCompanyName());
+                        mapTotal.put(reportItem.getId(),reportItem);
+                    }
                 }
-            }
-            //发起数量
-            Map<Integer,ReportItem> mapTotal = new LinkedHashMap<>();
-            List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom",null,null,contractType,null);
-            for(ReportItem reportItem:reportItemList3){
-                if(map.containsKey(reportItem.getId())){
-                    reportItem.setName(map.get(reportItem.getId()).getCompanyName());
-                    mapTotal.put(reportItem.getId(),reportItem);
+                for(ReportItem ri:mapTotal.values() ){
+                    ReportResult reportResult = new ReportResult();
+                    reportResults.add(reportResult);
+                    reportResult.setEnterprise(map.get(ri.getId()).getCompanyName());
+                    reportResult.setEnterpriseId(ri.getId());
+                    reportResult.setTotal(ri.getY());
+                    if(mapCompleted.containsKey(ri.getId())) {
+                        reportResult.setComplete(mapCompleted.get(ri.getId()).getY());
+                    }
+                    if(mapRefused.containsKey(ri.getId())) {
+                        reportResult.setRefuse(mapRefused.get(ri.getId()).getY());
+                    }
                 }
-            }
-
-            List<ReportResult> reportResults = new LinkedList<>();
-            for(ReportItem ri:mapTotal.values() ){
-                ReportResult reportResult = new ReportResult();
-                reportResults.add(reportResult);
-                reportResult.setEnterprise(map.get(ri.getId()).getCompanyName());
-                reportResult.setTotal(ri.getY());
-                if(mapCompleted.containsKey(ri.getId())) {
-                    reportResult.setComplete(mapCompleted.get(ri.getId()).getY());
-                }else{
-                    reportResult.setComplete(0);
-                }
-                if(mapRefused.containsKey(ri.getId())) {
-                    reportResult.setRefuse(mapRefused.get(ri.getId()).getY());
-                }else{
-                    reportResult.setRefuse(0);
-                }
-                if(reportResult.getTotal() > 0 && reportResult.getComplete() != null){
-                    NumberFormat numberFormat = NumberFormat.getInstance();
-                    // 设置精确到小数点后2位
-                    numberFormat.setMaximumFractionDigits(2);
-                    reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100)+"%");
-                }else{
-                    reportResult.setRate("0.00%");
-                }
-            }
-
-            Integer total = 0,complete = 0,refuse = 0;
-            for(ReportResult reportResult:reportResults){
-                if(null != reportResult.getTotal())
-                    total += reportResult.getTotal();
-                if(null != reportResult.getComplete())
-                    complete += reportResult.getComplete();
-                if(null != reportResult.getRefuse())
-                    refuse += reportResult.getRefuse();
-
-            }
-            ReportResult reportResult = new ReportResult();
-            reportResult.setEnterprise("总计");
-            reportResult.setTotal(total);
-            reportResult.setComplete(complete);
-            reportResult.setRefuse(refuse);
-            if(reportResult.getTotal() > 0 && reportResult.getComplete() != null){
-                NumberFormat numberFormat = NumberFormat.getInstance();
-                // 设置精确到小数点后2位
-                numberFormat.setMaximumFractionDigits(2);
-                reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100)+"%");
+                reportResults = reportService.typeByCompanyLevel(map,reportResults,headOffice,subCompany);
             }else{
-                reportResult.setRate("0.00%");
+                if(null == contractPromoter || contractPromoter < 1){
+                    //查询 所有公司
+                    List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(parentCompany);
+                    Map<Integer,OAEnterprise> map = reportService.listEnterprise(oaEnterpriseList,subCompany);
+                    Map<Integer,ReportItem> mapCompleted = new LinkedHashMap<>();
+                    OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(parentCompany);
+                    ReportResult reportResultTotal = new ReportResult("总计",-1,0,0,0,"");
+                    // 归档数量
+                    List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom","completed",null,contractType,null);
+                    for(ReportItem reportItem:reportItemList1){
+                        reportResultTotal.setComplete(reportItem.getY()+reportResultTotal.getComplete());
+                        if(map.containsKey(reportItem.getId())){
+                            reportItem.setName(map.get(reportItem.getId()).getCompanyName());
+                            mapCompleted.put(reportItem.getId(),reportItem);
+                        }
+                    }
+
+                    // 退回数量
+                    Map<Integer,ReportItem> mapRefused = new LinkedHashMap<>();
+                    List<ReportItem> reportItemList2 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom",null,null,contractType,1);
+                    for(ReportItem reportItem:reportItemList2){
+                        reportResultTotal.setRefuse(reportItem.getY()+reportResultTotal.getRefuse());
+                        if(map.containsKey(reportItem.getId())){
+                            reportItem.setName(map.get(reportItem.getId()).getCompanyName());
+                            mapRefused.put(reportItem.getId(),reportItem);
+                        }
+                    }
+                    //发起数量
+                    Map<Integer,ReportItem> mapTotal = new LinkedHashMap<>();
+                    List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom",null,null,contractType,null);
+                    for(ReportItem reportItem:reportItemList3){
+                        reportResultTotal.setTotal(reportItem.getY()+reportResultTotal.getTotal());
+                        if(map.containsKey(reportItem.getId())){
+                            reportItem.setName(map.get(reportItem.getId()).getCompanyName());
+                            mapTotal.put(reportItem.getId(),reportItem);
+                        }
+                    }
+                    for(ReportItem ri:mapTotal.values() ){
+                        ReportResult reportResult = new ReportResult();
+                        reportResults.add(reportResult);
+                        reportResult.setEnterprise(map.get(ri.getId()).getCompanyName());
+                        reportResult.setTotal(ri.getY());
+                        if(mapCompleted.containsKey(ri.getId())) {
+                            reportResult.setComplete(mapCompleted.get(ri.getId()).getY());
+                        }
+                        if(mapRefused.containsKey(ri.getId())) {
+                            reportResult.setRefuse(mapRefused.get(ri.getId()).getY());
+                        }
+                    }
+                    ReportResult reportResult = reportService.caculateTotal(reportResults,oaEnterprise.getCompanyName());
+                    reportResults.clear();
+                    reportResults.add(reportResult);
+                    ReportResult reportResultOther = new ReportResult("其他公司",-1,reportResultTotal.getTotal()-reportResult.getTotal(),
+                            reportResultTotal.getComplete()-reportResult.getComplete(),reportResultTotal.getRefuse()-reportResult.getRefuse(),"");
+                    reportResults.add(reportResultOther);
+
+                    reportResults.add(reportResultTotal);
+                }else{
+                    OAUser oaUser = userService.getUserById(contractPromoter);
+                    OAEnterprise enterprise = oaEnterpriseService.getEnterpriseById(oaUser.getEnterpriseId());
+                    // 归档数量
+                    Integer reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"custom","completed",contractPromoter,null,null);
+                    // 退回数量
+                    Integer reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,"custom",null,contractPromoter,null,1);
+                    //发起数量
+                    Integer reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,"custom",null,contractPromoter,null,null);
+
+                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(),enterprise.getEnterpriseId(),reportItemList1,reportItemList2,reportItemList3,"");
+
+                    reportResults.add(reportResult);
+                    reportResult.setEnterprise(enterprise.getCompanyName());
+                    reportResult.setComplete(reportItemList1);
+                    reportResult.setTotal(reportItemList3);
+                    reportResult.setRefuse(reportItemList2);
+
+                    reportResults = reportService.caculateRate(reportResults);
+                    result.put("rows",reportResults);
+                    result.put("total",reportResults.size());
+                }
+
             }
-            reportResults.add(reportResult);
+
+            reportResults = reportService.caculateRate(reportResults);
             result.put("rows",reportResults);
             result.put("total",reportResults.size());
         }catch (Exception e){

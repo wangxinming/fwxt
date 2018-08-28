@@ -189,17 +189,22 @@
                         }
                         else {
                             $scope.listPage.graph = true;
-                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            $scope.chartSeriesPie = [{type: 'pie',name:'',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
                                     tmp.y = $scope.listPage.data[i].total;
+                                    $scope.chartSeriesPie[0].name = '发起合同数量';
                                 }
-                                if($scope.listPage.refuse)
+                                if($scope.listPage.refuse) {
+                                    $scope.chartSeriesPie[0].name = '被打回合同数量';
                                     tmp.y = $scope.listPage.data[i].refuse;
-                                if($scope.listPage.complete)
+                                }
+                                if($scope.listPage.complete) {
+                                    $scope.chartSeriesPie[0].name = '存档合同数量';
                                     tmp.y = $scope.listPage.data[i].complete;
+                                }
                                 // if($scope.listPage.rate)
                                 //     tmp.add("y",$scope.listPage.data[i].rate);
 
@@ -344,7 +349,8 @@
                         },
                         column: {
                             pointPadding: 0.2,
-                            borderWidth: 0
+                            borderWidth: 0,
+                            maxPointWidth: 20
                         }
                     },
                     legend: {
@@ -689,7 +695,8 @@
                         },
                         column: {
                             pointPadding: 0.2,
-                            borderWidth: 0
+                            borderWidth: 0,
+                            maxPointWidth: 20
                         }
                     },
                     legend: {
@@ -1080,7 +1087,8 @@
                         },
                         column: {
                             pointPadding: 0.2,
-                            borderWidth: 0
+                            borderWidth: 0,
+                            maxPointWidth: 20
                         }
                     },
                     legend: {
@@ -1467,7 +1475,8 @@
                         },
                         column: {
                             pointPadding: 0.2,
-                            borderWidth: 0
+                            borderWidth: 0,
+                            maxPointWidth: 20
                         }
                     },
                     legend: {
@@ -1587,12 +1596,14 @@
             }, true);
         }])
         .controller('nonFormatEnterpriseReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+            $scope.companyLevels = [{id:1,name:'总公司部门'},{id:2,name:'二级单位'},{id:3,name:'三级单位'}];
             var current = new Date();
             $scope.searchPage = {
                 data: {
                     startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
-                    headOffice:3
+                    subCompany:true,
+                    headOffice:2
                     // limit: 10, //每页条数(即取多少条数据)
                     // offset: 0 //从第几条数据开始取
 
@@ -1601,12 +1612,18 @@
                     $scope.searchPage.data = {
                         startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                         endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
-                        headOffice:3
+                        subCompany:true,
+                        headOffice:2
                     }
                 },
                 action:{
                     reset:function () {
                         $scope.searchPage.init();
+                    },
+                    export:function () {
+                        window.open("report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+
+                            "&endTime="+ $scope.searchPage.data.endTime
+                        );
                     },
                     pie:function () {
                         var i = 0;
@@ -1685,15 +1702,23 @@
                 action:{
                     load:function(){
                         Loading.show();
-                        loader.locationList({}, function (data) {
+                        loader.queryParentsEnterprise({level:$scope.searchPage.data.headOffice}, function (data) {
                             if (data.result == "success") {
-                                $scope.locations = data.locations;
-                                // $scope.templates = data.templates;
+                                $scope.parentEnterprise = data.enterprises;
+                                $scope.templates = data.templates;
                                 Loading.hide();
                                 $scope.listPage.settings.reload(true);
                             }
                         }, function (error) {
                             Loading.hide();
+                        });
+                    },
+                    getContractPromoter:function () {
+                        loader.contractPromoter({"company":$scope.searchPage.data.parentCompany,"subCompany":$scope.searchPage.data.subCompany}, function (data) {
+                            if (data.result == "success") {
+                                $scope.contractPromoters = data.users;
+                            }
+                        }, function (error) {
                         });
                     },
                     pie:function () {
@@ -1802,7 +1827,7 @@
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
+                                enabled: false,
                                 format: '<b>{point.name}</b>: {point.y:.1f} 个',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
@@ -1830,7 +1855,8 @@
                         enabled: false
                     },
                     tooltip: {
-                        enabled: false
+                        // headerFormat: '{series.name}<br>',
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
                 legend: {
@@ -1860,7 +1886,9 @@
                         },
                         column: {
                             pointPadding: 0.2,
-                            borderWidth: 0
+                            borderWidth: 0,
+                            // pointWidth:25, //柱子宽度
+                            maxPointWidth: 20
                         }
                     },
                     legend: {
@@ -1917,7 +1945,7 @@
                 getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
                 columns: [
                     {
-                        sTitle: "部门名称",
+                        sTitle: "公司/部门名称",
                         mData: "enterprise",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
@@ -1962,21 +1990,16 @@
                 ]  //定义默认排序列为第8列倒序
             };
 
-            $scope.$watch("searchPage.data.location", function (newVal, oldVal) {
-                loader.provinceList({"location":$scope.searchPage.data.location}, function (data) {
-                    if (data.result == "success") {
-                        $scope.provinces = data.provinces;
-                    }
-                }, function (error) {
-                });
+            $scope.$watch("searchPage.data.headOffice", function (newVal, oldVal) {
+                $scope.listPage.action.load();
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                // $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
             }, true);
-            $scope.$watch("searchPage.data.province", function (newVal, oldVal) {
-                loader.cityList({"location":$scope.searchPage.data.location,"province":$scope.searchPage.data.province}, function (data) {
-                    if (data.result == "success") {
-                        $scope.cities = data.cities;
-                    }
-                }, function (error) {
-                });
+            $scope.$watch("searchPage.data.parentCompany", function (newVal, oldVal) {
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
             }, true);
         }])
         .controller('fieldEnterpriseReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
@@ -2267,7 +2290,8 @@
                         },
                         column: {
                             pointPadding: 0.2,
-                            borderWidth: 0
+                            borderWidth: 0,
+                            maxPointWidth: 20
                         }
                     },
                     legend: {
