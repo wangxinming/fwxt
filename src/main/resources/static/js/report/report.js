@@ -291,7 +291,7 @@
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
+                                enabled: false,
                                 format: '<b>{point.name}</b>: {point.y:.1f} 个',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
@@ -319,7 +319,7 @@
                         enabled: false
                     },
                     tooltip: {
-                        enabled: false
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
                 legend: {
@@ -639,7 +639,7 @@
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
+                                enabled: false,
                                 format: '<b>{point.name}</b>: {point.y:.1f} 个',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
@@ -667,7 +667,7 @@
                         enabled: false
                     },
                     tooltip: {
-                        enabled: false
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
                 legend: {
@@ -1033,7 +1033,7 @@
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
+                                enabled: false,
                                 format: '<b>{point.name}</b>: {point.y:.1f} 个',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
@@ -1061,7 +1061,7 @@
                         enabled: false
                     },
                     tooltip: {
-                        enabled: false
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
                 legend: {
@@ -1421,7 +1421,7 @@
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
+                                enabled: false,
                                 format: '<b>{point.name}</b>: {point.y:.1f} 个',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
@@ -1449,7 +1449,8 @@
                         enabled: false
                     },
                     tooltip: {
-                        enabled: false
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                        // enabled: false
                     }
                 },
                 legend: {
@@ -1489,7 +1490,7 @@
                         enabled: true
                     },
                     tooltip: {
-                        enabled: false
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
                 yAxis:{
@@ -2238,7 +2239,7 @@
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
+                                enabled: false,
                                 format: '<b>{point.name}</b>: {point.y:.1f} 个',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
@@ -2266,7 +2267,7 @@
                         enabled: false
                     },
                     tooltip: {
-                        enabled: false
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
                 legend: {
@@ -2433,7 +2434,7 @@
                 dataLabels: {
                     enabled: true,
                     rotation: -90,
-                    color: '#FFFFFF',
+                    color: '#eff3f8',
                     align: 'right',
                     format: '{point.y:.1f}', // one decimal
                     y: 10 // 10 pixels down from the top
@@ -2453,6 +2454,7 @@
                             enabled: false
                         },
                         chart: {
+                            backgroundColor:'#eff3f8',
                             type: 'column'
                         },
                         plotOptions: {
@@ -2618,6 +2620,7 @@
                         enabled: false
                     },
                     chart: {
+                        backgroundColor:'#eff3f8',
                         type: 'pie'
                         // margin: [0, 0, 0, 0] //距离上下左右的距离值
                     },

@@ -6,7 +6,7 @@
                 <label class="col-lg-4 control-label">三级公司名称</label>
                 <div class="col-lg-8">
                     <select  class="form-control"  ng-model="searchPage.data.parentCompany"  ng-options="item.enterpriseId as item.subCompanyName for item in parentEnterprise ">
-                        <option value=""> --- 请选择部门 --- </option>
+                        <option value=""> --- 请选择三级公司 --- </option>
                     </select>
                 </div>
             </div>
@@ -59,17 +59,17 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3 form-group">
+            <div class="col-md-4 form-group">
                 <div class="list_button" >
                     <div class="input-group">
                         <span class="input-group-btn">
 						    <button class="btn blue" ng-click="searchPage.action.search()" type="button">统计</button>
                         </span>
                         <span class="input-group-btn">
-                            <button class="btn blue" ng-click="searchPage.action.export()" type="button">导出excel</button>
+						    <button class="btn blue" ng-click="searchPage.action.reset()" type="button">条件重置</button>
                         </span>
                         <span class="input-group-btn">
-						    <button class="btn blue" ng-click="searchPage.action.reset()" type="button">条件重置</button>
+                            <button class="btn blue" ng-click="searchPage.action.export()" type="button">三级公司合同统计导出</button>
                         </span>
                     </div>
                 </div>
