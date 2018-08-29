@@ -121,7 +121,6 @@
         }])
         .controller('parentEnterpriseReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
             var current = new Date();
-
             $scope.searchPage = {
                 data: {
                     startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
@@ -144,6 +143,13 @@
                 action:{
                     reset:function () {
                         $scope.searchPage.init();
+                    },
+                    export:function () {
+                        window.open("report/export?headOffice="+ $scope.searchPage.data.headOffice+
+                            "&startTime="+ $scope.searchPage.data.startTime+
+                            "&endTime="+ $scope.searchPage.data.endTime+
+                            "&subCompany="+$scope.searchPage.data.subCompany
+                        );
                     },
                     pie:function () {
                         var i = 0;
@@ -319,6 +325,7 @@
                         enabled: false
                     },
                     tooltip: {
+                        headerFormat: '',
                         pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
@@ -667,6 +674,7 @@
                         enabled: false
                     },
                     tooltip: {
+                        headerFormat: '',
                         pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
@@ -1061,6 +1069,7 @@
                         enabled: false
                     },
                     tooltip: {
+                        headerFormat: '',
                         pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
@@ -1449,6 +1458,7 @@
                         enabled: false
                     },
                     tooltip: {
+                        headerFormat: '',
                         pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                         // enabled: false
                     }
@@ -1490,6 +1500,7 @@
                         enabled: true
                     },
                     tooltip: {
+                        headerFormat: '',
                         pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
@@ -1538,7 +1549,7 @@
                 getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
                 columns: [
                     {
-                        sTitle: "部门名称",
+                        sTitle: "区域名称",
                         mData: "enterprise",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
@@ -1861,6 +1872,7 @@
                     },
                     tooltip: {
                         // headerFormat: '{series.name}<br>',
+                        headerFormat: '',
                         pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
@@ -2267,6 +2279,7 @@
                         enabled: false
                     },
                     tooltip: {
+                        headerFormat: '',
                         pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
                     }
                 },
@@ -2466,6 +2479,7 @@
                             column: {
                                 colorByPoint: true,
                                 maxPointWidth: 20,
+                                pointWidth:20,
                                 events: {
                                     // click: function (event) {
                                     //     for (var i = 0; i < $scope.resource.moc.length; i++) {
@@ -2485,7 +2499,7 @@
                             enabled: false
                         }
                     },
-
+                    maxPointWidth: 20,
                     title: {
                         text: ''
                     },

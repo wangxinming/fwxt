@@ -1078,7 +1078,9 @@ public class ProcessController {
                 }
             }
             OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(historicProcessInstance.getId());
-            taskInfo.setArchiveSerialNumber(oaContractCirculation.getArchiveSerialNumber());
+            if(null != oaContractCirculation) {
+                taskInfo.setArchiveSerialNumber(oaContractCirculation.getArchiveSerialNumber());
+            }
             taskInfo.setId(historicProcessInstance.getId());
             taskInfo.setName(deployment.getName());
             taskInfo.setTimestamp(historicProcessInstance.getStartTime());

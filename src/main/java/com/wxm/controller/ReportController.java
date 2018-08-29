@@ -261,14 +261,6 @@ public class ReportController {
             }else{
                 reportResult.setRefuse(0);
             }
-            if(reportResult.getTotal() > 0 && reportResult.getComplete() != null){
-                NumberFormat numberFormat = NumberFormat.getInstance();
-                // 设置精确到小数点后2位
-                numberFormat.setMaximumFractionDigits(2);
-                reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100)+"%");
-            }else{
-                reportResult.setRate("0.00%");
-            }
         }
 
         Integer total = 0,complete = 0,refuse = 0;
@@ -286,20 +278,11 @@ public class ReportController {
         reportResult.setTotal(total);
         reportResult.setComplete(complete);
         reportResult.setRefuse(refuse);
-        if(reportResult.getTotal() > 0 && reportResult.getComplete() != null){
-            NumberFormat numberFormat = NumberFormat.getInstance();
-            // 设置精确到小数点后2位
-            numberFormat.setMaximumFractionDigits(2);
-            reportResult.setRate(numberFormat.format((float)reportResult.getComplete()/(float)reportResult.getTotal()*100)+"%");
-        }else{
-            reportResult.setRate("0.00%");
-        }
         reportResults.add(reportResult);
-
+        reportResults  = reportService.caculateRate(reportResults);
         ExportExcelUtil util = new ExportExcelUtil();// 创建工具类.
 
         HSSFWorkbook wb = util.exportExcel("报表",reportResults);
-
         response.setContentType("application/vnd.ms-excel");
         String filename = java.net.URLEncoder.encode("报表.xls", "UTF-8");
         response.setHeader("Content-Disposition", "attachment;filename=" + filename);
