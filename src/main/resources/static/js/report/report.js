@@ -145,11 +145,17 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        window.open("report/export?headOffice="+ $scope.searchPage.data.headOffice+
-                            "&startTime="+ $scope.searchPage.data.startTime+
-                            "&endTime="+ $scope.searchPage.data.endTime+
-                            "&subCompany="+$scope.searchPage.data.subCompany
-                        );
+                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+ +"&startTime"+$scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&subCompany=true";
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType;
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        window.open(uri);
                     },
                     pie:function () {
                         var i = 0;
@@ -499,11 +505,22 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        window.open("report/export?headOffice="+ $scope.searchPage.data.headOffice+
-                            "&startTime="+ $scope.searchPage.data.startTime+
-                            "&endTime="+ $scope.searchPage.data.endTime+
-                            "&subCompany="+$scope.searchPage.data.subCompany
-                        );
+
+                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+"&startTime"+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.subCompany){
+                            uri += "&subCompany="+ $scope.searchPage.data.subCompany;
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType
+                        }
+                        window.open(uri);
                     },
                     pie:function () {
                         var i = 0;
@@ -838,6 +855,24 @@
                 action:{
                     reset:function () {
                         $scope.searchPage.init();
+                    },
+                    export:function () {
+                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+"&startTime"+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.subCompany){
+                            uri += "&subCompany="+ $scope.searchPage.data.subCompany;
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType
+                        }
+                        window.open(uri);
+
                     },
                     pie:function () {
                         var i = 0;
@@ -1232,9 +1267,21 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        window.open("report/locationReportExcel?startTime="+ $scope.searchPage.data.startTime+
-                            "&endTime="+ $scope.searchPage.data.endTime
-                        );
+                        var uri = "report/locationReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+
+                        if($scope.searchPage.data.location){
+                            uri += "&location="+ $scope.searchPage.data.location;
+                        }
+                        if($scope.searchPage.data.province){
+                            uri += "&province="+ $scope.searchPage.data.province;
+                        }
+                        if($scope.searchPage.data.city){
+                            uri += "&city="+ $scope.searchPage.data.city
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType
+                        }
+                        window.open(uri);
                     },
                     pie:function () {
                         var i = 0;
@@ -1637,9 +1684,20 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        window.open("report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+
-                            "&endTime="+ $scope.searchPage.data.endTime
-                        );
+                        var uri = "report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&templateType=custom";
+                        if($scope.searchPage.data.headOffice){
+                            uri += "&headOffice="+ $scope.searchPage.data.headOffice;
+                        }
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.subCompany){
+                            uri += "&subCompany="+ $scope.searchPage.data.subCompany;
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        window.open(uri);
                     },
                     pie:function () {
                         var i = 0;
@@ -2044,6 +2102,32 @@
                     reset:function () {
                         $scope.searchPage.init();
                     },
+                    export:function () {
+                        var uri = "report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+
+                        if($scope.searchPage.data.headOffice){
+                            uri += "&headOffice="+ $scope.searchPage.data.headOffice;
+                        }
+                        if($scope.searchPage.data.province){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.subCompany){
+                            uri += "&subCompany="+ $scope.searchPage.data.subCompany
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        if($scope.searchPage.data.field){
+                            uri += "&field="+ $scope.searchPage.data.field
+                        }
+                        if($scope.searchPage.data.condition){
+                            uri += "&condition="+ $scope.searchPage.data.condition
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType
+                        }
+                        window.open(uri);
+                    },
                     pie:function () {
                         var i = 0;
                         var total = {name: '发起合同数量', data: []};
@@ -2140,11 +2224,7 @@
                             Loading.hide();
                         });
                     },
-                    export:function () {
-                        window.open("report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+
-                            "&endTime="+ $scope.searchPage.data.endTime
-                        );
-                    },
+
                     pie:function () {
                         var i = 0;
                         var total = {name: '发起合同数量', data: []};
