@@ -1562,6 +1562,7 @@
                     $('#wordId').val($scope.search.id);
                     $('#processInstanceId').val($scope.search.processInstanceId);
                     $('#orderForm').html(data.data.templateHtml);
+                    $('#contract').val(data.data.templateId);
                     $scope.pms = data.pms;
                     $scope.pm = data.pm;
                     if(data.pm)
