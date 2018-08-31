@@ -1527,6 +1527,10 @@
                     },
                     edit: function (id) {
                         $scope.pageDialog.title = "修改职位关系";
+                        $scope.addPage.init();
+                        $scope.positions = [];
+                        $scope.positionbak = [];
+                        $scope.approvalEnterprise = [];
                         Loading.show();
                         // $timeout(function(){
                             loader.queryPosition({"positionId":id},{},function (data) {
@@ -1536,24 +1540,33 @@
                                 $scope.addPage.data.positionRelationId = data.data.positionRelationId;
 
                                 $scope.addPage.data.company = data.data.company;
-                                if(data.data.company)
-                                    $("#companyName").val(data.data.company);
                                 $scope.addPage.data.positionName = data.data.positionName;
-                                if(data.data.positionName)
-                                    $("#positionName").val(data.data.positionName);
                                 $scope.addPage.data.highCompany = data.data.highCompany;
-                                if(data.data.highCompany)
-                                    $("#highCompany").val(data.data.highCompany);
                                 $scope.addPage.data.highPositionName = data.data.highPositionName;
-                                if(data.data.highPositionName)
+
+                                if(data.data.company){
+                                    $("span#select2-chosen-1").text(data.data.company);
+                                    $("#companyName").val(data.data.company);
+                                }
+                                if(data.data.positionName){
+                                    $("span#select2-chosen-2").text(data.data.positionName);
+                                    $("#positionName").val(data.data.positionName);
+                                }
+                                if(data.data.highCompany){
+                                    $("span#select2-chosen-3").text(data.data.highCompany);
+                                    $("#highCompany").val(data.data.highCompany);
+                                }
+                                if(data.data.highPositionName){
+                                    $("span#select2-chosen-4").text(data.data.highPositionName);
                                     $("#highPositionName").val(data.data.highPositionName);
+                                }
                                 Loading.hide();
                                 $scope.pageDialog.show();
                             }, function (error) {
                                 Loading.hide();
 
                             })
-                        // },200);
+                        // },1000);
                     },
                     remove:function (id) {
                         $rootScope.$confirm("确定要删除吗？", function () {

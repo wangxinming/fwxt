@@ -971,7 +971,7 @@ public class ReportController {
             ExportExcelUtil util = new ExportExcelUtil();// 创建工具类.
             HSSFWorkbook wb = util.exportExcel("报表", reportResults);
             response.setContentType("application/vnd.ms-excel");
-            String filename = java.net.URLEncoder.encode("区域统计报表.xls", "UTF-8");
+            String filename = java.net.URLEncoder.encode("统计报表.xls", "UTF-8");
             response.setHeader("Content-Disposition", "attachment;filename=" + filename);
             wb.write(response.getOutputStream());
             response.getOutputStream().flush();

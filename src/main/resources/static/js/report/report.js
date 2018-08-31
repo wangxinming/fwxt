@@ -2108,7 +2108,7 @@
                         if($scope.searchPage.data.headOffice){
                             uri += "&headOffice="+ $scope.searchPage.data.headOffice;
                         }
-                        if($scope.searchPage.data.province){
+                        if($scope.searchPage.data.parentCompany){
                             uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
                         }
                         if($scope.searchPage.data.subCompany){
