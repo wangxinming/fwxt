@@ -30,6 +30,7 @@
   <resultMap id="hashmap" type="com.wxm.entity.ReportItem" >
     <result column="TEMPLATE_NAME" property="name" jdbcType="NVARCHAR" />
     <result column="y" property="y" jdbcType="INTEGER" />
+    <result column="z" property="sum" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
     CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN,PROCESSINSTANCE_ID, CONTRACT_NAME,CONTRACT_BUYER,CONTRACT_SELLER,CONTRACT_MONEY,
@@ -68,7 +69,7 @@
   </select>
 
   <select id="groupEnterpriseReport" resultMap="hashmap">
-    select ENTERPRISE_ID as id,count(*) as y from OA_CONTRACT_CIRCULATION where
+    select ENTERPRISE_ID as id,count(*) as y,sum(CONTRACT_MONEY) as z from OA_CONTRACT_CIRCULATION where
     CREATE_TIME <![CDATA[ >= ]]> #{startTime} AND  CREATE_TIME <![CDATA[ <= ]]> #{endTime}
     <if test="enterpriseId != null" >
       and ENTERPRISE_ID=#{enterpriseId}
@@ -90,7 +91,7 @@
 
 
   <select id="groupFieldEnterpriseReport" resultMap="hashmap">
-    SELECT tmp.ENTERPRISE_ID as id,count(tmp.ENTERPRISE_ID) as y FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,
+    SELECT tmp.ENTERPRISE_ID as id,count(tmp.CONTRACT_ID) as y,sum(tmp.CONTRACT_MONEY) as z FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,circulation.CONTRACT_MONEY
         circulation.PROCESSINSTANCE_ID,circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
         from OA_CONTRACT_CIRCULATION circulation LEFT OUTER JOIN ACT_HI_VARINST var
     ON circulation.PROCESSINSTANCE_ID = var.PROC_INST_ID_ WHERE 1=1
@@ -119,7 +120,7 @@
   </select>
 
   <select id="groupFieldUserReport" resultMap="hashmap">
-    SELECT tmp.USER_ID,count(tmp.USER_ID) as y FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,
+    SELECT tmp.USER_ID,count(tmp.CONTRACT_ID) as y,sum(tmp.CONTRACT_MONEY) as z FROM (SELECT DISTINCT(CONTRACT_ID),circulation.USER_ID,circulation.CONTRACT_MONEY
     circulation.PROCESSINSTANCE_ID,circulation.CONTRACT_REOPEN,circulation.TEMPLATE_ID,circulation.ENTERPRISE_ID
     from OA_CONTRACT_CIRCULATION circulation LEFT OUTER JOIN ACT_HI_VARINST var
     ON circulation.PROCESSINSTANCE_ID = var.PROC_INST_ID_ WHERE 1=1

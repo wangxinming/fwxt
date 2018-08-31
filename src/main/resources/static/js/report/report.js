@@ -32,6 +32,25 @@
                 .when('/fieldEnterpriseReport', {
                     templateUrl: 'view/report/fieldsContractReport.html',
                     controller: 'fieldEnterpriseReport.controller'})
+
+                .when('/parentLoanReport', {
+                    templateUrl: 'view/report/parentLoanReport.html',
+                    controller: 'parentLoanReport.controller'})
+                .when('/secondaryLoanReport', {
+                    templateUrl: 'view/report/secondaryLoanReport.html',
+                    controller: 'secondaryLoanReport.controller'})
+                .when('/thirdLoanReport', {
+                    templateUrl: 'view/report/thirdLoanReport.html',
+                    controller: 'thirdLoanReport.controller'})
+                .when('/locationLoanReport', {
+                    templateUrl: 'view/report/locationLoanReport.html',
+                    controller: 'locationLoanReport.controller'})
+                .when('/nonFormatLoanReport', {
+                    templateUrl: 'view/report/nonFormatLoanReport.html',
+                    controller: 'nonFormatLoanReport.controller'})
+                .when('/fieldLoanReport', {
+                    templateUrl: 'view/report/fieldLoanReport.html',
+                    controller: 'fieldLoanReport.controller'})
                 .when('/rejectReport', {
                     templateUrl: 'view/report/rejectReport.html',
                     controller: 'rejectReport.controller'})
@@ -2521,7 +2540,2408 @@
                 // $scope.contractPromoters=[{"subCompanyName":"123"}];
             }, true);
         }])
+        .controller('parentLoanReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+            var current = new Date();
+            $scope.searchPage = {
+                data: {
+                    startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    headOffice:1
+                    // limit: 10, //每页条数(即取多少条数据)
+                    // offset: 0 //从第几条数据开始取
 
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        parentCompany:'',
+                        contractPromoter:'',
+                        contractType:'',
+                        headOffice:1
+                    }
+                },
+                action:{
+                    reset:function () {
+                        $scope.searchPage.init();
+                    },
+                    export:function () {
+                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+ +"&startTime"+$scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&subCompany=true";
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType;
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        window.open(uri);
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',name:'',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                    $scope.chartSeriesPie[0].name = '发起合同数量';
+                                }
+                                if($scope.listPage.refuse) {
+                                    $scope.chartSeriesPie[0].name = '被打回合同数量';
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                }
+                                if($scope.listPage.complete) {
+                                    $scope.chartSeriesPie[0].name = '存档合同数量';
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                }
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                graph:true,
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    getContractPromoter:function () {
+                        loader.contractPromoter({"company":$scope.searchPage.data.parentCompany}, function (data) {
+                            if (data.result == "success") {
+                                $scope.contractPromoters = data.users;
+                            }
+                        }, function (error) {
+                        });
+                    },
+                    load:function(){
+                        Loading.show();
+                        loader.queryParentsEnterprise({level:1}, function (data) {
+                            if (data.result == "success") {
+                                $scope.parentEnterprise = data.enterprises;
+                                $scope.templates = data.templates;
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+                        });
+                    },
+                    search: function (search, fnCallback) {
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        // $scope.searchPage.data.offset = search.offset;
+                        // $scope.searchPage.data.limit = search.limit;
+                        loader.parentEnterpriseReport($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+                    }
+                }
+            };
+            $scope.listPage.action.load();
+            $scope.searchPage.init();
+            $scope.chartSeriesPie =  [{type: 'pie',data:[]}];
+            $scope.categories=[];
+            $scope.chartSeriesColumn =  [];
+            $scope.chartConfigPie = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'pie',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false,
+                                format: '<b>{point.name}</b>: {point.y:.1f} 个',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            },
+                            point: {                  // 每个扇区是数据点对象，所以事件应该写在 point 下面
+                                events: {
+                                    // 鼠标滑过是，突出当前扇区
+                                    mouseOver: function() {
+                                        this.slice();
+                                    },
+                                    // 鼠标移出时，收回突出显示
+                                    mouseOut: function() {
+                                        this.slice();
+                                    },
+                                    // 默认是点击突出，这里屏蔽掉
+                                    click: function() {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        headerFormat: '',
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                series: $scope.chartSeriesPie,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.chartConfigColumn = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'column',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        },
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0,
+                            maxPointWidth: 20
+                        }
+                    },
+                    legend: {
+                        align: 'center',
+                        verticalAlign: 'top',
+                        enabled: true
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
+                yAxis:{
+                    min: 0,
+                },
+                xAxis: {
+                    // categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                    categories: ['Jan','Feb','Mar'],
+                    type:'category',
+                    visible:true,
+                    labels: {
+                        enabled:false,
+                        rotation: 0,
+                        style: {
+                            fontSize: 12
+                        }
+                    }
+                },
+
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    enabled: true
+                },
+                series: $scope.chartSeriesColumn
+                //     [{
+                //     name: 'Tokyo',
+                //     data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                // }, {
+                //     name: 'New York',
+                //     data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                // }, {
+                //     name: 'London',
+                //     data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                // }, {
+                //     name: 'Berlin',
+                //     data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                // }]
+                ,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "部门名称",
+                        mData: "enterprise",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
+                        mData: "total",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
+                        mData: "refuse",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
+                        mData: "complete",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档/发起比例",
+                        mData: "rate",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    }
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,10列不可排序
+                    {
+                        render: function (data, type) {
+                            return '<div align="center"><input type="checkbox"></div>' ;
+                        },
+                        aTargets: [0,1,2,3,4] //最后一列
+                    },
+                    { sWidth: "28%", aTargets: [ 0] },
+                    { sWidth: "18%", aTargets: [ 1,2,3,4] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+
+            $scope.$watch("searchPage.data.parentCompany", function (newVal, oldVal) {
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+        }])
+        .controller('secondaryLoanReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+            var current = new Date();
+            $scope.searchPage = {
+                data: {
+                    startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    subCompany:true,
+                    headOffice:2
+                    // limit: 10, //每页条数(即取多少条数据)
+                    // offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        subCompany:true,
+                        headOffice:2
+                    }
+                },
+                action:{
+                    reset:function () {
+                        $scope.searchPage.init();
+                    },
+                    export:function () {
+
+                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+"&startTime"+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.subCompany){
+                            uri += "&subCompany="+ $scope.searchPage.data.subCompany;
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType
+                        }
+                        window.open(uri);
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            // $scope.chartConfigColumn.xAxis.categories =['Jan','Feb','Mar'];
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    getContractPromoter:function () {
+                        loader.contractPromoter({"company":$scope.searchPage.data.parentCompany}, function (data) {
+                            if (data.result == "success") {
+                                $scope.contractPromoters = data.users;
+                            }
+                        }, function (error) {
+                        });
+                    },
+                    load:function(){
+                        Loading.show();
+                        loader.queryParentsEnterprise({level:2}, function (data) {
+                            if (data.result == "success") {
+                                $scope.parentEnterprise = data.enterprises;
+                                $scope.templates = data.templates;
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+                        });
+                    },
+
+                    search: function (search, fnCallback) {
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        // $scope.searchPage.data.offset = search.offset;
+                        // $scope.searchPage.data.limit = search.limit;
+                        loader.parentEnterpriseReport($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+                    }
+                }
+            };
+            $scope.listPage.action.load();
+            $scope.searchPage.init();
+            $scope.categories=[];
+            $scope.chartSeriesColumn =  [];
+            $scope.chartConfigPie = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'pie',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false,
+                                format: '<b>{point.name}</b>: {point.y:.1f} 个',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            },
+                            point: {                  // 每个扇区是数据点对象，所以事件应该写在 point 下面
+                                events: {
+                                    // 鼠标滑过是，突出当前扇区
+                                    mouseOver: function() {
+                                        this.slice();
+                                    },
+                                    // 鼠标移出时，收回突出显示
+                                    mouseOut: function() {
+                                        this.slice();
+                                    },
+                                    // 默认是点击突出，这里屏蔽掉
+                                    click: function() {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        headerFormat: '',
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                series: $scope.chartSeriesPie,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.chartConfigColumn = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'column',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        },
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0,
+                            maxPointWidth: 20
+                        }
+                    },
+                    legend: {
+                        align: 'center',
+                        verticalAlign: 'top',
+                        enabled: true
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
+                yAxis:{
+                    title:'',
+                    min: 0,
+                },
+                xAxis: {
+                    // categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                    categories: [],
+                    labels: {
+                        rotation: 0,
+                        style: {
+                            fontSize: 12
+                        }
+                    }
+                },
+
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    enabled: false
+                },
+                series: $scope.chartSeriesColumn
+                //     [{
+                //     name: 'Tokyo',
+                //     data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                // }, {
+                //     name: 'New York',
+                //     data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                // }, {
+                //     name: 'London',
+                //     data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                // }, {
+                //     name: 'Berlin',
+                //     data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                // }]
+                ,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "部门名称",
+                        mData: "enterprise",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
+                        mData: "total",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
+                        mData: "refuse",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
+                        mData: "complete",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档/发起比例",
+                        mData: "rate",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    }
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,10列不可排序
+                    { sWidth: "28%", aTargets: [ 0] },
+                    { sWidth: "18%", aTargets: [ 1,2,3,4] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+
+            $scope.$watch("searchPage.data.parentCompany", function (newVal, oldVal) {
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+        }])
+        .controller('thirdLoanReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+            var current = new Date();
+            $scope.searchPage = {
+                data: {
+                    startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    subCompany:true,
+                    headOffice:3
+                    // limit: 10, //每页条数(即取多少条数据)
+                    // offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        subCompany:true,
+                        headOffice:3
+                    }
+                },
+                action:{
+                    reset:function () {
+                        $scope.searchPage.init();
+                    },
+                    export:function () {
+                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+"&startTime"+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.subCompany){
+                            uri += "&subCompany="+ $scope.searchPage.data.subCompany;
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType
+                        }
+                        window.open(uri);
+
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    getContractPromoter:function () {
+                        loader.contractPromoter({"company":$scope.searchPage.data.parentCompany}, function (data) {
+                            if (data.result == "success") {
+                                $scope.contractPromoters = data.users;
+                            }
+                        }, function (error) {
+                        });
+                    },
+                    load:function(){
+                        Loading.show();
+                        loader.queryParentsEnterprise({level:3}, function (data) {
+                            if (data.result == "success") {
+                                $scope.parentEnterprise = data.enterprises;
+                                $scope.templates = data.templates;
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+                        });
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search: function (search, fnCallback) {
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        // $scope.searchPage.data.offset = search.offset;
+                        // $scope.searchPage.data.limit = search.limit;
+                        loader.parentEnterpriseReport($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+                    }
+                }
+            };
+            $scope.listPage.action.load();
+            $scope.searchPage.init();
+            $scope.categories=[];
+            $scope.chartSeriesColumn =  [];
+            $scope.chartConfigPie = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'pie',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false,
+                                format: '<b>{point.name}</b>: {point.y:.1f} 个',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            },
+                            point: {                  // 每个扇区是数据点对象，所以事件应该写在 point 下面
+                                events: {
+                                    // 鼠标滑过是，突出当前扇区
+                                    mouseOver: function() {
+                                        this.slice();
+                                    },
+                                    // 鼠标移出时，收回突出显示
+                                    mouseOut: function() {
+                                        this.slice();
+                                    },
+                                    // 默认是点击突出，这里屏蔽掉
+                                    click: function() {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        headerFormat: '',
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                series: $scope.chartSeriesPie,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.chartConfigColumn = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'column',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        },
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0,
+                            maxPointWidth: 20
+                        }
+                    },
+                    legend: {
+                        align: 'center',
+                        verticalAlign: 'top',
+                        enabled: true
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
+                yAxis:{
+                    min: 0,
+                },
+                xAxis: {
+                    // categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                    categories: $scope.categories,
+                    labels: {
+                        rotation: 0,
+                        style: {
+                            fontSize: 12
+                        }
+                    }
+                },
+
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    enabled: true
+                },
+                series: $scope.chartSeriesColumn
+                //     [{
+                //     name: 'Tokyo',
+                //     data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                // }, {
+                //     name: 'New York',
+                //     data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                // }, {
+                //     name: 'London',
+                //     data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                // }, {
+                //     name: 'Berlin',
+                //     data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                // }]
+                ,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "部门名称",
+                        mData: "enterprise",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
+                        mData: "total",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
+                        mData: "refuse",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
+                        mData: "complete",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档/发起比例",
+                        mData: "rate",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    }
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,10列不可排序
+                    { sWidth: "28%", aTargets: [ 0] },
+                    { sWidth: "18%", aTargets: [ 1,2,3,4] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+
+            $scope.$watch("searchPage.data.parentCompany", function (newVal, oldVal) {
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+        }])
+        .controller('locationLoanReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+            var current = new Date();
+            $scope.searchPage = {
+                data: {
+                    startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    headOffice:3
+                    // limit: 10, //每页条数(即取多少条数据)
+                    // offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        headOffice:3
+                    }
+                },
+                action:{
+                    reset:function () {
+                        $scope.searchPage.init();
+                    },
+                    export:function () {
+                        var uri = "report/locationReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+
+                        if($scope.searchPage.data.location){
+                            uri += "&location="+ $scope.searchPage.data.location;
+                        }
+                        if($scope.searchPage.data.province){
+                            uri += "&province="+ $scope.searchPage.data.province;
+                        }
+                        if($scope.searchPage.data.city){
+                            uri += "&city="+ $scope.searchPage.data.city
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType
+                        }
+                        window.open(uri);
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    load:function(){
+                        Loading.show();
+                        loader.locationList({}, function (data) {
+                            if (data.result == "success") {
+                                $scope.locations = data.locations;
+                                $scope.templates = data.templates;
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+                        });
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search: function (search, fnCallback) {
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        // $scope.searchPage.data.offset = search.offset;
+                        // $scope.searchPage.data.limit = search.limit;
+                        loader.locationReport($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+                    }
+                }
+            };
+            $scope.listPage.action.load();
+            $scope.searchPage.init();
+            $scope.categories=[];
+            $scope.chartSeriesColumn =  [];
+            $scope.chartConfigPie = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'pie',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false,
+                                format: '<b>{point.name}</b>: {point.y:.1f} 个',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            },
+                            point: {                  // 每个扇区是数据点对象，所以事件应该写在 point 下面
+                                events: {
+                                    // 鼠标滑过是，突出当前扇区
+                                    mouseOver: function() {
+                                        this.slice();
+                                    },
+                                    // 鼠标移出时，收回突出显示
+                                    mouseOut: function() {
+                                        this.slice();
+                                    },
+                                    // 默认是点击突出，这里屏蔽掉
+                                    click: function() {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        headerFormat: '',
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                        // enabled: false
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                series: $scope.chartSeriesPie,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.chartConfigColumn = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'column',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        },
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0,
+                            maxPointWidth: 20
+                        }
+                    },
+                    legend: {
+                        align: 'center',
+                        verticalAlign: 'top',
+                        enabled: true
+                    },
+                    tooltip: {
+                        headerFormat: '',
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                    }
+                },
+                yAxis:{
+                    min: 0,
+                },
+                xAxis: {
+                    // categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                    categories: $scope.categories,
+                    labels: {
+                        rotation: 0,
+                        style: {
+                            fontSize: 12
+                        }
+                    }
+                },
+
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    enabled: true
+                },
+                series: $scope.chartSeriesColumn
+                //     [{
+                //     name: 'Tokyo',
+                //     data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                // }, {
+                //     name: 'New York',
+                //     data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                // }, {
+                //     name: 'London',
+                //     data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                // }, {
+                //     name: 'Berlin',
+                //     data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                // }]
+                ,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "区域名称",
+                        mData: "enterprise",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
+                        mData: "total",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
+                        mData: "refuse",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
+                        mData: "complete",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档/发起比例",
+                        mData: "rate",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    }
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,10列不可排序
+                    { sWidth: "28%", aTargets: [ 0] },
+                    { sWidth: "18%", aTargets: [ 1,2,3,4] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+
+            $scope.$watch("searchPage.data.location", function (newVal, oldVal) {
+                loader.provinceList({"location":$scope.searchPage.data.location}, function (data) {
+                    if (data.result == "success") {
+                        $scope.provinces = data.provinces;
+                    }
+                }, function (error) {
+                });
+            }, true);
+            $scope.$watch("searchPage.data.province", function (newVal, oldVal) {
+                loader.cityList({"location":$scope.searchPage.data.location,"province":$scope.searchPage.data.province}, function (data) {
+                    if (data.result == "success") {
+                        $scope.cities = data.cities;
+                    }
+                }, function (error) {
+                });
+            }, true);
+        }])
+        .controller('nonFormatLoanReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+            $scope.companyLevels = [{id:1,name:'总公司部门'},{id:2,name:'二级单位'},{id:3,name:'三级单位'}];
+            var current = new Date();
+            $scope.searchPage = {
+                data: {
+                    startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    subCompany:true,
+                    headOffice:2
+                    // limit: 10, //每页条数(即取多少条数据)
+                    // offset: 0 //从第几条数据开始取
+
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        subCompany:true,
+                        headOffice:2
+                    }
+                },
+                action:{
+                    reset:function () {
+                        $scope.searchPage.init();
+                    },
+                    export:function () {
+                        var uri = "report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&templateType=custom";
+                        if($scope.searchPage.data.headOffice){
+                            uri += "&headOffice="+ $scope.searchPage.data.headOffice;
+                        }
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.subCompany){
+                            uri += "&subCompany="+ $scope.searchPage.data.subCompany;
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        window.open(uri);
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    load:function(){
+                        Loading.show();
+                        loader.queryParentsEnterprise({level:$scope.searchPage.data.headOffice}, function (data) {
+                            if (data.result == "success") {
+                                $scope.parentEnterprise = data.enterprises;
+                                $scope.templates = data.templates;
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+                        });
+                    },
+                    getContractPromoter:function () {
+                        loader.contractPromoter({"company":$scope.searchPage.data.parentCompany,"subCompany":$scope.searchPage.data.subCompany}, function (data) {
+                            if (data.result == "success") {
+                                $scope.contractPromoters = data.users;
+                            }
+                        }, function (error) {
+                        });
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search: function (search, fnCallback) {
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        // $scope.searchPage.data.offset = search.offset;
+                        // $scope.searchPage.data.limit = search.limit;
+                        loader.nonFormatReport($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+                    }
+                }
+            };
+            $scope.listPage.action.load();
+            $scope.searchPage.init();
+            $scope.categories=[];
+            $scope.chartSeriesColumn =  [];
+            $scope.chartConfigPie = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'pie',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false,
+                                format: '<b>{point.name}</b>: {point.y:.1f} 个',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            },
+                            point: {                  // 每个扇区是数据点对象，所以事件应该写在 point 下面
+                                events: {
+                                    // 鼠标滑过是，突出当前扇区
+                                    mouseOver: function() {
+                                        this.slice();
+                                    },
+                                    // 鼠标移出时，收回突出显示
+                                    mouseOut: function() {
+                                        this.slice();
+                                    },
+                                    // 默认是点击突出，这里屏蔽掉
+                                    click: function() {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        // headerFormat: '{series.name}<br>',
+                        headerFormat: '',
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                series: $scope.chartSeriesPie,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.chartConfigColumn = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'column',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        },
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0,
+                            // pointWidth:25, //柱子宽度
+                            maxPointWidth: 20
+                        }
+                    },
+                    legend: {
+                        align: 'center',
+                        verticalAlign: 'top',
+                        enabled: true
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
+                yAxis:{
+                    min: 0,
+                },
+                xAxis: {
+                    // categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                    categories: $scope.categories,
+                    labels: {
+                        rotation: 0,
+                        style: {
+                            fontSize: 12
+                        }
+                    }
+                },
+
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    enabled: true
+                },
+                series: $scope.chartSeriesColumn
+                //     [{
+                //     name: 'Tokyo',
+                //     data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                // }, {
+                //     name: 'New York',
+                //     data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                // }, {
+                //     name: 'London',
+                //     data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                // }, {
+                //     name: 'Berlin',
+                //     data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                // }]
+                ,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "公司/部门名称",
+                        mData: "enterprise",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
+                        mData: "total",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
+                        mData: "refuse",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
+                        mData: "complete",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档/发起比例",
+                        mData: "rate",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    }
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,10列不可排序
+                    { sWidth: "28%", aTargets: [ 0] },
+                    { sWidth: "18%", aTargets: [ 1,2,3,4] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+
+            $scope.$watch("searchPage.data.headOffice", function (newVal, oldVal) {
+                $scope.listPage.action.load();
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                // $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+            $scope.$watch("searchPage.data.parentCompany", function (newVal, oldVal) {
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+        }])
+        .controller('fieldLoanReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+
+            $scope.companyLevels = [{id:1,name:'总公司部门'},{id:2,name:'二级单位'},{id:3,name:'三级单位'}];
+            var current = new Date();
+            $scope.searchPage = {
+                data: {
+                    startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                    endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                    subCompany:true,
+                    headOffice:2
+                    // limit: 10, //每页条数(即取多少条数据)
+                    // offset: 0 //从第几条数据开始取
+                },
+                init: function () {
+                    $scope.searchPage.data = {
+                        startTime: $filter('date')(new Date(current.getTime() - 365*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        subCompany:true,
+                        headOffice:2
+                    }
+                },
+                action:{
+                    reset:function () {
+                        $scope.searchPage.init();
+                    },
+                    export:function () {
+                        var uri = "report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+
+                        if($scope.searchPage.data.headOffice){
+                            uri += "&headOffice="+ $scope.searchPage.data.headOffice;
+                        }
+                        if($scope.searchPage.data.parentCompany){
+                            uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
+                        }
+                        if($scope.searchPage.data.subCompany){
+                            uri += "&subCompany="+ $scope.searchPage.data.subCompany
+                        }
+                        if($scope.searchPage.data.contractPromoter){
+                            uri += "&contractPromoter="+ $scope.searchPage.data.contractPromoter
+                        }
+                        if($scope.searchPage.data.field){
+                            uri += "&field="+ $scope.searchPage.data.field
+                        }
+                        if($scope.searchPage.data.condition){
+                            uri += "&condition="+ $scope.searchPage.data.condition
+                        }
+                        if($scope.searchPage.data.contractType){
+                            uri += "&contractType="+ $scope.searchPage.data.contractType
+                        }
+                        window.open(uri);
+                    },
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    getContractPromoter:function () {
+                        loader.contractPromoter({"company":$scope.searchPage.data.parentCompany,"subCompany":$scope.searchPage.data.subCompany}, function (data) {
+                            if (data.result == "success") {
+                                $scope.contractPromoters = data.users;
+                            }
+                        }, function (error) {
+                        });
+                    },
+                    load:function(){
+                        Loading.show();
+                        loader.queryParentsEnterprise({level:$scope.searchPage.data.headOffice}, function (data) {
+                            if (data.result == "success") {
+                                $scope.parentEnterprise = data.enterprises;
+                                $scope.templates = data.templates;
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+                        });
+                    },
+
+                    pie:function () {
+                        var i = 0;
+                        var total = {name: '发起合同数量', data: []};
+                        var refuse = {name: '被打回合同数量', data: []};
+                        var complete = {name: '存档合同数量', data: []};
+
+                        if($scope.listPage.total){
+                            i++;
+                        }
+                        if($scope.listPage.refuse){
+                            i++;
+                        }
+                        if($scope.listPage.complete){
+                            i++;
+                        }
+                        // if($scope.listPage.rate)i++;
+                        if(i > 1) {
+                            $scope.listPage.graph = false;
+                            $scope.categories = [];
+                            $scope.chartSeriesColumn = [];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                $scope.categories.push($scope.listPage.data[i].enterprise);
+                                if($scope.listPage.total) {
+                                    total.data.push($scope.listPage.data[i].total);
+                                }
+                                if($scope.listPage.refuse)
+                                    refuse.data.push($scope.listPage.data[i].refuse);
+                                if($scope.listPage.complete)
+                                    complete.data.push($scope.listPage.data[i].complete);
+                            }
+                            $scope.chartConfigColumn.xAxis.categories = $scope.categories;
+                            if($scope.listPage.total) {
+                                $scope.chartSeriesColumn.push(total);
+                            }
+                            if($scope.listPage.refuse) {
+                                $scope.chartSeriesColumn.push(refuse);
+                            }
+                            if($scope.listPage.complete) {
+                                $scope.chartSeriesColumn.push(complete);
+                            }
+                            $scope.chartConfigColumn.series = $scope.chartSeriesColumn;
+                        }
+                        else {
+                            $scope.listPage.graph = true;
+                            $scope.chartSeriesPie = [{type: 'pie',data:[]}];
+                            for(var i = 0;i<$scope.listPage.data.length;i++){
+                                var tmp = {};
+                                tmp.name = $scope.listPage.data[i].enterprise;
+                                if($scope.listPage.total) {
+                                    tmp.y = $scope.listPage.data[i].total;
+                                }
+                                if($scope.listPage.refuse)
+                                    tmp.y = $scope.listPage.data[i].refuse;
+                                if($scope.listPage.complete)
+                                    tmp.y = $scope.listPage.data[i].complete;
+                                // if($scope.listPage.rate)
+                                //     tmp.add("y",$scope.listPage.data[i].rate);
+
+                                $scope.chartSeriesPie[0].data.push(tmp);
+                            }
+                            $scope.chartConfigPie.series = $scope.chartSeriesPie;
+                        }
+                    },
+                    search: function (search, fnCallback) {
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        // $scope.searchPage.data.offset = search.offset;
+                        // $scope.searchPage.data.limit = search.limit;
+                        loader.fieldReport($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        }, function (error) {
+                            Loading.hide();
+
+                        });
+                    }
+                }
+            };
+            $scope.listPage.action.load();
+            $scope.searchPage.init();
+            $scope.categories=[];
+            $scope.chartSeriesColumn =  [];
+            $scope.chartConfigPie = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'pie',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false,
+                                format: '<b>{point.name}</b>: {point.y:.1f} 个',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            },
+                            point: {                  // 每个扇区是数据点对象，所以事件应该写在 point 下面
+                                events: {
+                                    // 鼠标滑过是，突出当前扇区
+                                    mouseOver: function() {
+                                        this.slice();
+                                    },
+                                    // 鼠标移出时，收回突出显示
+                                    mouseOut: function() {
+                                        this.slice();
+                                    },
+                                    // 默认是点击突出，这里屏蔽掉
+                                    click: function() {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        headerFormat: '',
+                        pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                series: $scope.chartSeriesPie,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.chartConfigColumn = {
+                options: {
+                    exporting: {
+                        // 是否允许导出
+                        enabled: false
+                    },
+                    chart: {
+                        type: 'column',
+                        backgroundColor:'#eff3f8'
+                        // margin: [0, 0, 0, 0] //距离上下左右的距离值
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        },
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0,
+                            maxPointWidth: 20
+                        }
+                    },
+                    legend: {
+                        align: 'center',
+                        verticalAlign: 'top',
+                        enabled: true
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
+                yAxis:{
+                    min: 0,
+                },
+                xAxis: {
+                    // categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                    categories: $scope.categories,
+                    labels: {
+                        rotation: 0,
+                        style: {
+                            fontSize: 12
+                        }
+                    }
+                },
+
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    enabled: true
+                },
+                series: $scope.chartSeriesColumn
+                //     [{
+                //     name: 'Tokyo',
+                //     data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                // }, {
+                //     name: 'New York',
+                //     data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                // }, {
+                //     name: 'London',
+                //     data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                // }, {
+                //     name: 'Berlin',
+                //     data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                // }]
+                ,
+                title: {
+                    text: ''
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    {
+                        sTitle: "部门名称",
+                        mData: "enterprise",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
+                        mData: "total",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
+                        mData: "refuse",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
+                        mData: "complete",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "存档/发起比例",
+                        mData: "rate",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    }
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]},  //第 0,10列不可排序
+                    { sWidth: "28%", aTargets: [ 0] },
+                    { sWidth: "18%", aTargets: [ 1,2,3,4] }
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+
+            $scope.$watch("searchPage.data.headOffice", function (newVal, oldVal) {
+                $scope.listPage.action.load();
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                // $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+            $scope.$watch("searchPage.data.contractType", function (newVal, oldVal) {
+                // $scope.listPage.action.load();
+                Loading.show();
+                loader.getFieldList({id:$scope.searchPage.data.contractType,offset:0,limit:10000}, function (data) {
+                    if (data.result == "success") {
+                        $scope.templateFields = data.rows;
+                        Loading.hide();
+                    }
+                }, function (error) {
+                    Loading.hide();
+                });
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                // $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+
+            $scope.$watch("searchPage.data.parentCompany", function (newVal, oldVal) {
+                // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+                $scope.listPage.action.getContractPromoter();
+                // $scope.contractPromoters=[{"subCompanyName":"123"}];
+            }, true);
+        }])
         .controller('fawuReport.controller', ['$scope', '$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $rootScope,loader,Util,Tools,Loading,toaster,$filter) {
             $scope.chartSeries = [{
                 dataLabels: {

@@ -4,6 +4,7 @@ public class ReportItem {
     private String  name;
     private Integer id;
     private Integer y;
+    private long sum;
 
     public void setId(Integer id) {
         this.id = id;
@@ -27,5 +28,13 @@ public class ReportItem {
 
     public void setY(Integer y) {
         this.y = y;
+    }
+
+    public void setSum(long sum) {
+        this.sum = sum;
+    }
+
+    public long getSum() {
+        return sum;
     }
 }

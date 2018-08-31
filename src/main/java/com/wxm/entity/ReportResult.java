@@ -6,11 +6,14 @@ public class ReportResult {
     private Integer total;
     private Integer complete;
     private Integer refuse;
+    private Long price;
     private String rate;
     public ReportResult(){
+        this.enterpriseId = -1;
         this.total = 0;
         this.complete = 0;
         this.refuse = 0;
+        this.price = 0L;
     }
     public ReportResult(String enterprise,Integer enterpriseId,Integer total,Integer complete,Integer refuse,String rate){
         this.enterprise = enterprise;
