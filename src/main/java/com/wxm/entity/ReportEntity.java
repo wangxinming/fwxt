@@ -8,8 +8,18 @@ public class ReportEntity {
     private Integer total;
     private Integer customNum;
     private Integer templateNum;
+
+    private long totalPrice;
+
     private List<ReportItem> reportItemList;
 
+    public long getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(long totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 
     public long getCompletedCount() {
         return completedCount;

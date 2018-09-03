@@ -7,6 +7,7 @@ import com.wxm.service.ContractCirculationService;
 import com.wxm.service.OAEnterpriseService;
 import com.wxm.service.ReportService;
 import org.apache.commons.lang3.StringUtils;
+import org.omg.CORBA.LongLongSeqHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,15 +26,16 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public ReportResult getTotal(Date startTime, Date endTime,Integer templateId) {
-        Integer totalContract = contractCirculationService.total(null,templateId,null,"template",startTime,endTime);
-        Integer totalCompleted = contractCirculationService.total("completed",templateId,null,"template",startTime,endTime);
-        Integer totalRefused = contractCirculationService.total(null,templateId,1,"template",startTime,endTime);
+        ReportItem totalContract = contractCirculationService.total(null,templateId,null,"template",startTime,endTime);
+        ReportItem totalCompleted = contractCirculationService.total("completed",templateId,null,"template",startTime,endTime);
+        ReportItem totalRefused = contractCirculationService.total(null,templateId,1,"template",startTime,endTime);
         return new ReportResult("总计",-1,totalContract,totalCompleted,totalRefused,"0.00%");
     }
 
     @Override
     public ReportResult caculateTotal(List<ReportResult> reportResults,String name) {
         Integer total = 0,complete = 0,refuse = 0;
+        long totalPrice = 0,completePrice = 0,refusePrice = 0;
         for(ReportResult reportResult:reportResults){
             if(null != reportResult.getTotal())
                 total += reportResult.getTotal();
@@ -41,19 +43,26 @@ public class ReportServiceImpl implements ReportService {
                 complete += reportResult.getComplete();
             if(null != reportResult.getRefuse())
                 refuse += reportResult.getRefuse();
+            totalPrice+=reportResult.getPriceTotal();
+            completePrice+= reportResult.getPriceComplete();
+            refusePrice+=reportResult.getPriceRefuse();
         }
-        return new ReportResult(name,-1,total,complete,refuse,"");
+        return new ReportResult(name,-1,total,complete,refuse,totalPrice,completePrice,refusePrice,"");
     }
 
     @Override
     public ReportResult getCurrent(final Map<Integer,OAEnterprise> map,String name,Date startTime, Date endTime, Integer templateId) {
         List<ReportResult> reportResults = getReportList(startTime,endTime,templateId);
-        ReportResult reportResultCur = new ReportResult(name,-1,0,0,0,"0.00%");
+        ReportResult reportResultCur = new ReportResult(name,-1,0,0,0,0L,0L,0L,"0.00%");
         for(ReportResult reportResult :reportResults) {
             if(!map.containsKey(reportResult.getEnterpriseId())) continue;
             reportResultCur.setTotal(reportResultCur.getTotal() + reportResult.getTotal());
             reportResultCur.setRefuse(reportResultCur.getRefuse() + reportResult.getRefuse());
             reportResultCur.setComplete(reportResultCur.getComplete() + reportResult.getComplete());
+
+            reportResultCur.setPriceTotal(reportResultCur.getPriceTotal() + reportResult.getPriceTotal());
+            reportResultCur.setPriceRefuse(reportResultCur.getPriceRefuse() + reportResult.getPriceRefuse());
+            reportResultCur.setPriceComplete(reportResultCur.getPriceComplete() + reportResult.getPriceComplete());
         }
         return reportResultCur;
     }
@@ -98,18 +107,17 @@ public class ReportServiceImpl implements ReportService {
             reportResults.add(reportResult);
             reportResult.setEnterpriseId(ri.getId());
             reportResult.setTotal(ri.getY());
+            reportResult.setPriceTotal(ri.getZ());
             for(ReportItem reportItem:reportItemList1) {
                 if(reportItem.getId() == ri.getId()) {
                     reportResult.setComplete(reportItem.getY());
-                }else{
-                    reportResult.setComplete(0);
+                    reportResult.setPriceComplete(reportItem.getZ());
                 }
             }
             for(ReportItem reportItem:reportItemList2) {
                 if(reportItem.getId() == ri.getId()) {
                     reportResult.setRefuse(reportItem.getY());
-                }else{
-                    reportResult.setRefuse(0);
+                    reportResult.setPriceRefuse(reportItem.getZ());
                 }
             }
         }
@@ -153,11 +161,44 @@ public class ReportServiceImpl implements ReportService {
         Map<String, Integer> sumRefuse = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
                 Collectors.summingInt(ReportResult::getRefuse)));
 
+        Map<String, Long> sumTotalPrice = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingLong(ReportResult::getPriceTotal)));
+
+        Map<String,Long> sumCompletePrice = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingLong(ReportResult::getPriceComplete)));
+
+        Map<String, Long> sumRefusePrice = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingLong(ReportResult::getPriceRefuse)));
+
         reportResults.clear();
         for(Map.Entry entry : sumTotal.entrySet()){
+            Integer complete = 0,refuse = 0;
+            long totalPrice = 0,completePrice = 0,refusePrise = 0;
+
+            if(sumComplete.containsKey(entry.getKey())){
+                complete = sumComplete.get(entry.getKey()).intValue();
+            }
+            if(sumRefuse.containsKey(entry.getKey())){
+                refuse = sumRefuse.get(entry.getKey()).intValue();
+            }
+            if(sumTotalPrice.containsKey(entry.getKey())){
+                totalPrice = sumTotalPrice.get(entry.getKey()).longValue();
+            }
+            if(sumCompletePrice.containsKey(entry.getKey())){
+                completePrice = sumCompletePrice.get(entry.getKey()).longValue();
+            }
+            if(sumRefusePrice.containsKey(entry.getKey())){
+                refusePrise = sumRefusePrice.get(entry.getKey()).longValue();
+            }
+
             ReportResult reportResult = new ReportResult((String) entry.getKey(),-1,
                     (Integer) entry.getValue(),
-                    sumComplete.get(entry.getKey()).intValue(),sumRefuse.get(entry.getKey()).intValue(),"0.00%");
+                    complete,
+                    refuse,
+                    totalPrice,
+                    completePrice,
+                    refusePrise,
+                    "0.00%");
             reportResults.add(reportResult);
         }
         return reportResults;
@@ -204,12 +245,52 @@ public class ReportServiceImpl implements ReportService {
         Map<String, Integer> sumRefuse = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
                 Collectors.summingInt(ReportResult::getRefuse)));
 
+
+        Map<String, Long> sumTotalPrice = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingLong(ReportResult::getPriceTotal)));
+
+        Map<String,Long> sumCompletePrice = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingLong(ReportResult::getPriceComplete)));
+
+        Map<String, Long> sumRefusePrice = reportResults.stream().collect(Collectors.groupingBy(ReportResult::getEnterprise,
+                Collectors.summingLong(ReportResult::getPriceRefuse)));
+
         reportResults.clear();
         for(Map.Entry entry : sumTotal.entrySet()){
+            Integer complete = 0,refuse = 0;
+            long totalPrice = 0,completePrice = 0,refusePrise = 0;
+
+            if(sumComplete.containsKey(entry.getKey())){
+                complete = sumComplete.get(entry.getKey()).intValue();
+            }
+            if(sumRefuse.containsKey(entry.getKey())){
+                refuse = sumRefuse.get(entry.getKey()).intValue();
+            }
+            if(sumTotalPrice.containsKey(entry.getKey())){
+                totalPrice = sumTotalPrice.get(entry.getKey()).longValue();
+            }
+            if(sumCompletePrice.containsKey(entry.getKey())){
+                completePrice = sumCompletePrice.get(entry.getKey()).longValue();
+            }
+            if(sumRefusePrice.containsKey(entry.getKey())){
+                refusePrise = sumRefusePrice.get(entry.getKey()).longValue();
+            }
+
             ReportResult reportResult = new ReportResult((String) entry.getKey(),-1,
                     (Integer) entry.getValue(),
-                    sumComplete.get(entry.getKey()).intValue(),sumRefuse.get(entry.getKey()).intValue(),"0.00%");
+                    complete,
+                    refuse,
+                    totalPrice,
+                    completePrice,
+                    refusePrise,
+                    "0.00%");
             reportResults.add(reportResult);
+
+
+//            ReportResult reportResult = new ReportResult((String) entry.getKey(),-1,
+//                    (Integer) entry.getValue(),
+//                    sumComplete.get(entry.getKey()).intValue(),sumRefuse.get(entry.getKey()).intValue(),"0.00%");
+//            reportResults.add(reportResult);
         }
         return reportResults;
     }

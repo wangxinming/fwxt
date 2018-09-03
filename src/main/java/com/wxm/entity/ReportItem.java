@@ -4,7 +4,8 @@ public class ReportItem {
     private String  name;
     private Integer id;
     private Integer y;
-    private long sum;
+    private Long z;
+
 
     public void setId(Integer id) {
         this.id = id;
@@ -26,15 +27,16 @@ public class ReportItem {
         return y;
     }
 
+    public Long getZ() {
+        return z;
+    }
+
+    public void setZ(Long z) {
+        this.z = z;
+    }
+
     public void setY(Integer y) {
         this.y = y;
     }
 
-    public void setSum(long sum) {
-        this.sum = sum;
-    }
-
-    public long getSum() {
-        return sum;
-    }
 }

@@ -63,7 +63,7 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     }
 
     @Override
-    public Integer total(String contractStatus,Integer templateId,Integer contractReopen,String contractType,Date startTime, Date endTime) {
+    public ReportItem total(String contractStatus,Integer templateId,Integer contractReopen,String contractType,Date startTime, Date endTime) {
         return oaContractCirculationMapper.total(contractStatus,templateId,contractReopen,contractType,startTime,endTime);
     }
 
@@ -78,7 +78,7 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     }
 
     @Override
-    public Integer groupUserReport(Date startTime, Date endTime, String contractType, String contractStatus, Integer userId, Integer templateId, Integer contractReopen) {
+    public ReportItem groupUserReport(Date startTime, Date endTime, String contractType, String contractStatus, Integer userId, Integer templateId, Integer contractReopen) {
         return oaContractCirculationMapper.groupUserReport(startTime,endTime,contractType,contractStatus,userId,templateId,contractReopen);
     }
 

@@ -2852,21 +2852,21 @@
                     },
                     {
                         sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
-                        mData: "total",
+                        mData: "priceTotal",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
-                        mData: "refuse",
+                        mData: "priceRefuse",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
-                        mData: "complete",
+                        mData: "priceComplete",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -3210,21 +3210,21 @@
                     },
                     {
                         sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
-                        mData: "total",
+                        mData: "priceTotal",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
-                        mData: "refuse",
+                        mData: "priceRefuse",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
-                        mData: "complete",
+                        mData: "priceComplete",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -3622,21 +3622,21 @@
                     },
                     {
                         sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
-                        mData: "total",
+                        mData: "priceTotal",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
-                        mData: "refuse",
+                        mData: "priceRefuse",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
-                        mData: "complete",
+                        mData: "priceComplete",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -4025,21 +4025,21 @@
                     },
                     {
                         sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
-                        mData: "total",
+                        mData: "priceTotal",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
-                        mData: "refuse",
+                        mData: "priceRefuse",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
-                        mData: "complete",
+                        mData: "priceComplete",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -4449,21 +4449,21 @@
                     },
                     {
                         sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
-                        mData: "total",
+                        mData: "priceTotal",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
-                        mData: "refuse",
+                        mData: "priceRefuse",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
-                        mData: "complete",
+                        mData: "priceComplete",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -4877,21 +4877,21 @@
                     },
                     {
                         sTitle: "发起合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.total'><i></i></label></div>",
-                        mData: "total",
+                        mData: "priceTotal",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "被打回合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.refuse'><i></i></label></div>",
-                        mData: "refuse",
+                        mData: "priceRefuse",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
                         sTitle: "存档合同金额<div class='checkbox'><label><input type='checkbox' ng-model='listPage.complete'><i></i></label></div>",
-                        mData: "complete",
+                        mData: "priceComplete",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -4935,7 +4935,6 @@
                 // $scope.listPage.action.getContractPromoter();
                 // $scope.contractPromoters=[{"subCompanyName":"123"}];
             }, true);
-
             $scope.$watch("searchPage.data.parentCompany", function (newVal, oldVal) {
                 // $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
                 $scope.listPage.action.getContractPromoter();

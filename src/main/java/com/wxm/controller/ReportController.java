@@ -272,33 +272,23 @@ public class ReportController {
                 OAEnterprise enterprise = oaEnterpriseService.getEnterpriseById(parentCompany);
                 if (contractType != null && contractType > 0) {
                     // 归档数量
-                    Integer reportItemList1 = contractCirculationService.groupUserReport(startTime, endTime, "template", "completed", contractPromoter, contractType, null);
+                    ReportItem reportItemList1 = contractCirculationService.groupUserReport(startTime, endTime, "template", "completed", contractPromoter, contractType, null);
                     // 退回数量
-                    Integer reportItemList2 = contractCirculationService.groupUserReport(startTime, endTime, "template", null, contractPromoter, contractType, 1);
+                    ReportItem reportItemList2 = contractCirculationService.groupUserReport(startTime, endTime, "template", null, contractPromoter, contractType, 1);
                     //发起数量
-                    Integer reportItemList3 = contractCirculationService.groupUserReport(startTime, endTime, "template", null, contractPromoter, contractType, null);
-
-                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(), enterprise.getEnterpriseId(), reportItemList1, reportItemList2, reportItemList3, "");
+                    ReportItem reportItemList3 = contractCirculationService.groupUserReport(startTime, endTime, "template", null, contractPromoter, contractType, null);
+                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(), enterprise.getEnterpriseId(),reportItemList3,reportItemList1,reportItemList2, "");
                     reportResults.add(reportResult);
-                    reportResult.setEnterprise(enterprise.getCompanyName());
-                    reportResult.setComplete(reportItemList1);
-                    reportResult.setTotal(reportItemList3);
-                    reportResult.setRefuse(reportItemList2);
 
                 } else {
-
                     // 归档数量
-                    Integer reportItemList1 = contractCirculationService.groupUserReport(startTime, endTime, "template", "completed", contractPromoter, contractType, null);
+                    ReportItem reportItemList1 = contractCirculationService.groupUserReport(startTime, endTime, "template", "completed", contractPromoter, contractType, null);
                     // 退回数量
-                    Integer reportItemList2 = contractCirculationService.groupUserReport(startTime, endTime, "template", null, contractPromoter, contractType, 1);
+                    ReportItem reportItemList2 = contractCirculationService.groupUserReport(startTime, endTime, "template", null, contractPromoter, contractType, 1);
                     //发起数量
-                    Integer reportItemList3 = contractCirculationService.groupUserReport(startTime, endTime, "template", null, contractPromoter, contractType, null);
-                    ReportResult reportResult = new ReportResult();
+                    ReportItem reportItemList3 = contractCirculationService.groupUserReport(startTime, endTime, "template", null, contractPromoter, contractType, null);
+                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(),enterprise.getEnterpriseId(),reportItemList3,reportItemList1,reportItemList2,"");
                     reportResults.add(reportResult);
-                    reportResult.setEnterprise(enterprise.getCompanyName());
-                    reportResult.setComplete(reportItemList1);
-                    reportResult.setTotal(reportItemList3);
-                    reportResult.setRefuse(reportItemList2);
                 }
             } else {
                 if (null != parentCompany && parentCompany > 0) {
@@ -328,11 +318,14 @@ public class ReportController {
                     List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime, endTime, "template", null, null, contractType, null);
 
                     //计算公司报告
-                    ReportResult reportResultEnter = new ReportResult(oaEnterprise.getCompanyName(), oaEnterprise.getEnterpriseId(), 0, 0, 0, "0.00%");
+                    ReportResult reportResultEnter = new ReportResult(oaEnterprise.getCompanyName(), oaEnterprise.getEnterpriseId(),
+                            0, 0, 0,0L,0L,0L, "0.00%");
                     for (ReportItem ri : reportItemList3) {
                         if (!map.containsKey(ri.getId())) continue;
-                        if (mapSub.containsKey(ri.getId()))
+                        if (mapSub.containsKey(ri.getId())) {
                             reportResultEnter.setTotal(ri.getY() + reportResultEnter.getTotal());
+                            reportResultEnter.setPriceTotal(ri.getZ()+reportResultEnter.getPriceTotal());
+                        }
                         ReportResult reportResult = new ReportResult();
                         reportResults.add(reportResult);
                         reportResult.setEnterprise(map.get(ri.getId()).getCompanyName());
@@ -340,8 +333,10 @@ public class ReportController {
                         reportResult.setTotal(ri.getY());
                         for (ReportItem reportItem : reportItemList1) {
                             if (reportItem.getId() == ri.getId()) {
-                                if (mapSub.containsKey(ri.getId()))
+                                if (mapSub.containsKey(ri.getId())) {
                                     reportResultEnter.setComplete(reportItem.getY() + reportResultEnter.getComplete());
+                                    reportResultEnter.setPriceComplete(reportItem.getZ() + reportResultEnter.getPriceComplete());
+                                }
                                 reportResult.setComplete(reportItem.getY());
                             } else {
                                 reportResult.setComplete(0);
@@ -349,8 +344,10 @@ public class ReportController {
                         }
                         for (ReportItem reportItem : reportItemList2) {
                             if (reportItem.getId() == ri.getId()) {
-                                if (mapSub.containsKey(ri.getId()))
+                                if (mapSub.containsKey(ri.getId())) {
                                     reportResultEnter.setRefuse(reportItem.getY() + reportResultEnter.getRefuse());
+                                    reportResultEnter.setPriceRefuse(reportItem.getZ() + reportResultEnter.getPriceRefuse());
+                                }
                                 reportResult.setRefuse(reportItem.getY());
                             } else {
                                 reportResult.setRefuse(0);
@@ -363,7 +360,9 @@ public class ReportController {
                     reportResults1.add(reportResultEnter);
 
                     Integer total = 0, refuse = 0, complete = 0;
+                    long priceTotal = 0,priceRefuse=0,priceComplete=0;
                     Integer totalOther = 0, refuseOther = 0, completeOther = 0;
+                    long priceTotalOther = 0,refuseTotalOther = 0, completeTotalOther = 0;
                     for (ReportResult reportResult : reportResults) {
                         if (reportResult.getTotal() != null)
                             total += reportResult.getTotal();
@@ -371,6 +370,9 @@ public class ReportController {
                             refuse += reportResult.getRefuse();
                         if (reportResult.getComplete() != null)
                             complete += reportResult.getComplete();
+                        priceTotal+=reportResult.getPriceTotal();
+                        priceRefuse += reportResult.getPriceRefuse();
+                        priceComplete += reportResult.getPriceComplete();
 
                         if (!mapSub.containsKey(reportResult.getEnterpriseId())) {
                             if (reportResult.getTotal() != null)
@@ -379,10 +381,14 @@ public class ReportController {
                                 refuseOther += reportResult.getRefuse();
                             if (reportResult.getComplete() != null)
                                 completeOther += reportResult.getComplete();
+                            priceTotalOther += reportResult.getPriceTotal();
+                            refuseTotalOther += reportResult.getPriceRefuse();
+                            completeTotalOther += reportResult.getPriceComplete();
                         }
                     }
 
-                    ReportResult reportResult1 = new ReportResult("其他", -1, totalOther, refuseOther, completeOther, "");
+                    ReportResult reportResult1 = new ReportResult("其他", -1, totalOther, completeOther,refuseOther ,
+                            priceTotalOther,completeTotalOther,refuseTotalOther,"");
                     reportResults1.add(reportResult1);
                     if (headOffice == 1) {
                         reportResult1.setEnterprise("其他部门合计");
@@ -393,7 +399,7 @@ public class ReportController {
                     } else {
                         reportResult1.setEnterprise("其他");
                     }
-                    ReportResult reportResult2 = new ReportResult("总计", -1, total, refuse, complete, "");
+                    ReportResult reportResult2 = new ReportResult("总计", -1, total,complete, refuse, priceTotal,priceComplete,priceRefuse,"");
                     reportResults1.add(reportResult2);
                     reportResults = reportResults1;
 
@@ -502,10 +508,11 @@ public class ReportController {
                 List<ReportItem> reportItemList3 = contractCirculationService.groupFieldEnterpriseReport(startTime, endTime,"template", field, condition, null, null, contractType, null);
 
                 //总计
-                ReportResult reportResultTotal = new ReportResult("总计",-1,0,0,0,"");
+                ReportResult reportResultTotal = new ReportResult("总计",-1,0,0,0,0L,0L,0L,"");
                 Map<Integer, ReportItem> mapCompleted = new LinkedHashMap<>();
                 for (ReportItem reportItem : reportItemList1) {
                     reportResultTotal.setComplete(reportResultTotal.getComplete() + reportItem.getY());
+                    reportResultTotal.setPriceComplete(reportResultTotal.getPriceComplete()+reportItem.getZ());
                     if (map.containsKey(reportItem.getId())) {
                         reportItem.setName(map.get(reportItem.getId()).getCompanyName());
                         mapCompleted.put(reportItem.getId(), reportItem);
@@ -516,6 +523,7 @@ public class ReportController {
 
                 for (ReportItem reportItem : reportItemList2) {
                     reportResultTotal.setRefuse(reportResultTotal.getRefuse() + reportItem.getY());
+                    reportResultTotal.setPriceRefuse(reportResultTotal.getPriceRefuse() + reportItem.getZ());
                     if (map.containsKey(reportItem.getId())) {
                         reportItem.setName(map.get(reportItem.getId()).getCompanyName());
                         mapRefused.put(reportItem.getId(), reportItem);
@@ -526,6 +534,7 @@ public class ReportController {
 
                 for (ReportItem reportItem : reportItemList3) {
                     reportResultTotal.setTotal(reportResultTotal.getTotal() + reportItem.getY());
+                    reportResultTotal.setPriceTotal(reportResultTotal.getPriceTotal() + reportItem.getZ());
                     if (map.containsKey(reportItem.getId())) {
                         reportItem.setName(map.get(reportItem.getId()).getCompanyName());
                         mapTotal.put(reportItem.getId(), reportItem);
@@ -535,6 +544,7 @@ public class ReportController {
                     ReportResult reportResult = new ReportResult();
                     reportResults.add(reportResult);
                     reportResult.setTotal(ri.getY());
+                    reportResult.setPriceTotal(ri.getZ());
                     reportResult.setEnterpriseId(ri.getId());
                     reportResult.setEnterprise(ri.getName());
                     if (mapCompleted.containsKey(ri.getId())) {
@@ -555,7 +565,13 @@ public class ReportController {
 
                     //其他
                     ReportResult reportResultOther = new ReportResult("其他",-1,
-                            reportResultTotal.getTotal()-reportResultCur.getTotal(),reportResultTotal.getComplete()-reportResultCur.getComplete(),reportResultTotal.getRefuse()-reportResultCur.getRefuse(),"");
+                            reportResultTotal.getTotal()-reportResultCur.getTotal(),
+                            reportResultTotal.getComplete()-reportResultCur.getComplete(),
+                            reportResultTotal.getRefuse()-reportResultCur.getRefuse(),
+                            reportResultTotal.getPriceTotal()-reportResultCur.getPriceTotal(),
+                            reportResultTotal.getPriceComplete()-reportResultCur.getPriceComplete(),
+                            reportResultTotal.getPriceRefuse()-reportResultCur.getPriceRefuse(),
+                            "");
                     reportResults.clear();
                     reportResults.add(reportResultCur);
                     reportResults.add(reportResultOther);
@@ -687,7 +703,7 @@ public class ReportController {
                     Map<Integer,OAEnterprise> map = reportService.listEnterprise(oaEnterpriseList,subCompany);
                     Map<Integer,ReportItem> mapCompleted = new LinkedHashMap<>();
                     OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(parentCompany);
-                    ReportResult reportResultTotal = new ReportResult("总计",-1,0,0,0,"");
+                    ReportResult reportResultTotal = new ReportResult("总计",-1,0,0,0,0L,0L,0L,"");
                     // 归档数量
                     List<ReportItem> reportItemList1 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"custom","completed",null,contractType,null);
                     for(ReportItem reportItem:reportItemList1){
@@ -734,7 +750,11 @@ public class ReportController {
                     reportResults.clear();
                     reportResults.add(reportResult);
                     ReportResult reportResultOther = new ReportResult("其他公司",-1,reportResultTotal.getTotal()-reportResult.getTotal(),
-                            reportResultTotal.getComplete()-reportResult.getComplete(),reportResultTotal.getRefuse()-reportResult.getRefuse(),"");
+                            reportResultTotal.getComplete()-reportResult.getComplete(),reportResultTotal.getRefuse()-reportResult.getRefuse(),
+                            reportResultTotal.getPriceTotal()-reportResult.getPriceTotal(),
+                            reportResultTotal.getPriceComplete()-reportResult.getPriceComplete(),
+                            reportResultTotal.getPriceRefuse()-reportResult.getPriceRefuse(),
+                            "");
                     reportResults.add(reportResultOther);
 
                     reportResults.add(reportResultTotal);
@@ -742,27 +762,18 @@ public class ReportController {
                     OAUser oaUser = userService.getUserById(contractPromoter);
                     OAEnterprise enterprise = oaEnterpriseService.getEnterpriseById(oaUser.getEnterpriseId());
                     // 归档数量
-                    Integer reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"custom","completed",contractPromoter,null,null);
+                    ReportItem reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"custom","completed",contractPromoter,null,null);
                     // 退回数量
-                    Integer reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,"custom",null,contractPromoter,null,1);
+                    ReportItem reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,"custom",null,contractPromoter,null,1);
                     //发起数量
-                    Integer reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,"custom",null,contractPromoter,null,null);
-
-                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(),enterprise.getEnterpriseId(),reportItemList1,reportItemList2,reportItemList3,"");
-
+                    ReportItem reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,"custom",null,contractPromoter,null,null);
+                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(),enterprise.getEnterpriseId(),reportItemList3,reportItemList1,reportItemList2,"");
                     reportResults.add(reportResult);
-                    reportResult.setEnterprise(enterprise.getCompanyName());
-                    reportResult.setComplete(reportItemList1);
-                    reportResult.setTotal(reportItemList3);
-                    reportResult.setRefuse(reportItemList2);
-
                     reportResults = reportService.caculateRate(reportResults);
                     result.put("rows",reportResults);
                     result.put("total",reportResults.size());
                 }
-
             }
-
             reportResults = reportService.caculateRate(reportResults);
             result.put("rows",reportResults);
             result.put("total",reportResults.size());
@@ -815,7 +826,7 @@ public class ReportController {
                 List<ReportItem> reportItemList3 = contractCirculationService.groupFieldEnterpriseReport(startTime, endTime,templateType, field, condition, null, null, contractType, null);
 
                 //总计
-                ReportResult reportResultTotal = new ReportResult("总计",-1,0,0,0,"");
+                ReportResult reportResultTotal = new ReportResult("总计",-1,0,0,0,0l,0L,0L,"");
                 Map<Integer, ReportItem> mapCompleted = new LinkedHashMap<>();
                 for (ReportItem reportItem : reportItemList1) {
                     reportResultTotal.setComplete(reportResultTotal.getComplete() + reportItem.getY());
@@ -868,7 +879,13 @@ public class ReportController {
 
                     //其他
                     ReportResult reportResultOther = new ReportResult("其他",-1,
-                            reportResultTotal.getTotal()-reportResultCur.getTotal(),reportResultTotal.getComplete()-reportResultCur.getComplete(),reportResultTotal.getRefuse()-reportResultCur.getRefuse(),"");
+                            reportResultTotal.getTotal()-reportResultCur.getTotal(),
+                            reportResultTotal.getComplete()-reportResultCur.getComplete(),
+                            reportResultTotal.getRefuse()-reportResultCur.getRefuse(),
+                            reportResultTotal.getPriceTotal()-reportResultCur.getPriceTotal(),
+                            reportResultTotal.getPriceComplete()-reportResultCur.getPriceComplete(),
+                            reportResultTotal.getPriceRefuse()-reportResultCur.getPriceRefuse(),
+                            "");
                     reportResults.clear();
                     reportResults.add(reportResultCur);
                     reportResults.add(reportResultOther);
@@ -1019,7 +1036,11 @@ public class ReportController {
                 ReportResult reportResultOther = new ReportResult("其他总和",-1,
                         reportResultTotal.getTotal() - reportResultCur.getTotal(),
                         reportResultTotal.getComplete() - reportResultCur.getComplete(),
-                        reportResultTotal.getRefuse() - reportResultCur.getRefuse(),"0.00%");
+                        reportResultTotal.getRefuse() - reportResultCur.getRefuse(),
+                        reportResultTotal.getPriceTotal() - reportResultCur.getPriceTotal(),
+                        reportResultTotal.getPriceComplete() - reportResultCur.getPriceComplete(),
+                        reportResultTotal.getPriceRefuse() - reportResultCur.getPriceRefuse(),
+                        "0.00%");
                 reportResults.add(reportResultOther);
                 reportResults.add(reportResultTotal);
             }
@@ -1080,7 +1101,12 @@ public class ReportController {
                 ReportResult reportResultOther = new ReportResult("其他总和",-1,
                         reportResultTotal.getTotal() - reportResultCur.getTotal(),
                         reportResultTotal.getComplete() - reportResultCur.getComplete(),
-                        reportResultTotal.getRefuse() - reportResultCur.getRefuse(),"0.00%");
+                        reportResultTotal.getRefuse() - reportResultCur.getRefuse(),
+                        reportResultTotal.getPriceTotal() - reportResultCur.getPriceTotal(),
+                        reportResultTotal.getPriceComplete() - reportResultCur.getPriceComplete(),
+                        reportResultTotal.getPriceRefuse() - reportResultCur.getPriceRefuse(),
+                        "0.00%");
+
                 reportResults.add(reportResultOther);
                 reportResults.add(reportResultTotal);
             }
@@ -1120,33 +1146,24 @@ public class ReportController {
                 OAEnterprise enterprise = oaEnterpriseService.getEnterpriseById(parentCompany);
                 if(contractType != null && contractType >0){
                     // 归档数量
-                    Integer reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"template","completed",contractPromoter,contractType,null);
+                    ReportItem reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"template","completed",contractPromoter,contractType,null);
                     // 退回数量
-                    Integer reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,"template",null,contractPromoter,contractType,1);
+                    ReportItem reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,"template",null,contractPromoter,contractType,1);
                     //发起数量
-                    Integer reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,"template",null,contractPromoter,contractType,null);
-
-                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(),enterprise.getEnterpriseId(),reportItemList1,reportItemList2,reportItemList3,"");
+                    ReportItem reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,"template",null,contractPromoter,contractType,null);
+                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(),enterprise.getEnterpriseId(),reportItemList3,reportItemList1,reportItemList2,"");
                     reportResults.add(reportResult);
-                    reportResult.setEnterprise(enterprise.getCompanyName());
-                    reportResult.setComplete(reportItemList1);
-                    reportResult.setTotal(reportItemList3);
-                    reportResult.setRefuse(reportItemList2);
 
                 }else{
 
                     // 归档数量
-                    Integer reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"template","completed",contractPromoter,contractType,null);
+                    ReportItem reportItemList1 = contractCirculationService.groupUserReport(startTime,endTime,"template","completed",contractPromoter,contractType,null);
                     // 退回数量
-                    Integer reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,"template",null,contractPromoter,contractType,1);
+                    ReportItem reportItemList2 = contractCirculationService.groupUserReport(startTime,endTime,"template",null,contractPromoter,contractType,1);
                     //发起数量
-                    Integer reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,"template",null,contractPromoter,contractType,null);
-                    ReportResult reportResult = new ReportResult();
+                    ReportItem reportItemList3 = contractCirculationService.groupUserReport(startTime,endTime,"template",null,contractPromoter,contractType,null);
+                    ReportResult reportResult = new ReportResult(enterprise.getCompanyName(),enterprise.getEnterpriseId(),reportItemList3,reportItemList1,reportItemList2,"");
                     reportResults.add(reportResult);
-                    reportResult.setEnterprise(enterprise.getCompanyName());
-                    reportResult.setComplete(reportItemList1);
-                    reportResult.setTotal(reportItemList3);
-                    reportResult.setRefuse(reportItemList2);
                 }
             }else{
                 if(null != parentCompany && parentCompany >0){
@@ -1176,29 +1193,37 @@ public class ReportController {
                     List<ReportItem> reportItemList3 = contractCirculationService.groupEnterpriseReport(startTime,endTime,"template",null,null,contractType,null);
 
                     //计算公司报告
-                    ReportResult reportResultEnter = new ReportResult(oaEnterprise.getCompanyName(),oaEnterprise.getEnterpriseId(),0,0,0,"0.00%");
+                    ReportResult reportResultEnter = new ReportResult(oaEnterprise.getCompanyName(),oaEnterprise.getEnterpriseId(),0,0,0,0L,0L,0L,"0.00%");
                     for(ReportItem ri:reportItemList3 ){
                         if(!map.containsKey(ri.getId())) continue;
-                        if(mapSub.containsKey(ri.getId())) reportResultEnter.setTotal(ri.getY()+reportResultEnter.getTotal());
+                        if(mapSub.containsKey(ri.getId())){
+                            reportResultEnter.setTotal(ri.getY()+reportResultEnter.getTotal());
+                            reportResultEnter.setPriceTotal(ri.getZ()+reportResultEnter.getPriceTotal());
+                        }
                         ReportResult reportResult = new ReportResult();
                         reportResults.add(reportResult);
                         reportResult.setEnterprise(map.get(ri.getId()).getCompanyName());
                         reportResult.setEnterpriseId(ri.getId());
                         reportResult.setTotal(ri.getY());
+                        reportResult.setPriceTotal(ri.getZ());
                         for(ReportItem reportItem:reportItemList1) {
                             if(reportItem.getId() == ri.getId()) {
-                                if(mapSub.containsKey(ri.getId())) reportResultEnter.setComplete(reportItem.getY()+reportResultEnter.getComplete());
+                                if(mapSub.containsKey(ri.getId())) {
+                                    reportResultEnter.setComplete(reportItem.getY()+reportResultEnter.getComplete());
+                                    reportResultEnter.setPriceComplete(reportItem.getZ()+reportResultEnter.getPriceComplete());
+                                }
                                 reportResult.setComplete(reportItem.getY());
-                            }else{
-                                reportResult.setComplete(0);
+                                reportResult.setPriceComplete(reportItem.getZ());
                             }
                         }
                         for(ReportItem reportItem:reportItemList2) {
                             if(reportItem.getId() == ri.getId()) {
-                                if(mapSub.containsKey(ri.getId())) reportResultEnter.setRefuse(reportItem.getY()+reportResultEnter.getRefuse());
+                                if(mapSub.containsKey(ri.getId())) {
+                                    reportResultEnter.setRefuse(reportItem.getY()+reportResultEnter.getRefuse());
+                                    reportResultEnter.setPriceRefuse(reportItem.getZ()+reportResultEnter.getPriceRefuse());
+                                }
                                 reportResult.setRefuse(reportItem.getY());
-                            }else{
-                                reportResult.setRefuse(0);
+                                reportResult.setPriceRefuse(reportItem.getZ());
                             }
                         }
                     }
@@ -1208,7 +1233,10 @@ public class ReportController {
                     reportResults1.add(reportResultEnter);
 
                     Integer total =0,refuse=0,complete = 0;
+                    Long totalPrice =0L,refusePrice =0L,completePrice= 0L;
+
                     Integer totalOther =0,refuseOther =0,completeOther  = 0;
+                    Long totalOtherPrice =0L,refuseOtherPrice =0L,completeOtherPrice  = 0L;
                     for(ReportResult reportResult:reportResults){
                         if(reportResult.getTotal() != null)
                             total+=reportResult.getTotal();
@@ -1216,6 +1244,9 @@ public class ReportController {
                             refuse+=reportResult.getRefuse();
                         if(reportResult.getComplete() != null)
                             complete+=reportResult.getComplete();
+                        totalPrice+= reportResult.getPriceTotal();
+                        refusePrice+= reportResult.getPriceRefuse();
+                        completePrice+=reportResult.getPriceComplete();
 
                         if(!mapSub.containsKey(reportResult.getEnterpriseId())){
                             if(reportResult.getTotal() != null)
@@ -1224,10 +1255,13 @@ public class ReportController {
                                 refuseOther+=reportResult.getRefuse();
                             if(reportResult.getComplete() != null)
                                 completeOther+=reportResult.getComplete();
+                            totalOtherPrice+=reportResult.getPriceTotal();
+                            refuseOtherPrice+=reportResult.getPriceRefuse();
+                            completeOtherPrice+=reportResult.getPriceComplete();
                         }
                     }
 
-                    ReportResult reportResult1 = new ReportResult("其他",-1,totalOther,refuseOther,completeOther,"");
+                    ReportResult reportResult1 = new ReportResult("其他",-1,totalOther,completeOther,refuseOther,totalOtherPrice,completeOtherPrice,refuseOtherPrice,"");
                     reportResults1.add(reportResult1);
                     if(headOffice == 1) {
                         reportResult1.setEnterprise("其他部门合计");
@@ -1238,7 +1272,7 @@ public class ReportController {
                     }else{
                         reportResult1.setEnterprise("其他");
                     }
-                    ReportResult reportResult2 = new ReportResult("总计",-1,total,refuse,complete,"");
+                    ReportResult reportResult2 = new ReportResult("总计",-1,total,complete,refuse,totalPrice,completePrice,refusePrice,"");
                     reportResults1.add(reportResult2);
                     reportResults = reportResults1;
 
@@ -1272,11 +1306,14 @@ public class ReportController {
                         reportResult.setEnterpriseId(ri.getId());
                         reportResult.setEnterprise(map.get(ri.getId()).getCompanyName());
                         reportResult.setTotal(ri.getY());
+                        reportResult.setPriceTotal(ri.getZ());
                         if(mapCompleted.containsKey(ri.getId())) {
                             reportResult.setComplete(mapCompleted.get(ri.getId()).getY());
+                            reportResult.setPriceComplete(mapCompleted.get(ri.getId()).getZ());
                         }
                         if(mapRefused.containsKey(ri.getId())) {
                             reportResult.setRefuse(mapRefused.get(ri.getId()).getY());
+                            reportResult.setPriceRefuse(mapRefused.get(ri.getId()).getZ());
                         }
                     }
 
@@ -1370,9 +1407,17 @@ public class ReportController {
                 LinkedList<ReportItem> reportItems = new LinkedList<>();
                 reportEntity.setReportItemList(reportItems);
                 //统计已完成合同总数量（模板、自定义）
-                reportEntity.setTotal(contractCirculationService.total("completed",null,null,null,start,end));
+                ReportItem reportItem = contractCirculationService.total("completed",null,null,null,start,end);
+                if(null != reportItem) {
+                    reportEntity.setTotal(reportItem.getY());
+                    reportEntity.setTotalPrice(reportItem.getZ());
+                }
+
                 //统计已完成合同总数量（自定义）
-                reportEntity.setCustomNum(contractCirculationService.total("completed",null,null,"custom",start,end));
+                reportItem = contractCirculationService.total("completed",null,null,"custom",start,end);
+                if(null != reportItem) {
+                    reportEntity.setCustomNum(reportItem.getY());
+                }
                 reportEntity.setTemplateNum(reportEntity.getTotal() - reportEntity.getCustomNum());
                 reportEntity.setReportItemList(contractCirculationService.count(start,end));
 

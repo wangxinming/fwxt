@@ -2313,6 +2313,14 @@
             var fieldEnterpriseReport           = ' <li><a href="/index.html#/fieldEnterpriseReport">特别字段合同统计</a></li>';
             var nonFormatEnterpriseReport       = ' <li><a href="/index.html#/nonFormatEnterpriseReport">非格式合同统计</a></li>';
 
+
+            var parentLoanReport          = ' <li><a href="/index.html#/parentLoanReport">总公司金额统计</a></li>';
+            var secondaryLoanReport       = ' <li><a href="/index.html#/secondaryLoanReport">二级公司金额统计</a></li>';
+            var thirdLoanReport           = ' <li><a href="/index.html#/thirdLoanReport">三级公司金额统计</a></li>';
+            var locationLoanReport        = ' <li><a href="/index.html#/locationLoanReport">区域公司金额统计</a></li>';
+            var fieldLoanReport           = ' <li><a href="/index.html#/fieldLoanReport">特别字段金额统计</a></li>';
+            var nonFormatLoanReport       = ' <li><a href="/index.html#/nonFormatLoanReport">非格式金额统计</a></li>';
+
             var privateReport                   = ' <li><a href="/index.html#/privateReport">个人任务统计</a></li>';
             var fawu                            = '<li><a href="/index.html#/fawuReport">法务任务统计</a></li>';
 
@@ -2411,6 +2419,15 @@
                         tmp+=locationEnterpriseReport;
                         tmp+=fieldEnterpriseReport;
                         tmp+=nonFormatEnterpriseReport;
+
+                        tmp+=parentLoanReport;
+                        tmp+=secondaryLoanReport;
+                        tmp+=thirdLoanReport;
+                        tmp+=locationLoanReport;
+                        tmp+=fieldLoanReport;
+                        tmp+=nonFormatLoanReport;
+
+
                         tmp += fawu;
                     }
                     if(tmp.length > 0){
