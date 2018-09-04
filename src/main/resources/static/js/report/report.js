@@ -1895,7 +1895,6 @@
                             fnCallback(data);
                         }, function (error) {
                             Loading.hide();
-
                         });
                     }
                 }
