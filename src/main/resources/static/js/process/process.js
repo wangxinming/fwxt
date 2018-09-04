@@ -357,6 +357,9 @@
                 users: [],
                 ready: false,
                 action:{
+                    address:function(processId){
+                        alert(window.location.origin+"/workflow/process/download?processId="+processId);
+                    },
                     down: function (processId) {
                         window.open("/workflow/process/download?processId="+processId);
                     },
@@ -509,9 +512,9 @@
                         sTitle: "操作",
                         mData:"id",
                         mRender:function(mData,type,full) {
-
                             //class="fa fa-list-alt" class="fa fa-download"
                             return '<i><a title="详情"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')">详情</a></i>'+
+                                     '<i><a title="链接"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.address(\'' + mData + '\')">链接</a></i>'+
                                      '<i><a title="下载" ng-click="listPage.action.down(\'' + mData + '\')">下载</a></i>';
                                 // '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
@@ -519,7 +522,9 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4,5]}  //第 0,3列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,3列不可排序
+                    { sWidth: "16%", aTargets: [ 0,1,2,3,4] },
+                    { sWidth: "20%", aTargets: [ 5] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]

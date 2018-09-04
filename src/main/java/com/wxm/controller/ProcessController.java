@@ -216,15 +216,15 @@ public class ProcessController {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws Exception {
-        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) {
-            LOGGER.error("用户未登录");
-            throw new OAException(1101,"用户未登录");
-        }
+//        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+//        if(null == loginUser) {
+//            LOGGER.error("用户未登录");
+//            throw new OAException(1101,"用户未登录");
+//        }
         try {
 
             OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processId);
-            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 下载文件：%s",loginUser.getName(),oaContractCirculationWithBLOBs.getContractName())));
+//            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 下载文件：%s",loginUser.getName(),oaContractCirculationWithBLOBs.getContractName())));
             byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
             response.setContentType("application/x-download");
 //        String codedfilename = MimeUtility.encodeText( new String((oaContractCirculationWithBLOBs.getContractName()+".pdf").getBytes("UTF-8"), "ISO-8859-1"));
