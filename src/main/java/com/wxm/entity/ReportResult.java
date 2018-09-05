@@ -23,12 +23,12 @@ public class ReportResult {
     public ReportResult(String enterprise,Integer enterpriseId,Integer total,Integer complete,Integer refuse,Long priceTotal,Long priceComplete,Long priceRefuse,String rate){
         this.enterprise = enterprise;
         this.enterpriseId = enterpriseId;
-        this.total = total;
-        this.complete = complete;
-        this.refuse = refuse;
-        this.priceTotal = priceTotal;
-        this.priceComplete = priceComplete;
-        this.priceRefuse = priceRefuse;
+        this.total = total==null?0:total;
+        this.complete = complete==null?0:complete;
+        this.refuse = refuse ==null?0:refuse;
+        this.priceTotal = priceTotal == null?0:priceTotal;
+        this.priceComplete = priceComplete == null?0:priceComplete;
+        this.priceRefuse = priceRefuse == null?0:priceRefuse;
         this.rate = rate;
     }
 
@@ -38,16 +38,16 @@ public class ReportResult {
         this.enterpriseId = enterpriseId;
         this.rate = rate;
         if(null != itemTotal) {
-            this.total = itemTotal.getY();
-            this.priceTotal = itemTotal.getZ();
+            this.total = itemTotal.getY() == null?0:itemTotal.getY();
+            this.priceTotal = itemTotal.getZ() == null?0:itemTotal.getZ();
         }
         if(null != itemComplete){
-            this.complete = itemComplete.getY();
-            this.priceComplete  = itemComplete.getZ();
+            this.complete = itemComplete.getY() == null?0:itemComplete.getY();
+            this.priceComplete  = itemComplete.getZ() == null?0:itemComplete.getZ();
         }
         if(null != itemRefuse) {
-            this.refuse = itemRefuse.getY();
-            this.priceRefuse = itemRefuse.getZ();
+            this.refuse = itemRefuse.getY() == null?0:itemRefuse.getY();
+            this.priceRefuse = itemRefuse.getZ() == null?0:itemRefuse.getZ();
         }
     }
 
@@ -65,15 +65,15 @@ public class ReportResult {
     }
 
     public void setPriceComplete(Long priceComplete) {
-        this.priceComplete = priceComplete;
+        this.priceComplete = priceComplete==null?0:priceComplete;
     }
 
     public void setPriceRefuse(Long priceRefuse) {
-        this.priceRefuse = priceRefuse;
+        this.priceRefuse = priceRefuse == null?0:priceRefuse;
     }
 
     public void setPriceTotal(Long priceTotal) {
-        this.priceTotal = priceTotal;
+        this.priceTotal = priceTotal == null?0:priceTotal;
     }
 
     public void setEnterpriseId(Integer enterpriseId) {
@@ -85,7 +85,13 @@ public class ReportResult {
     }
 
     public void setTotal(Integer total) {
-        this.total = total;
+        this.total = total == null?0:total;
+    }
+    public void setComplete(Integer complete) {
+        this.complete = complete == null?0:complete;
+    }
+    public void setRefuse(Integer refuse) {
+        this.refuse = refuse == null?0:refuse;
     }
 
     public Integer getTotal() {
@@ -108,10 +114,6 @@ public class ReportResult {
         return rate;
     }
 
-    public void setComplete(Integer complete) {
-        this.complete = complete;
-    }
-
     public void setEnterprise(String enterprise) {
         this.enterprise = enterprise;
     }
@@ -120,7 +122,5 @@ public class ReportResult {
         this.rate = rate;
     }
 
-    public void setRefuse(Integer refuse) {
-        this.refuse = refuse;
-    }
+
 }

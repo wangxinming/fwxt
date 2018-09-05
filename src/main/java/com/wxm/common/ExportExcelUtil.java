@@ -17,19 +17,22 @@ import org.apache.poi.ss.util.CellRangeAddressList;
 
 public class ExportExcelUtil {
     private String[] excelHeader = { "公司名称", "发起合同数量", "被打回合同数量","存档合同数量","存档/发起比例"};
+    private String[] excelHeaderLoan = { "公司名称", "发起合同金额", "被打回合同金额","存档合同金额","存档/发起比例"};
     public ExportExcelUtil(){
 
     }
     public ExportExcelUtil(String[] excelHeader){
         this.excelHeader = excelHeader;
     }
-    public HSSFWorkbook exportExcel(String name ,List<ReportResult> list) {
+    public HSSFWorkbook exportExcel(String name ,List<ReportResult> list,Boolean loan) {
         HSSFWorkbook wb = new HSSFWorkbook();
         HSSFSheet sheet = wb.createSheet(name);
         HSSFRow row = sheet.createRow((int) 0);
         HSSFCellStyle style = wb.createCellStyle();
         style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
-
+        if(loan){
+            excelHeader = excelHeaderLoan;
+        }
         for (int i = 0; i < excelHeader.length; i++) {
             HSSFCell cell = row.createCell(i);
             cell.setCellValue(excelHeader[i]);
@@ -41,10 +44,16 @@ public class ExportExcelUtil {
         for (int i = 0; i < list.size(); i++) {
             row = sheet.createRow(i + 1);
             ReportResult reportResult = list.get(i);
+            if(loan){
+                row.createCell(1).setCellValue(reportResult.getPriceTotal());
+                row.createCell(2).setCellValue(reportResult.getPriceComplete());
+                row.createCell(3).setCellValue(reportResult.getPriceRefuse());
+            }else{
+                row.createCell(1).setCellValue(reportResult.getTotal());
+                row.createCell(2).setCellValue(reportResult.getComplete());
+                row.createCell(3).setCellValue(reportResult.getRefuse());
+            }
             row.createCell(0).setCellValue(reportResult.getEnterprise());
-            row.createCell(1).setCellValue(reportResult.getTotal());
-            row.createCell(2).setCellValue(reportResult.getComplete());
-            row.createCell(3).setCellValue(reportResult.getRefuse());
             row.createCell(4).setCellValue(reportResult.getRate());
         }
         return wb;

@@ -189,6 +189,7 @@ public class ReportController {
     public Object parentEnterpriseReport(HttpServletRequest request,
                                          @RequestParam(value = "headOffice", required = true) Integer headOffice,
                                          @RequestParam(value = "subCompany", required = false) boolean subCompany,
+                                         @RequestParam(value = "loan", required = false) boolean loan,
                                          @RequestParam(value = "parentCompany", required = false) Integer parentCompany,
                                          @RequestParam(value = "contractPromoter", required = false) Integer contractPromoter,
                                          @RequestParam(value = "contractType", required = false) Integer contractType,
@@ -206,7 +207,7 @@ public class ReportController {
             if (reportResults != null) {
 
                 ExportExcelUtil util = new ExportExcelUtil();// 创建工具类.
-                HSSFWorkbook wb = util.exportExcel("报表", reportResults);
+                HSSFWorkbook wb = util.exportExcel("报表", reportResults,loan);
                 response.setContentType("application/vnd.ms-excel");
                 String filename = java.net.URLEncoder.encode("报表.xls", "UTF-8");
                 response.setHeader("Content-Disposition", "attachment;filename=" + filename);
@@ -219,6 +220,8 @@ public class ReportController {
         }
         return null;
     }
+
+
     //特殊字段统计报表
     @RequestMapping(value = "/fieldReport",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -279,7 +282,45 @@ public class ReportController {
         }
         return result;
     }
+    //非格式合同统计报表
+    @RequestMapping(value = "/nonFormatReportExcel",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object nonFormatReportExcel(HttpServletRequest request,HttpServletResponse response,
+                                            @RequestParam(value = "headOffice", required = true) Integer headOffice,
+                                            @RequestParam(value = "subCompany", required = false) boolean subCompany,
+                                            @RequestParam(value = "parentCompany", required = false) Integer parentCompany,
+                                            @RequestParam(value = "loan", required = false) boolean loan,
+                                            @RequestParam(value = "contractPromoter", required = false) Integer contractPromoter,
+                                            @RequestParam(value = "contractType", required = false) Integer contractType,
+                                            @RequestParam(value = "startTime", required = true) Date startTime,
+                                            @RequestParam(value = "endTime", required = true) Date endTime)throws Exception {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
 
+        try{
+            List<ReportResult> reportResults = reportService.nonFormatReport(headOffice,subCompany,parentCompany,contractPromoter,
+                    contractType,startTime,endTime);
+
+            result.put("result", "success");
+            if(reportResults != null){
+                ExportExcelUtil util = new ExportExcelUtil();// 创建工具类.
+                HSSFWorkbook wb = util.exportExcel("非格式合同", reportResults,loan);
+                response.setContentType("application/vnd.ms-excel");
+                String filename = java.net.URLEncoder.encode("非格式合同报表.xls", "UTF-8");
+                response.setHeader("Content-Disposition", "attachment;filename=" + filename);
+                wb.write(response.getOutputStream());
+                response.getOutputStream().flush();
+                response.getOutputStream().close();
+            }
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+        }
+        return null;
+    }
 
     //导出区域统计报表
     @RequestMapping(value = "/fieldReportExcel",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
@@ -288,6 +329,7 @@ public class ReportController {
                                    @RequestParam(value = "headOffice", required = false) Integer headOffice,
                                    @RequestParam(value = "subCompany", required = false) boolean subCompany,
                                    @RequestParam(value = "parentCompany", required = false) Integer parentCompany,
+                                   @RequestParam(value = "loan", required = false) boolean loan,
                                    @RequestParam(value = "contractPromoter", required = false) Integer contractPromoter,
                                    @RequestParam(value = "contractType", required = false) Integer contractType,
                                    @RequestParam(value = "templateType", required = false) String templateType,
@@ -304,7 +346,7 @@ public class ReportController {
             result.put("result", "success");
             if(reportResults != null){
                 ExportExcelUtil util = new ExportExcelUtil();// 创建工具类.
-                HSSFWorkbook wb = util.exportExcel("报表", reportResults);
+                HSSFWorkbook wb = util.exportExcel("报表", reportResults,loan);
                 response.setContentType("application/vnd.ms-excel");
                 String filename = java.net.URLEncoder.encode("统计报表.xls", "UTF-8");
                 response.setHeader("Content-Disposition", "attachment;filename=" + filename);
@@ -322,6 +364,7 @@ public class ReportController {
     @ResponseBody
     public Object locationReport(HttpServletRequest request,HttpServletResponse response,
                                  @RequestParam(value = "location", required = false) String location,
+                                 @RequestParam(value = "loan", required = false) boolean loan,
                                  @RequestParam(value = "province", required = false) String province,
                                  @RequestParam(value = "city", required = false) String city,
                                  @RequestParam(value = "contractType", required = false) Integer contractType,
@@ -331,7 +374,7 @@ public class ReportController {
         List<ReportResult> reportResults = reportService.locationReport(location,province,city,contractType,startTime,endTime);
         if(null != reportResults){
             ExportExcelUtil util = new ExportExcelUtil();// 创建工具类.
-            HSSFWorkbook wb = util.exportExcel("报表", reportResults);
+            HSSFWorkbook wb = util.exportExcel("报表", reportResults,loan);
             response.setContentType("application/vnd.ms-excel");
             String filename = java.net.URLEncoder.encode("区域统计报表.xls", "UTF-8");
             response.setHeader("Content-Disposition", "attachment;filename=" + filename);

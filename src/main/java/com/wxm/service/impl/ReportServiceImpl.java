@@ -114,7 +114,7 @@ public class ReportServiceImpl implements ReportService {
             ReportResult reportResult = new ReportResult();
             reportResults.add(reportResult);
             reportResult.setEnterpriseId(ri.getId());
-            reportResult.setTotal(ri.getY());
+            reportResult.setTotal(ri.getY() == null?0:ri.getY());
             reportResult.setPriceTotal(ri.getZ());
             for(ReportItem reportItem:reportItemList1) {
                 if(reportItem.getId() == ri.getId()) {

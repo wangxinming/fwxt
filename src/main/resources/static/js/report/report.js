@@ -164,7 +164,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+ +"&startTime"+$scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&subCompany=true";
+                        var uri = "report/export?loan=false&headOffice="+ $scope.searchPage.data.headOffice+ +"&startTime="+$scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&subCompany=true";
                         if($scope.searchPage.data.parentCompany){
                             uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
                         }
@@ -197,6 +197,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -222,6 +224,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',name:'',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -525,7 +529,7 @@
                     },
                     export:function () {
 
-                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+"&startTime"+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+                        var uri = "report/export?loan=false&headOffice="+ $scope.searchPage.data.headOffice+"&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
 
                         if($scope.searchPage.data.parentCompany){
                             uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
@@ -562,6 +566,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -588,6 +594,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -597,8 +605,6 @@
                                     tmp.y = $scope.listPage.data[i].refuse;
                                 if($scope.listPage.complete)
                                     tmp.y = $scope.listPage.data[i].complete;
-                                // if($scope.listPage.rate)
-                                //     tmp.add("y",$scope.listPage.data[i].rate);
 
                                 $scope.chartSeriesPie[0].data.push(tmp);
                             }
@@ -876,7 +882,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+"&startTime"+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+                        var uri = "report/export?loan=false&headOffice="+ $scope.searchPage.data.headOffice+"&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
 
                         if($scope.searchPage.data.parentCompany){
                             uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
@@ -914,6 +920,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -939,6 +947,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -1286,7 +1296,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/locationReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+                        var uri = "report/locationReportExcel?loan=false&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
 
                         if($scope.searchPage.data.location){
                             uri += "&location="+ $scope.searchPage.data.location;
@@ -1323,6 +1333,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -1348,7 +1360,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
-                                var tmp = {};
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;                                var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
                                     tmp.y = $scope.listPage.data[i].total;
@@ -1703,7 +1716,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&templateType=custom";
+                        var uri = "report/nonFormatReportExcel?loan=false&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&templateType=custom";
                         if($scope.searchPage.data.headOffice){
                             uri += "&headOffice="+ $scope.searchPage.data.headOffice;
                         }
@@ -1739,6 +1752,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -1764,6 +1779,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -2121,7 +2138,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+                        var uri = "report/fieldReportExcel?loan=false&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
 
                         if($scope.searchPage.data.headOffice){
                             uri += "&headOffice="+ $scope.searchPage.data.headOffice;
@@ -2167,6 +2184,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -2192,6 +2211,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -2565,7 +2586,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+ +"&startTime"+$scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&subCompany=true";
+                        var uri = "report/export?loan=true&headOffice="+ $scope.searchPage.data.headOffice+ +"&startTime="+$scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&subCompany=true";
                         if($scope.searchPage.data.parentCompany){
                             uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
                         }
@@ -2598,6 +2619,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -2623,6 +2646,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',name:'',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -2926,7 +2951,7 @@
                     },
                     export:function () {
 
-                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+"&startTime"+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+                        var uri = "report/export?loan=true&headOffice="+ $scope.searchPage.data.headOffice+"&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
 
                         if($scope.searchPage.data.parentCompany){
                             uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
@@ -2963,6 +2988,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -2989,6 +3016,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -3277,7 +3306,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/export?headOffice="+ $scope.searchPage.data.headOffice+"&startTime"+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+                        var uri = "report/export?loan=true&headOffice="+ $scope.searchPage.data.headOffice+"&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
 
                         if($scope.searchPage.data.parentCompany){
                             uri += "&parentCompany="+ $scope.searchPage.data.parentCompany;
@@ -3315,6 +3344,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -3340,6 +3371,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -3687,7 +3720,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/locationReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+                        var uri = "report/locationReportExcel?loan=true&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
 
                         if($scope.searchPage.data.location){
                             uri += "&location="+ $scope.searchPage.data.location;
@@ -3724,6 +3757,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -3749,6 +3784,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -4104,7 +4141,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&templateType=custom";
+                        var uri = "report/fieldReportExcel?loan=true&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime+"&templateType=custom";
                         if($scope.searchPage.data.headOffice){
                             uri += "&headOffice="+ $scope.searchPage.data.headOffice;
                         }
@@ -4140,6 +4177,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -4165,6 +4204,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
@@ -4523,7 +4564,7 @@
                         $scope.searchPage.init();
                     },
                     export:function () {
-                        var uri = "report/fieldReportExcel?startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
+                        var uri = "report/fieldReportExcel?loan=true&startTime="+ $scope.searchPage.data.startTime+ "&endTime="+ $scope.searchPage.data.endTime;
 
                         if($scope.searchPage.data.headOffice){
                             uri += "&headOffice="+ $scope.searchPage.data.headOffice;
@@ -4569,6 +4610,8 @@
                             $scope.categories = [];
                             $scope.chartSeriesColumn = [];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 $scope.categories.push($scope.listPage.data[i].enterprise);
                                 if($scope.listPage.total) {
                                     total.data.push($scope.listPage.data[i].total);
@@ -4594,6 +4637,8 @@
                             $scope.listPage.graph = true;
                             $scope.chartSeriesPie = [{type: 'pie',data:[]}];
                             for(var i = 0;i<$scope.listPage.data.length;i++){
+                                if($scope.listPage.data[i].enterprise == '总计')
+                                    continue;
                                 var tmp = {};
                                 tmp.name = $scope.listPage.data[i].enterprise;
                                 if($scope.listPage.total) {
