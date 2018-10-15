@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+<header>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</header>
+
+<body>
+<script type="text/javascript">
+    function touch(){
+        $.ajax({
+            url: '/demo/list',
+            type: 'post',
+            complete: function(xhr){
+                console.log(xhr.status);
+            },
+            error: function (xhr) {
+                console.log(xhr.status);
+            }
+        });
+    }
+</script>
+<div>
+    <input type="button" onclick="touch()" value="302重定向">
+</div>
+</body>
+　<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+</html>

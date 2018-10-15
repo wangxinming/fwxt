@@ -122,7 +122,10 @@
                 </tr>
 
                 <tr ng-repeat="x in initiatorList">
-                    <td>{{ x.title }}</td>
+                    <td style="overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            max-width: 6em;">{{ x.title }}</td>
                     <td>{{ x.assignee}}</td>
                     <td>{{ x.duringTime }}</td>
                 </tr>
