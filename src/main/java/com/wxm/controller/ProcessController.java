@@ -448,11 +448,16 @@ public class ProcessController {
                 runtimeService.setVariable(task.getProcessInstanceId(), task.getId(), "重新提交 "+attachmentRefuse);
                 taskService.addComment(task.getId(), task.getProcessInstanceId(), "重新提交 "+attachmentRefuse);
                 result.put("result", "success");
-                String taskDefinitionKey = taskService.getVariable(task.getId(), "taskDefinitionKey").toString();
-                taskService.setVariable(task.getId(), "taskDefinitionKey",null);
-                taskProcessService.jump(taskDefinitionKey, task.getProcessInstanceId());
-                map.put("init","");
-                runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
+                Object o = taskService.getVariable(task.getId(), "taskDefinitionKey");
+                if(null == o){
+                    taskService.setAssignee(task.getId(),map.get("pmList"));
+                }else {
+                    String taskDefinitionKey = o.toString();
+                    taskService.setVariable(task.getId(), "taskDefinitionKey", null);
+                    taskProcessService.jump(taskDefinitionKey, task.getProcessInstanceId());
+                }
+                map.put("init", "");
+                runtimeService.setVariables(processInstance.getProcessInstanceId(), map);
                 oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
                 contractCirculationService.update(oaContractCirculationWithBLOBs);
 
@@ -490,13 +495,9 @@ public class ProcessController {
         }else{
             mapComment.put("cause", "拒绝");
         }
-//            JSONUtils.toJSONString(mapComment);
-            runtimeService.setVariable(task.getProcessInstanceId(), taskId, mapComment);
-//            taskService.addComment(task.getId(), task.getProcessInstanceId(), "拒绝  " + cause);
-//        }else{
-//            taskService.addComment(task.getId(), task.getProcessInstanceId(), "拒绝");
-////            runtimeService.setVariable(task.getProcessInstanceId(), taskId, "拒绝" );
-//        }
+        taskService.addComment(task.getId(), task.getProcessInstanceId(), "拒绝 "+cause);
+        runtimeService.setVariable(task.getProcessInstanceId(), taskId, mapComment);
+
         OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(task.getProcessInstanceId());
         OAContractCirculationWithBLOBs oa = new OAContractCirculationWithBLOBs();
         oa.setContractId(oaContractCirculation.getContractId());
@@ -506,29 +507,18 @@ public class ProcessController {
                 .finished()
                 .processInstanceId(task.getProcessInstanceId())
                 .orderByTaskCreateTime().asc().listPage(0,1);
+        runtimeService.setVariable(task.getProcessInstanceId(), "init", "restart");
         if(null != historicTaskInstanceList && historicTaskInstanceList.size() > 0 ){
             for(HistoricTaskInstance task1 : historicTaskInstanceList){
-//                if(task1.getAssignee() == null){
-
-                    taskProcessService.jump(task1.getTaskDefinitionKey(), task.getProcessInstanceId());
-                    runtimeService.setVariable(task.getProcessInstanceId(), "init", "start");
-//                    SimpleMailMessage message = new SimpleMailMessage();
-//                    message.setFrom("xxxx@qq.com");
-//                    message.setTo("xxxx@qq.com");
-//                    message.setSubject("流程审批");
-//                    message.setText("简单邮件内容+url");
-//                    mailService.send(message);
-
-                    task = taskService.createTaskQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
-                    taskService.setVariable(task.getId(),"taskDefinitionKey",taskDefinitionKey);
-                    String userStart = runtimeService.getVariable(task.getProcessInstanceId(),"user").toString();
-                    taskService.setAssignee(task.getId(),userStart);
-                    runtimeService.setVariable(task.getProcessInstanceId(),"taskDefinitionKeyShow",taskDefinitionKey);
-                    break;
-//                }
+                taskProcessService.jump(task1.getTaskDefinitionKey(), task.getProcessInstanceId());
+                task = taskService.createTaskQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+                taskService.setVariable(task.getId(),"taskDefinitionKey",taskDefinitionKey);
+                String userStart = runtimeService.getVariable(task.getProcessInstanceId(),"user").toString();
+                taskService.setAssignee(task.getId(),userStart);
+                runtimeService.setVariable(task.getProcessInstanceId(),"taskDefinitionKeyShow",taskDefinitionKey);
+                break;
             }
         }else{
-            runtimeService.setVariable(task.getProcessInstanceId(), "init", "start");
             String userStart = runtimeService.getVariable(task.getProcessInstanceId(),"user").toString();
             taskService.setAssignee(task.getId(),userStart);
         }
@@ -995,7 +985,7 @@ public class ProcessController {
                     taskInfo.setTitle(variableInstance.getTextValue());
                 }
                 variableInstance = runtimeService.getVariableInstance(task.getExecutionId(),"init");
-                if(null == variableInstance || null == variableInstance.getTextValue() || variableInstance.getTextValue().equals("start")){
+                if(null == variableInstance || null == variableInstance.getTextValue() || variableInstance.getTextValue().equals("start") || variableInstance.getTextValue().equals("restart")){
                     taskInfo.setOrder(1);
                 }else{
                     taskInfo.setOrder(0);
@@ -1197,14 +1187,14 @@ public class ProcessController {
                 .orderByProcessInstanceStartTime().desc()
 //                .variableValueEquals("user",loginUser.getName())
                 .startedBy(loginUser.getName())
-                .variableValueEquals("init","start")
+                .variableValueLike("init","start")
                 .unfinished()
                 .listPage(offset,limit);
 //        List<ProcessInstance> list = runtimeService.createProcessInstanceQuery().variableValueEquals("user",loginUser.getName())
 //                .variableValueEquals("init","start").list();
 //        long count = runtimeService.createProcessInstanceQuery().variableValueEquals("user",loginUser.getName())
 //                .variableValueEquals("init","start").count();
-        long count = historyService.createHistoricProcessInstanceQuery().variableValueEquals("init","start").startedBy(loginUser.getName()).unfinished().count();
+        long count = historyService.createHistoricProcessInstanceQuery().variableValueLike("init","start").startedBy(loginUser.getName()).unfinished().count();
 //        long count = historyService.createHistoricProcessInstanceQuery().variableValueEquals("user",loginUser.getName()) .variableValueEquals("init","start").count();
         for(HistoricProcessInstance processInstance : historicProcessInstanceList){
             //此处并联

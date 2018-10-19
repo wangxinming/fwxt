@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.wxm.model.OAUser;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -75,7 +76,7 @@ public class ImportExcelUtil {
                             }
                             break;
                         case 4://公司ID
-                            if(cell != null){
+                            if(cell != null && StringUtils.isNotBlank(cell.getStringCellValue())){
                                 oaUser.setEnterpriseId(Integer.parseInt(cell.getStringCellValue()));
                             }
                             break;
@@ -90,10 +91,15 @@ public class ImportExcelUtil {
                             }
                             break;
                         case 7://状态
-                            if(cell != null){
+                            if(cell != null && StringUtils.isNotBlank(cell.getStringCellValue())){
                                 oaUser.setUserStatus(Integer.parseInt(cell.getStringCellValue()));
                             }else{
                                 oaUser.setUserStatus(1);
+                            }
+                            break;
+                        case 8://邮编
+                            if(cell != null){
+                                oaUser.setUserEmail(cell.getStringCellValue());
                             }
                             break;
 //                        case 6://部门

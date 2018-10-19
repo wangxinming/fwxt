@@ -296,13 +296,13 @@ public class DeployController {
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 Object object = taskService.getVariable(task.getId(), "taskDefinitionKey");
-                if (object == null || StringUtils.isBlank(object.toString())) {
-                    result.put("showCommit", true);
-                } else {
+                Object restart = taskService.getVariable(task.getId(), "init");
+                if (object != null || restart != null) {
                     result.put("showCommit", false);
                     Object refuseTask = runtimeService.getVariable(task.getExecutionId(),"refuseTask");
                     result.put("refuse",refuseTask);
-
+                } else {
+                    result.put("showCommit", true);
                 }
             }
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(oaContractCirculation.getTemplateId());

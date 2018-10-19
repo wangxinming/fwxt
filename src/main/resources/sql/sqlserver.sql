@@ -74,7 +74,8 @@ EXECUTE sp_addextendedproperty N'MS_Description', N'模板内容', N'user', N'db
 EXECUTE sp_addextendedproperty N'MS_Description', N'模板描述信息', N'user', N'dbo', N'table', N'OA_CONTRACT_TEMPLATE', N'column', N'TEMPLATE_DES';
 EXECUTE sp_addextendedproperty N'MS_Description', N'模板创建时间', N'user', N'dbo', N'table', N'OA_CONTRACT_TEMPLATE', N'column', N'TEMPLATE_CREATETIME';
 
-INSERT INTO OA_CONTRACT_TEMPLATE(TEMPLATE_NAME,USER_ID,TEMPLATE_STATUS,TEMPLATE_HTML,TEMPLATE_CREATETIME) VALUES ('自定义合同',1,1,'<DIV style="margin-top: 25px;"></DIV>','2018-04-23 11:06:21.517');
+INSERT INTO OA_CONTRACT_TEMPLATE(TEMPLATE_NAME,USER_ID,TEMPLATE_STATUS,TEMPLATE_HTML,TEMPLATE_CREATETIME) VALUES ('非格式合同',1,1,'<DIV style="margin-top: 25px;"></DIV>','2018-04-23 11:06:21.517');
+INSERT INTO OA_CONTRACT_TEMPLATE(TEMPLATE_NAME,USER_ID,TEMPLATE_STATUS,TEMPLATE_HTML,TEMPLATE_CREATETIME) VALUES ('备案合同',1,1,'<DIV style="margin-top: 25px;"></DIV>','2018-04-23 11:06:21.517');
 /*
 <DIV style="margin-top: 25px;">
                 <div class="row" id="customFile">
