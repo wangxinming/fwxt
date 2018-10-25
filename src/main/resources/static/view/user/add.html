@@ -89,6 +89,7 @@
                             <!--<span ng-show="!userForm.userEmail.$error.email && userForm.email.$error.maxlength">超出长度限制.</span>-->
                         <!--</div>-->
                     </div>
+                    <span class="required">*</span>
                 </div>
                 <div class="form-group">
                     <label  class="col-md-3 control-label">公司</label>
@@ -109,14 +110,24 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label  class="col-md-3 control-label">岗位</label>
+                    <label  class="col-md-3 control-label">角色</label>
                     <div class="col-md-8">
-                        <input type="text" class="form-control"  name="userPosition" id="userPosition" ng-model="addPage.data.userPosition" placeholder="岗位" maxlength="190" required>
+                        <!--<input type="text" class="form-control"  name="userPosition" id="userPosition" ng-model="addPage.data.userPosition" placeholder="角色" maxlength="190" required>-->
+                        <select multiple="multiple" ui-select2="{allowClear : true}" class="select2" ng-model="addPage.data.userPosition" name="userPosition" style="width: 40em;" id="userPosition"  >
+                            <option value="法务">法务</option>
+                            <option value="项经部发起人">项经部发起人</option>
+                            <option value="项目经理">项目经理</option>
+                            <option value="项管部、分公司、总承包部主管科室经办人">项管部、分公司、总承包部主管科室经办人</option>
+                            <option value="项管部、分公司、总承包部主管科室经负责人">项管部、分公司、总承包部主管科室经负责人</option>
+                            <option value="项管部、分公司、总承包部部分管副总">项管部、分公司、总承包部部分管副总</option>
+                            <option value="项管部、分公司、总承包部部总经理">项管部、分公司、总承包部部总经理</option>
+                        </select>
                         <div class="required" ng-show="userForm.userPosition.$dirty && userForm.userPosition.$invalid">
                             <span ng-show="userForm.userPosition.$error.required">此项不能为空.</span>
                             <span ng-show="!userForm.userPosition.$error.required && userForm.userPosition.$error.maxlength">长度最大190位字符.</span>
                         </div>
                     </div>
+                    <span class="required">*</span>
                 </div>
 
                 <div class="form-group">

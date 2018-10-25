@@ -1925,6 +1925,8 @@
                     } else if ($scope.pageDialog.title === "修改用户") {
                         Loading.show();
                         $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
+                        if($scope.addPage.data.userPosition)
+                            $scope.addPage.data.userPosition = $scope.addPage.data.userPosition.join(',');
                         loader.userUpdate($scope.addPage.data,function(data){
                             if(data.result=="success"){
                                 Loading.hide();
@@ -2037,7 +2039,8 @@
                             $scope.addPage.data.userEmail = data.data.userEmail;
                             $scope.addPage.data.enterpriseId = data.data.enterpriseId;
                             $scope.addPage.data.userDepartment = data.data.userDepartment;
-                            $scope.addPage.data.userPosition = data.data.userPosition;
+                            if(data.data.userPosition)
+                            $scope.addPage.data.userPosition = data.data.userPosition.split(',');
                             $scope.addPage.data.userAddress = data.data.userAddress;
                             $scope.addPage.data.userPostcode = data.data.userPostcode;
                             $scope.addPage.data.userWeixin = data.data.userWeixin;
