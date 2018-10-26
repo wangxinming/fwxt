@@ -1634,32 +1634,33 @@
                     if(!text || text.trim()==""){
                         continue;
                     }
-                    if(text.length > parseInt($scope.fields[i].fieldValid)){
+
+                    if(text.length > parseInt($scope.fields[i].fieldValid.substring(2))){
                         toaster.pop('failed', "",$scope.fields[i].fieldName+"超过范围");
                         $('#'+$scope.fields[i].fieldMd5).focus();
                         return;
                     }
-                    // switch($scope.fields[i].fieldType){
-                    //     case 'D':
-                    //         if (isNaN( $('#'+$scope.fields[i].fieldMd5).val())){
-                    //             toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                    //             $('#'+$scope.fields[i].fieldMd5).focus();
-                    //             return;
-                    //         }
-                    //         break;
-                    //     case 'T':
-                    //         break;
-                    //     case 'YYYYMMDD':
-                    //         var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
-                    //         if(r==null){
-                    //             toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                    //             $('#'+$scope.fields[i].fieldMd5).focus();
-                    //             return;
-                    //         }
-                    //         break;
-                    //     default:
-                    //         break;
-                    // }
+                    switch($scope.fields[i].fieldValid.substring(0,2)){
+                        case 'DD':
+                            if (isNaN( $('#'+$scope.fields[i].fieldMd5).val())){
+                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                                $('#'+$scope.fields[i].fieldMd5).focus();
+                                return;
+                            }
+                            break;
+                        case 'TT':
+                            break;
+                        case 'YY'://YYYYMMDD
+                            var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
+                            if(r==null){
+                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                                $('#'+$scope.fields[i].fieldMd5).focus();
+                                return;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 var params = $("#orderFormInfo").serializeArray();
                 var values = {workStatus:$('#workStatus').val()};
@@ -1709,34 +1710,34 @@
                     if (!text || text.trim() == "") {
                         continue;
                     }
-                    if (text.length > parseInt($scope.fields[i].fieldValid)) {
+                    if (text.length > parseInt($scope.fields[i].fieldValid.substring(2))) {
                         toaster.pop('failed', "", $scope.fields[i].fieldName + "超过范围");
                         $('#' + $scope.fields[i].fieldMd5).focus();
                         return;
                     }
+
+                    switch($scope.fields[i].fieldType.substring(0,2)){
+                        case 'DD':
+                            if (isNaN( $('#'+$scope.fields[i].fieldMd5).val())){
+                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                                $('#'+$scope.fields[i].fieldMd5).focus();
+                                return;
+                            }
+                            break;
+                        case 'SS':
+                            break;
+                        case 'TT'://YYYYMMDD
+                            var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
+                            if(r==null){
+                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                                $('#'+$scope.fields[i].fieldMd5).focus();
+                                return;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                //     switch($scope.fields[i].fieldType){
-                //         case 'D':
-                //             if (isNaN( $('#'+$scope.fields[i].fieldMd5).val())){
-                //                 toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                //                 $('#'+$scope.fields[i].fieldMd5).focus();
-                //                 return;
-                //             }
-                //             break;
-                //         case 'T':
-                //             break;
-                //         case 'YYYYMMDD':
-                //             var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
-                //             if(r==null){
-                //                 toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                //                 $('#'+$scope.fields[i].fieldMd5).focus();
-                //                 return;
-                //             }
-                //             break;
-                //         default:
-                //             break;
-                //     }
-                // }
                 var params = $("#orderFormInfo").serializeArray();
                 var values = {workStatus:$scope.workStatus};
                 for(var i in params ){

@@ -201,10 +201,10 @@ public class ProcessTest {
 
 
         // 要验证的字符串
-        String str = "baike.xsoftlab.net<U>@@次数%%D##2</U>nihao";
+        String str = "baike.xsoftlab.net<U>@@次数%%D##2</U>nihao隧道工程有限公司<br>供方（卖方）：<textarea rows=\"50\" cols=\"30\" style=\"width: 100%;height: 100px;\" name=\"name_BCBBD8477488484CE77F041FFEDB3142\" id=\"name_BCBBD8477488484CE77F041FFEDB3142\" placeholder=\"供方（卖方）\"></textarea> <input type=\"checkbox\" style=\"display:none;height:10px;zoom:180%;\" name=\"checkbox_BCBBD8477488484CE77F041FFEDB3142\" id=\"checkbox_BCBBD8477488484CE77F041FFEDB3142\">";
         String testString = "java怎么利用<a href=\"https://www.baidu.com/s?wd=%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F&tn=44039180_cpr&fenlei=mv6quAkxTZn0IZRqIHckPjm4nH00T1Y3PH63nj7hm163PHbkuWT10ZwV5Hcvrjm3rH6sPfKWUMw85HfYnjn4nH6sgvPsT6KdThsqpZwYTjCEQLGCpyw9Uz4Bmy-bIi4WUvYETgN-TLwGUv3EnW0LP1bvnWfYPj0vP1bLPjTsr0\" target=\"_blank\" class=\"baidu-highlight\">正则表达式</a>从给定的字符串中取出匹配规则字符串";
 //        Pattern pattern = Pattern.compile("<U>([^</U>]*)");
-        Pattern pattern = Pattern.compile("<U>([\\s\\S]*?)</U>");
+        Pattern pattern = Pattern.compile("<textarea([\\s\\S]*?)></textarea>");
 
         Matcher matcher = pattern.matcher(str);
         while(matcher.find()) {

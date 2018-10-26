@@ -785,17 +785,91 @@ public class ProcessController {
         }
         return result;
     }
+    private String completeWithBlank(String src,Integer size){
+        int pre = (size-src.length())/2;
+        int post = (size-src.length())-pre;
+        StringBuffer tmp = new StringBuffer();
+        for (int i = 0; i < pre; i++) {
+            tmp.append("&ensp;");
+        }
+        tmp.append(src).toString();
+        for (int i = 0; i < post; i++) {
+            tmp.append("&ensp;");
+        }
+        return tmp.toString();
 
-    private String fillValue(String processInstancesId,StringBuilder text){
+    }
 
+    private String fillValue(String processInstancesId,StringBuilder text,Map<String,Integer> linkedHashMap){
         Pattern pattern = Pattern.compile("<input([\\s\\S]*?)>");
         Matcher matcher = pattern.matcher(text);
-        Map<String,String> map = new LinkedHashMap<>();
+        List<String> stringList = new LinkedList<>();
         while(matcher.find()) {
-            String tmp = matcher.group();
-            String name = tmp.substring(tmp.indexOf("id=")+4);
+            try {
+                String tmp = matcher.group();
+                String name = tmp.substring(tmp.indexOf("id=") + 4);
+                name = name.substring(0, name.indexOf("\""));
+                stringList.add(tmp);
+            }catch (Exception e){
+                LOGGER.info("",e);
+            }
+//            map.put(name,tmp);
+        }
+        pattern = Pattern.compile("<textarea([\\s\\S]*?)></textarea>");
+        matcher = pattern.matcher(text);
+        while(matcher.find()){
+            try {
+                String tmp = matcher.group();
+                String name = tmp.substring(tmp.indexOf("id=") + 4);
+                name = name.substring(0, name.indexOf("\""));
+                stringList.add(tmp);
+            }catch (Exception e){
+                LOGGER.info("",e);
+            }
+        }
+        List<HistoricVariableInstance> historicVariableInstanceList =  historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(processInstancesId).list();
+        Map<String,String> stringStringMap = new LinkedHashMap<>();
+        for(HistoricVariableInstance historicVariableInstance : historicVariableInstanceList){
+            if(historicVariableInstance.getVariableName().contains("name_") && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString()) ) {
+                stringStringMap.put(historicVariableInstance.getVariableName(), historicVariableInstance.getValue().toString());
+            }
+        }
+        for(String str:stringList){
+            if(null == str) continue;
+            String name = str.substring(str.indexOf("id=")+4);
             name = name.substring(0,name.indexOf("\""));
-            map.put(name,tmp);
+            int start = text.indexOf(str);
+//            if (size > 0 && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString())) {
+//                String inputValue = map.get(historicVariableInstance.getVariableName());
+//                if(null == text || inputValue == null) continue;
+//                int start = text.indexOf(inputValue);
+//                String value = historicVariableInstance.getValue().toString();
+//                value = completeWithBlank(value,linkedHashMap.get(historicVariableInstance.getVariableName()));
+//                text.replace(start,start+inputValue.length(),String.format("<u>%s</u>",value));
+//            }
+
+            String value;
+            if(stringStringMap.containsKey(name)){
+                 value =  stringStringMap.get(name).toString();
+
+            }else{
+                value= "无";
+            }
+            if(linkedHashMap.containsKey(name)) {
+                if(str.contains("checkbox")){
+                    if(!value.equals("无")) {
+                        text.replace(start, start + str.length(), "<span>√</span>");
+//                        text.insert(start + 6, "<span style=\"font-family:'Wingdings 2'; font-size:12pt\">\uF052</span>");
+                    }
+                    else{
+                        text.replace(start, start + str.length(), "<span style=\"font-family:宋体; font-size:12pt\">□</span>");
+                    }
+                }else {
+                    value = completeWithBlank(value, linkedHashMap.get(name));
+                    text.replace(start, start + str.length(), String.format("<u>%s</u>", value));
+                }
+            }
         }
 //        for(String str : set){
 //
@@ -803,19 +877,21 @@ public class ProcessController {
 //            text.replace(start,start+str.length(),"hello");
 //        }
 
-        List<HistoricVariableInstance> historicVariableInstanceList =  historyService.createHistoricVariableInstanceQuery()
-                .processInstanceId(processInstancesId).list();
-        for(HistoricVariableInstance historicVariableInstance : historicVariableInstanceList){
-            if(historicVariableInstance.getVariableName().contains("name_")) {
-                int size = text.indexOf(historicVariableInstance.getVariableName());
-                if (size > 0 && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString())) {
-                    String inputValue = map.get(historicVariableInstance.getVariableName());
-                    if(null == text || inputValue == null) continue;
-                    int start = text.indexOf(inputValue);
-                    text.replace(start,start+inputValue.length(),String.format("<u>%s</u>",historicVariableInstance.getValue().toString()));
-                }
-            }
-        }
+
+
+//        for(HistoricVariableInstance historicVariableInstance : historicVariableInstanceList){
+//            if(historicVariableInstance.getVariableName().contains("name_")) {
+//                int size = text.indexOf(historicVariableInstance.getVariableName());
+//                if (size > 0 && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString())) {
+//                    String inputValue = map.get(historicVariableInstance.getVariableName());
+//                    if(null == text || inputValue == null) continue;
+//                    int start = text.indexOf(inputValue);
+//                    String value = historicVariableInstance.getValue().toString();
+//                    value = completeWithBlank(value,linkedHashMap.get(historicVariableInstance.getVariableName()));
+//                    text.replace(start,start+inputValue.length(),String.format("<u>%s</u>",value));
+//                }
+//            }
+//        }
         return text.toString();
     }
     //完成任务
@@ -882,11 +958,16 @@ public class ProcessController {
                 sb.append(historicVariableInstance.getValue().toString());
                 sb.append("</title>");
                 sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
+//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
                 sb.append("<body>");
                 sb.append(html);
                 sb.append("</body></html>");
-
-                String data = fillValue(processInstancesId, sb);
+                List<OAFormProperties> formPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
+                Map<String,Integer> linkedHashMap = new LinkedHashMap();
+                for(OAFormProperties oaFormProperties:formPropertiesList){
+                    linkedHashMap.put(oaFormProperties.getFieldMd5(),Integer.parseInt(oaFormProperties.getFieldValid().substring(2)));
+                }
+                String data = fillValue(processInstancesId, sb,linkedHashMap);
                 try {
 //                String path = PropertyUtil.getValue("contract.template.path");
                     String fileHtml = contractPath + historicVariableInstance.getValue().toString() + ".html";

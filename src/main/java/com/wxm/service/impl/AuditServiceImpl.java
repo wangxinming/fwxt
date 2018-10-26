@@ -51,7 +51,7 @@ public class AuditServiceImpl implements AuditService {
                 userName = null;
             }
             result.put("rows",oaAuditMapper.list(offset,limit,userName,startTime,endTime));
-            result.put("total",oaAuditMapper.count(userName,endTime,endTime));
+            result.put("total",oaAuditMapper.count(userName,startTime,endTime));
         }catch (Exception e){
             result.put("result","failed");
             LOGGER.error("异常",e);
