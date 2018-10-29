@@ -41,6 +41,9 @@ public class HtmlProcess {
                         "<([^>]*)(?:lang|LANG|class|CLASS|style|STYLE|size|SIZE|face|FACE|[ovwxpOVWXP]:\\w+)=(?:'[^']*'|\"\"[^\"\"]*\"\"|[^>]+)([^>]*)>",
                         "<$1$2>");
 
+
+        //替换 ^为 &ensp;
+        htmlStr = htmlStr.replaceAll("\\^","&ensp;");
         // 删除</U><U>
         htmlStr = htmlStr.replaceAll("<U>","");
         htmlStr = htmlStr.replaceAll("</U>","");

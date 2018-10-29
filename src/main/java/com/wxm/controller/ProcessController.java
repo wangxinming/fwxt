@@ -49,6 +49,8 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +58,7 @@ import java.util.regex.Pattern;
 @RequestMapping(value = "/workflow/process/")
 public class ProcessController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessController.class);
+    private ExecutorService threadPoolService = Executors.newFixedThreadPool(1,new NameThreadFactory("html2pdf"));
     @Autowired
     private RepositoryService repositoryService;
     @Autowired
@@ -431,19 +434,23 @@ public class ProcessController {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
+
         identityService.setAuthenticatedUserId(loginUser.getName());
         Map<String, Object> result = new HashMap<>();
         String processInstanceId = map.get("processInstanceId");
         String info = "";
         if(StringUtils.isNotBlank(processInstanceId)) {
             try{
+                String custom = map.get("custom");
                 String deploymentID = map.get("id");
 //                OADeploymentTemplateRelation oaDeploymentTemplateRelation = oaDeploymentTemplateService.selectByDeploymentId(deploymentID);
                 OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstanceId);
                 auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 任务跳转到审批人，实例编号：%s",loginUser.getName(),processInstanceId)));
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
-
+                if(StringUtils.isNotBlank(custom) && !custom.equals(processInstanceId)) {
+                    oaAttachmentService.updateByProcessId(custom,processInstanceId);
+                }
                 String attachmentRefuse = map.get("attachmentRefuse");
                 runtimeService.setVariable(task.getProcessInstanceId(), task.getId(), "重新提交 "+attachmentRefuse);
                 taskService.addComment(task.getId(), task.getProcessInstanceId(), "重新提交 "+attachmentRefuse);
@@ -789,115 +796,9 @@ public class ProcessController {
         }
         return result;
     }
-    private String completeWithBlank(String src,Integer size){
-        int pre = (size-src.length())/2;
-        int post = (size-src.length())-pre;
-        StringBuffer tmp = new StringBuffer();
-        for (int i = 0; i < pre; i++) {
-            tmp.append("&ensp;");
-        }
-        tmp.append(src).toString();
-        for (int i = 0; i < post; i++) {
-            tmp.append("&ensp;");
-        }
-        return tmp.toString();
-
-    }
-
-    private String fillValue(String processInstancesId,StringBuilder text,Map<String,Integer> linkedHashMap){
-        Pattern pattern = Pattern.compile("<input([\\s\\S]*?)>");
-        Matcher matcher = pattern.matcher(text);
-        List<String> stringList = new LinkedList<>();
-        while(matcher.find()) {
-            try {
-                String tmp = matcher.group();
-                String name = tmp.substring(tmp.indexOf("id=") + 4);
-                name = name.substring(0, name.indexOf("\""));
-                stringList.add(tmp);
-            }catch (Exception e){
-                LOGGER.info("",e);
-            }
-//            map.put(name,tmp);
-        }
-        pattern = Pattern.compile("<textarea([\\s\\S]*?)></textarea>");
-        matcher = pattern.matcher(text);
-        while(matcher.find()){
-            try {
-                String tmp = matcher.group();
-                String name = tmp.substring(tmp.indexOf("id=") + 4);
-                name = name.substring(0, name.indexOf("\""));
-                stringList.add(tmp);
-            }catch (Exception e){
-                LOGGER.info("",e);
-            }
-        }
-        List<HistoricVariableInstance> historicVariableInstanceList =  historyService.createHistoricVariableInstanceQuery()
-                .processInstanceId(processInstancesId).list();
-        Map<String,String> stringStringMap = new LinkedHashMap<>();
-        for(HistoricVariableInstance historicVariableInstance : historicVariableInstanceList){
-            if(historicVariableInstance.getVariableName().contains("name_") && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString()) ) {
-                stringStringMap.put(historicVariableInstance.getVariableName(), historicVariableInstance.getValue().toString());
-            }
-        }
-        for(String str:stringList){
-            if(null == str) continue;
-            String name = str.substring(str.indexOf("id=")+4);
-            name = name.substring(0,name.indexOf("\""));
-            int start = text.indexOf(str);
-//            if (size > 0 && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString())) {
-//                String inputValue = map.get(historicVariableInstance.getVariableName());
-//                if(null == text || inputValue == null) continue;
-//                int start = text.indexOf(inputValue);
-//                String value = historicVariableInstance.getValue().toString();
-//                value = completeWithBlank(value,linkedHashMap.get(historicVariableInstance.getVariableName()));
-//                text.replace(start,start+inputValue.length(),String.format("<u>%s</u>",value));
-//            }
-
-            String value;
-            if(stringStringMap.containsKey(name)){
-                 value =  stringStringMap.get(name).toString();
-
-            }else{
-                value= "无";
-            }
-            if(linkedHashMap.containsKey(name)) {
-                if(str.contains("checkbox")){
-                    if(!value.equals("无")) {
-                        text.replace(start, start + str.length(), "<span>√</span>");
-//                        text.insert(start + 6, "<span style=\"font-family:'Wingdings 2'; font-size:12pt\">\uF052</span>");
-                    }
-                    else{
-                        text.replace(start, start + str.length(), "<span style=\"font-family:宋体; font-size:12pt\">□</span>");
-                    }
-                }else {
-                    value = completeWithBlank(value, linkedHashMap.get(name));
-                    text.replace(start, start + str.length(), String.format("<u>%s</u>", value));
-                }
-            }
-        }
-//        for(String str : set){
-//
-//            int start = text.indexOf(str);
-//            text.replace(start,start+str.length(),"hello");
-//        }
 
 
 
-//        for(HistoricVariableInstance historicVariableInstance : historicVariableInstanceList){
-//            if(historicVariableInstance.getVariableName().contains("name_")) {
-//                int size = text.indexOf(historicVariableInstance.getVariableName());
-//                if (size > 0 && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString())) {
-//                    String inputValue = map.get(historicVariableInstance.getVariableName());
-//                    if(null == text || inputValue == null) continue;
-//                    int start = text.indexOf(inputValue);
-//                    String value = historicVariableInstance.getValue().toString();
-//                    value = completeWithBlank(value,linkedHashMap.get(historicVariableInstance.getVariableName()));
-//                    text.replace(start,start+inputValue.length(),String.format("<u>%s</u>",value));
-//                }
-//            }
-//        }
-        return text.toString();
-    }
     //完成任务
     @RequestMapping(value = "complete", method = RequestMethod.POST,produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -954,7 +855,10 @@ public class ProcessController {
                 runtimeService.setVariable(processInstancesId,"instanceStatus","completed");
                 HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstancesId).variableName("title").singleResult();
 //            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstancesId,"title");
-                String html = oaContractCirculationWithBLOBs.getContractHtml();
+//                String html = oaContractCirculationWithBLOBs.getContractHtml();
+
+                OAContractTemplate oa = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
+                String html = oa.getTemplateHtml();
                 StringBuilder sb = new StringBuilder(html.length() + 300);
                 sb.append("<!DOCTYPE html>");
                 sb.append("<head>");
@@ -967,33 +871,31 @@ public class ProcessController {
                 sb.append(html);
                 sb.append("</body></html>");
                 List<OAFormProperties> formPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
+
                 Map<String,Integer> linkedHashMap = new LinkedHashMap();
                 for(OAFormProperties oaFormProperties:formPropertiesList){
                     linkedHashMap.put(oaFormProperties.getFieldMd5(),Integer.parseInt(oaFormProperties.getFieldValid().substring(2)));
                 }
-                String data = fillValue(processInstancesId, sb,linkedHashMap);
-                try {
-//                String path = PropertyUtil.getValue("contract.template.path");
-                    String fileHtml = contractPath + historicVariableInstance.getValue().toString() + ".html";
-                    String filePf = contractPath + historicVariableInstance.getValue().toString() + ".pdf";
-
-//                OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(fileHtml),"UTF-8");
-//                BufferedWriter writer=new BufferedWriter(write);
-//                writer.write(data);
-//                writer.close();
-                    PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
-                    printStream.println(data);
-                    //转换成pdf文件
-                    File htmlFile = Word2Html.html2pdf(fileHtml, openOfficePath);
-                    // 获取pdf文件流
-                    byte[] pdf = FileByte.getByte(filePf);
-                    tmp.setContractStatus("completed");
-                    // HTML文件字符串
-                    tmp.setContractPdf(pdf);
-                    contractCirculationService.update(tmp);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+                Html2PdfTask html2PdfTask = new Html2PdfTask(sb,contractCirculationService,linkedHashMap,processInstancesId,tmp
+                ,contractPath + historicVariableInstance.getValue().toString(),openOfficePath,historyService);
+                threadPoolService.execute(html2PdfTask);
+//                try {
+//                    String data = fillValue(processInstancesId, sb,linkedHashMap);
+//                    String fileHtml = contractPath + historicVariableInstance.getValue().toString() + ".html";
+//                    String filePf = contractPath + historicVariableInstance.getValue().toString() + ".pdf";
+//                    PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
+//                    printStream.println(data);
+//                    //转换成pdf文件
+//                    File htmlFile = Word2Html.html2pdf(fileHtml, openOfficePath);
+//                    // 获取pdf文件流
+//                    byte[] pdf = FileByte.getByte(filePf);
+//                    tmp.setContractStatus("completed");
+//                    // HTML文件字符串
+//                    tmp.setContractPdf(pdf);
+//                    contractCirculationService.update(tmp);
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                }
             }
         }else{
             auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 完成任务审批",loginUser.getName())));

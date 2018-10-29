@@ -34,6 +34,11 @@ public class OAAttachmentServiceImpl implements OAAttachmentService {
     }
 
     @Override
+    public Integer deleteByName(String name) {
+        return oaAttachmentMapper.deleteByName(name);
+    }
+
+    @Override
     public List<OAAttachment> list(Integer contractId) {
         return oaAttachmentMapper.list(contractId);
     }

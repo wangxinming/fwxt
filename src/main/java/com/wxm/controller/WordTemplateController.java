@@ -193,6 +193,27 @@ public class WordTemplateController {
         return null;
     }
 
+
+
+
+    @RequestMapping(value = "/deleteAttachment", method = RequestMethod.GET)
+    @ResponseBody
+    public Object fileDeleteByName( HttpServletRequest request){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "failed");
+        String name = request.getParameter("fileName");
+        if(StringUtils.isNotBlank(name)) {
+            oaAttachmentService.deleteByName(name);
+            result.put("result", "success");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 删除附件",loginUser.getName())));
+        return result;
+    }
     @RequestMapping(value = "/fileDelete", method = RequestMethod.DELETE)
     @ResponseBody
     public Object fileDelete( HttpServletRequest request){

@@ -48,6 +48,10 @@
     delete from OA_ATTACHMENT
     where ATTACHMENT_ID = #{attachmentId,jdbcType=INTEGER}
   </delete>
+  <delete id="deleteByName">
+     delete from OA_ATTACHMENT
+     where FILE_NAME = #{fileName}
+  </delete>
   <insert id="insert" parameterType="com.wxm.model.OAAttachment" useGeneratedKeys="true"  keyProperty = "attachmentId" keyColumn = "ATTACHMENT_ID">
     insert into OA_ATTACHMENT (ATTACHMENT_ID, CONTRACT_ID, PROCESS_ID, FILE_NAME,
       CREATE_TIME, FILE_CONTENT)

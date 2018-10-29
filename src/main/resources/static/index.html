@@ -179,10 +179,15 @@
 <script src="lib/js/ajaxfileupload.js"></script>
 </body>
 <script type="application/javascript">
-    function deleteFile(event){
+    function deleteFile(file){
         var parentNode = this.event.target.parentNode;
-        if (parentNode != null)
-            parentNode.parentNode.removeChild(parentNode);
+        $.get("/template/deleteAttachment?fileName="+file,function (data,status) {
+            if(data.result == "success"){
+                if (parentNode != null)
+                    parentNode.parentNode.removeChild(parentNode);
+            }
+        });
+
     };
 
     function uploadFile(){

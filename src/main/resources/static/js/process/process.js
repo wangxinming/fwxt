@@ -1601,7 +1601,7 @@
                         toaster.pop('success', "","上传成功");
                         // var html = '<i class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.displayName+'</i>';
                         var html = '<a href="javascript:void(0);" class="fa fa-download" title="下载" onclick=\'javascript:window.open(\"template/download?fileName='+data.file + '\");\'>'+data.displayName+'</a>';
-                        var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(this);"  class="btn btn-primary btn-lg" />';
+                        var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(\''+data.file+'\');"  class="btn btn-primary btn-lg" />';
                         $('#download'+uploadAttachment).html('<div>'+html+deleteHtml+'</div>');
                         $('#custom').val(data.uid);
                     },error: function (data, status, e){
@@ -1683,15 +1683,31 @@
                     $scope.showCommit =  data.showCommit;
                     $('#refuseCause').text(data.refuse);
                     if(data.download){
-                        var tal = "";
+                        // var uploadAttachment = 1;
+                        // if(!$("#download1")[0].innerText)         uploadAttachment = 1;
+                        // else if(!$("#download2")[0].innerText)   uploadAttachment = 2;
+                        // else if(!$("#download3")[0].innerText)   uploadAttachment = 3;
+                        // else if(!$("#download4")[0].innerText)   uploadAttachment = 4;
+                        // else if(!$("#download5")[0].innerText)   uploadAttachment = 5;
+                        // var html = '<a href="javascript:void(0);" class="fa fa-download" title="下载" onclick=\'javascript:window.open(\"template/download?fileName='+data.file + '\");\'>'+data.displayName+'</a>';
+                        // var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(this);"  class="btn btn-primary btn-lg" />';
+                        // $('#download'+uploadAttachment).html('<div>'+html+deleteHtml+'</div>');
+
+                        // var tal = "";
                         for(var i=0;i<data.download.length;i++){
+                            var uploadAttachment= i+1;
                             var file = data.download[i].fileName;
                             var display = file.substring(file.indexOf('_')+1);
-                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
-                            tal += html;
+                            var html = '<a href="javascript:void(0);" class="fa fa-download" title="下载" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a>';
+                            var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(\''+file+'\');"  class="btn btn-primary btn-lg" />';
+                            $('#download'+uploadAttachment).html('<div>'+html+deleteHtml+'</div>');
+                            // var file = data.download[i].fileName;
+                            // var display = file.substring(file.indexOf('_')+1);
+                            // var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                            // tal += html;
                         }
                         // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
-                        $('#download').html(tal);
+                        // $('#download').html(tal);
                     }
                     // var tal = "";
                     // for(var i=0;i<data.download.length;i++){

@@ -8,6 +8,8 @@ import java.util.List;
 public interface OAAttachmentMapper {
     int deleteByPrimaryKey(Integer attachmentId);
 
+    int deleteByName(@Param("fileName") String fileName);
+
     int insert(OAAttachment record);
 
     int insertSelective(OAAttachment record);
