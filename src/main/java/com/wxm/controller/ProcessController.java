@@ -539,7 +539,7 @@ public class ProcessController {
         String info = "";
         String processInstanceId = map.get("processInstanceId");
         String workStatus = map.get("workStatus");
-        String custom = map.get("custom");
+        String custom = map.get("custom");//附件processID编号，或者没有processID用 用户名替换
         String buyer =  map.get("buyer");
         String seller =  map.get("seller");
         String money =  map.get("money");
@@ -587,13 +587,14 @@ public class ProcessController {
 //                    if(oaContractTemplate.getTemplateName().contains("自定义")) {
                     OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
                     contractCirculationWithBLOBs.setContractId(oaContractCirculation.getContractId());
-                    if (StringUtils.isNotBlank(custom)) {
+                    if (StringUtils.isNotBlank(custom) && !custom.equals(processInstance.getId())) {//存在附件
 //                        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
                         // 获取word文件流，custom文件名称
-                        String filePf = contractPath + custom;
-                        byte[] word = FileByte.getByte(filePf);
-                        contractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
-                        contractCirculationWithBLOBs.setAttachmentContent(word);
+                        oaAttachmentService.updateByProcessId(custom,processInstance.getId());
+//                        String filePf = contractPath + custom;
+//                        byte[] word = FileByte.getByte(filePf);
+//                        contractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
+//                        contractCirculationWithBLOBs.setAttachmentContent(word);
                     }
                     if (StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
                         contractCirculationWithBLOBs.setWorkStatus(1);
@@ -732,13 +733,7 @@ public class ProcessController {
                 }else{
                     oaContractCirculationWithBLOBs.setDescription("template");
                 }
-                if (StringUtils.isNotBlank(custom)) {
-                    // 获取word文件流
-                    String filePf = contractPath + custom;
-                    byte[] word = FileByte.getByte(filePf);
-                    oaContractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
-                    oaContractCirculationWithBLOBs.setAttachmentContent(word);
-                }
+
 //                }
                 if(null != map.get("html")) {
                     oaContractCirculationWithBLOBs.setContractHtml(map.get("html"));
@@ -754,7 +749,16 @@ public class ProcessController {
                     Integer serial = Integer.parseInt(max.getContractSerialNumber().substring("yyyyMMdd".length()));
                     oaContractCirculationWithBLOBs.setContractSerialNumber(date.format(new Date())+String.format("%02d", ++serial));
                 }
-                contractCirculationService.insert(oaContractCirculationWithBLOBs);
+                 contractCirculationService.insert(oaContractCirculationWithBLOBs);
+
+                if (StringUtils.isNotBlank(custom) && !custom.equals(processInstance.getId())) {
+                    oaAttachmentService.updateByProcessId(custom,processInstance.getId());
+                    // 获取word文件流
+//                    String filePf = contractPath + custom;
+//                    byte[] word = FileByte.getByte(filePf);
+//                    oaContractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
+//                    oaContractCirculationWithBLOBs.setAttachmentContent(word);
+                }
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 if (index.equals("1")) {
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");

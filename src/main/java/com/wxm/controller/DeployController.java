@@ -68,6 +68,8 @@ public class DeployController {
     private GroupService groupService;
     @Autowired
     private OAPositionRelationService oaPositionRelationService;
+    @Autowired
+    private OAAttachmentService oaAttachmentService;
 
     @RequestMapping(value = "/updateTemRelation",method = RequestMethod.POST,produces="application/json;charset=UTF-8")
     @ResponseBody
@@ -287,7 +289,8 @@ public class DeployController {
             result.put("buyer", oaContractCirculation.getContractBuyer());
             result.put("seller", oaContractCirculation.getContractSeller());
             result.put("money", oaContractCirculation.getContractMoney());
-            result.put("download",oaContractCirculation.getContractId());
+            List<OAAttachment> oaAttachments = oaAttachmentService.listByProcessId(oaContractCirculation.getProcessInstanceId());
+            result.put("download",oaAttachments);
             result.put("pms", userService.getPMUser());
 
             if(null != processInstanceId) {
@@ -496,9 +499,11 @@ public class DeployController {
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         //判断当前合同是否自定义合同
-        if(null != oaContractCirculationWithBLOBs.getContractId() && oaContractCirculationWithBLOBs.getAttachmentContent() != null){
-            result.put("download",oaContractCirculationWithBLOBs.getContractId());
-        }
+//        if(null != oaContractCirculationWithBLOBs.getContractId() && oaContractCirculationWithBLOBs.getAttachmentContent() != null){
+//            result.put("download",oaContractCirculationWithBLOBs.getContractId());
+//        }
+        List<OAAttachment> oaAttachments = oaAttachmentService.listByProcessId(oaContractCirculationWithBLOBs.getProcessInstanceId());
+        result.put("download",oaAttachments);
         if(StringUtils.isNotBlank(historicProcessInstance.getId())){
             List<HistoricVariableInstance> historicVariableInstances = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
             for (HistoricVariableInstance historicVariableInstance : historicVariableInstances) {
@@ -654,9 +659,11 @@ public class DeployController {
         result.put("result","success");
         Map<String,KeyValue> map = new LinkedHashMap();
         //判断当前合同是否自定义合同
-        if(oaContractCirculationWithBLOBs.getContractId() != null && oaContractCirculationWithBLOBs.getAttachmentContent() != null ) {
-            result.put("download", oaContractCirculationWithBLOBs.getContractId());
-        }
+//        if(oaContractCirculationWithBLOBs.getContractId() != null && oaContractCirculationWithBLOBs.getAttachmentContent() != null ) {
+//            result.put("download", oaContractCirculationWithBLOBs.getContractId());
+//        }
+        List<OAAttachment> oaAttachments = oaAttachmentService.listByProcessId(oaContractCirculationWithBLOBs.getProcessInstanceId());
+        result.put("download",oaAttachments);
         if(StringUtils.isNotBlank(processInstance.getId())){
             Map<String, VariableInstance> stringVariableInstanceMap = runtimeService.getVariableInstances(processInstance.getId());
             for (Map.Entry<String, VariableInstance> entry : stringVariableInstanceMap.entrySet()) {

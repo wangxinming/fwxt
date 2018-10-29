@@ -192,6 +192,10 @@
             $("#uploadForm").ajaxForm(function(data){
                 $scope.listPage.settings.reload()
             });
+
+            $("#uploadFormHtml").ajaxForm(function(data){
+                $scope.listPage.settings.reload()
+            });
             $scope.uploadFile = function (){
                 $.ajaxFileUpload({
                     method:"POST",
@@ -205,7 +209,23 @@
                         //上传失败之后的操作
                     }
                 });
-            }
+            };
+
+            // $scope.uploadFileHtml = function (){
+            //     $.ajaxFileUpload({
+            //         method:"POST",
+            //         url:"/template/batchImportHtml",            //需要链接到服务器地址
+            //         secureuri:true,
+            //         fileElementId:'fileName',                        //文件选择框的id属性
+            //         data:$('#picForm').serialize(),
+            //         success: function(data,s, status){
+            //             //上传成功之后的操作
+            //         },error: function (data, status, e){
+            //             //上传失败之后的操作
+            //         }
+            //     });
+            // }
+
 
             $scope.uploadTemplate = function(){
                 // AJAX.GET('/models/newModel');

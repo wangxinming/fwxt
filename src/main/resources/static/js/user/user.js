@@ -298,6 +298,8 @@
         }])
         .factory('user.loader', function($resource){
             return $resource(web_path+'/:id', {}, {
+                /*附件*/
+                fileDelete:{method:'GET',url:"/template/fileDelete", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 /*报表*/
                 queryParentsEnterprise: {method:'GET',url:"/report/parentEnterpriseList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 contractPromoter: {method:'GET',url:"/report/getContractPromoter", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},

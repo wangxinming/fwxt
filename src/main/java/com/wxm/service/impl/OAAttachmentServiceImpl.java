@@ -24,6 +24,11 @@ public class OAAttachmentServiceImpl implements OAAttachmentService {
     }
 
     @Override
+    public Integer updateByProcessId(String processIdBefore, String processIdAfter ) {
+        return oaAttachmentMapper.updateByProcessId(processIdBefore,processIdAfter);
+    }
+
+    @Override
     public Integer delete(Integer id) {
         return oaAttachmentMapper.deleteByPrimaryKey(id);
     }
@@ -36,5 +41,15 @@ public class OAAttachmentServiceImpl implements OAAttachmentService {
     @Override
     public OAAttachment get(Integer id) {
         return oaAttachmentMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public OAAttachment getByFileName(String fileName) {
+        return oaAttachmentMapper.getByFileName(fileName);
+    }
+
+    @Override
+    public List<OAAttachment> listByProcessId(String processId) {
+        return oaAttachmentMapper.listByProcessId(processId);
     }
 }

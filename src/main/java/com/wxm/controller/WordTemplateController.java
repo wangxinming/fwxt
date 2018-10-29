@@ -208,14 +208,7 @@ public class WordTemplateController {
         result.put("result", "success");
         return result;
     }
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    @ResponseBody
-    public Object upload(MultipartFile file, HttpServletRequest request){
-        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) {
-            LOGGER.error("用户未登录");
-            throw new OAException(1101,"用户未登录");
-        }
+    private Object upload(MultipartFile file){
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");
         try {
@@ -224,13 +217,6 @@ public class WordTemplateController {
             oaAttachment.setFileContent(file.getBytes());
             Integer id = oaAttachmentService.save(oaAttachment);
             result.put("id", id);
-            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 保存附件，名称：%s",loginUser.getName(),file.getOriginalFilename())));
-//            File desFile = new File(contractPath + docName);
-//            if (!desFile.getParentFile().exists()) {
-//                desFile.mkdirs();
-//            }
-//            file.transferTo(desFile);
-//            result.put("file", docName);
         }catch (Exception e){
             LOGGER.error("异常",e);
             result.put("result","failed");
@@ -239,38 +225,211 @@ public class WordTemplateController {
     }
 
     //自定义文档处理
-    @RequestMapping(value="/custom",method= RequestMethod.POST)
-    public Object custom(@RequestParam("fileAttachment")MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+    @RequestMapping(value="/custom1",method= RequestMethod.POST)
+    public Object custom1(@RequestParam("fileAttachment1")MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
         if(null == loginUser) {
             LOGGER.error("用户未登录");
             throw new OAException(1101,"用户未登录");
         }
-        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 自定义模板",loginUser.getName())));
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 附件:%s上传",file.getOriginalFilename(),loginUser.getName())));
         Map<String, Object> result = new HashMap<>();
-        result.put("result", "success");
 
-        String contract = request.getParameter("processInstanceId");
-        if(StringUtils.isNotBlank(contract)){
-            OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(contract);
-            OAContractCirculationWithBLOBs oaContract = new OAContractCirculationWithBLOBs();
-            oaContract.setContractId(oaContractCirculation.getContractId());
-            oaContract.setAttachmentContent( file.getBytes());
-            contractCirculationService.update(oaContract);
-        }else {
-            try {
-                String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
-                File desFile = new File(contractPath+docName);
-                if (!desFile.getParentFile().exists()) {
-                    desFile.mkdirs();
-                }
-                file.transferTo(desFile);
-                result.put("file", docName);
-                result.put("displayName", file.getOriginalFilename());
-            } catch (Exception e) {
-                LOGGER.error("异常", e);
-                result.put("result", "failed");
+        if(StringUtils.isBlank(file.getOriginalFilename())){
+            result.put("result", "failed");
+            return result;
+        }
+        result.put("result", "success");
+        try{
+            String contract = request.getParameter("processInstanceId");
+            if(StringUtils.isBlank(contract)){
+                contract =  request.getSession().getId();
             }
+            String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
+            OAAttachment oaAttachment = new OAAttachment();
+            oaAttachment.setProcessId(contract);
+            oaAttachment.setFileName(docName);
+            oaAttachment.setFileContent(file.getBytes());
+            Integer id = oaAttachmentService.save(oaAttachment);
+//            result.put("id", id);
+
+            result.put("file",docName);
+            result.put("uid",contract);
+            result.put("displayName", file.getOriginalFilename());
+
+        }catch (Exception e){
+            LOGGER.error("异常", e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
+    @RequestMapping(value="/custom2",method= RequestMethod.POST)
+    public Object custom2(@RequestParam("fileAttachment2")MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 附件:%s上传",file.getOriginalFilename(),loginUser.getName())));
+        Map<String, Object> result = new HashMap<>();
+        if(StringUtils.isBlank(file.getOriginalFilename())){
+            result.put("result", "failed");
+            return result;
+        }
+        result.put("result", "success");
+        try{
+            String contract = request.getParameter("processInstanceId");
+            if(StringUtils.isBlank(contract)){
+                contract =  request.getSession().getId();
+            }
+            String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
+            OAAttachment oaAttachment = new OAAttachment();
+            oaAttachment.setProcessId(contract);
+            oaAttachment.setFileName(docName);
+            oaAttachment.setFileContent(file.getBytes());
+            Integer id = oaAttachmentService.save(oaAttachment);
+//            result.put("id", id);
+            result.put("file",docName);
+            result.put("uid",contract);
+            result.put("displayName", file.getOriginalFilename());
+
+
+        }catch (Exception e){
+            LOGGER.error("异常", e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
+    @RequestMapping(value="/custom3",method= RequestMethod.POST)
+    public Object custom3(@RequestParam("fileAttachment3")MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 附件:%s上传",file.getOriginalFilename(),loginUser.getName())));
+        Map<String, Object> result = new HashMap<>();
+        if(StringUtils.isBlank(file.getOriginalFilename())){
+            result.put("result", "failed");
+            return result;
+        }
+        result.put("result", "success");
+        try{
+            String contract = request.getParameter("processInstanceId");
+            if(StringUtils.isBlank(contract)){
+                contract =  request.getSession().getId();
+            }
+            String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
+            OAAttachment oaAttachment = new OAAttachment();
+            oaAttachment.setProcessId(contract);
+            oaAttachment.setFileName(docName);
+            oaAttachment.setFileContent(file.getBytes());
+            Integer id = oaAttachmentService.save(oaAttachment);
+//            result.put("id", id);
+            result.put("file",docName);
+            result.put("uid",contract);
+            result.put("displayName", file.getOriginalFilename());
+
+
+        }catch (Exception e){
+            LOGGER.error("异常", e);
+            result.put("result", "failed");
+        }
+//        String contract = request.getParameter("processInstanceId");
+//        if(StringUtils.isNotBlank(contract)){
+//            OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(contract);
+//            OAContractCirculationWithBLOBs oaContract = new OAContractCirculationWithBLOBs();
+//            oaContract.setContractId(oaContractCirculation.getContractId());
+//            oaContract.setAttachmentContent( file.getBytes());
+//            contractCirculationService.update(oaContract);
+//        }else {
+//            try {
+//                String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
+//                File desFile = new File(contractPath+docName);
+//                if (!desFile.getParentFile().exists()) {
+//                    desFile.mkdirs();
+//                }
+//                file.transferTo(desFile);
+//                result.put("file", docName);
+//                result.put("displayName", file.getOriginalFilename());
+//            } catch (Exception e) {
+//                LOGGER.error("异常", e);
+//                result.put("result", "failed");
+//            }
+//        }
+        return result;
+    }
+    @RequestMapping(value="/custom4",method= RequestMethod.POST)
+    public Object custom4(@RequestParam("fileAttachment4")MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 附件:%s上传",file.getOriginalFilename(),loginUser.getName())));
+        Map<String, Object> result = new HashMap<>();
+        if(StringUtils.isBlank(file.getOriginalFilename())){
+            result.put("result", "failed");
+            return result;
+        }
+        result.put("result", "success");
+        try{
+            String contract = request.getParameter("processInstanceId");
+            if(StringUtils.isBlank(contract)){
+                contract =  request.getSession().getId();
+            }
+            String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
+            OAAttachment oaAttachment = new OAAttachment();
+            oaAttachment.setProcessId(contract);
+            oaAttachment.setFileName(docName);
+            oaAttachment.setFileContent(file.getBytes());
+            Integer id = oaAttachmentService.save(oaAttachment);
+//            result.put("id", id);
+            result.put("file",docName);
+            result.put("uid",contract);
+            result.put("displayName", file.getOriginalFilename());
+
+
+        }catch (Exception e){
+            LOGGER.error("异常", e);
+            result.put("result", "failed");
+        }
+        return result;
+    }
+    @RequestMapping(value="/custom5",method= RequestMethod.POST)
+    public Object custom5(@RequestParam("fileAttachment5")MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 附件:%s上传",file.getOriginalFilename(),loginUser.getName())));
+        Map<String, Object> result = new HashMap<>();
+        if(StringUtils.isBlank(file.getOriginalFilename())){
+            result.put("result", "failed");
+            return result;
+        }
+        result.put("result", "success");
+        try{
+            String contract = request.getParameter("processInstanceId");
+            if(StringUtils.isBlank(contract)){
+                contract =  request.getSession().getId();
+            }
+            String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
+            OAAttachment oaAttachment = new OAAttachment();
+            oaAttachment.setProcessId(contract);
+            oaAttachment.setFileName(docName);
+            oaAttachment.setFileContent(file.getBytes());
+            Integer id = oaAttachmentService.save(oaAttachment);
+//            result.put("id", id);
+            result.put("file",docName);
+            result.put("uid",contract);
+            result.put("displayName", file.getOriginalFilename());
+
+
+        }catch (Exception e){
+            LOGGER.error("异常", e);
+            result.put("result", "failed");
         }
         return result;
     }
@@ -304,8 +463,9 @@ public class WordTemplateController {
                 return "文件不存在！";
             }
         }else{
+            OAAttachment oaAttachment = oaAttachmentService.getByFileName(fileName);
             String file = fileName.substring(fileName.indexOf('_')+1);
-            byte[] bytes = FileByte.getByte(contractPath+fileName);
+            byte[] bytes = oaAttachment.getFileContent();
             if (null != bytes) {
                 response.setContentType("application/x-download");
                 String codedfilename = java.net.URLEncoder.encode(file, "UTF-8");
@@ -320,7 +480,83 @@ public class WordTemplateController {
         }
     }
 
+    @RequestMapping(value="/batchImportHtml",method= RequestMethod.POST)
+    public Object saveThingsParse1(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result", "success");
+        String htmlStr = "";
+        String docName =  file.getOriginalFilename();
+        String fileName = file.getOriginalFilename().substring(0,file.getOriginalFilename().indexOf("."));
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 模板导入，模板名称：%s",loginUser.getName(),docName)));
+        try{
 
+             htmlStr = new String( file.getBytes(),"gb2312");
+            htmlStr=HtmlProcess.clearFormat(htmlStr,contractPath + "\\images");
+            OAContractTemplate oaContractTemplate = new OAContractTemplate();
+            oaContractTemplate.setTemplateCreatetime(new Timestamp(System.currentTimeMillis()));
+            oaContractTemplate.setUserId(loginUser.getId());
+            oaContractTemplate.setTemplateName(fileName);
+            oaContractTemplate.setTemplateStatus(0);
+            concactTemplateService.insert(oaContractTemplate);
+
+            int id = oaContractTemplate.getTemplateId();
+            Pattern pattern = Pattern.compile("@@([\\s\\S]*?)!!");
+            Matcher matcher = pattern.matcher(htmlStr);
+
+            String longTextBefore = "<textarea rows=\"50\" cols=\"30\" style=\"width: 100%;height: 100px; name=\"";
+            String checkboxBefore = "<input type=\"checkbox\" style=\"display:none;height:10px;zoom:180%;\" name=\"";
+
+            String before = "<input type=\"text\" style=\"border:none;border-bottom:1px solid #000;\" name=\"";
+            String checkboxButton = "<input type=\"checkbox\" name=\"";
+            String end = "\"/>";
+            String longTextEnd = "\"></textarea>";
+            Map<String,String> map = new LinkedHashMap<>();
+
+            while(matcher.find()) {
+                String tmp = matcher.group();
+                OAFormProperties oaFormProperties = new OAFormProperties();
+                if(StringUtils.isBlank(tmp) || !tmp.contains("##") || !tmp.contains("%%") || !tmp.contains("!!"))continue;
+                String var = tmp.substring(2,tmp.indexOf("%%"));
+                String type = tmp.substring(tmp.indexOf("%%")+2,tmp.indexOf("##"));
+                String length = tmp.substring(tmp.indexOf("##")+2,tmp.indexOf("!!"));
+                int start = matcher.start();
+                String name = "name_" + Md5Utils.getMd5(String.format("%s%s%s%s%s",docName,var,type,length,start));
+                String checkbox = "checkbox_" + Md5Utils.getMd5(String.format("%s%s%s%s%s",docName,var,type,length,start));
+                oaFormProperties.setFieldName(var);
+                oaFormProperties.setFieldMd5(name);
+                oaFormProperties.setTemplateId(id);
+                oaFormProperties.setFieldType(type);
+                oaFormProperties.setFieldValid(length);
+                oaFormProperties.setCreateTime(new Date());
+                formPropertiesService.insert(oaFormProperties);
+                if(tmp.contains("单选框")) {
+                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", checkboxButton, name, name, end, checkboxBefore, checkbox, checkbox, end);
+                    map.put(tmp,text);
+                }else if(tmp.contains("多行数据")){
+                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", longTextBefore, name, name, longTextEnd, checkboxBefore, checkbox, checkbox, end);
+                    map.put(tmp,text);
+                } else{
+                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", before, name, name, end, checkboxBefore, checkbox, checkbox, end);
+                    map.put(tmp,text);
+                }
+            }
+            for(Map.Entry<String,String> entry : map.entrySet()){
+                htmlStr = htmlStr.replace(entry.getKey(),entry.getValue());
+            }
+            oaContractTemplate.setTemplateHtml(htmlStr);
+            concactTemplateService.update(oaContractTemplate);
+            auditService.audit(new OAAudit(loginUser.getName(), String.format("上传文件模板 %s",docName)));
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result","failed");
+        }
+        return "";
+    }
     @RequestMapping(value="/batchImport",method= RequestMethod.POST)
     public Object saveThingsParse(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");

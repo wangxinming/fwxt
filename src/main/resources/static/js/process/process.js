@@ -65,13 +65,15 @@
                         $('#fieldName').focus();
                         toaster.pop('failed', "", "字段名称不能为空");
                         return;
-                    }else if(!$scope.addPage.data.type){
-                        $('#fieldType').focus();
-                        toaster.pop('failed', "", "字段类型不能为空");
-                        return;
-                    }else if(!$scope.addPage.data.length){
+                    }
+                    // else if(!$scope.addPage.data.type){
+                    //     $('#fieldType').focus();
+                    //     toaster.pop('failed', "", "字段类型不能为空");
+                    //     return;
+                    // }
+                    else if(!$scope.addPage.data.length){
                         $('#fieldLength').focus();
-                        toaster.pop('failed', "", "字段长度不能为空");
+                        toaster.pop('failed', "", "字段类型长度不能为空");
                         return;
                     }
                     Loading.show();
@@ -213,14 +215,14 @@
                     //     }
                     // },
                     {
-                        sTitle: "类型",
+                        sTitle: "显示名称",
                         mData: "fieldType",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
                     },
                     {
-                        sTitle: "长度",
+                        sTitle: "字段类型长度",
                         mData: "fieldValid",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
@@ -388,11 +390,18 @@
                                         $('#'+data.rows[j].key).attr("disabled", true);
                                     }
                                 }
+
+
                                 if(data.download){
-                                    // $('#customFile')[0].style.display = 'none';
-                                    // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
-                                    var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
-                                    $('#download').html(html);
+                                    var tal = "";
+                                    for(var i=0;i<data.download.length;i++){
+                                        var file = data.download[i].fileName;
+                                        var display = file.substring(file.indexOf('_')+1);
+                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                        tal += html;
+                                    }
+                                    // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                                    $('#download').html(tal);
                                 }
 
                                 $('#keyword').html(data.keyword);
@@ -1039,12 +1048,23 @@
                                     }
                                 }
                                 if(data.download){
-                                    // $('#customFile')[0].style.display = 'none';
-                                    // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
-                                    var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
-                                    // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
-                                    $('#download').html(html);
+                                    var tal = "";
+                                    for(var i=0;i<data.download.length;i++){
+                                        var file = data.download[i].fileName;
+                                        var display = file.substring(file.indexOf('_')+1);
+                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                        tal += html;
+                                    }
+                                    // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                                    $('#download').html(tal);
                                 }
+                                // if(data.download){
+                                //     // $('#customFile')[0].style.display = 'none';
+                                //     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
+                                //     var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                                //     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
+                                //     $('#download').html(html);
+                                // }
                                 $('#keyword').html(data.keyword);
                             }
                             Loading.hide();
@@ -1327,13 +1347,23 @@
                                             $('#'+data.rows[j].key).attr("disabled", true);
                                         }
                                     }
-
-                                    if (data.download) {
-                                        // $('#customFile')[0].style.display = 'none';
-                                        var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId=' + data.download + '\");\'>附件下载</a>';
-                                        // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
-                                        $('#download').html(html);
+                                    if(data.download){
+                                        var tal = "";
+                                        for(var i=0;i<data.download.length;i++){
+                                            var file = data.download[i].fileName;
+                                            var display = file.substring(file.indexOf('_')+1);
+                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                            tal += html;
+                                        }
+                                        // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                                        $('#download').html(tal);
                                     }
+                                    // if (data.download) {
+                                    //     // $('#customFile')[0].style.display = 'none';
+                                    //     var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId=' + data.download + '\");\'>附件下载</a>';
+                                    //     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
+                                    //     $('#download').html(html);
+                                    // }
                                     $('#keyword').html(data.keyword);
                                 }
                                 Loading.hide();
@@ -1489,32 +1519,91 @@
             //     }
             // }) ;
             $scope.yulan = function () {
-                var file = $('#fileAttachment').get(0).files[0];
-                var reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload=function(e){
-                    //读取成功后返回的一个参数e，整个的一个进度事件
-                    console.log(e);
-                    //选择所要显示图片的img，要赋值给img的src就是e中target下result里面
-                    //的base64编码格式的地址
-                    // $('#yulanImg').get(0).src = e.target.result;
-                    $("#yulanImg").attr("src", e.target.result) ;
-                }
+
+                Loading.show();
+                loader.fileDelete({'id': $scope.search.id,"contract":$scope.search.contract}, {}, function (data) {
+                    $('#wordId').val($scope.search.id);
+                    $('#contract').val($scope.search.contract);
+                    $('#processInstanceId').val($scope.search.processInstanceId);
+                    $('#orderForm').html(data.data.templateHtml);
+                    $scope.pms = data.pms;
+                    $scope.showCommit = data.showCommit;
+                    $scope.fields = data.fields;
+                    if ($scope.fields) {
+                        for (var i = 0; i < data.fields.length; i++) {
+                            if (data.fields[i].fieldType) {
+                                $('#' + data.fields[i].fieldMd5).attr('placeholder', data.fields[i].fieldType)
+                            }
+                        }
+                    }
+                    Loading.hide();
+                });
+                // var file = $('#fileAttachment').get(0).files[0];
+                // var reader = new FileReader();
+                // reader.readAsDataURL(file);
+                // reader.onload=function(e){
+                //     //读取成功后返回的一个参数e，整个的一个进度事件
+                //     console.log(e);
+                //     //选择所要显示图片的img，要赋值给img的src就是e中target下result里面
+                //     //的base64编码格式的地址
+                //     // $('#yulanImg').get(0).src = e.target.result;
+                //     $("#yulanImg").attr("src", e.target.result) ;
+                // }
             };
-            $scope.uploadAttachment = function (){
+            var i=2;
+            $scope.addFile = function () {
+                var fragment=document.createDocumentFragment();
+                var divNode=document.getElementById("containerFile");
+                var newDiv=document.createElement("div");
+                newDiv.setAttribute("id","file"+i);
+                fragment.appendChild(newDiv);
+
+                var newInput=document.createElement("input");
+                newInput.setAttribute("type","file");
+                newInput.setAttribute("accept",".pdf,.jpg");
+                newInput.setAttribute("name","选择文件");
+                newDiv.appendChild(newInput);
+
+                var newInput=document.createElement("input");
+                newInput.setAttribute("type","button");
+                newInput.setAttribute("value","删除");
+                newInput.setAttribute("ng-click","deleteFile(this)");
+                newInput.setAttribute("id","input"+i++);
+                newDiv.appendChild(newInput);
+                divNode.appendChild(fragment);
+            };
+            $scope.deleteFile = function (event) {
+
+                // var parentNode = event.target.parentNode;
+                // if (parentNode != null)
+                //     parentNode.parentNode.removeChild(parentNode);
+            };
+            $scope.uploadAttachment = function (uploadAttachment){
+                      if(!$("#download1")[0].innerText)   uploadAttachment = 1;
+                else if(!$("#download2")[0].innerText)   uploadAttachment = 2;
+                else if(!$("#download3")[0].innerText)   uploadAttachment = 3;
+                else if(!$("#download4")[0].innerText)   uploadAttachment = 4;
+                else if(!$("#download5")[0].innerText)   uploadAttachment = 5;
+                else {
+                        toaster.pop('failed', "", "只能上传5个附件！");
+                        return;
+                      }
+                if(!$('#'+"fileAttachment1")[0].value)
+                    return;
                 $.ajaxFileUpload({
                     method:"POST",
-                    url:"/template/custom",            //需要链接到服务器地址
+                    url:"/template/custom1",            //需要链接到服务器地址
                     dataType: 'json',
-                    fileElementId:'fileAttachment',                        //文件选择框的id属性
+                    fileElementId:"fileAttachment1",                        //文件选择框的id属性
                     data:{id:$('#processInstanceId').val()},
                     success: function(data,s, status){
                         // $('#sendStatus').text("上传成功");
                         toaster.pop('success', "","上传成功");
                         // var html = '<i class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.displayName+'</i>';
                         var html = '<a href="javascript:void(0);" class="fa fa-download" title="下载" onclick=\'javascript:window.open(\"template/download?fileName='+data.file + '\");\'>'+data.displayName+'</a>';
-                        $('#download').html(html);
-                        $('#custom').val(data.file);
+                        var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(this);"  class="btn btn-primary btn-lg" />';
+                        $('#download'+uploadAttachment).html('<div>'+html+deleteHtml+'</div>');
+                        $('#custom').val(data.uid);
                     },error: function (data, status, e){
                         toaster.pop('failed', "","上传失败");
                         // $('#sendStatus').text("上传失败");
@@ -1593,15 +1682,34 @@
                     $scope.dateStartwork = data.workDate;
                     $scope.showCommit =  data.showCommit;
                     $('#refuseCause').text(data.refuse);
-                    if(data.download) {
-                        // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId=' + data.download + '");">附件下载</a>';
-                        var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
-                        // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
-                        $('#downloadedFile').html(html);
-                    }else{
-                        var html = '<a href="javascript:void(0);">无附件</a>';
-                        $('#downloadedFile').html(html);
+                    if(data.download){
+                        var tal = "";
+                        for(var i=0;i<data.download.length;i++){
+                            var file = data.download[i].fileName;
+                            var display = file.substring(file.indexOf('_')+1);
+                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                            tal += html;
+                        }
+                        // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                        $('#download').html(tal);
                     }
+                    // var tal = "";
+                    // for(var i=0;i<data.download.length;i++){
+                    //     var file = data.download[i].fileName;
+                    //     var display = file.substring(file.indexOf('_')+1);
+                    //     var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                    //     tal += html;
+                    // }
+                    // if(data.download) {
+                    //
+                    //     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId=' + data.download + '");">附件下载</a>';
+                    //     var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                    //     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
+                    //     $('#downloadedFile').html(tal);
+                    // }else{
+                    //     var html = '<a href="javascript:void(0);">无附件</a>';
+                    //     $('#downloadedFile').html(html);
+                    // }
 
                     Loading.hide();
                 });

@@ -1,4 +1,5 @@
 <div class="portlet box"  style="margin: 15px 0px 0px 0px;">
+
     <form id="orderFormInfo" method="POST">
     <!--<form id="" action="/workflow/process/start" method="POST">-->
         <input type="text" style="display:none" name="id" id="wordId"/>
@@ -81,22 +82,76 @@
         </div>
         <DIV class="col-md-9" style="margin-top: 10px;">
             <div class="row" id="uploadAttachmentFile">
+                <!--<input type="button" value="增加附件"  ng-click="addFile()"/>-->
+                <!--<div id="containerFile">-->
+                    <!--<div  class="col-md-6" id="file1">-->
+                        <!--<input type="file" accept=".pdf,.jpg"  name="选择文件"/>-->
+                        <!--<input type="submit" value="删除"  ng-click="deleteFile(this);" id="input1"  class="btn btn-primary btn-lg" />-->
+                    <!--</div>-->
+                <!--</div>-->
                 <div class="col-md-6">
-                    <input  type="file" accept=".pdf,.jpg" id="fileAttachment" name="fileAttachment" class="" style="" value="附件" >
+                    <input  type="file" accept=".pdf" id="fileAttachment1" name="fileAttachment1" class="" style="" value="附件" >
                 </div>
                 <div class="col-md-6">
-                    <input type="submit" ng-click="yulan();" value="预览" class="btn btn-primary btn-lg">
-                    <input type="submit" ng-click="uploadAttachment();" name="uploadAttachment" id="uploadAttachment" ng-hide="loginUserMenuMap[currentView]" value="附件上传" class="btn btn-primary btn-lg" >
+                    <!--<input type="submit" ng-click="yulan();" value="预览" class="btn btn-primary btn-lg">-->
+                    <input type="submit" ng-click="uploadAttachment('1');" name="uploadAttachment1" id="uploadAttachment1" ng-hide="loginUserMenuMap[currentView]" value="附件上传" class="btn btn-primary btn-lg" >
+                    <!--<input type="submit" value="删除"  ng-click="deleteFile(this);" id="input1"  class="btn btn-primary btn-lg" />-->
                     <!--<input type="submit" ng-click="uploadAttachment();" name="uploadAttachment" id="downAttachment" ng-hide="loginUserMenuMap[currentView]" value="附件下载" class="btn btn-primary btn-lg" >-->
                 </div>
+
+                <!--<div class="col-md-6">-->
+                    <!--<input  type="file" accept=".pdf" id="fileAttachment2" name="fileAttachment2" class="" style="" value="附件" >-->
+                <!--</div>-->
+                <!--<div class="col-md-6">                    -->
+                    <!--<input type="submit" ng-click="uploadAttachment('2');" name="uploadAttachment2" id="uploadAttachment2" ng-hide="loginUserMenuMap[currentView]" value="附件上传" class="btn btn-primary btn-lg" >-->
+             <!--</div>-->
+
+
+                <!--<div class="col-md-6">-->
+                    <!--<input  type="file" accept=".pdf" id="fileAttachment3" name="fileAttachment3" class="" style="" value="附件" >-->
+                <!--</div>-->
+                <!--<div class="col-md-6">                    -->
+                    <!--<input type="submit" ng-click="uploadAttachment('3');" name="uploadAttachment3" id="uploadAttachment3" ng-hide="loginUserMenuMap[currentView]" value="附件上传" class="btn btn-primary btn-lg" >-->
+            <!--</div>-->
+
+                <!--<div class="col-md-6">-->
+                    <!--<input  type="file" accept=".pdf" id="fileAttachment4" name="fileAttachment4" class="" style="" value="附件" >-->
+                <!--</div>-->
+                <!--<div class="col-md-6">                    -->
+                    <!--<input type="submit" ng-click="uploadAttachment('4');" name="uploadAttachment4" id="uploadAttachment4" ng-hide="loginUserMenuMap[currentView]" value="附件上传" class="btn btn-primary btn-lg" >-->
+               <!--</div>-->
+
+                <!--<div class="col-md-6">-->
+                    <!--<input  type="file" accept=".pdf" id="fileAttachment5" name="fileAttachment5" class="" style="" value="附件" >-->
+                <!--</div>-->
+                <!--<div class="col-md-6">                    -->
+                    <!--<input type="submit" ng-click="uploadAttachment('5');" name="uploadAttachment5" id="uploadAttachment5" ng-hide="loginUserMenuMap[currentView]" value="附件上传" class="btn btn-primary btn-lg" >-->
+               <!--</div>-->
+
             </div>
         </DIV>
 
         <div class="col-md-9" style="margin-top: 10px;">
             <img id="yulanImg"></img>
         </div>
-        <div class="col-md-9" style="margin-top: 10px;">
-            <div id="download"></div>
+        <div id="downloadList" class="col-md-12" style="margin-top: 10px;">
+            <div class="col-md-4" >
+                <div id="download1"></div>
+            </div>
+            <div class="col-md-4" >
+                <div id="download2"></div>
+                <!--<input type="submit" value="删除"  ng-click="deleteFile(this);"  class="btn btn-primary btn-lg" />-->
+            </div>
+            <div class="col-md-4" >
+                <div id="download3"></div>
+                <!--<input type="submit" value="删除"  ng-click="deleteFile(this);"  class="btn btn-primary btn-lg" />-->
+            </div>
+            <div class="col-md-4" >
+                <div id="download4"></div>
+            </div>
+            <div class="col-md-4" >
+                <div id="download5"></div>
+            </div>
         </div>
         <div class="col-md-9" style="margin-top: 10px;">
             <input type="submit" ng-hide="loginUserMenuMap[currentView] || !showCommit" ng-click="commitOrder(1)" class="btn btn-primary btn-lg" value="提交" />

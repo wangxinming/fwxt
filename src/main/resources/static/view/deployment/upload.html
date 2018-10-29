@@ -4,11 +4,25 @@
         <div class="list_button">
             <form  action="template/batchImport" target="" id="uploadForm" method="post" enctype="multipart/form-data" class="ng-pristine ng-valid">
                 <div class="row">
-                    <div class="col-md-6">
+
+                    <div class="col-md-9">
+                        <label class="col-md-4" style="color: #176cab;">选择word文档</label>
                         <input id="file" type="file" accept=".doc,.docx" name="file" class="" style="" value="选择word文档">
                     </div>
-                    <div class="col-md-6">
-                        　　<input type="submit" name="submit" id="submit" ng-hide="loginUserMenuMap[currentView]" value="保存" class="btn btn-primary btn-lg" >
+                    <div class="col-md-3">
+                        <input type="submit" name="submit" id="submit" ng-hide="loginUserMenuMap[currentView]" value="保存" class="btn btn-primary btn-lg" >
+                    </div>
+                </div>
+            </form>
+
+            <form  action="template/batchImportHtml" target="" id="uploadFormHtml" method="post" enctype="multipart/form-data" class="ng-pristine ng-valid">
+                <div class="row">
+                    <div class="col-md-9">
+                        <label class="col-md-4" style="color: #176cab;">选择html文档</label>
+                        <input id="fileHtml" type="file" accept=".html" name="file" class="" style="" value="选择html文档">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="submit" name="submit" id="submitHtml" ng-hide="loginUserMenuMap[currentView]" value="保存" class="btn btn-primary btn-lg" >
                     </div>
                 </div>
             </form>

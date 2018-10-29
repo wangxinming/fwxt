@@ -5,6 +5,8 @@ import java.util.Date;
 public class OAAttachment {
     private Integer attachmentId;
 
+    private String processId;
+
     private Integer contractId;
 
     private String fileName;
@@ -12,6 +14,14 @@ public class OAAttachment {
     private Date createTime;
 
     private byte[] fileContent;
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
 
     public Integer getAttachmentId() {
         return attachmentId;

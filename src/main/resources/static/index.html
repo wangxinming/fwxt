@@ -179,6 +179,12 @@
 <script src="lib/js/ajaxfileupload.js"></script>
 </body>
 <script type="application/javascript">
+    function deleteFile(event){
+        var parentNode = this.event.target.parentNode;
+        if (parentNode != null)
+            parentNode.parentNode.removeChild(parentNode);
+    };
+
     function uploadFile(){
         $.ajaxFileUpload({
             method:"POST",
