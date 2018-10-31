@@ -1641,6 +1641,16 @@
             $scope.workStatus = false;
             $scope.showCommit = true;
             //deployment id
+
+            $scope.isNumberText = function(val) {
+                var regPos = /^\d+(\.\d+)?$/; //非负浮点数
+                var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; //负浮点数
+                if(regPos.test(val) || regNeg.test(val)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
             if($scope.search.state=='create') {
                 Loading.show();
                 loader.uploadFileInfoAdd({'id': $scope.search.id,"contract":$scope.search.contract}, {}, function (data) {
@@ -1787,8 +1797,16 @@
                             break;
                         case 'CC':
                         case 'TT':
-                        case 'RR':
+
                         case 'SS':
+                            break;
+                        case 'RR':
+                            var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
+                            if(r==null){
+                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                                $('#'+$scope.fields[i].fieldMd5).focus();
+                                return;
+                            }
                             break;
                         case 'YY'://YYYYMMDD
                             var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
