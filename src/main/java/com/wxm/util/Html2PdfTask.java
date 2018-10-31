@@ -182,7 +182,7 @@ public class Html2PdfTask implements Runnable {
             tmp.setContractPdf(pdf);
             contractCirculationService.update(tmp);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("异常",e);
         }
     }
 }

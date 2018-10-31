@@ -965,8 +965,8 @@ public class ProcessController {
                 sb.append("<title>");
                 sb.append(historicVariableInstance.getValue().toString());
                 sb.append("</title>");
-//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
-                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
+                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
+//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
                 sb.append("<body>");
                 sb.append(html);
                 sb.append("</body></html>");
@@ -974,7 +974,13 @@ public class ProcessController {
 
                 Map<String,Integer> linkedHashMap = new LinkedHashMap();
                 for(OAFormProperties oaFormProperties:formPropertiesList){
-                    linkedHashMap.put(oaFormProperties.getFieldMd5(),Integer.parseInt(oaFormProperties.getFieldValid().substring(2)));
+                    try {
+                        linkedHashMap.put(oaFormProperties.getFieldMd5(), Integer.parseInt(oaFormProperties.getFieldValid().substring(2)));
+                    }catch (Exception e){
+                        linkedHashMap.put(oaFormProperties.getFieldMd5(), 20);
+                        LOGGER.info("字段：{}",oaFormProperties.getFieldValid());
+                        LOGGER.error("异常",e);
+                    }
                 }
 
                 Html2PdfTask html2PdfTask = new Html2PdfTask(sb,contractCirculationService,linkedHashMap,processInstancesId,tmp
