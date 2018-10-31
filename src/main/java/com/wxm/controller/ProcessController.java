@@ -1047,7 +1047,7 @@ public class ProcessController {
     @RequestMapping(value = "process", method = RequestMethod.GET)
     @ResponseBody
     public Object findTaskByName(@RequestParam(value = "user", required = false) String user,
-                                 @RequestParam(value = "init", required = true) String init,
+                                 @RequestParam(value = "init", required = false) String init,
                                  @RequestParam(value = "offset", required = true) int offset,
                                  @RequestParam(value = "limit", required = true) int limit,
                                  HttpServletRequest request)throws Exception {
@@ -1059,7 +1059,7 @@ public class ProcessController {
 
         List<TaskInfo> taskInfos = new LinkedList<>();
         TaskQuery taskQuery = taskService.createTaskQuery();// 创建任务查询对象
-        if(init.equals("start")){
+        if(null!= init && init.equals("start")){
             taskQuery.processVariableValueEquals("init","start");
         }else{
             taskQuery.processVariableValueNotEquals("init","start");
