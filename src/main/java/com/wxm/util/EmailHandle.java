@@ -15,7 +15,6 @@ import java.util.Properties;
 public class EmailHandle {
 
     private static final Logger LOGGER = Logger.getLogger(EmailHandle.class);
-
     /** 邮件对象 **/
     private MimeMessage mimeMsg;
 

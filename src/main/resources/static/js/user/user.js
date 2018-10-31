@@ -424,8 +424,14 @@
 
                 //获取上传文件详情增加
                 uploadFileInfoAdd: {method:'GET',url:"/api/deployments/uploadFileInfoAdd", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+
                 //获取当前任务列表
                 getTaskPending: {method:'GET',url:"/workflow/process/process", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //获取与我相关
+                getMyTaskRefuse: {method:'GET',url:"/workflow/process/myTaskRefuse", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+
+
                 //获取我发起的申请，草稿
                 getMyTask: {method:'GET',url:"/workflow/process/myTask", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取我提交发起的申请
@@ -447,6 +453,9 @@
                 auditList: {method:'GET',url:"/audit/auditList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //删除word模板
                 removeWordTemplate: {method: "DELETE", url:  "template/deleteWordTemplate", isArray: false},
+
+                //删除合同
+                deleteContract: {method: "DELETE", url:  "/workflow/process/deleteContract", isArray: false,contentType:'application/json; charset=UTF-8',dataType:'json'},
 
                 //删除word模板
                 removeModeler: {method: "DELETE", url:  "/api/deployments/removeModeler", isArray: false},
@@ -2303,7 +2312,10 @@
             //
             //<img src="/assets/img/m12.png" style="width: 25px;margin-right: 10px;"/>
             //<img src="/assets/img/m13.png" style="width: 25px;margin-right: 10px;"/>
+            var draft = ' <li><a href="/index.html#/draft">草稿箱</a></li>';
+            var refuse = ' <li><a href="/index.html#/refuse">与我相关</a></li>';
             var pending = ' <li><a href="/index.html#/pending">合同审核及批复</a></li>';
+
             var complete = ' <li><a href="/index.html#/complete">归档文件查询</a></li>';
             var reportParent = '  <li class="sidebar-dropdown">\n' +
                 '                            <a id="report"><i class="fa fa-file-text"></i><span>合同分类统计模块</span></a>\n' +
@@ -2390,7 +2402,10 @@
                         tmp += process;
                     }
                     if(data.pending){
+
                         tmp += pending;
+                        tmp += draft;
+                        tmp += refuse;
                     }
                     // if(data.myProcess){
                     //     tmp += myProcess;

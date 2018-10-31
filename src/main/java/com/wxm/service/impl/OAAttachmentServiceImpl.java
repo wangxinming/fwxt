@@ -39,6 +39,11 @@ public class OAAttachmentServiceImpl implements OAAttachmentService {
     }
 
     @Override
+    public Integer deleteByProcessId(String processId) {
+        return oaAttachmentMapper.deleteByProcessId(processId);
+    }
+
+    @Override
     public List<OAAttachment> list(Integer contractId) {
         return oaAttachmentMapper.list(contractId);
     }
@@ -56,5 +61,10 @@ public class OAAttachmentServiceImpl implements OAAttachmentService {
     @Override
     public List<OAAttachment> listByProcessId(String processId) {
         return oaAttachmentMapper.listByProcessId(processId);
+    }
+
+    @Override
+    public List<OAAttachment> listBlobByProcessId(String processId) {
+        return oaAttachmentMapper.listBlobByProcessId(processId);
     }
 }

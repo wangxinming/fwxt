@@ -10,9 +10,11 @@ public interface OAAttachmentService {
     Integer updateByProcessId(String processIdBefore, String processIdAfter );
     Integer delete(Integer id);
     Integer deleteByName(String name);
+    Integer deleteByProcessId(String processId);
     List<OAAttachment> list(Integer contractId);
     OAAttachment get(Integer id);
     OAAttachment getByFileName(String fileName);
     List<OAAttachment> listByProcessId(String  processId);
+    List<OAAttachment> listBlobByProcessId(String  processId);
 
 }

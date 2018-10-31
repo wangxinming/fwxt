@@ -25,6 +25,15 @@
     from OA_ATTACHMENT
     where ATTACHMENT_ID = #{attachmentId,jdbcType=INTEGER}
   </select>
+  <select id="listBlobByProcessId" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from OA_ATTACHMENT
+    where PROCESS_ID = #{processId}
+  </select>
+
   <select id="listByProcessId" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -51,6 +60,10 @@
   <delete id="deleteByName">
      delete from OA_ATTACHMENT
      where FILE_NAME = #{fileName}
+  </delete>
+  <delete id="deleteByProcessId">
+        delete from OA_ATTACHMENT
+        where PROCESS_ID = #{processId}
   </delete>
   <insert id="insert" parameterType="com.wxm.model.OAAttachment" useGeneratedKeys="true"  keyProperty = "attachmentId" keyColumn = "ATTACHMENT_ID">
     insert into OA_ATTACHMENT (ATTACHMENT_ID, CONTRACT_ID, PROCESS_ID, FILE_NAME,

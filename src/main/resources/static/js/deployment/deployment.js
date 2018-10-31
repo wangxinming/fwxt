@@ -65,9 +65,9 @@
                             Loading.show();
                             loader.removeModeler({'id': id}, {}, function (data) {
                                 if (data.result == "success") {
-                                    Loading.hide();
                                     $scope.listPage.settings.reload(true);
                                 }
+                                Loading.hide();
                             }, function (error) {
                                 Loading.hide();
                             });
@@ -193,7 +193,7 @@
                 $scope.listPage.settings.reload()
             });
 
-            $("#uploadFormHtml").ajaxForm(function(data){
+            $("#uploadForm").ajaxForm(function(data){
                 $scope.listPage.settings.reload()
             });
             $scope.uploadFile = function (){
@@ -344,9 +344,9 @@
                             Loading.show();
                             loader.removeWordTemplate({'id': id}, {}, function (data) {
                                 if (data.result == "success") {
-                                    Loading.hide();
                                     $scope.listPage.settings.reload(true);
                                 }
+                                Loading.hide();
                             }, function (error) {
                                 Loading.hide();
                             });

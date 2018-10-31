@@ -9,6 +9,7 @@ public interface OAAttachmentMapper {
     int deleteByPrimaryKey(Integer attachmentId);
 
     int deleteByName(@Param("fileName") String fileName);
+    int deleteByProcessId(@Param("processId") String processId);
 
     int insert(OAAttachment record);
 
@@ -29,4 +30,7 @@ public interface OAAttachmentMapper {
     OAAttachment getByFileName(@Param("fileName") String fileName);
 
     List<OAAttachment> listByProcessId( @Param("processId") String processId);
+    List<OAAttachment> listBlobByProcessId( @Param("processId") String processId);
+
+
 }

@@ -9,10 +9,8 @@ import com.wxm.service.*;
 import com.wxm.util.*;
 import com.wxm.util.exception.OAException;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
-import org.activiti.bpmn.model.BpmnModel;
-import org.activiti.bpmn.model.FlowElement;
+import org.activiti.bpmn.model.*;
 import org.activiti.bpmn.model.Process;
-import org.activiti.bpmn.model.UserTask;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.*;
 import org.activiti.engine.history.*;
@@ -28,6 +26,7 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.Task;
+import org.activiti.engine.task.TaskQuery;
 import org.activiti.image.ProcessDiagramGenerator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,9 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,6 +65,8 @@ public class ProcessController {
     @Autowired
     private TaskService taskService;
     @Autowired
+    private UserService userService;
+    @Autowired
     private RuntimeService runtimeService;
     @Autowired
     private IdentityService identityService;
@@ -86,7 +89,7 @@ public class ProcessController {
     @Autowired
     private OADeploymentTemplateService oaDeploymentTemplateService;
     @Autowired
-    ProcessEngine processEngine;
+    private ProcessEngine processEngine;
     @Autowired
     private MailService mailService;
 
@@ -100,6 +103,11 @@ public class ProcessController {
     private OANotifyService oaNotifyService;
     @Autowired
     private TaskProcessService taskProcessService;
+
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"), true));
+    }
     private static String formatSeconds(long seconds) {
         String timeStr = seconds + "秒";
         if (seconds > 60) {
@@ -244,6 +252,34 @@ public class ProcessController {
         return null;
     }
 
+    //删除合同
+    @RequestMapping(value = "/deleteContract",method = RequestMethod.DELETE, produces = "application/json")
+    @ResponseBody
+    public Object deleteContract(HttpServletRequest request,
+                                 @RequestParam(value = "id", defaultValue = "0", required = true) String id,
+                                 HttpServletResponse response) throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        try{
+
+            LOGGER.info("删除合同，参数：{}",id);
+            OAContractCirculation oaContractCirculation = contractCirculationService.selectByProcessInstanceId(id);
+            oaAttachmentService.deleteByProcessId(oaContractCirculation.getProcessInstanceId());
+            runtimeService.deleteProcessInstance(oaContractCirculation.getProcessInstanceId(),"草稿");
+            contractCirculationService.delete(oaContractCirculation.getContractId());
+            auditService.audit(new OAAudit(loginUser.getName(),String.format("删除合同")));
+        }catch (Exception e){
+            LOGGER.error("异常",e);
+            result.put("result","failed");
+        }
+        return result;
+
+    }
     //modeler预览
     @RequestMapping("/modelerReviewInfo")
     public Object modelerReviewInfo(HttpServletRequest request,HttpServletResponse response) throws Exception {
@@ -311,6 +347,52 @@ public class ProcessController {
             }
         }
 
+
+    }
+
+    //通过界面配置名称 获取下一级审批人 列表
+    @RequestMapping("/userLeader")
+    public Object userLeader(HttpServletRequest request,HttpServletResponse response) throws Exception {
+        com.wxm.entity.User loginUser = (com.wxm.entity.User) request.getSession().getAttribute("loginUser");
+        if (null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101, "用户未登录");
+        }
+
+        String docId = request.getParameter("depId");
+        auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 模型预览，部署模型编号：%s",loginUser.getName(),docId)));
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(docId).singleResult();
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+//        BpmnModel bpmnModel = (BpmnModel)repositoryService.createModelQuery().modelId(modelId).latestVersion().singleResult();
+        Collection<FlowElement> flowElements = bpmnModel.getProcesses().get(0).getFlowElements();
+        List<FlowElem> flowElems = new LinkedList<>();
+        Map<String,String> map = new LinkedHashMap<>();
+        Map<String,String> mapUserTask = new LinkedHashMap<>();
+        Map<String,String> mapSid = new LinkedHashMap<>();
+        for(FlowElement flowElement:flowElements){
+            if(flowElement instanceof SequenceFlow){
+                map.put(((SequenceFlow) flowElement).getSourceRef(),((SequenceFlow) flowElement).getTargetRef());
+            }
+            if(flowElement instanceof UserTask ) {
+                mapUserTask.put(flowElement.getId(),flowElement.getName());
+                mapSid.put(flowElement.getName(),flowElement.getId());
+            }
+        }
+        String sid = "";
+        String res = "";
+        LinkedList<String> linkedList = new LinkedList();
+        if(StringUtils.isBlank(sid)){
+            sid = mapSid.get("提交任务");
+            sid = mapUserTask.get(sid);
+            res = mapUserTask.get(sid);
+        }else{
+            sid = mapUserTask.get(sid);
+            res = mapUserTask.get(sid);
+        }
+        List<OAUser> oaUserList = userService.listUserLeader(null,res);
+        return null;
 
     }
     //预览
@@ -475,6 +557,8 @@ public class ProcessController {
         }
         return result;
     }
+    //获取所有相关任务
+
 
     //拒绝任务到发起人，并记录当前节点，后续可以直接返回
     @RequestMapping(value = "reject", method = RequestMethod.POST)
@@ -494,7 +578,7 @@ public class ProcessController {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         String taskDefinitionKey = task.getTaskDefinitionKey();
 //        runtimeService.setVariable(task.getProcessInstanceId(), "refuseTask", "拒绝" );
-        runtimeService.setVariable(task.getProcessInstanceId(), "refuseTask", cause );
+        runtimeService.setVariable(task.getProcessInstanceId(), "refuseTask", "拒绝 "+ cause );
         Map<String,String> mapComment = new LinkedHashMap();
         mapComment.put("user",loginUser.getName());
         if(StringUtils.isNotBlank(cause)) {
@@ -502,7 +586,7 @@ public class ProcessController {
         }else{
             mapComment.put("cause", "拒绝");
         }
-        taskService.addComment(task.getId(), task.getProcessInstanceId(), "拒绝 "+cause);
+        taskService.addComment(task.getId(), task.getProcessInstanceId(), "拒绝 "+ cause);
         runtimeService.setVariable(task.getProcessInstanceId(), taskId, mapComment);
 
         OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(task.getProcessInstanceId());
@@ -555,6 +639,11 @@ public class ProcessController {
         String contract = map.get("contract");
         String contractName = map.get("contractName");
         String pm = map.get("pm");
+
+        Map<String, Object> mapApprove = new HashMap<String, Object>();
+        if(StringUtils.isNotBlank(pm)){
+            mapApprove.put("user_approve", pm);
+        }
         identityService.setAuthenticatedUserId(loginUser.getName());
         OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
         if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交s
@@ -570,18 +659,22 @@ public class ProcessController {
 //                    SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd");
                     Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");
-
                     if(StringUtils.isBlank(pm) ){
-                        taskService.complete(task.getId());
-                    }else {
-                        org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(pm).singleResult();
-                        if(null == userOa){
-                            taskService.complete(task.getId());
-                        }else {
-                            taskService.setAssignee(task.getId(), pm);
-                            runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
-                        }
+                        result.put("result","failed");
+                        return result;
                     }
+                    taskService.complete(task.getId(),mapApprove);
+//                    if(StringUtils.isBlank(pm) ){
+//                        taskService.complete(task.getId());
+//                    }else {
+//                        org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(pm).singleResult();
+//                        if(null == userOa){
+//                            taskService.complete(task.getId());
+//                        }else {
+//                            taskService.setAssignee(task.getId(), pm);
+//                            runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
+//                        }
+//                    }
                     map.put("init","");
                     if(StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
                         map.put("contractStatus","1");
@@ -770,17 +863,23 @@ public class ProcessController {
                 if (index.equals("1")) {
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");
 //                    taskService.setAssignee(task.getId(),"wxm");
-                    if(StringUtils.isBlank(pm) ){
-                        taskService.complete(task.getId());
-                    }else {
-                        org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(pm).singleResult();
-                        if(null == userOa){
-                            taskService.complete(task.getId());
-                        }else {
-                            taskService.setAssignee(task.getId(), pm);
-                            runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
-                        }
+                    if(StringUtils.isBlank(pm) ) {
+                        result.put("result", "failed");
+                        return result;
+
                     }
+                    taskService.complete(task.getId(), mapApprove);
+//                    if(StringUtils.isBlank(pm) ){
+//                        taskService.complete(task.getId());
+//                    }else {
+//                        org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(pm).singleResult();
+//                        if(null == userOa){
+//                            taskService.complete(task.getId());
+//                        }else {
+//                            taskService.setAssignee(task.getId(), pm);
+//                            runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
+//                        }
+//                    }
 //                    taskService.complete(task.getId());
                     runtimeService.setVariable(processInstance.getProcessInstanceId(), "init", "");
                 }else{
@@ -850,6 +949,7 @@ public class ProcessController {
             if (null != activity && activity.getProperty("name").toString().contains("核对")) {
                 OAContractCirculationWithBLOBs tmp = new OAContractCirculationWithBLOBs();
                 tmp.setContractId(oaContractCirculationWithBLOBs.getContractId());
+                tmp.setProcessInstanceId(oaContractCirculationWithBLOBs.getProcessInstanceId());
                 auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 核对合同",loginUser.getName())));
             //归档后 用户可以查
                 runtimeService.setVariable(processInstancesId,"instanceStatus","completed");
@@ -865,8 +965,8 @@ public class ProcessController {
                 sb.append("<title>");
                 sb.append(historicVariableInstance.getValue().toString());
                 sb.append("</title>");
-                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
-//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
+//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
+                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
                 sb.append("<body>");
                 sb.append(html);
                 sb.append("</body></html>");
@@ -876,8 +976,9 @@ public class ProcessController {
                 for(OAFormProperties oaFormProperties:formPropertiesList){
                     linkedHashMap.put(oaFormProperties.getFieldMd5(),Integer.parseInt(oaFormProperties.getFieldValid().substring(2)));
                 }
+
                 Html2PdfTask html2PdfTask = new Html2PdfTask(sb,contractCirculationService,linkedHashMap,processInstancesId,tmp
-                ,contractPath + historicVariableInstance.getValue().toString(),openOfficePath,historyService);
+                ,contractPath + historicVariableInstance.getValue().toString(),openOfficePath,historyService,oaAttachmentService);
                 threadPoolService.execute(html2PdfTask);
 //                try {
 //                    String data = fillValue(processInstancesId, sb,linkedHashMap);
@@ -940,6 +1041,7 @@ public class ProcessController {
     @RequestMapping(value = "process", method = RequestMethod.GET)
     @ResponseBody
     public Object findTaskByName(@RequestParam(value = "user", required = false) String user,
+                                 @RequestParam(value = "init", required = true) String init,
                                  @RequestParam(value = "offset", required = true) int offset,
                                  @RequestParam(value = "limit", required = true) int limit,
                                  HttpServletRequest request)throws Exception {
@@ -950,7 +1052,13 @@ public class ProcessController {
         }
 
         List<TaskInfo> taskInfos = new LinkedList<>();
-        List<Task> list = taskService.createTaskQuery()// 创建任务查询对象
+        TaskQuery taskQuery = taskService.createTaskQuery();// 创建任务查询对象
+        if(init.equals("start")){
+            taskQuery.processVariableValueEquals("init","start");
+        }else{
+            taskQuery.processVariableValueNotEquals("init","start");
+        }
+        List<Task> list = taskQuery
                 .orderByTaskCreateTime().desc()
                 .taskAssignee(loginUser.getName())// 指定个人认为查询，指定办理人
                 .listPage(offset,limit);
@@ -989,6 +1097,75 @@ public class ProcessController {
         return result;
     }
 
+    @RequestMapping(value = "myTaskRefuse", method = RequestMethod.GET)
+    @ResponseBody
+    public Object myTask(
+            @RequestParam(value = "refuse", required = true ,defaultValue= "0" ) String refuse,
+            @RequestParam(value = "startTime", required = true) Date startTime,
+            @RequestParam(value = "endTime", required = true) Date endTime,
+            @RequestParam(value = "offset", required = true ,defaultValue= "0" ) int offset,
+            @RequestParam(value = "limit", required = true,defaultValue= "10" ) int limit,
+            HttpServletRequest request)throws Exception{
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser){
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+
+        HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+
+        if(refuse.equals("refuse")){
+            historicProcessInstanceQuery = historicProcessInstanceQuery.involvedUser(loginUser.getName()).variableValueLike("refuseTask","%拒绝%");
+        }else{
+            historicProcessInstanceQuery = historicProcessInstanceQuery.involvedUser(loginUser.getName());
+        }
+        List<HistoricProcessInstance> listProcess = historicProcessInstanceQuery
+                .startedAfter(startTime)
+                .startedBefore(endTime)
+                .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
+        long size = historicProcessInstanceQuery
+                .startedAfter(startTime)
+                .startedBefore(endTime)
+                .count();
+
+
+        List<TaskInfo> taskInfos = new LinkedList<>();
+        for(HistoricProcessInstance historicProcessInstance : listProcess){
+            historicProcessInstance.getStartTime();
+            Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
+            TaskInfo taskInfo = new TaskInfo();
+            taskInfos.add(taskInfo);
+            List<HistoricVariableInstance> list = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
+            if (list != null && list.size() > 0) {
+                for (HistoricVariableInstance h : list) {
+
+                    if(h.getVariableName().equals("title")){
+                        taskInfo.setTitle(h.getValue().toString());
+                    }else if(h.getVariableName().equals("user")){
+                        taskInfo.setStarter(h.getValue().toString());
+                    }else if(h.getVariableName().equals("contractStatus")){
+                        taskInfo.setWorkStatus(Integer.parseInt(h.getValue().toString()));
+                    }
+                }
+            }
+            OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(historicProcessInstance.getId());
+            if(null != oaContractCirculation) {
+                taskInfo.setArchiveSerialNumber(oaContractCirculation.getArchiveSerialNumber());
+            }
+            taskInfo.setId(historicProcessInstance.getId());
+            taskInfo.setName(deployment.getName());
+            taskInfo.setTimestamp(historicProcessInstance.getStartTime());
+//            taskInfo.setAssignee(task.getAssignee());
+            taskInfo.setProcessInstanceId(historicProcessInstance.getId());
+            taskInfo.setExecutionId(historicProcessInstance.getId());
+            taskInfo.setProcessDefinitionId(historicProcessInstance.getProcessDefinitionId());
+
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("rows", taskInfos);
+        result.put("total", size);
+        return result;
+    }
     //归档任务查询 获取该员工历史任务,参与过的任务
     @RequestMapping(value = "processHistory", method = RequestMethod.GET)
     @ResponseBody

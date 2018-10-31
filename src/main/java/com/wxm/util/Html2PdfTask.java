@@ -1,17 +1,17 @@
 package com.wxm.util;
 
+import com.wxm.model.OAAttachment;
 import com.wxm.model.OAContractCirculationWithBLOBs;
 import com.wxm.service.ContractCirculationService;
+import com.wxm.service.OAAttachmentService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,10 +29,11 @@ public class Html2PdfTask implements Runnable {
     private String contractPath;
     private String openoffice;
     private HistoryService historyService;
+    private OAAttachmentService oaAttachmentService;
 
-    public Html2PdfTask(StringBuilder html,ContractCirculationService contractCirculationService, Map<String,Integer> linkedHashMap,
-                        String processInstancesId,OAContractCirculationWithBLOBs tmp,String contractPath,String openoffice,
-                        HistoryService historyService){
+    public Html2PdfTask(StringBuilder html, ContractCirculationService contractCirculationService, Map<String,Integer> linkedHashMap,
+                        String processInstancesId, OAContractCirculationWithBLOBs tmp, String contractPath, String openoffice,
+                        HistoryService historyService, OAAttachmentService oaAttachmentService){
      this.html = html;
      this.contractCirculationService = contractCirculationService;
      this.linkedHashMap = linkedHashMap;
@@ -40,17 +41,13 @@ public class Html2PdfTask implements Runnable {
      this.tmp = tmp;
      this.contractPath = contractPath;
      this.openoffice = openoffice;
-     this.historyService =  historyService;;
+     this.historyService =  historyService;
+     this.oaAttachmentService = oaAttachmentService;
     }
     private String completeWithBlank(String src,Integer size){
-        int pre = (size-src.length())/2;
-        int post = (size-src.length())-pre;
-        StringBuffer tmp = new StringBuffer();
-        for (int i = 0; i < pre; i++) {
-            tmp.append("&ensp;");
-        }
-        tmp.append(src).toString();
-        for (int i = 0; i < post; i++) {
+        size = size - src.length();
+        StringBuffer tmp = new StringBuffer(src);
+        for (int i = 0; i < size; i++) {
             tmp.append("&ensp;");
         }
         return tmp.toString();
@@ -166,13 +163,25 @@ public class Html2PdfTask implements Runnable {
             printStream.println(data);
             //转换成pdf文件
             File htmlFile = Word2Html.html2pdf(fileHtml, openoffice);
+
+//            InputStream input = new ByteArrayInputStream(bytesDB);
+            PDFMergerUtility mergePdf = new PDFMergerUtility();
+            mergePdf.addSource(filePf);
+            List<OAAttachment> oaAttachmentList = oaAttachmentService.listBlobByProcessId(tmp.getProcessInstanceId());
+            for(OAAttachment oaAttachment:oaAttachmentList){
+                if(oaAttachment.getFileContent() != null)
+                    mergePdf.addSource(new ByteArrayInputStream(oaAttachment.getFileContent()));
+            }
+            mergePdf.setDestinationFileName(contractPath+"new.pdf");
+            mergePdf.mergeDocuments();
+
             // 获取pdf文件流
-            byte[] pdf = FileByte.getByte(filePf);
+            byte[] pdf = FileByte.getByte(contractPath+"new.pdf");
             tmp.setContractStatus("completed");
             // HTML文件字符串
             tmp.setContractPdf(pdf);
             contractCirculationService.update(tmp);
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

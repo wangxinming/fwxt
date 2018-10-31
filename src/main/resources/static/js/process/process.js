@@ -5,10 +5,11 @@
     'use strict';
     angular.module('process',['ngRoute','ui.select2','ngResource','dataTablesDirective','util.services','checkListDirective','toaster','ngSanitize'])
         .config(['$routeProvider', function($routeProvider) {
-            $routeProvider.when('/process', {
+            $routeProvider
+                .when('/process', {
                 templateUrl: 'view/process/process.html',
                 controller: 'process.controller'
-            })
+                })
                 .when('/order',{
                     templateUrl: 'view/process/order.html',
                     controller: 'order.controller'
@@ -24,6 +25,14 @@
                 .when('/myProcess',{
                     templateUrl: 'view/process/myProcess.html',
                     controller: 'myProcess.controller'
+                })
+                .when('/draft',{
+                    templateUrl: 'view/process/draft.html',
+                    controller: 'draft.controller'
+                })
+                .when('/refuse',{
+                    templateUrl: 'view/process/refuse.html',
+                    controller: 'refuse.controller'
                 })
                 .when('/initiator',{
                     templateUrl: 'view/process/initiator.html',
@@ -1276,6 +1285,7 @@
                             limit:10,
                             offset:0
                         },
+                        init:"other",
                         id:1,
                         limit: 10, //每页条数(即取多少条数据)
                         offset: 0, //从第几条数据开始取
@@ -1634,6 +1644,9 @@
             if($scope.search.state=='create') {
                 Loading.show();
                 loader.uploadFileInfoAdd({'id': $scope.search.id,"contract":$scope.search.contract}, {}, function (data) {
+                    if(data.result == 'failed'){
+                        window.close();
+                    }
                     $('#wordId').val($scope.search.id);
                     $('#contract').val($scope.search.contract);
                     $('#processInstanceId').val($scope.search.processInstanceId);
@@ -1748,11 +1761,11 @@
                     $('#money').focus();
                     return;
                 }
-                if(!$scope.pm){
-                    toaster.pop('failed', "","请指定项目经理");
-                    $('#pmList').focus();
-                    return;
-                }
+                // if(!$scope.pm){
+                //     toaster.pop('failed', "","请指定项目经理");
+                //     $('#pmList').focus();
+                //     return;
+                // }
                 for(i=0;i< $scope.fields.length;i++){
                     var text = $('#'+$scope.fields[i].fieldMd5).val();
                     if(!text || text.trim()==""){
@@ -1772,7 +1785,10 @@
                                 return;
                             }
                             break;
+                        case 'CC':
                         case 'TT':
+                        case 'RR':
+                        case 'SS':
                             break;
                         case 'YY'://YYYYMMDD
                             var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
@@ -1848,6 +1864,7 @@
                                 return;
                             }
                             break;
+                        case 'CC':
                         case 'SS':
                             break;
                         case 'TT'://YYYYMMDD
@@ -1890,6 +1907,716 @@
                 })
                 // AJAX.POST("/workflow/process/start",values);
             }
+
+        }])
+        .controller('draft.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster,$timeout) {
+            $scope.approvalItems = [{"status":1,"name":"同意"},{"status":2,"name":"拒绝，回退到申请人"}];
+            $scope.pageID = {};
+            $scope.pageDialogDetail=Tools.dialog({
+                id:"pageDialogDetail",
+                title:"新增",
+                hiddenButton:false,
+                save:function(){
+                    if($scope.addPageDetail.data.approvalStatus == 1) {
+                        if(!$scope.addPageDetail.data.leaderApprove && !$scope.approveLast){
+                            $('#leaderApprove').focus();
+                            return;
+                        }
+                        Loading.show();
+                        loader.completedTask({"id": $scope.listPage.info.id,"approve":$scope.addPageDetail.data.leaderApprove}, {}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialogDetail.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }else if ($scope.addPageDetail.data.approvalStatus == 2){
+
+                        Loading.show();
+                        //跳转任务 到任务提交人
+                        loader.rejectTask({"id": $scope.listPage.info.id,"cause":$scope.addPageDetail.data.cause}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialogDetail.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }
+                }
+            });
+            $scope.addPageDetail={
+                data: {
+                    id: 0,
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0, //从第几条数据开始取
+                    approvalStatus:1,
+                    cause:'',
+                    orderBy: "updated",//排序字段
+                    orderByType: "desc" //排序顺序
+                }
+            };
+
+
+            $scope.pageDialog=Tools.dialog({
+                id:"pageDialog",
+                title:"新增",
+                hiddenButton:false,
+                save:function(){
+                    if($scope.addPage.data.approvalStatus == 1) {
+                        Loading.show();
+                        loader.completedTask({"id": $scope.listPage.info.id,"approve":$scope.leaderApprove}, {}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }else if ($scope.addPage.data.approvalStatus == 2){
+
+                        Loading.show();
+                        //跳转任务 到任务提交人
+                        loader.rejectTask({"id": $scope.listPage.info.id,"cause":$scope.addPage.data.cause}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }
+                }
+            });
+            $scope.addPage={
+                data: {
+                    id: 0,
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0, //从第几条数据开始取
+                    approvalStatus:1,
+                    cause:'',
+                    orderBy: "updated",//排序字段
+                    orderByType: "desc" //排序顺序
+                }
+            };
+            $scope.searchPage = {
+                init: function () {
+                    $scope.searchPage.data = {
+                        process:{
+                            id:0,
+                            limit:10,
+                            offset:0
+                        },
+                        init:"start",
+                        id:1,
+                        limit: 10, //每页条数(即取多少条数据)
+                        offset: 0, //从第几条数据开始取
+                        orderBy: "updated",//排序字段
+                        orderByType: "desc" //排序顺序
+                    }
+                },
+                action:{
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                info:{},
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    add: function (id) {
+                        $scope.pageDialog.show();
+                    },
+                    // start:function (id,order,processId,deployId) {
+                    //     if(order == 0) {
+                    //         $scope.listPage.info.id = id;
+                    //         $scope.pageDialogDetail.title = "审批操作";
+                    //         $scope.pageDialogDetail.show();
+                    //     }else{
+                    //         window.open("/index.html#/order?state=update&id="+deployId+"&processInstanceId="+processId,"_blank");
+                    //     }
+                    //     //TODO 弹出对话框，审批操作
+                    //     //$("#myModalLabel").prop('innerHTML')
+                    //     // window.open("/demo.html#/process?id="+id,"_blank");
+                    // },
+                    // detail: function (id) {
+                    start:function (id,order,processId,deployId) {
+                        if(order == 0) {
+                            $scope.listPage.info.id = id;
+                            $('#keyword').html('');
+                            $scope.pageDialogDetail.title = "审批操作";
+                            // Loading.show();
+                            $scope.hash = "/workflow/process/queryProPlan?TaskId=" + id;
+                            Loading.show();
+                            loader.getTemplateHtml({"taskId": id}, function (data) {
+                                if (data.result == "success") {
+                                    if (data.comments) {
+                                        $scope.details = data.comments;
+                                    }
+
+                                    $scope.approveLast = data.approve_last;
+                                    $scope.pms = data.leader;
+                                    // $timeout(function(){
+                                    //     $scope.details = [{"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"发起"},
+                                    //         {"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"审批"}];
+                                    // },500);
+                                    $('#htmlTemplate').html(data.info);
+                                    // var html = "<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">甲方名称：********</div><div align=\"LEFT\"> 乙方名称：*****</div>";
+                                    // $('#keyword').html(data.keyword);
+                                    if (data.rows) {
+                                        for (var j = 0; j < data.rows.length; j++) {
+                                            // $('#'+data.rows[j].key).val(data.rows[j].value);
+                                            if (data.rows[j].value == 'on') {
+                                                $('#' + data.rows[j].key).attr("checked", true);
+                                            } else {
+                                                $('#' + data.rows[j].key).val(data.rows[j].value);
+                                            }
+                                            $('#'+data.rows[j].key).attr("disabled", true);
+                                        }
+                                    }
+                                    if(data.download){
+                                        var tal = "";
+                                        for(var i=0;i<data.download.length;i++){
+                                            var file = data.download[i].fileName;
+                                            var display = file.substring(file.indexOf('_')+1);
+                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                            tal += html;
+                                        }
+                                        // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                                        $('#download').html(tal);
+                                    }
+                                    // if (data.download) {
+                                    //     // $('#customFile')[0].style.display = 'none';
+                                    //     var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId=' + data.download + '\");\'>附件下载</a>';
+                                    //     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
+                                    //     $('#download').html(html);
+                                    // }
+                                    $('#keyword').html(data.keyword);
+                                }
+                                Loading.hide();
+                            })
+                            $scope.pageDialogDetail.show();
+                        }else{
+                            window.open("/index.html#/order?state=update&id="+deployId+"&processInstanceId="+processId,"_blank");
+                        }
+                    },
+                    update:function (id) {
+                        $scope.pageDialog.title="编辑";
+                        Loading.show();
+                        loader.removeDeployment({'id': id}, {}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+
+                        }, '关联模板');
+                    },
+                    remove:function (id) {
+                        $rootScope.$confirm("确定要删除吗？", function () {
+                            Loading.show();
+                            loader.deleteContract({'id': id}, {}, function (data) {
+                                if (data.result == "success") {
+                                    $scope.listPage.settings.reload(true);
+                                }
+                                Loading.hide();
+                            }, function (error) {
+                                Loading.hide();
+                            });
+                        }, '删除');
+                    },
+                    search: function (search, fnCallback) {
+                        var k = ''==$scope.key? 'NULL' : $scope.key;
+                        // $scope.searchPage.data.key =k;
+                        $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
+                        loader.getTaskPending($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        })
+                    }
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    // {
+                    //     sTitle: "任务ID",
+                    //     mData: "id",
+                    //     mRender: function (mData, type, full) {
+                    //         var s =  '<input  value="'+mData+'"  onClick="javascript:this.select()" class="tableReadOnlyInput">';
+                    //         return s;
+                    //     }
+                    // },
+                    {
+                        sTitle: "流程名称",
+                        mData: "name",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "申请标题",
+                        mData: "title",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "处理人",
+                        mData: "assignee",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "时间",
+                        mData: "timestamp",
+                        mRender: function (mData, type, full) {
+                            if(!mData){
+                                return "";
+                            }
+                            return Util.formatSimpleDate(mData);
+                        }
+                    },
+                    {
+                        sTitle: "操作",
+                        mData:"id",
+                        mRender:function(mData,type,full) {
+                            //class="fa fa-pencil fa-fw" class="fa fa-list-alt"
+                            // ng-click="listPage.action.start(\'' + mData+'\',\'' +full.fieldType+'\',\'' +full.fieldValid+ '\')">编辑</a><i>' ;
+                            return '<i><a title="继续填写"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData +'\',\'' +full.order+'\',\'' +full.processInstanceId+'\',\'' +full.deployId+ '\')">继续填写</a></i>' +
+                                    '<i><a title="删除草稿"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + full.processInstanceId + '\')">删除草稿</a></i>';
+                        }
+                    }
+
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,3列不可排序
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+            $scope.searchPage.init();
+            $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
+                if (newVal) {
+                    $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
+                } else {
+                    if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
+                        $scope.listPage.checkedList = [];
+                    }
+                }
+            }, false);
+            $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
+                $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+            }, true);
+
+        }])
+        .controller('refuse.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster','$timeout','$filter',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster,$timeout,$filter) {
+            $scope.approvalItems = [{"status":1,"name":"同意"},{"status":2,"name":"拒绝，回退到申请人"}];
+            var current = new Date();
+            $scope.pageID = {};
+            $scope.pageDialogDetail=Tools.dialog({
+                id:"pageDialogDetail",
+                title:"新增",
+                hiddenButton:false,
+                save:function(){
+                    if($scope.addPageDetail.data.approvalStatus == 1) {
+                        if(!$scope.addPageDetail.data.leaderApprove && !$scope.approveLast){
+                            $('#leaderApprove').focus();
+                            return;
+                        }
+                        Loading.show();
+                        loader.completedTask({"id": $scope.listPage.info.id,"approve":$scope.addPageDetail.data.leaderApprove}, {}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialogDetail.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }else if ($scope.addPageDetail.data.approvalStatus == 2){
+
+                        Loading.show();
+                        //跳转任务 到任务提交人
+                        loader.rejectTask({"id": $scope.listPage.info.id,"cause":$scope.addPageDetail.data.cause}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialogDetail.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }
+                }
+            });
+            $scope.addPageDetail={
+                data: {
+                    id: 0,
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0, //从第几条数据开始取
+                    approvalStatus:1,
+                    cause:'',
+                    orderBy: "updated",//排序字段
+                    orderByType: "desc" //排序顺序
+                }
+            };
+
+
+            $scope.pageDialog=Tools.dialog({
+                id:"pageDialog",
+                title:"新增",
+                hiddenButton:false,
+                save:function(){
+                    if($scope.addPage.data.approvalStatus == 1) {
+                        Loading.show();
+                        loader.completedTask({"id": $scope.listPage.info.id,"approve":$scope.leaderApprove}, {}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }else if ($scope.addPage.data.approvalStatus == 2){
+
+                        Loading.show();
+                        //跳转任务 到任务提交人
+                        loader.rejectTask({"id": $scope.listPage.info.id,"cause":$scope.addPage.data.cause}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                toaster.pop('success', "", "操作成功");
+                                $scope.listPage.settings.reload();
+                                $scope.pageDialog.hide();
+                            } else {
+                                Loading.hide();
+                                toaster.pop('warning', "", data.msg);
+                            }
+                        })
+                    }
+                }
+            });
+            $scope.addPage={
+                data: {
+                    id: 0,
+                    limit: 10, //每页条数(即取多少条数据)
+                    offset: 0, //从第几条数据开始取
+                    approvalStatus:1,
+                    cause:'',
+                    orderBy: "updated",//排序字段
+                    orderByType: "desc" //排序顺序
+                }
+            };
+            $scope.searchPage = {
+                init: function () {
+                    $scope.searchPage.data = {
+                        process:{
+                            id:0,
+                            limit:10,
+                            offset:0
+                        },
+                        init:"start",
+                        id:1,
+                        refuse:"",
+                        startTime: $filter('date')(new Date(current.getTime() - 7*24*60 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
+                        endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss'),
+                        limit: 10, //每页条数(即取多少条数据)
+                        offset: 0, //从第几条数据开始取
+                        orderBy: "updated",//排序字段
+                        orderByType: "desc" //排序顺序
+                    }
+                },
+                action:{
+                    search:function () {
+                        $scope.listPage.settings.reload(true);
+                    }
+                }
+            };
+            $scope.listPage = {
+                data: [],
+                info:{},
+                checkedList: [],
+                checkAllRow: false,
+                users: [],
+                ready: false,
+                action:{
+                    add: function (id) {
+                        $scope.pageDialog.show();
+                    },
+                    // start:function (id,order,processId,deployId) {
+                    //     if(order == 0) {
+                    //         $scope.listPage.info.id = id;
+                    //         $scope.pageDialogDetail.title = "审批操作";
+                    //         $scope.pageDialogDetail.show();
+                    //     }else{
+                    //         window.open("/index.html#/order?state=update&id="+deployId+"&processInstanceId="+processId,"_blank");
+                    //     }
+                    //     //TODO 弹出对话框，审批操作
+                    //     //$("#myModalLabel").prop('innerHTML')
+                    //     // window.open("/demo.html#/process?id="+id,"_blank");
+                    // },
+                    // detail: function (id) {
+                    start:function (id,order,processId,deployId) {
+                        if(order == 0) {
+                            $scope.listPage.info.id = id;
+                            $('#keyword').html('');
+                            $scope.pageDialogDetail.title = "审批操作";
+                            // Loading.show();
+                            $scope.hash = "/workflow/process/queryProPlan?TaskId=" + id;
+                            Loading.show();
+                            loader.getTemplateHtml({"taskId": id}, function (data) {
+                                if (data.result == "success") {
+                                    if (data.comments) {
+                                        $scope.details = data.comments;
+                                    }
+
+                                    $scope.approveLast = data.approve_last;
+                                    $scope.pms = data.leader;
+                                    // $timeout(function(){
+                                    //     $scope.details = [{"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"发起"},
+                                    //         {"name":"王新明","title":"请假","user":"user","createTime":new Date(),"status":"审批"}];
+                                    // },500);
+                                    $('#htmlTemplate').html(data.info);
+                                    // var html = "<div align=\"CENTER\"><b>关键信息</b></div><div class=\"cjk\" align=\"LEFT\">　　</div><div align=\"LEFT\">甲方名称：********</div><div align=\"LEFT\"> 乙方名称：*****</div>";
+                                    // $('#keyword').html(data.keyword);
+                                    if (data.rows) {
+                                        for (var j = 0; j < data.rows.length; j++) {
+                                            // $('#'+data.rows[j].key).val(data.rows[j].value);
+                                            if (data.rows[j].value == 'on') {
+                                                $('#' + data.rows[j].key).attr("checked", true);
+                                            } else {
+                                                $('#' + data.rows[j].key).val(data.rows[j].value);
+                                            }
+                                            $('#'+data.rows[j].key).attr("disabled", true);
+                                        }
+                                    }
+                                    if(data.download){
+                                        var tal = "";
+                                        for(var i=0;i<data.download.length;i++){
+                                            var file = data.download[i].fileName;
+                                            var display = file.substring(file.indexOf('_')+1);
+                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                            tal += html;
+                                        }
+                                        // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                                        $('#download').html(tal);
+                                    }
+                                    // if (data.download) {
+                                    //     // $('#customFile')[0].style.display = 'none';
+                                    //     var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId=' + data.download + '\");\'>附件下载</a>';
+                                    //     // var html = '<a href="javascript:void(0);" onclick="javascript:window.open("/template/download?contractId='+data.download+'");">附件下载</a>';
+                                    //     $('#download').html(html);
+                                    // }
+                                    $('#keyword').html(data.keyword);
+                                }
+                                Loading.hide();
+                            })
+                            $scope.pageDialogDetail.show();
+                        }else{
+                            window.open("/index.html#/order?state=update&id="+deployId+"&processInstanceId="+processId,"_blank");
+                        }
+                    },
+                    detail: function (id) {
+                        $('#keyword').html('');
+                        $scope.pageDialogDetail.title = "查看详情";
+                        // Loading.show();
+                        $scope.hash="/workflow/process/queryProPlan?processInstanceId="+id;
+                        Loading.show();
+                        loader.getTemplateHtmlHistory({"taskId":id},function(data){
+
+                            if(data.result == "success") {
+                                if(data.comments) {
+                                    $scope.details = data.comments;
+                                }
+                                $('#htmlTemplate').html(data.info);
+                                // var html = "<div align=\"CENTER\"><b>关键信息</b></div><div><label>甲方名称：********</label> <label>乙方名称：*****/label></div>>";
+
+                                if(data.rows) {
+                                    for (var j = 0; j < data.rows.length; j++) {
+                                        if(data.rows[j].value == 'on'){
+                                            $('#' + data.rows[j].key).attr("checked",true);
+                                        }else {
+                                            $('#' + data.rows[j].key).val(data.rows[j].value);
+                                        }
+                                        $('#'+data.rows[j].key).attr("disabled", true);
+                                    }
+                                }
+
+
+                                if(data.download){
+                                    var tal = "";
+                                    for(var i=0;i<data.download.length;i++){
+                                        var file = data.download[i].fileName;
+                                        var display = file.substring(file.indexOf('_')+1);
+                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                        tal += html;
+                                    }
+                                    // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
+                                    $('#download').html(tal);
+                                }
+
+                                $('#keyword').html(data.keyword);
+                            }
+                            Loading.hide();
+                        })
+                        $scope.pageDialogDetail.show();
+                    },
+                    update:function (id) {
+                        $scope.pageDialog.title="编辑";
+                        Loading.show();
+                        loader.removeDeployment({'id': id}, {}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+
+                        }, '关联模板');
+                    },
+                    remove:function (id) {
+                        $rootScope.$confirm("确定要删除吗？", function () {
+                            Loading.show();
+                            loader.deleteContract({'id': id}, {}, function (data) {
+                                if (data.result == "success") {
+                                    $scope.listPage.settings.reload(true);
+                                }
+                                Loading.hide();
+                            }, function (error) {
+                                Loading.hide();
+                            });
+                        }, '删除');
+                    },
+                    search: function (search, fnCallback) {
+                        var k = ''==$scope.key? 'NULL' : $scope.key;
+                        var t   = $('#fromDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.startTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        t = $('#toDateEx').val();
+                        if(t != "") {
+                            var date = new Date(Date.parse(t.replace(/-/g, "/")));
+                            $scope.searchPage.data.endTime = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss');
+                        }
+                        // $scope.searchPage.data.key =k;
+                        $scope.searchPage.data.offset =search.offset;
+                        $scope.searchPage.data.limit = search.limit;
+                        loader.getMyTaskRefuse($scope.searchPage.data, function (data) {
+                            $scope.listPage.data = data.rows;
+                            fnCallback(data);
+                        })
+                    }
+                }
+            };
+            $scope.listPage.settings = {
+                pageSize:10,
+                reload: null,
+                getData:  $scope.listPage.action.search,//getData应指定获取数据的函数
+                columns: [
+                    // {
+                    //     sTitle: "任务ID",
+                    //     mData: "id",
+                    //     mRender: function (mData, type, full) {
+                    //         var s =  '<input  value="'+mData+'"  onClick="javascript:this.select()" class="tableReadOnlyInput">';
+                    //         return s;
+                    //     }
+                    // },
+                    {
+                        sTitle: "流程名称",
+                        mData: "name",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "申请标题",
+                        mData: "title",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "处理人",
+                        mData: "assignee",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "时间",
+                        mData: "timestamp",
+                        mRender: function (mData, type, full) {
+                            if(!mData){
+                                return "";
+                            }
+                            return Util.formatSimpleDate(mData);
+                        }
+                    },
+                    {
+                        sTitle: "操作",
+                        mData:"id",
+                        mRender:function(mData,type,full) {
+                            //class="fa fa-pencil fa-fw" class="fa fa-list-alt"
+                            // ng-click="listPage.action.start(\'' + mData+'\',\'' +full.fieldType+'\',\'' +full.fieldValid+ '\')">编辑</a><i>' ;
+                            return '<i><a title="详情"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.detail(\'' + full.processInstanceId + '\')">详情</a></i>';
+                            // '<i><a title="详情"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.start(\'' + mData +'\',\'' +full.order+'\',\'' +full.processInstanceId+'\',\'' +full.deployId+ '\')">详情</a></i>';
+                                // '<i><a title="删除草稿"  ng-hide="loginUserMenuMap[currentView]"  ng-click="listPage.action.remove(\'' + full.processInstanceId + '\')">删除草稿</a></i>';
+                        }
+                    }
+
+                ], //定义列的形式,mRender可返回html
+                columnDefs: [
+                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,3列不可排序
+                ], //定义列的约束
+                defaultOrderBy: [
+                    [1, "desc"]
+                ]  //定义默认排序列为第8列倒序
+            };
+            $scope.searchPage.init();
+            $scope.$watch("listPage.checkAllRow", function (newVal, oldVal) {
+                if (newVal) {
+                    $scope.listPage.checkedList = Util.copyArray("id", $scope.listPage.data);
+                } else {
+                    if ($scope.listPage.data.length == $scope.listPage.checkedList.length) {
+                        $scope.listPage.checkedList = [];
+                    }
+                }
+            }, false);
+            $scope.$watch("listPage.checkedList", function (newVal, oldVal) {
+                $scope.listPage.checkAllRow = newVal && newVal.length > 0 && newVal.length == $scope.listPage.data.length;
+            }, true);
 
         }])
         .controller('process.controller', ['$scope','$location','$rootScope','user.loader','Util','Tools','Loading','toaster',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster) {

@@ -44,12 +44,12 @@
                        maxlength="300" ng-model="money" placeholder="￥">
             </div>
         </div>
-        <div  class="col-md-9" style="margin-top: 10px;">
+        <div ng-hide="!showCommit"  class="col-md-9" style="margin-top: 10px;">
             <div  class="col-md-6" >
-                <label  style="font-size: 16px;" >项目经理<span class="required">*</span></label>
+                <label  style="font-size: 16px;" >下级审批人<span class="required">*</span></label>
                 <!--<select ui-select2="{allowClear : true}" class="select2" ng-model="pm" name="pmList" style="width: 70%" id="pmList" ng-options="template.userName as template.userName+' :' + template.userPosition for template in pms" >-->
                 <select ui-select2="{allowClear : true}" class="select2" ng-model="pm" name="pmList" style="width: 70%" id="pmList"  >
-                    <option value=""> --- 请选择项目经理 --- </option>
+                    <option value=""> --- 请选择审批人 --- </option>
                     <option ng-repeat="template in pms" value="{{template.userName}}">{{template.userName}}: {{template.userPosition}}</option>
                 </select>
                 <!--<select ui-select2 ng-model="number" data-placeholder="Pick a number" ng-required="true">-->
@@ -159,7 +159,7 @@
             <input type="submit" ng-hide="showCommit" ng-click="commitResume()" class="btn btn-primary btn-lg" value="返回到上次审批人" />
         </div>
 
-        <div class="col-md-12" id="orderForm" style="margin-top: 20px;"></div>
+        <div class="col-md-12" id="orderForm" style="margin-top: 20px;font-size: large;"></div>
         <!--<div>-->
             <!--<label  class="col-md-3 control-label" style="font-size: 16px;">附件：</label>-->
             <!--<div class="col-md-9" style="margin: -2px 0px 0px -40px;" id="attachment">-->

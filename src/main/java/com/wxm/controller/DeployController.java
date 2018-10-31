@@ -10,6 +10,9 @@ import com.wxm.service.*;
 import com.wxm.util.exception.OAException;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.FlowElement;
+import org.activiti.bpmn.model.SequenceFlow;
+import org.activiti.bpmn.model.UserTask;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
@@ -282,16 +285,55 @@ public class DeployController {
             LOGGER.info("获取文件信息，参数：{}",processInstanceId);
 
             OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(processInstanceId);
-            result.put("workStatus",oaContractCirculation.getWorkStatus());
-            result.put("workDate",oaContractCirculation.getWorkDate());
-            result.put("title",oaContractCirculation.getContractName());
-            result.put("showCommit", true);
-            result.put("buyer", oaContractCirculation.getContractBuyer());
-            result.put("seller", oaContractCirculation.getContractSeller());
-            result.put("money", oaContractCirculation.getContractMoney());
+            if(null != oaContractCirculation) {
+                result.put("workStatus", oaContractCirculation.getWorkStatus());
+                result.put("workDate", oaContractCirculation.getWorkDate());
+                result.put("title", oaContractCirculation.getContractName());
+                result.put("showCommit", true);
+                result.put("buyer", oaContractCirculation.getContractBuyer());
+                result.put("seller", oaContractCirculation.getContractSeller());
+                result.put("money", oaContractCirculation.getContractMoney());
+            }
             List<OAAttachment> oaAttachments = oaAttachmentService.listByProcessId(oaContractCirculation.getProcessInstanceId());
             result.put("download",oaAttachments);
-            result.put("pms", userService.getPMUser());
+
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(id).singleResult();
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+            Collection<FlowElement> flowElements = bpmnModel.getProcesses().get(0).getFlowElements();
+            List<FlowElem> flowElems = new LinkedList<>();
+            Map<String,String> map = new LinkedHashMap<>();
+            Map<String,String> mapUserTask = new LinkedHashMap<>();
+            Map<String,String> mapSid = new LinkedHashMap<>();
+            for(FlowElement flowElement:flowElements){
+                if(flowElement instanceof SequenceFlow){
+                    map.put(((SequenceFlow) flowElement).getSourceRef(),((SequenceFlow) flowElement).getTargetRef());
+                }
+                if(flowElement instanceof UserTask) {
+                    mapUserTask.put(flowElement.getId(),flowElement.getName());
+                    mapSid.put(flowElement.getName(),flowElement.getId());
+                }
+            }
+            String sid = mapSid.get("提交任务");
+            sid = map.get(sid);
+            String res = mapUserTask.get(sid);
+
+
+            OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
+            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+            Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
+            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
+                map1.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+            }
+            List<OAUser> oaUserList = userService.listUserLeader(null,res);
+            List<OAUser> oaUserListRes = new LinkedList<>();
+            for(OAUser oaUser:oaUserList){
+                if(map1.containsKey(oaUser.getEnterpriseId())){
+                    oaUserListRes.add(oaUser);
+                }
+            }
+            result.put("pms", oaUserListRes);
+
+//            result.put("pms", userService.getPMUser());
 
             if(null != processInstanceId) {
                 Object pm = runtimeService.getVariable(processInstanceId, "pmApprove");
@@ -343,13 +385,50 @@ public class DeployController {
         result.put("result","success");
         try {
             //部署ID
+            String id = request.getParameter("id");
             String contract = request.getParameter("contract");
             LOGGER.info("合同ID号，参数：{}",contract);
             auditService.audit(new OAAudit(loginUser.getName(),String.format("查询模板以及表单信息")));
             result.put("showCommit", true);
             OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
             result.put("data",oaContractTemplate);
-            result.put("pms", userService.getPMUser());
+
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(id).singleResult();
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+            Collection<FlowElement> flowElements = bpmnModel.getProcesses().get(0).getFlowElements();
+            List<FlowElem> flowElems = new LinkedList<>();
+            Map<String,String> map = new LinkedHashMap<>();
+            Map<String,String> mapUserTask = new LinkedHashMap<>();
+            Map<String,String> mapSid = new LinkedHashMap<>();
+            for(FlowElement flowElement:flowElements){
+                if(flowElement instanceof SequenceFlow){
+                    map.put(((SequenceFlow) flowElement).getSourceRef(),((SequenceFlow) flowElement).getTargetRef());
+                }
+                if(flowElement instanceof UserTask) {
+                    mapUserTask.put(flowElement.getId(),flowElement.getName());
+                    mapSid.put(flowElement.getName(),flowElement.getId());
+                }
+            }
+            String sid = mapSid.get("提交任务");
+            sid = map.get(sid);
+            String res = mapUserTask.get(sid);
+
+
+            OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
+            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+            Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
+            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
+                map1.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+            }
+            List<OAUser> oaUserList = userService.listUserLeader(null,res);
+            List<OAUser> oaUserListRes = new LinkedList<>();
+            for(OAUser oaUser:oaUserList){
+                if(map1.containsKey(oaUser.getEnterpriseId())){
+                    oaUserListRes.add(oaUser);
+                }
+            }
+            result.put("pms", oaUserListRes);
+//            result.put("pms", userService.getPMUser());
             List<OAFormProperties> oaFormPropertiesList = formPropertiesService.listByTemplateId(oaContractTemplate.getTemplateId());
             result.put("fields",oaFormPropertiesList);
         }catch (Exception e){
@@ -729,12 +808,12 @@ public class DeployController {
                             taskComment.setName(comment.getUserId());
                         }
                         taskComment.setCreateTime(comment.getTime());
-                        if(flag) {
+//                        if(flag) {
                             taskComment.setDescription(comment.getFullMessage());
-                        }else{
-                            String[] tm = comment.getFullMessage().split(" ");
-                            taskComment.setDescription(tm[0]);
-                        }
+//                        }else{
+//                            String[] tm = comment.getFullMessage().split(" ");
+//                            taskComment.setDescription(tm[0]);
+//                        }
                         taskCommentList.add(taskComment);
                     }
                 }else {
@@ -760,34 +839,34 @@ public class DeployController {
                             Map<String,String> mapComment = (Map)object;
                             taskComment.setName(mapComment.get("user"));
                             taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                            if (flag) {
+//                            if (flag) {
                                 taskComment.setDescription(mapComment.get("cause"));
-                            }else{
-                                String[] tm = mapComment.get("cause").split(" ");
-                                taskComment.setDescription(tm[0]);
-                            }
+//                            }else{
+//                                String[] tm = mapComment.get("cause").split(" ");
+//                                taskComment.setDescription(tm[0]);
+//                            }
                         }else {
                             //当前节点没有审批信息，表明处于当前节点用户审批状态下
                             if (historicActivityInstance.getAssignee() == null) {
                                 VariableInstance variableInstance = runtimeService.getVariableInstance(processInstance.getId(), "user");
                                 taskComment.setName(variableInstance.getValue().toString());
                                 taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                                if (flag) {
+//                                if (flag) {
                                     taskComment.setDescription(object.toString());
-                                } else {
-//                                taskComment.setDescription("通过");
-                                    String[] tm = object.toString().split(" ");
-                                    taskComment.setDescription(tm[0]);
-                                }
+//                                } else {
+////                                taskComment.setDescription("通过");
+//                                    String[] tm = object.toString().split(" ");
+//                                    taskComment.setDescription(tm[0]);
+//                                }
                             } else {
                                 taskComment.setName(historicActivityInstance.getAssignee());
                                 taskComment.setCreateTime(historicActivityInstance.getStartTime());
-                                if (flag) {
+//                                if (flag) {
                                     taskComment.setDescription(object.toString());
-                                } else {
-                                    String[] tm = object.toString().split(" ");
-                                    taskComment.setDescription(tm[0]);
-                                }
+//                                } else {
+//                                    String[] tm = object.toString().split(" ");
+//                                    taskComment.setDescription(tm[0]);
+//                                }
                             }
                         }
                         taskCommentList.add(taskComment);
@@ -809,10 +888,53 @@ public class DeployController {
                 oaPositionRelations =  oaPositionRelationService.getByCompanyPosition(null,loginUser.getPosition());
             }
             LinkedHashMap<String,OAUser> oaUserMap = new LinkedHashMap<>();
-            for(OAPositionRelation oaPositionRelation:oaPositionRelations){
-                List<OAUser> userList = userService.listUserLeader(oaPositionRelation.getHighCompany(),oaPositionRelation.getHighPositionName());
-                for(OAUser oaUser1 : userList) {
-                    oaUserMap.put(oaUser1.getUserName(),oaUser1);
+
+
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(processInstance.getDeploymentId()).singleResult();
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+            Collection<FlowElement> flowElements = bpmnModel.getProcesses().get(0).getFlowElements();
+            List<FlowElem> flowElems = new LinkedList<>();
+            Map<String,String> mapSeq = new LinkedHashMap<>();
+            Map<String,String> mapUserTask = new LinkedHashMap<>();
+            Map<String,String> mapSid = new LinkedHashMap<>();
+            for(FlowElement flowElement:flowElements){
+                if(flowElement instanceof SequenceFlow){
+                    mapSeq.put(((SequenceFlow) flowElement).getSourceRef(),((SequenceFlow) flowElement).getTargetRef());
+                }
+                if(flowElement instanceof UserTask) {
+                    mapUserTask.put(flowElement.getId(),flowElement.getName());
+                    mapSid.put(flowElement.getName(),flowElement.getId());
+                }
+            }
+            String sid = mapSeq.get(task.getTaskDefinitionKey());
+            String res = mapUserTask.get(sid);
+//            OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
+            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+            Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
+            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
+                map1.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+            }
+//            List<OAUser> oaUserList = userService.listUserLeader(null,res);
+//            List<OAUser> oaUserListRes = new LinkedList<>();
+//            for(OAUser oaUser1:oaUserList){
+//                if(map1.containsKey(oaUser1.getEnterpriseId())){
+//                    oaUserListRes.add(oaUser1);
+//                }
+//            }
+
+            for(OAPositionRelation oaPositionRelation:oaPositionRelations) {
+                if (res.contains("法务")) {
+                    List<OAUser> userList = userService.listUserLeader(null, "法务");
+                    for (OAUser oaUser1 : userList) {
+                        oaUserMap.put(oaUser1.getUserName(), oaUser1);
+                    }
+                }else if (res.contains(oaPositionRelation.getHighPositionName())) {
+                    List<OAUser> userList = userService.listUserLeader(oaPositionRelation.getHighCompany(), oaPositionRelation.getHighPositionName());
+                    for (OAUser oaUser1 : userList) {
+                        if (map1.containsKey(oaUser1.getEnterpriseId())) {
+                            oaUserMap.put(oaUser1.getUserName(), oaUser1);
+                        }
+                    }
                 }
             }
             result.put("leader",oaUserMap.values());

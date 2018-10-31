@@ -655,16 +655,17 @@ public class WordTemplateController {
                 oaFormProperties.setTemplateId(id);
                 oaFormProperties.setFieldType(type);
                 oaFormProperties.setFieldValid(length);
+                String size = length.substring(2);
                 oaFormProperties.setCreateTime(new Date());
                 formPropertiesService.insert(oaFormProperties);
-                if(tmp.contains("单选框")) {
+                if(length.contains("CC")) {
                     String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", checkboxButton, name, name, end, checkboxBefore, checkbox, checkbox, end);
                     map.put(tmp,text);
-                }else if(tmp.contains("多行数据")){
+                }else if(tmp.contains("多行数据") ||length.contains("JJ") ){
                     String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", longTextBefore, name, name, longTextEnd, checkboxBefore, checkbox, checkbox, end);
                     map.put(tmp,text);
                 } else{
-                    String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", before, name, name, end, checkboxBefore, checkbox, checkbox, end);
+                    String text = String.format("%s%s\" size=%s id=\"%s%s %s%s\" id=\"%s%s", before, name,size, name, end, checkboxBefore, checkbox, checkbox, end);
                     map.put(tmp,text);
                 }
             }
