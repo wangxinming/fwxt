@@ -190,6 +190,20 @@
                             $("#process").trigger("click");
                         }
                         break;
+                    case 'draft':
+                        $('#mbx1').html('<a href="index.html#/draft"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
+                        $('#mbx2').html('<a href="index.html#/draft"><span class="fa fa-angle-double-right"></span> 草稿箱</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
+                    case 'refuse':
+                        $('#mbx1').html('<a href="index.html#/refuse"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
+                        $('#mbx2').html('<a href="index.html#/refuse"><span class="fa fa-angle-double-right"></span> 与我相关</a>');
+                        if (!$("#process").parent().hasClass("active")) {
+                            $("#process").trigger("click");
+                        }
+                        break;
                     case 'initiator':
                         $('#mbx1').html('<a href="index.html#/initiator"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
                         $('#mbx2').html('<a href="index.html#/initiator"><span class="fa fa-angle-double-right"></span> 我发起的合同</a>');
