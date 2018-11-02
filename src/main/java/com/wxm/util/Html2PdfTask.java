@@ -94,15 +94,6 @@ public class Html2PdfTask implements Runnable {
             String name = str.substring(str.indexOf("id=")+4);
             name = name.substring(0,name.indexOf("\""));
             int start = text.indexOf(str);
-//            if (size > 0 && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString())) {
-//                String inputValue = map.get(historicVariableInstance.getVariableName());
-//                if(null == text || inputValue == null) continue;
-//                int start = text.indexOf(inputValue);
-//                String value = historicVariableInstance.getValue().toString();
-//                value = completeWithBlank(value,linkedHashMap.get(historicVariableInstance.getVariableName()));
-//                text.replace(start,start+inputValue.length(),String.format("<u>%s</u>",value));
-//            }
-
             String value;
             if(stringStringMap.containsKey(name)){
                 value =  stringStringMap.get(name).toString();
@@ -125,31 +116,9 @@ public class Html2PdfTask implements Runnable {
                 }
             }
         }
-//        for(String str : set){
-//
-//            int start = text.indexOf(str);
-//            text.replace(start,start+str.length(),"hello");
-//        }
-
-
-
-//        for(HistoricVariableInstance historicVariableInstance : historicVariableInstanceList){
-//            if(historicVariableInstance.getVariableName().contains("name_")) {
-//                int size = text.indexOf(historicVariableInstance.getVariableName());
-//                if (size > 0 && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString())) {
-//                    String inputValue = map.get(historicVariableInstance.getVariableName());
-//                    if(null == text || inputValue == null) continue;
-//                    int start = text.indexOf(inputValue);
-//                    String value = historicVariableInstance.getValue().toString();
-//                    value = completeWithBlank(value,linkedHashMap.get(historicVariableInstance.getVariableName()));
-//                    text.replace(start,start+inputValue.length(),String.format("<u>%s</u>",value));
-//                }
-//            }
-//        }
         return text.toString();
     }
-    @Override
-    public void run() {
+    public void doRun(){
         try {
             LOGGER.info("begin create pdf");
 
@@ -190,5 +159,9 @@ public class Html2PdfTask implements Runnable {
         } catch (Exception e) {
             LOGGER.error("异常",e);
         }
+    }
+    @Override
+    public void run() {
+        doRun();
     }
 }

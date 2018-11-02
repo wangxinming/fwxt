@@ -374,6 +374,17 @@
                     down: function (processId) {
                         window.open("/workflow/process/download?processId="+processId);
                     },
+                    pdfGenerate:function (processId) {
+                        Loading.show();
+                        loader.generatePDF({ "processId": processId}, function (data) {
+                            if (data.result == "success") {
+                                Loading.hide();
+                                $scope.listPage.settings.reload(true);
+                            }
+                        }, function (error) {
+                            Loading.hide();
+                        }, '重新生成pdf');
+                    },
                     detail: function (id) {
                         $('#keyword').html('');
                         $scope.pageDialogDetail.title = "查看详情";
@@ -421,7 +432,6 @@
                     },
                     update:function (id) {
                         $scope.pageDialog.title="编辑";
-                        loader
                         $scope.pageDialog.model.name =
                             Loading.show();
 
@@ -533,7 +543,8 @@
                             //class="fa fa-list-alt" class="fa fa-download"
                             return '<i><a title="详情"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')">详情</a></i>'+
                                      '<i><a title="链接"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.address(\'' + mData + '\')">链接</a></i>'+
-                                     '<i><a title="下载" ng-click="listPage.action.down(\'' + mData + '\')">下载</a></i>';
+                                     '<i><a title="下载" ng-click="listPage.action.down(\'' + mData + '\')">下载</a></i>'+
+                                     '<i><a title="生成PDF" ng-click="listPage.action.pdfGenerate(\'' + mData + '\')">生成PDF</a></i>';
                                 // '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
                         }
                     }

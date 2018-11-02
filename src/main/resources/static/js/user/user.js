@@ -322,8 +322,8 @@
                 relationList: {method:'GET',url:"/user/relationList", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //获取职位信息
                 queryPosition: {method:'GET',url:"/user/positionById", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
-
-
+                /*重新生成pdf*/
+                generatePDF: {method:'GET',url:"/workflow/process/reGenerate", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 /*企业管理*/
                 //创建分公司
                 createEnterprise: {method:'PUT',url:"/user/enterprise", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},

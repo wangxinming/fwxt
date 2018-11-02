@@ -241,6 +241,10 @@ public class ProcessController {
 //        String codedfilename = MimeUtility.encodeText( new String((oaContractCirculationWithBLOBs.getContractName()+".pdf").getBytes("UTF-8"), "ISO-8859-1"));
 //        String codedfilename = MimeUtility.encodeText(new String((oaContractCirculationWithBLOBs.getContractName()+".pdf").getBytes(), "GB2312"),"GB2312","B");
 //        strText = MimeUtility.encodeText(new String(strText.getBytes(), "GB2312"), "GB2312", "B");
+            if(bytes == null){
+
+            }
+
             String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getContractName() + ".pdf", "UTF-8");
             //        String codedfilename = oaContractCirculationWithBLOBs.getContractName()+".pdf";
             response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
@@ -896,7 +900,58 @@ public class ProcessController {
         return result;
     }
 
+    //重新生成pdf文件
+    @RequestMapping(value = "reGenerate", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object reGenerate(HttpServletRequest request)throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        try {
+            String processInstancesId = request.getParameter("processId");
+            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstancesId);
+            OAContractTemplate oa = concactTemplateService.querybyId(oaContractCirculationWithBLOBs.getTemplateId());
+            OAContractCirculationWithBLOBs tmp = new OAContractCirculationWithBLOBs();
+            tmp.setContractId(oaContractCirculationWithBLOBs.getContractId());
+            tmp.setProcessInstanceId(oaContractCirculationWithBLOBs.getProcessInstanceId());
+            HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstancesId).variableName("title").singleResult();
+            String html = oa.getTemplateHtml();
+            StringBuilder sb = new StringBuilder(html.length() + 300);
+            sb.append("<!DOCTYPE html>");
+            sb.append("<head>");
+            sb.append("<title>");
+            sb.append(historicVariableInstance.getValue().toString());
+            sb.append("</title>");
+            sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
+//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
+            sb.append("<body>");
+            sb.append(html);
+            sb.append("</body></html>");
+            List<OAFormProperties> formPropertiesList = formPropertiesService.listByTemplateId(oaContractCirculationWithBLOBs.getTemplateId());
 
+            Map<String, Integer> linkedHashMap = new LinkedHashMap();
+            for (OAFormProperties oaFormProperties : formPropertiesList) {
+                try {
+                    linkedHashMap.put(oaFormProperties.getFieldMd5(), Integer.parseInt(oaFormProperties.getFieldValid().substring(2)));
+                } catch (Exception e) {
+                    linkedHashMap.put(oaFormProperties.getFieldMd5(), 20);
+                    LOGGER.info("字段：{}", oaFormProperties.getFieldValid());
+                    LOGGER.error("异常", e);
+                }
+            }
+            Html2PdfTask html2PdfTask = new Html2PdfTask(sb, contractCirculationService, linkedHashMap, processInstancesId, tmp
+                    , contractPath + historicVariableInstance.getValue().toString(), openOfficePath, historyService, oaAttachmentService);
+            html2PdfTask.doRun();
+        }catch (Exception e){
+            result.put("result","failed");
+            LOGGER.error("异常",e);
+        }
+        return result;
+    }
 
     //完成任务
     @RequestMapping(value = "complete", method = RequestMethod.POST,produces="application/json;charset=UTF-8")
