@@ -2585,13 +2585,13 @@
                             return Util.str2Html(mData);
                         }
                     },
-                    {
-                        sTitle: "处理人",
-                        mData: "assignee",
-                        mRender: function (mData, type, full) {
-                            return Util.str2Html(mData);
-                        }
-                    },
+                    // {
+                    //     sTitle: "处理人",
+                    //     mData: "assignee",
+                    //     mRender: function (mData, type, full) {
+                    //         return Util.str2Html(mData);
+                    //     }
+                    // },
                     {
                         sTitle: "时间",
                         mData: "timestamp",
@@ -2616,7 +2616,7 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4]}  //第 0,3列不可排序
+                    {bSortable: false, aTargets: [0,1,2,3]}  //第 0,3列不可排序
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]

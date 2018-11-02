@@ -500,7 +500,10 @@ public class WordTemplateController {
             }
         }
     }
-
+    private  boolean isInteger(String str) {
+        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+        return pattern.matcher(str).matches();
+    }
     @RequestMapping(value="/batchImportHtml",method= RequestMethod.POST)
     public Object saveThingsParse1(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
         com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
@@ -635,11 +638,11 @@ public class WordTemplateController {
             String checkboxBefore = "<input type=\"checkbox\" style=\"display:none;height:10px;zoom:180%;\" name=\"";
 
             String before = "<input type=\"text\" style=\"border:none;border-bottom:1px solid #000;\" name=\"";
+            String beforeInput = "<input type=\"text\" style=\"border:none;border-bottom:1px solid #000;width:100%;\" name=\"";
             String checkboxButton = "<input type=\"checkbox\" name=\"";
             String end = "\"/>";
             String longTextEnd = "\"></textarea>";
             Map<String,String> map = new LinkedHashMap<>();
-
             while(matcher.find()) {
                 String tmp = matcher.group();
                 OAFormProperties oaFormProperties = new OAFormProperties();
@@ -647,6 +650,15 @@ public class WordTemplateController {
                 String var = tmp.substring(2,tmp.indexOf("%%"));
                 String type = tmp.substring(tmp.indexOf("%%")+2,tmp.indexOf("##"));
                 String length = tmp.substring(tmp.indexOf("##")+2,tmp.indexOf("!!"));
+                if(length.contains("BB")){
+                    StringBuilder sb = new StringBuilder("<U>");
+                    for(int i=0;i<Integer.parseInt(length.substring(2));i++){
+                        sb.append("&ensp;");
+                    }
+                    sb.append("</U>");
+                    map.put(tmp,sb.toString());
+                    continue;
+                }
                 int start = matcher.start();
                 String name = "name_" + Md5Utils.getMd5(String.format("%s%s%s%s%s",docName,var,type,length,start));
                 String checkbox = "checkbox_" + Md5Utils.getMd5(String.format("%s%s%s%s%s",docName,var,type,length,start));
@@ -656,6 +668,9 @@ public class WordTemplateController {
                 oaFormProperties.setFieldType(type);
                 oaFormProperties.setFieldValid(length);
                 String size = length.substring(2);
+                if(!isInteger(size)){
+                    continue;
+                }
                 oaFormProperties.setCreateTime(new Date());
                 formPropertiesService.insert(oaFormProperties);
                 if(length.contains("CC")) {
@@ -665,8 +680,13 @@ public class WordTemplateController {
                     String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", longTextBefore, name, name, longTextEnd, checkboxBefore, checkbox, checkbox, end);
                     map.put(tmp,text);
                 } else{
-                    String text = String.format("%s%s\" size=%s id=\"%s%s %s%s\" id=\"%s%s", before, name,size, name, end, checkboxBefore, checkbox, checkbox, end);
-                    map.put(tmp,text);
+                    if(Integer.parseInt(size) < 80) {
+                        String text = String.format("%s%s\" size=%s id=\"%s%s %s%s\" id=\"%s%s", before, name, size, name, end, checkboxBefore, checkbox, checkbox, end);
+                        map.put(tmp, text);
+                    }else{
+                        String text = String.format("%s%s\" id=\"%s%s %s%s\" id=\"%s%s", beforeInput, name, name, end, checkboxBefore, checkbox, checkbox, end);
+                        map.put(tmp, text);
+                    }
                 }
             }
             for(Map.Entry<String,String> entry : map.entrySet()){

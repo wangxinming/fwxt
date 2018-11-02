@@ -129,7 +129,6 @@ public class Word2Html {
 
             //连接OpenOffice
             OfficeDocumentConverter converter=new OfficeDocumentConverter(officeManager);
-
             //转换并返回转换后的文件对象
             return converterFile(inputFile,outputFilePath_end,inputFilePath,converter);
 

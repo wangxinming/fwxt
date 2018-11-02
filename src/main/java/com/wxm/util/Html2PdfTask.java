@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 public class Html2PdfTask implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Html2PdfTask.class);
+    private static Object object = new Object();
     private StringBuilder html;
     private ContractCirculationService contractCirculationService;
     private Map<String,Integer> linkedHashMap;
@@ -150,6 +151,8 @@ public class Html2PdfTask implements Runnable {
     @Override
     public void run() {
         try {
+            LOGGER.info("begin create pdf");
+
             String data = fillValue(processInstancesId, html,linkedHashMap);
 //                String path = PropertyUtil.getValue("contract.template.path");
             String fileHtml = contractPath + ".html";
@@ -162,7 +165,9 @@ public class Html2PdfTask implements Runnable {
             PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
             printStream.println(data);
             //转换成pdf文件
-            File htmlFile = Word2Html.html2pdf(fileHtml, openoffice);
+            synchronized (object) {
+                File htmlFile = Word2Html.html2pdf(fileHtml, openoffice);
+            }
 
 //            InputStream input = new ByteArrayInputStream(bytesDB);
             PDFMergerUtility mergePdf = new PDFMergerUtility();
@@ -181,6 +186,7 @@ public class Html2PdfTask implements Runnable {
             // HTML文件字符串
             tmp.setContractPdf(pdf);
             contractCirculationService.update(tmp);
+            LOGGER.info("end create pdf");
         } catch (Exception e) {
             LOGGER.error("异常",e);
         }

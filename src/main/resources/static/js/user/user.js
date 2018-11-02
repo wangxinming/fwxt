@@ -1917,6 +1917,7 @@
                         }
                         Loading.show();
                         $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
+                        $scope.addPage.data.userPosition = $scope.addPage.data.userPosition.join(',');
                         loader.addUser($scope.addPage.data,function(data){
                             if(data.result=="success"){
                                 Loading.hide();
@@ -2313,7 +2314,7 @@
             //<img src="/assets/img/m12.png" style="width: 25px;margin-right: 10px;"/>
             //<img src="/assets/img/m13.png" style="width: 25px;margin-right: 10px;"/>
             var draft = ' <li><a href="/index.html#/draft">草稿箱</a></li>';
-            var refuse = ' <li><a href="/index.html#/refuse">与我相关</a></li>';
+            var refuse = ' <li><a href="/index.html#/refuse">审核过的合同</a></li>';
             var pending = ' <li><a href="/index.html#/pending">合同审核及批复</a></li>';
 
             var complete = ' <li><a href="/index.html#/complete">归档文件查询</a></li>';
@@ -2574,7 +2575,7 @@
                         break;
                     case 'refuse':
                         $('#mbx1').html('<a href="index.html#/refuse"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
-                        $('#mbx2').html('<a href="index.html#/refuse"><span class="fa fa-angle-double-right"></span> 与我相关</a>');
+                        $('#mbx2').html('<a href="index.html#/refuse"><span class="fa fa-angle-double-right"></span> 审核过的合同</a>');
                         if (!$("#process").parent().hasClass("active")) {
                             $("#process").trigger("click");
                         }

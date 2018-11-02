@@ -199,7 +199,7 @@
                         break;
                     case 'refuse':
                         $('#mbx1').html('<a href="index.html#/refuse"><span class="fa fa-angle-double-right"></span> 合同日常流转模块</a>');
-                        $('#mbx2').html('<a href="index.html#/refuse"><span class="fa fa-angle-double-right"></span> 与我相关</a>');
+                        $('#mbx2').html('<a href="index.html#/refuse"><span class="fa fa-angle-double-right"></span> 审核过的合同</a>');
                         if (!$("#process").parent().hasClass("active")) {
                             $("#process").trigger("click");
                         }

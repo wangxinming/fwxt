@@ -319,11 +319,29 @@ public class DeployController {
 
 
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
-            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+//            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+//            Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
+//            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
+//                map1.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+//            }
+
             Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
-            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
-                map1.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+            if(oaEnterprise.getCompanyParent() == 0){
+                map1.put(oaEnterprise.getEnterpriseId(),oaEnterprise);
+                List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getEnterpriseId());
+                for (OAEnterprise oaEnterprise1 : oaEnterpriseList) {
+                    map1.put(oaEnterprise1.getEnterpriseId(), oaEnterprise1);
+                }
+            }else {
+                OAEnterprise oaEnterpriseBak = oaEnterpriseService.getEnterpriseById(oaEnterprise.getCompanyParent());
+                map1.put(oaEnterpriseBak.getEnterpriseId(), oaEnterpriseBak);
+                List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+                for (OAEnterprise oaEnterprise1 : oaEnterpriseList) {
+                    map1.put(oaEnterprise1.getEnterpriseId(), oaEnterprise1);
+                }
             }
+
+
             List<OAUser> oaUserList = userService.listUserLeader(null,res);
             List<OAUser> oaUserListRes = new LinkedList<>();
             for(OAUser oaUser:oaUserList){
@@ -415,10 +433,20 @@ public class DeployController {
 
 
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
-            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
             Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
-            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
-                map1.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+            if(oaEnterprise.getCompanyParent() == 0){
+                map1.put(oaEnterprise.getEnterpriseId(),oaEnterprise);
+                List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getEnterpriseId());
+                for (OAEnterprise oaEnterprise1 : oaEnterpriseList) {
+                    map1.put(oaEnterprise1.getEnterpriseId(), oaEnterprise1);
+                }
+            }else {
+                OAEnterprise oaEnterpriseBak = oaEnterpriseService.getEnterpriseById(oaEnterprise.getCompanyParent());
+                map1.put(oaEnterpriseBak.getEnterpriseId(), oaEnterpriseBak);
+                List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+                for (OAEnterprise oaEnterprise1 : oaEnterpriseList) {
+                    map1.put(oaEnterprise1.getEnterpriseId(), oaEnterprise1);
+                }
             }
             List<OAUser> oaUserList = userService.listUserLeader(null,res);
             List<OAUser> oaUserListRes = new LinkedList<>();
@@ -883,10 +911,19 @@ public class DeployController {
                 }
             }
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
-            List<OAPositionRelation> oaPositionRelations = oaPositionRelationService.getByCompanyPosition(oaEnterprise.getCompanyName(),loginUser.getPosition());
-            if(null == oaPositionRelations || oaPositionRelations.size() ==0){
-                oaPositionRelations =  oaPositionRelationService.getByCompanyPosition(null,loginUser.getPosition());
-            }
+            List<OAPositionRelation> oaPositionRelations = oaPositionRelationService.getByCompanyPosition(null,loginUser.getPosition());
+//            List<OAPositionRelation> oaPositionRelations = oaPositionRelationService.getByCompanyPosition(oaEnterprise.getCompanyName(),loginUser.getPosition());
+//
+//            if(oaPositionRelations.size() == 1){
+//                for(OAPositionRelation oaPositionRelation: oaPositionRelations){
+//                    if(oaPositionRelation.getHighPositionName().contains("法务")){
+//                        oaPositionRelations =  oaPositionRelationService.getByCompanyPosition(null,loginUser.getPosition());
+//                    }
+//                }
+//            }
+//            if(null == oaPositionRelations || oaPositionRelations.size() ==0){
+//                oaPositionRelations =  oaPositionRelationService.getByCompanyPosition(null,loginUser.getPosition());
+//            }
             LinkedHashMap<String,OAUser> oaUserMap = new LinkedHashMap<>();
 
 
@@ -899,21 +936,43 @@ public class DeployController {
             Map<String,String> mapSid = new LinkedHashMap<>();
             for(FlowElement flowElement:flowElements){
                 if(flowElement instanceof SequenceFlow){
+                    LOGGER.info("mapSeq:{} {}",((SequenceFlow) flowElement).getSourceRef(),((SequenceFlow) flowElement).getTargetRef());
                     mapSeq.put(((SequenceFlow) flowElement).getSourceRef(),((SequenceFlow) flowElement).getTargetRef());
                 }
                 if(flowElement instanceof UserTask) {
+                    LOGGER.info("mapUserTask:{} {}",flowElement.getId(),flowElement.getName());
                     mapUserTask.put(flowElement.getId(),flowElement.getName());
                     mapSid.put(flowElement.getName(),flowElement.getId());
                 }
             }
+            LOGGER.info("res:{}",task.getTaskDefinitionKey());
             String sid = mapSeq.get(task.getTaskDefinitionKey());
             String res = mapUserTask.get(sid);
 //            OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
-            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+//            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+//            Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
+//            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
+//                map1.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+//            }
+
             Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
-            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
-                map1.put(oaEnterprise1.getEnterpriseId(),oaEnterprise1);
+            if(oaEnterprise.getCompanyParent() == 0){
+                map1.put(oaEnterprise.getEnterpriseId(),oaEnterprise);
+                LOGGER.info("map1:{} {}",oaEnterprise.getEnterpriseId(),oaEnterprise.getCompanyName());
+                List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getEnterpriseId());
+                for (OAEnterprise oaEnterprise1 : oaEnterpriseList) {
+                    map1.put(oaEnterprise1.getEnterpriseId(), oaEnterprise1);
+                    LOGGER.info("map1:{} {}",oaEnterprise1.getEnterpriseId(),oaEnterprise1.getCompanyName());
+                }
+            }else {
+                OAEnterprise oaEnterpriseBak = oaEnterpriseService.getEnterpriseById(oaEnterprise.getCompanyParent());
+                map1.put(oaEnterpriseBak.getEnterpriseId(), oaEnterpriseBak);
+                List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
+                for (OAEnterprise oaEnterprise1 : oaEnterpriseList) {
+                    map1.put(oaEnterprise1.getEnterpriseId(), oaEnterprise1);
+                }
             }
+
 //            List<OAUser> oaUserList = userService.listUserLeader(null,res);
 //            List<OAUser> oaUserListRes = new LinkedList<>();
 //            for(OAUser oaUser1:oaUserList){
@@ -923,14 +982,18 @@ public class DeployController {
 //            }
 
             for(OAPositionRelation oaPositionRelation:oaPositionRelations) {
-                if (res.contains("法务")) {
+                LOGGER.info("OAPositionRelation:{} {}",oaPositionRelation.getHighCompany(),oaPositionRelation.getHighPositionName());
+                LOGGER.info("res:{}",res);
+                if (null == res || res.contains("法务")) {
                     List<OAUser> userList = userService.listUserLeader(null, "法务");
                     for (OAUser oaUser1 : userList) {
+                        LOGGER.info("oaUser1.getUserName():{}",oaUser1.getUserName());
                         oaUserMap.put(oaUser1.getUserName(), oaUser1);
                     }
                 }else if (res.contains(oaPositionRelation.getHighPositionName())) {
                     List<OAUser> userList = userService.listUserLeader(oaPositionRelation.getHighCompany(), oaPositionRelation.getHighPositionName());
                     for (OAUser oaUser1 : userList) {
+                        LOGGER.info("userList:{} {}",oaUser1.getEnterpriseId(),oaUser1.getUserName());
                         if (map1.containsKey(oaUser1.getEnterpriseId())) {
                             oaUserMap.put(oaUser1.getUserName(), oaUser1);
                         }

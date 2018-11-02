@@ -1,5 +1,12 @@
 package com.wxm;
 
+import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
+import com.artofsolving.jodconverter.DocumentConverter;
+import com.artofsolving.jodconverter.DocumentFamily;
+import com.artofsolving.jodconverter.DocumentFormat;
+import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
+import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
+import com.artofsolving.jodconverter.openoffice.converter.OpenOfficeDocumentConverter;
 import com.wxm.entity.TaskComment;
 import com.wxm.util.Md5Utils;
 import com.wxm.util.Word2Html;
@@ -16,7 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -194,7 +203,25 @@ public class ProcessTest {
     }
     @Test
     public void testHtml2Pdf(){
-        File htmlFile = Word2Html.html2pdf("F:\\tmp\\oa\\上海隧道工程有限公司专业分包合同20180507.html","C:/Program Files (x86)/OpenOffice 4");
+        File htmlFile = Word2Html.html2pdf("F:\\project\\html\\test\\tr-00001.html","C:/Program Files (x86)/OpenOffice 4");
+
+        DocumentFormat stw = new DocumentFormat("OpenOffice.org 1.0 Template", DocumentFamily.TEXT, "application/vnd.sun.xml.writer", "stw");
+        DefaultDocumentFormatRegistry formatReg = new DefaultDocumentFormatRegistry();
+        DocumentFormat pdf = formatReg.getFormatByFileExtension("pdf");
+        File inputFile = new File("F:\\project\\html\\test\\tr-00001.html");
+        File outputFile = new File("F:\\project\\html\\test\\tr-00001.pdf");
+        OpenOfficeConnection connection = new SocketOpenOfficeConnection(8100);
+        try {
+            connection.connect();
+            DocumentConverter converter = new OpenOfficeDocumentConverter(connection);
+            converter.convert(inputFile, stw, outputFile, pdf);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try{ if(connection != null){connection.disconnect(); connection = null;}}catch(Exception e){}
+        }
+
+//        File htmlFile = Word2Html.html2pdf("F:\\project\\html\\test\\1.html","C:/Program Files (x86)/OpenOffice 4");
     }
     @Test
     public void testHtml(){
