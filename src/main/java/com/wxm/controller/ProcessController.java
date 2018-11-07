@@ -141,11 +141,11 @@ public class ProcessController {
         auditService.audit(new OAAudit(loginUser.getName(),String.format("获取首页数据")));
         Map<String, Object> result = new HashMap<>();
         try{
-            long size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
+            long size = taskService.createTaskQuery().processVariableValueNotEquals("init","start").taskAssignee(loginUser.getName()).count();
             result.put("myPending",size);
 
             List<TaskInfo> taskInfos = new LinkedList<>();
-            List<Task> list=taskService.createTaskQuery().taskAssignee(loginUser.getName()).orderByTaskCreateTime().desc()
+            List<Task> list=taskService.createTaskQuery().processVariableValueNotEquals("init","start").taskAssignee(loginUser.getName()).orderByTaskCreateTime().desc()
                     .listPage(0,5);
             for(Task task:list){
                 TaskInfo taskInfo = new TaskInfo();
@@ -174,11 +174,12 @@ public class ProcessController {
             }
             List<OANotify> oaNotifyList = oaNotifyService.list(null,0,5,null,null);
             result.put("notify",oaNotifyList);
-            size = historyService.createHistoricProcessInstanceQuery().startedBy(loginUser.getName()).count();
+            size = historyService.createHistoricProcessInstanceQuery().variableValueNotEquals("init","start").startedBy(loginUser.getName()).count();
             result.put("initiator",size);
 
             taskInfos = new LinkedList<>();
             List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
+                    .variableValueNotEquals("init","start")
                     .startedBy(loginUser.getName()).orderByProcessInstanceStartTime().desc()
                     .listPage(0,5);
             for(HistoricProcessInstance historicProcessInstance:historicProcessInstanceList){
@@ -668,17 +669,6 @@ public class ProcessController {
                         return result;
                     }
                     taskService.complete(task.getId(),mapApprove);
-//                    if(StringUtils.isBlank(pm) ){
-//                        taskService.complete(task.getId());
-//                    }else {
-//                        org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(pm).singleResult();
-//                        if(null == userOa){
-//                            taskService.complete(task.getId());
-//                        }else {
-//                            taskService.setAssignee(task.getId(), pm);
-//                            runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
-//                        }
-//                    }
                     map.put("init","");
                     if(StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
                         map.put("contractStatus","1");
@@ -688,17 +678,11 @@ public class ProcessController {
                     map.put("title",contractName);
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
                     //附件处理
-//                    if(oaContractTemplate.getTemplateName().contains("自定义")) {
                     OAContractCirculationWithBLOBs contractCirculationWithBLOBs = new OAContractCirculationWithBLOBs();
                     contractCirculationWithBLOBs.setContractId(oaContractCirculation.getContractId());
                     if (StringUtils.isNotBlank(custom) && !custom.equals(processInstance.getId())) {//存在附件
-//                        OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
                         // 获取word文件流，custom文件名称
                         oaAttachmentService.updateByProcessId(custom,processInstance.getId());
-//                        String filePf = contractPath + custom;
-//                        byte[] word = FileByte.getByte(filePf);
-//                        contractCirculationWithBLOBs.setAttachmentName(custom.substring(14));
-//                        contractCirculationWithBLOBs.setAttachmentContent(word);
                     }
                     if (StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
                         contractCirculationWithBLOBs.setWorkStatus(1);
@@ -1174,7 +1158,7 @@ public class ProcessController {
         }
 
         HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
-
+        historicProcessInstanceQuery.variableValueNotEquals("init","start");
         if(refuse.equals("refuse")){
             historicProcessInstanceQuery = historicProcessInstanceQuery.involvedUser(loginUser.getName()).variableValueLike("refuseTask","%拒绝%");
         }else{
@@ -1352,6 +1336,7 @@ public class ProcessController {
         auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 查询任务状态",loginUser.getName())));
         List<ProInstance> processInstanceList = new LinkedList<>();
         List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
+                .variableValueNotEquals("init","start")
                 .orderByProcessInstanceStartTime().desc()
                 .startedBy(loginUser.getName())
                 .listPage(offset,limit);

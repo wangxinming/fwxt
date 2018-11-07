@@ -360,7 +360,7 @@ public class DeployController {
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 Object object = taskService.getVariable(task.getId(), "taskDefinitionKey");
                 Object restart = taskService.getVariable(task.getId(), "init");
-                if (object != null || restart != null) {
+                if (object != null || (restart != null && restart.equals("restart"))) {
                     result.put("showCommit", false);
                     Object refuseTask = runtimeService.getVariable(task.getExecutionId(),"refuseTask");
                     result.put("refuse",refuseTask);

@@ -86,7 +86,9 @@
   </select>
 
   <select id="list" resultMap="BaseResultMap">
-    select top ${limit} * from OA_USER oa_user where oa_user.USER_ID not
+    select top ${limit} oa_user.USER_ID,oa_user.ENTERPRISE_ID,oa_user.USER_POSITION,oa_user.USER_NAME,oa_user.GROUP_ID
+    ,oa_user.PARENT_ID,oa_user.USER_ADDRESS,oa_user.USER_CREATETIME,oa_user.USER_DEPARTMENT,oa_user.USER_EMAIL,oa_user.USER_MOBILE
+    ,oa_user.USER_POSTCODE,oa_user.USER_PWD,oa_user.USER_STATUS,oa_user.USER_WEIXIN,oa_enterprise.COMPANY_NAME as USER_COMPANY from OA_USER oa_user left OUTER join OA_ENTERPRISE oa_enterprise on oa_user.ENTERPRISE_ID=oa_enterprise.ENTERPRISE_ID where oa_user.USER_ID not
     in(select top ${offset} USER_ID from OA_USER  where 1=1
     <if test="userName != null">
       AND USER_NAME like CONCAT('%',#{userName},'%' ) or USER_EMAIL like CONCAT('%',#{userName},'%' ) or USER_MOBILE like CONCAT('%',#{userName},'%' )

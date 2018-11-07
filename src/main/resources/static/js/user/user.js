@@ -820,6 +820,8 @@
                 save:function() {
                     Loading.show();
                     $scope.addPage.data.companyStatus = $scope.addPage.data.companyStatus === true?1:0;
+                    if($scope.addPage.data.subCompanyName)
+                        $scope.addPage.data.companyName = $scope.addPage.data.companyName +"("+$scope.addPage.data.subCompanyName+")";
                     if( $scope.pageDialog.title == "创建公司"){
                         loader.createEnterprise($scope.addPage.data,function(data){
                             Loading.hide();
@@ -887,7 +889,7 @@
                         // $timeout(function(){
                         loader.queryCompany({"id":id},{},function (data) {
                             $scope.addPage.data.enterpriseId = data.data.enterpriseId;
-                            $scope.addPage.data.companyName = data.data.companyName;
+                            $scope.addPage.data.companyName = data.data.companyName.split('(')[0];
                             $scope.addPage.data.companyProvince = data.data.companyProvince;
                             $scope.addPage.data.companyCity = data.data.companyCity;
                             $scope.addPage.data.companyOwner = data.data.companyOwner;
@@ -1002,19 +1004,27 @@
                     //     }
                     // },
                     {
+                        sTitle: "区域",
+                        mData: "location",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "省区",
+                        mData: "companyProvince",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
                         sTitle: "公司状态",
                         mData: "companyStatus",
                         mRender: function (mData, type, full) {
                             return resolve(mData, type, full);
                         }
                     },
-                    // {
-                    //     sTitle: "省区",
-                    //     mData: "companyProvince",
-                    //     mRender: function (mData, type, full) {
-                    //         return Util.str2Html(mData);
-                    //     }
-                    // },
+
                     // {
                     //     sTitle: "市区",
                     //     mData: "companyCity",
@@ -1048,9 +1058,10 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3]},  //第 0,10列不可排序
-                    { sWidth: "40%", aTargets: [ 0] },
-                    { sWidth: "20%", aTargets: [ 1,2,3] }
+                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
+                    { sWidth: "25%", aTargets: [ 0] },
+                    { sWidth: "17%", aTargets: [ 1,2,4,5] },
+                    { sWidth: "7%", aTargets: [ 3] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
@@ -2183,8 +2194,15 @@
                         }
                     },
                     {
-                        sTitle: "电子邮箱",
-                        mData: "userEmail",
+                        sTitle: "单位名称",
+                        mData: "userCompany",
+                        mRender: function (mData, type, full) {
+                            return Util.str2Html(mData);
+                        }
+                    },
+                    {
+                        sTitle: "职务",
+                        mData: "userPosition",
                         mRender: function (mData, type, full) {
                             return Util.str2Html(mData);
                         }
@@ -2232,11 +2250,12 @@
 
                 ], //定义列的形式,mRender可返回html
                 columnDefs: [
-                    {bSortable: false, aTargets: [0,1,2,3,4,5]},  //第 0,10列不可排序
-                    { sWidth: "12.5%", aTargets: [ 0,2] },
-                    { sWidth: "20%", aTargets: [ 1,3 ] },
-                    { sWidth: "10%", aTargets: [ 4 ] },
-                    { sWidth: "25%", aTargets: [ 5 ] }
+                    {bSortable: false, aTargets: [0,1,2,3,4,5,6]},  //第 0,10列不可排序
+                    { sWidth: "13%", aTargets: [ 0] },
+                    { sWidth: "15%", aTargets: [ 1,2,3 ] },
+                    { sWidth: "14%", aTargets: [ 4 ] },
+                    { sWidth: "10%", aTargets: [ 5 ] },
+                    { sWidth: "18%", aTargets: [ 6 ] }
                 ], //定义列的约束
                 defaultOrderBy: [
                     [1, "desc"]
