@@ -2420,11 +2420,12 @@
                     tmp = '';
                     if(data.process){
                         tmp += process;
+                        tmp += draft;
                     }
                     if(data.pending){
 
                         tmp += pending;
-                        tmp += draft;
+
                         tmp += refuse;
                     }
                     // if(data.myProcess){
