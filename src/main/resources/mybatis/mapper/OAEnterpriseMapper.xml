@@ -25,7 +25,12 @@
     from OA_ENTERPRISE
     where ENTERPRISE_ID = #{enterpriseId,jdbcType=INTEGER}
   </select>
-
+  <select id="getEnterpriseByName" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from OA_ENTERPRISE
+    where COMPANY_NAME = #{name}
+  </select>
   <select id="getEnterpriseByLevel" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />

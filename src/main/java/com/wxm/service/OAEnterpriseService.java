@@ -11,6 +11,7 @@ public interface OAEnterpriseService {
     List<OAEnterprise> getEnterpriseByParentId(Integer id);
     List<OAEnterprise> total();
     OAEnterprise getEnterpriseById(Integer id);
+    OAEnterprise getEnterpriseByName(String name);
     Integer count(String name);
     Integer create(OAEnterprise oaEnterprise);
     Integer update(OAEnterprise oaEnterprise);

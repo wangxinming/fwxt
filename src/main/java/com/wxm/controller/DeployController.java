@@ -431,7 +431,7 @@ public class DeployController {
             sid = map.get(sid);
             String res = mapUserTask.get(sid);
 
-
+            LOGGER.info("loginUser.getEnterpriseId:{}",loginUser.getEnterpriseId());
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
             Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
             if(oaEnterprise.getCompanyParent() == 0){

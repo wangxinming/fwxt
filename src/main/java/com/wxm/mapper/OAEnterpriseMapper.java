@@ -13,7 +13,7 @@ public interface OAEnterpriseMapper {
     int insertSelective(OAEnterprise record);
 
     OAEnterprise selectByPrimaryKey(Integer enterpriseId);
-
+    OAEnterprise getEnterpriseByName(@Param("name") String name);
     int updateByPrimaryKeySelective(OAEnterprise record);
 
     int updateByPrimaryKey(OAEnterprise record);

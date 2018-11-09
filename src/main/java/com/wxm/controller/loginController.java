@@ -44,6 +44,7 @@ public class loginController {
                 user.setName(oaUser.getUserName());
                 user.setRealName(oaUser.getUserName());
                 user.setParentId(random);
+                LOGGER.info("oaUser.getEnterpriseId :{}",oaUser.getEnterpriseId());
                 user.setEnterpriseId(oaUser.getEnterpriseId());
                 user.setPosition(oaUser.getUserPosition());
                 request.getSession().setAttribute("loginUser", user);

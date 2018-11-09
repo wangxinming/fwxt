@@ -238,6 +238,15 @@ public class UserDefController {
         res.put("result","success");
         try{
             oaEnterprise.setCreateTime(new Date());
+            if(StringUtils.isBlank(oaEnterprise.getSubCompanyName())){
+                oaEnterprise.setCompanyParent(0);
+                oaEnterprise.setCompanyLevel(2);
+            }else{
+                OAEnterprise en = oaEnterpriseService.getEnterpriseByName(oaEnterprise.getCompanyName().split("\\(")[0]);
+                oaEnterprise.setCompanyParent(en.getEnterpriseId());
+                oaEnterprise.setCompanyLevel(3);
+
+            }
             oaEnterpriseService.create(oaEnterprise);
             auditService.audit(new OAAudit(loginUser.getName(),String.format("创建公司 公司名称:%s",oaEnterprise.getCompanyName())));
         }catch (Exception e){
@@ -257,6 +266,15 @@ public class UserDefController {
         Map<String,String> res = new LinkedHashMap<>();
         res.put("result","success");
         try{
+            if(StringUtils.isBlank(oaEnterprise.getSubCompanyName())){
+                oaEnterprise.setCompanyParent(0);
+                oaEnterprise.setCompanyLevel(2);
+            }else{
+                OAEnterprise en = oaEnterpriseService.getEnterpriseByName(oaEnterprise.getCompanyName().split("\\(")[0]);
+                oaEnterprise.setCompanyParent(en.getEnterpriseId());
+                oaEnterprise.setCompanyLevel(3);
+
+            }
             oaEnterpriseService.update(oaEnterprise);
             auditService.audit(new OAAudit(loginUser.getName(),String.format("修改公司 公司名称:%s",oaEnterprise.getCompanyName())));
         }catch (Exception e){
@@ -960,6 +978,12 @@ public class UserDefController {
         }catch (Exception e){
             LOGGER.warn("异常",e);
             result.put("result", "failed");
+            if(e.getMessage().contains("重复")){
+                result.put("msg", "添加用户失败，检查用户名、手机号码、邮箱是否重复！");
+            }else{
+                result.put("msg", "添加用户失败");
+            }
+
         }
         return result;
     }

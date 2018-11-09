@@ -40,6 +40,11 @@ public class OAEnterpriseServiceImpl implements OAEnterpriseService {
         return oaEnterpriseMapper.selectByPrimaryKey(id);
     }
 
+    @Override
+    public OAEnterprise getEnterpriseByName(String name) {
+        return oaEnterpriseMapper.getEnterpriseByName(name);
+    }
+
 
     @Override
     public Integer count(String name) {

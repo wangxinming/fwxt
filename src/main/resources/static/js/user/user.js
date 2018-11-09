@@ -1928,7 +1928,8 @@
                         }
                         Loading.show();
                         $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
-                        $scope.addPage.data.userPosition = $scope.addPage.data.userPosition.join(',');
+                        if($scope.addPage.data.userPosition instanceof Array)
+                            $scope.addPage.data.userPosition = $scope.addPage.data.userPosition.join(',');
                         loader.addUser($scope.addPage.data,function(data){
                             if(data.result=="success"){
                                 Loading.hide();
@@ -1948,7 +1949,7 @@
                     } else if ($scope.pageDialog.title === "修改用户") {
                         Loading.show();
                         $scope.addPage.data.userStatus = $scope.addPage.data.userStatus===true?1:0;
-                        if($scope.addPage.data.userPosition)
+                        if($scope.addPage.data.userPosition && $scope.addPage.data.userPosition instanceof Array)
                             $scope.addPage.data.userPosition = $scope.addPage.data.userPosition.join(',');
                         loader.userUpdate($scope.addPage.data,function(data){
                             if(data.result=="success"){
