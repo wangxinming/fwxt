@@ -10,6 +10,8 @@ public class OAUser {
 
     private Integer groupId;
 
+    private String groupName;
+
     private String userName;
 
     private int parentId;
@@ -58,6 +60,14 @@ public class OAUser {
         enterpriseId = 0;
         userStatus = 1;
         userWeixin ="";
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    public String getGroupName() {
+        return groupName;
     }
 
     public Integer getEnterpriseId() {

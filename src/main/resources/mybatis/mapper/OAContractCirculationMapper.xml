@@ -8,7 +8,7 @@
     <result column="CONTRACT_NAME" property="contractName" jdbcType="NVARCHAR" />
     <result column="CONTRACT_BUYER" property="contractBuyer" jdbcType="NVARCHAR" />
     <result column="CONTRACT_SELLER" property="contractSeller" jdbcType="NVARCHAR" />
-    <result column="CONTRACT_MONEY" property="contractMoney" jdbcType="INTEGER" />
+    <result column="CONTRACT_MONEY" property="contractMoney" jdbcType="DECIMAL" />
     <result column="ATTACHMENT_NAME" property="attachmentName" jdbcType="NVARCHAR" />
     <result column="USER_ID" property="userId" jdbcType="INTEGER" />
     <result column="ENTERPRISE_ID" property="enterpriseId" jdbcType="INTEGER" />
@@ -216,7 +216,8 @@
       USER_ID,ENTERPRISE_ID, CONTRACT_STATUS, DESCRIPTION, WORK_DATE, CONTRACT_SERIAL_NUMBER,ARCHIVE_SERIAL_NUMBER,
       CREATE_TIME, CONTRACT_HTML, CONTRACT_PDF,ATTACHMENT_CONTENT
       )
-    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{contractReopen,jdbcType=INTEGER},#{processInstanceId,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},#{attachmentName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
+    values (#{contractId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER}, #{contractReopen,jdbcType=INTEGER},#{processInstanceId,jdbcType=NVARCHAR}, #{contractName,jdbcType=NVARCHAR},
+      #{contractBuyer,jdbcType=NVARCHAR},#{contractSeller,jdbcType=NVARCHAR},#{contractMoney,jdbcType=DECIMAL},#{attachmentName,jdbcType=NVARCHAR},#{workStatus,jdbcType=INTEGER},
       #{userId,jdbcType=INTEGER},#{enterpriseId,jdbcType=INTEGER}, #{contractStatus,jdbcType=NVARCHAR}, #{description,jdbcType=NVARCHAR}, #{workDate,jdbcType=NVARCHAR}, #{contractSerialNumber,jdbcType=NVARCHAR}, #{archiveSerialNumber,jdbcType=NVARCHAR},
       #{createTime,jdbcType=TIMESTAMP}, #{contractHtml,jdbcType=LONGVARCHAR}, #{contractPdf,jdbcType=LONGVARBINARY}, #{attachmentContent,jdbcType=LONGVARBINARY}
       )
@@ -312,7 +313,7 @@
         #{contractSeller,jdbcType=NVARCHAR},
       </if>
       <if test="contractMoney != null" >
-        #{contractMoney,jdbcType=INTEGER},
+        #{contractMoney,jdbcType=DECIMAL},
       </if>
       <if test="attachmentName != null" >
         #{attachmentName,jdbcType=NVARCHAR},
@@ -377,7 +378,7 @@
         CONTRACT_SELLER = #{contractSeller,jdbcType=NVARCHAR},
       </if>
       <if test="contractMoney != null" >
-        CONTRACT_MONEY = #{contractMoney,jdbcType=INTEGER},
+        CONTRACT_MONEY = #{contractMoney,jdbcType=DECIMAL},
       </if>
       <if test="attachmentName != null" >
         ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
@@ -429,7 +430,7 @@
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
       CONTRACT_BUYER = #{contractBuyer,jdbcType=NVARCHAR},
       CONTRACT_SELLER = #{contractSeller,jdbcType=NVARCHAR},
-      CONTRACT_MONEY = #{contractMoney,jdbcType=INTEGER},
+      CONTRACT_MONEY = #{contractMoney,jdbcType=DECIMAL},
       ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
       WORK_STATUS = #{workStatus,jdbcType=INTEGER},
       USER_ID = #{userId,jdbcType=INTEGER},
@@ -453,7 +454,7 @@
       CONTRACT_NAME = #{contractName,jdbcType=NVARCHAR},
       CONTRACT_BUYER = #{contractBuyer,jdbcType=NVARCHAR},
       CONTRACT_SELLER = #{contractSeller,jdbcType=NVARCHAR},
-      CONTRACT_MONEY = #{contractMoney,jdbcType=INTEGER},
+      CONTRACT_MONEY = #{contractMoney,jdbcType=DECIMAL},
       ATTACHMENT_NAME = #{attachmentName,jdbcType=NVARCHAR},
       WORK_STATUS = #{workStatus,jdbcType=INTEGER},
       USER_ID = #{userId,jdbcType=INTEGER},

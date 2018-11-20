@@ -1,8 +1,12 @@
 <div class="portlet box">
-    <label  class="col-md-6 control-label"></label>
-    <div class="col-md-3">
+    <label  class="col-md-5 control-label"></label>
+    <div class="col-md-2">
+        <input type="text" class="form-control" ng-model="searchPage.data.archiveNumber" placeholder="归档编号">
+    </div>
+    <div class="col-md-2">
         <input type="text" class="form-control" ng-model="searchPage.data.user" placeholder="参与人">
     </div>
+
     <div class="col-md-3">
         <div class="list_button" >
             <div class="input-group">
@@ -11,6 +15,9 @@
                 <!--<input type="text" class="form-control" ng-model="searchPage.data.user" placeholder="合同号">-->
                 <span class="input-group-btn">
 						<button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>
+                </span>
+                <span class="input-group-btn">
+						<button class="btn blue" ng-click="searchPage.action.reset()" type="button">条件重置</button>
                 </span>
                 <!--<button type="button" class="btn" ng-click="listPage.action.add()" ng-show="userLevel.indexOf('add')!=-1">编辑</button>-->
             </div>

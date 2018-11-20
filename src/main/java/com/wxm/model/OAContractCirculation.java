@@ -1,5 +1,6 @@
 package com.wxm.model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class OAContractCirculation {
@@ -14,7 +15,7 @@ public class OAContractCirculation {
     private String contractName;
     private String contractBuyer;
     private String contractSeller;
-    private Integer contractMoney;
+    private BigDecimal contractMoney;
     private Integer userId;
 
     private  Integer workStatus;
@@ -32,7 +33,11 @@ public class OAContractCirculation {
         return contractBuyer;
     }
 
-    public Integer getContractMoney() {
+    public void setContractMoney(BigDecimal contractMoney) {
+        this.contractMoney = contractMoney;
+    }
+
+    public BigDecimal getContractMoney() {
         return contractMoney;
     }
 
@@ -44,9 +49,7 @@ public class OAContractCirculation {
         this.contractBuyer = contractBuyer;
     }
 
-    public void setContractMoney(Integer contractMoney) {
-        this.contractMoney = contractMoney;
-    }
+
 
     public void setContractSeller(String contractSeller) {
         this.contractSeller = contractSeller;

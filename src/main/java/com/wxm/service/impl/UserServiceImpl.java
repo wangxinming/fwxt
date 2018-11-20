@@ -1,8 +1,10 @@
 package com.wxm.service.impl;
 
 import com.wxm.mapper.OAAuditMapper;
+import com.wxm.mapper.OAGroupMapper;
 import com.wxm.mapper.OAUserMapper;
 import com.wxm.model.OAAudit;
+import com.wxm.model.OAGroup;
 import com.wxm.model.OAUser;
 import com.wxm.service.UserService;
 import org.activiti.engine.IdentityService;
@@ -10,10 +12,7 @@ import org.activiti.engine.identity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -23,11 +22,23 @@ public class UserServiceImpl implements UserService {
     private IdentityService identityService;
     @Autowired
     private OAAuditMapper oaAuditMapper;
+    @Autowired
+    private OAGroupMapper oaGroupMapper;
 
     @Override
     public Map getUserList(Integer offset,Integer limit,String userName){
         Map<String, Object> result = new HashMap<>();
+        List<OAGroup> oaGroupList = oaGroupMapper.total();
+        Map<Integer,String> map = new LinkedHashMap<>();
+        for(OAGroup oaGroup : oaGroupList){
+            map.put(oaGroup.getGroupId(),oaGroup.getGroupName());
+        }
         List<OAUser> list = oaUserMapper.list(offset,limit,userName);
+        for(OAUser oaUser:list ){
+            if(null != oaUser.getGroupId() && oaUser.getGroupId() > 0 && map.containsKey(oaUser.getGroupId())){
+                oaUser.setGroupName(map.get(oaUser.getGroupId()));
+            }
+        }
         Integer count = oaUserMapper.count(userName);
         result.put("rows",list);
         result.put("total",count);

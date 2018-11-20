@@ -48,6 +48,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import java.io.*;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -158,16 +159,23 @@ public class ProcessController {
                 taskInfos.add(taskInfo);
             }
             result.put("pendingList",taskInfos);
+            NativeHistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createNativeHistoricProcessInstanceQuery();
+            StringBuilder sb = new StringBuilder("from (ACT_HI_PROCINST H LEFT OUTER JOIN OA_CONTRACT_CIRCULATION contract on H.PROC_INST_ID_ = contract.PROCESSINSTANCE_ID)  where contract.CONTRACT_STATUS='completed' ");
 
             if(loginUser.getName().equals("admin")){
-                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
-                        .variableValueEquals("instanceStatus","completed")
-                        .count();
+//                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
+//                        .variableValueEquals("instanceStatus","completed")
+//                        .count();
+                size = historicProcessInstanceQuery.sql(String.format("%s%s","select count(*) ",sb.toString())).count();
+//                ReportItem reportItem = contractCirculationService.total("completed",null,null,null,null,null);
                 result.put("myComplete", size);
             }else {
-                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
-                        .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
-                        .count();
+                historicProcessInstanceQuery.parameter("assign","%"+loginUser.getName()+"%");
+                sb.append("and H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+                size = historicProcessInstanceQuery.sql(String.format("%s%s","select count(*) ",sb.toString())).count();
+//                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
+//                        .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
+//                        .count();
                 result.put("myComplete", size);
 
 
@@ -220,6 +228,29 @@ public class ProcessController {
         return result;
     }
 
+    @RequestMapping(value = "/downloadPdf", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public Object downloadPdf(
+            @RequestParam(value = "processId", required = false, defaultValue = "") String processId,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+        try {
+
+            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processId);
+//            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 下载文件：%s",loginUser.getName(),oaContractCirculationWithBLOBs.getContractName())));
+            byte[] bytes = oaContractCirculationWithBLOBs.getContractPdf();
+            if(null == bytes){
+                return "请重新生成pdf";
+            }
+            response.setContentType("application/pdf");
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+        }catch (Exception e){
+            LOGGER.info("下载异常",e);
+        }
+        return null;
+    }
 
     @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
@@ -699,7 +730,9 @@ public class ProcessController {
                     }
                     contractCirculationWithBLOBs.setContractBuyer(buyer);
                     contractCirculationWithBLOBs.setContractSeller(seller);
-                    contractCirculationWithBLOBs.setContractMoney(Integer.parseInt(money));
+                    BigDecimal decimal = new BigDecimal(money);
+                    BigDecimal setScale1 = decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                    contractCirculationWithBLOBs.setContractMoney(setScale1);
                     contractCirculationService.update(contractCirculationWithBLOBs);
 //                    }
 //                    OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstance.getProcessInstanceId());
@@ -723,7 +756,9 @@ public class ProcessController {
                     contractCirculationWithBLOBs.setWorkDate(workDate);
                     contractCirculationWithBLOBs.setContractBuyer(buyer);
                     contractCirculationWithBLOBs.setContractSeller(seller);
-                    contractCirculationWithBLOBs.setContractMoney(Integer.parseInt(money));
+                    BigDecimal decimal = new BigDecimal(money);
+                    BigDecimal setScale1 = decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                    contractCirculationWithBLOBs.setContractMoney(setScale1);
                     contractCirculationService.update(contractCirculationWithBLOBs);
                     map.put("title",contractName);
                     runtimeService.setVariables(processInstance.getProcessInstanceId(),map);
@@ -828,7 +863,9 @@ public class ProcessController {
                 }
                 oaContractCirculationWithBLOBs.setContractBuyer(buyer);
                 oaContractCirculationWithBLOBs.setContractSeller(seller);
-                oaContractCirculationWithBLOBs.setContractMoney(Integer.parseInt(money));
+                BigDecimal decimal = new BigDecimal(money);
+                BigDecimal setScale1 = decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                oaContractCirculationWithBLOBs.setContractMoney(setScale1);
                 OAContractCirculation max = contractCirculationService.selectByMaxId();
                 SimpleDateFormat date = new SimpleDateFormat("yyyyMMdd");
                 if(null == max || StringUtils.isBlank(max.getContractSerialNumber())){
@@ -1217,6 +1254,7 @@ public class ProcessController {
     public Object findHistoryTaskByName(@RequestParam(value = "user", required = false) String user,
                                         @RequestParam(value = "offset", required = true ,defaultValue= "0" ) int offset,
                                         @RequestParam(value = "limit", required = true,defaultValue= "10" ) int limit,
+                                        @RequestParam(value = "archiveNumber", required = false  ) String archiveNumber,
                                         @RequestParam(value = "title", required = false  ) String title,
                                         @RequestParam(value = "contractId", required = false  ) String contractId,
                                         HttpServletRequest request)throws Exception {
@@ -1230,37 +1268,93 @@ public class ProcessController {
         List<HistoricProcessInstance> listProcess = null;
         long size = 0;
         List<TaskInfo> taskInfos = new LinkedList<>();
-        HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+//        HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+        NativeHistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createNativeHistoricProcessInstanceQuery();
         auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 归档任务查询",loginUser.getName())));
+
+
+//        List<HistoricProcessInstance> list = historyService.createNativeHistoricProcessInstanceQuery()
+//
+//                .sql("select top 100 percent H.* from (ACT_HI_PROCINST H LEFT OUTER JOIN OA_CONTRACT_CIRCULATION contract " +
+//                        "on H.PROC_INST_ID_ = contract.PROCESSINSTANCE_ID) " +
+//                        "where H.START_TIME_ is not null and contract.ARCHIVE_SERIAL_NUMBER like #{number} and H.PROC_INST_ID_ in " +
+//                        "(SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) " +
+//                        "order by H.START_TIME_ desc")
+//                .parameter("number","%201811%")
+//                .parameter("assign","2018110264")
+//                .listPage(offset,limit);
+
+//        if(StringUtils.isNotBlank(archiveNumber)) {
+//            if(StringUtils.isNotBlank(title)){
+//                if(StringUtils.isNotBlank(user)){
+//                    list = historyService.createNativeHistoricProcessInstanceQuery()
+//                            .sql("select top 100 percent H.* from (ACT_HI_PROCINST H LEFT OUTER JOIN OA_CONTRACT_CIRCULATION contract " +
+//                                    "on H.PROC_INST_ID_ = contract.PROCESSINSTANCE_ID)  where H.START_TIME_ is not null and contract.ARCHIVE_SERIAL_NUMBER=#{number} " +
+//                                    "order by H.START_TIME_ desc")
+//                            .parameter("number","2018110264")
+//                            .listPage(0,10);
+//                }else{
+//
+//                }
+//            }
+//        }
+//        StringBuilder sb = new StringBuilder("select top 100 percent H.* from (ACT_HI_PROCINST H LEFT OUTER JOIN OA_CONTRACT_CIRCULATION contract on H.PROC_INST_ID_ = contract.PROCESSINSTANCE_ID)  where H.START_TIME_ is not null ");
+        StringBuilder sb = new StringBuilder("from (ACT_HI_PROCINST H LEFT OUTER JOIN OA_CONTRACT_CIRCULATION contract on H.PROC_INST_ID_ = contract.PROCESSINSTANCE_ID)  where contract.CONTRACT_STATUS='completed' ");
+
+        if(StringUtils.isNotBlank(archiveNumber)) {
+            historicProcessInstanceQuery.parameter("number","%"+StringUtils.trim(archiveNumber)+"%");
+            sb.append("and contract.ARCHIVE_SERIAL_NUMBER like #{number} ");
+        }
         if(StringUtils.isNotBlank(title)) {
-            historicProcessInstanceQuery =historicProcessInstanceQuery.variableValueLike("title", "%"+title+"%");
+            historicProcessInstanceQuery.parameter("title","%"+StringUtils.trim(title)+"%");
+            sb.append("and H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_VARINST where NAME_ = 'title' and TEXT_ like #{title} ) ");
+//            sb.append("and H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_VARINST where NAME_ = 'instanceStatus' and TEXT_ = 'completed') ");
+//            historicProcessInstanceQuery =historicProcessInstanceQuery
+//                    .variableValueLike("title", "%"+title+"%")
+//                    .variableValueEquals("","");
         }
         if(loginUser.getName().equals("admin")){
             if(StringUtils.isNotBlank(user)){
-                historicProcessInstanceQuery =historicProcessInstanceQuery.involvedUser(user);
+                historicProcessInstanceQuery.parameter("assign","%"+StringUtils.trim(user)+"%");
+                sb.append("and H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+//                historicProcessInstanceQuery =historicProcessInstanceQuery.involvedUser(user);
             }
-            listProcess = historicProcessInstanceQuery
-                    .variableValueEquals("instanceStatus","completed")
-//                .variableValueEquals("user",loginUser.getName())
-                    .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
             size = historicProcessInstanceQuery
-                    .variableValueEquals("instanceStatus","completed")
+                    .sql(String.format("%s%s","select count(*) ",sb.toString()))
+//                    .variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
                     .count();
+            historicProcessInstanceQuery.parameter("orderBy","START_TIME_ desc");
+//            sb.append("order by H.START_TIME_ desc");
+            listProcess = historicProcessInstanceQuery
+                    .sql(String.format("%s%s%s","select top 100 percent H.* ",sb.toString(),"order by H.START_TIME_ desc"))
+//                    .variableValueEquals("instanceStatus","completed")
+//                .variableValueEquals("user",loginUser.getName())
+//                    .orderByProcessInstanceStartTime().desc()
+                    .listPage(offset,limit);
+
         }else{
-            listProcess = historicProcessInstanceQuery
-                    .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
-//                .variableValueEquals("user",loginUser.getName())
-                    .orderByProcessInstanceStartTime().desc().listPage(offset,limit);
+            historicProcessInstanceQuery.parameter("assign","%"+loginUser.getName()+"%");
+            sb.append("and H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+//            sb.append("order by H.START_TIME_ desc");
             size = historicProcessInstanceQuery
-                    .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
+                    .sql(String.format("%s%s","select count(*) ",sb.toString()))
+//                    .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
 //                .variableValueEquals("user",loginUser.getName())
                     .count();
+            historicProcessInstanceQuery.parameter("orderBy","START_TIME_ desc");
+            listProcess = historicProcessInstanceQuery
+                    .sql(String.format("%s%s%s","select top 100 percent H.* ",sb.toString(),"order by H.START_TIME_ desc"))
+//                    .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
+//                .variableValueEquals("user",loginUser.getName())
+//                    .orderByProcessInstanceStartTime().desc()
+                    .listPage(offset,limit);
+
         }
 
         for(HistoricProcessInstance historicProcessInstance : listProcess){
             historicProcessInstance.getStartTime();
-            Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
+//            Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(historicProcessInstance.getDeploymentId()).singleResult();
             TaskInfo taskInfo = new TaskInfo();
             taskInfos.add(taskInfo);
             List<HistoricVariableInstance> list = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
@@ -1281,7 +1375,7 @@ public class ProcessController {
                 taskInfo.setArchiveSerialNumber(oaContractCirculation.getArchiveSerialNumber());
             }
             taskInfo.setId(historicProcessInstance.getId());
-            taskInfo.setName(deployment.getName());
+//            taskInfo.setName(deployment.getName());
             taskInfo.setTimestamp(historicProcessInstance.getStartTime());
 //            taskInfo.setAssignee(task.getAssignee());
             taskInfo.setProcessInstanceId(historicProcessInstance.getId());

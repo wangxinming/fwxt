@@ -4,6 +4,8 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.RuntimeServiceImpl;
 import org.activiti.engine.impl.interceptor.Command;
@@ -97,6 +99,17 @@ public class TaskFlowControlServiceTest {
                 .setDatabaseSchemaUpdate("true")
                 .setJobExecutorActivate(false)
                 .buildProcessEngine();
+    }
+
+    @Test
+    public void testQuery(){
+        List<HistoricProcessInstance> list = processEngine.getHistoryService().createNativeHistoricProcessInstanceQuery()
+                .sql("select top 100 percent H.* from (ACT_HI_PROCINST H LEFT OUTER JOIN OA_CONTRACT_CIRCULATION contract " +
+                        "on H.PROC_INST_ID_ = contract.PROCESSINSTANCE_ID)  where H.START_TIME_ is not null and contract.ARCHIVE_SERIAL_NUMBER=#{number} " +
+                        "order by H.START_TIME_ desc")
+                .parameter("number","2018110264")
+                .listPage(0,10);
+        int i = 0;
     }
 
     @Test

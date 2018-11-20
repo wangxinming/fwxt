@@ -348,6 +348,7 @@
                         id:1,
                         user:"",
                         title:"",
+                        archiveNumber:"",
                         contractId:"",
                         limit: 10, //每页条数(即取多少条数据)
                         offset: 0, //从第几条数据开始取
@@ -356,6 +357,9 @@
                     }
                 },
                 action:{
+                    reset:function () {
+                        $scope.searchPage.init();
+                    },
                     search:function () {
                         $scope.listPage.settings.reload(true);
                     }
@@ -369,11 +373,14 @@
                 ready: false,
                 action:{
                     address:function(processId){
-                        alert(window.location.origin+"/workflow/process/download?processId="+processId);
+                        // alert(window.location.origin+"/workflow/process/downloadPdf?processId="+processId);
+                        window.open("/workflow/process/downloadPdf?processId="+processId);
+
                     },
                     down: function (processId) {
                         window.open("/workflow/process/download?processId="+processId);
                     },
+
                     pdfGenerate:function (processId) {
                         Loading.show();
                         loader.generatePDF({ "processId": processId}, function (data) {
@@ -417,7 +424,7 @@
                                     for(var i=0;i<data.download.length;i++){
                                         var file = data.download[i].fileName;
                                         var display = file.substring(file.indexOf('_')+1);
-                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+file + '\");\'>'+display+'</a></div>';
                                         tal += html;
                                     }
                                     // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
@@ -542,7 +549,7 @@
                         mRender:function(mData,type,full) {
                             //class="fa fa-list-alt" class="fa fa-download"
                             return '<i><a title="详情"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.detail(\'' + mData + '\')">详情</a></i>'+
-                                     '<i><a title="链接"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.address(\'' + mData + '\')">链接</a></i>'+
+                                     '<i><a title="查看合同"  ng-show=userLevel.indexOf("update")!=-1  ng-click="listPage.action.address(\'' + mData + '\')">查看合同</a></i>'+
                                      '<i><a title="下载" ng-click="listPage.action.down(\'' + mData + '\')">下载</a></i>'+
                                      '<i><a title="生成PDF" ng-click="listPage.action.pdfGenerate(\'' + mData + '\')">生成PDF</a></i>';
                                 // '<i title="删除" class="fa fa-trash-o" ng-show=userLevel.indexOf("delete")!=-1  ng-click="listPage.action.remove(\'' + mData + '\')"></i>';
@@ -1072,7 +1079,7 @@
                                     for(var i=0;i<data.download.length;i++){
                                         var file = data.download[i].fileName;
                                         var display = file.substring(file.indexOf('_')+1);
-                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+file + '\");\'>'+display+'</a></div>';
                                         tal += html;
                                     }
                                     // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
@@ -1373,7 +1380,8 @@
                                         for(var i=0;i<data.download.length;i++){
                                             var file = data.download[i].fileName;
                                             var display = file.substring(file.indexOf('_')+1);
-                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+file + '\");\'>'+display+'</a></div>';
+                                            // var html = '<div><a href="template/download?fileName='+file + '\" title=\"'+display+'\" target="_blank"></a></div>';
                                             tal += html;
                                         }
                                         // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
@@ -1621,7 +1629,7 @@
                         // $('#sendStatus').text("上传成功");
                         toaster.pop('success', "","上传成功");
                         // var html = '<i class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.displayName+'</i>';
-                        var html = '<a href="javascript:void(0);" class="fa fa-download" title="下载" onclick=\'javascript:window.open(\"template/download?fileName='+data.file + '\");\'>'+data.displayName+'</a>';
+                        var html = '<a href="javascript:void(0);" class="fa fa-download" title="查看" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+data.file + '\");\'>'+data.displayName+'</a>';
                         var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(\''+data.file+'\');"  class="btn btn-primary btn-lg" />';
                         $('#download'+uploadAttachment).html('<div>'+html+deleteHtml+'</div>');
                         $('#custom').val(data.uid);
@@ -1732,7 +1740,7 @@
                             var uploadAttachment= i+1;
                             var file = data.download[i].fileName;
                             var display = file.substring(file.indexOf('_')+1);
-                            var html = '<a href="javascript:void(0);" class="fa fa-download" title="下载" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a>';
+                            var html = '<a href="javascript:void(0);" class="fa fa-download" title="查看" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+file + '\");\'>'+display+'</a>';
                             var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(\''+file+'\');"  class="btn btn-primary btn-lg" />';
                             $('#download'+uploadAttachment).html('<div>'+html+deleteHtml+'</div>');
                             // var file = data.download[i].fileName;
@@ -2126,7 +2134,7 @@
                                         for(var i=0;i<data.download.length;i++){
                                             var file = data.download[i].fileName;
                                             var display = file.substring(file.indexOf('_')+1);
-                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+file + '\");\'>'+display+'</a></div>';
                                             tal += html;
                                         }
                                         // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
@@ -2455,7 +2463,7 @@
                                         for(var i=0;i<data.download.length;i++){
                                             var file = data.download[i].fileName;
                                             var display = file.substring(file.indexOf('_')+1);
-                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                            var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+file + '\");\'>'+display+'</a></div>';
                                             tal += html;
                                         }
                                         // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';
@@ -2508,7 +2516,7 @@
                                     for(var i=0;i<data.download.length;i++){
                                         var file = data.download[i].fileName;
                                         var display = file.substring(file.indexOf('_')+1);
-                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?fileName='+file + '\");\'>'+display+'</a></div>';
+                                        var html = '<div><a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+file + '\");\'>'+display+'</a></div>';
                                         tal += html;
                                     }
                                     // var html = '<a href="javascript:void(0);" onclick=\'javascript:window.open(\"template/download?contractId='+data.download + '\");\'>附件下载</a>';

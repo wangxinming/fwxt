@@ -454,6 +454,44 @@ public class WordTemplateController {
         }
         return result;
     }
+    @RequestMapping(value = "/downloadPdf", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public void ResponseBody(
+            @RequestParam(value = "contractId", required = false, defaultValue = "") Integer contractId,
+            @RequestParam(value = "fileName", required = false, defaultValue = "") String fileName,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        if(StringUtils.isBlank(fileName) && contractId != null ) {
+            OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.querybyId(contractId);
+            byte[] bytes = oaContractCirculationWithBLOBs.getAttachmentContent();
+            if (null != bytes) {
+                response.setContentType("application/pdf");
+//                String codedfilename = java.net.URLEncoder.encode(oaContractCirculationWithBLOBs.getAttachmentName(), "UTF-8");
+//                response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
+                response.setContentLength(bytes.length);
+                response.getOutputStream().write(bytes);
+                response.getOutputStream().flush();
+            }
+        }else {
+            OAAttachment oaAttachment = oaAttachmentService.getByFileName(fileName);
+            String file = fileName.substring(fileName.indexOf('_') + 1);
+            byte[] bytes = oaAttachment.getFileContent();
+            if (null != bytes) {
+                response.setContentType("application/pdf");
+//            String codedfilename = java.net.URLEncoder.encode(file, "gb2312");
+//            response.setHeader("Content-Disposition", "attachment;filename=" + codedfilename);
+                response.setContentLength(bytes.length);
+                response.getOutputStream().write(bytes);
+                response.getOutputStream().flush();
+            }
+        }
+    }
     //文件下载
     @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
