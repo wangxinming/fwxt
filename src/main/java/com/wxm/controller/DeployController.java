@@ -286,6 +286,7 @@ public class DeployController {
 
             OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(processInstanceId);
             if(null != oaContractCirculation) {
+                result.put("contractStatus", oaContractCirculation.getContractStatus());
                 result.put("workStatus", oaContractCirculation.getWorkStatus());
                 result.put("workDate", oaContractCirculation.getWorkDate());
                 result.put("title", oaContractCirculation.getContractName());

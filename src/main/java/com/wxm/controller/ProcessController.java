@@ -684,11 +684,17 @@ public class ProcessController {
         OAContractTemplate oaContractTemplate = concactTemplateService.querybyId(Integer.parseInt(contract));
         if(StringUtils.isNotBlank(processInstanceId)) {//草稿提交s
             try{
+
                 String deploymentID = map.get("id");
                 OAContractCirculation oaContractCirculation = contractCirculationService.selectBaseByProcessInstanceId(processInstanceId);
+
                 String index = map.get("index");
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
                 if(index.equals("1")){
+                    if(StringUtils.isNotBlank(oaContractCirculation.getContractStatus()) && oaContractCirculation.getContractStatus().equals("start")){
+                        result.put("result", "duplicate");
+                        return result;
+                    }
                     auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 提交合同工单",loginUser.getName())));
 //                    Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(deploymentID).singleResult();
 //                    Date nowTime = new Date();
@@ -720,6 +726,7 @@ public class ProcessController {
                     } else {
                         contractCirculationWithBLOBs.setWorkStatus(0);
                     }
+                    contractCirculationWithBLOBs.setContractStatus("start");
                     contractCirculationWithBLOBs.setWorkDate(workDate);
                     contractCirculationWithBLOBs.setContractName(contractName);
                     //自定义模板处理
@@ -843,7 +850,7 @@ public class ProcessController {
                 }
 
                 oaContractCirculationWithBLOBs.setProcessInstanceId(processInstance.getId());
-                oaContractCirculationWithBLOBs.setContractStatus("start");
+
                 oaContractCirculationWithBLOBs.setCreateTime(new Date());
                 if(StringUtils.isNotBlank(workStatus) && workStatus.equals("true")) {
                     oaContractCirculationWithBLOBs.setWorkStatus(1);
@@ -874,7 +881,7 @@ public class ProcessController {
                     Integer serial = Integer.parseInt(max.getContractSerialNumber().substring("yyyyMMdd".length()));
                     oaContractCirculationWithBLOBs.setContractSerialNumber(date.format(new Date())+String.format("%02d", ++serial));
                 }
-                 contractCirculationService.insert(oaContractCirculationWithBLOBs);
+
 
                 if (StringUtils.isNotBlank(custom) && !custom.equals(processInstance.getId())) {
                     oaAttachmentService.updateByProcessId(custom,processInstance.getId());
@@ -887,6 +894,7 @@ public class ProcessController {
                 Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
                 if (index.equals("1")) {
                     taskService.addComment(task.getId(), processInstance.getId(), "提交");
+                    oaContractCirculationWithBLOBs.setContractStatus("start");
 //                    taskService.setAssignee(task.getId(),"wxm");
                     if(StringUtils.isBlank(pm) ) {
                         result.put("result", "failed");
@@ -894,18 +902,6 @@ public class ProcessController {
 
                     }
                     taskService.complete(task.getId(), mapApprove);
-//                    if(StringUtils.isBlank(pm) ){
-//                        taskService.complete(task.getId());
-//                    }else {
-//                        org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(pm).singleResult();
-//                        if(null == userOa){
-//                            taskService.complete(task.getId());
-//                        }else {
-//                            taskService.setAssignee(task.getId(), pm);
-//                            runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
-//                        }
-//                    }
-//                    taskService.complete(task.getId());
                     runtimeService.setVariable(processInstance.getProcessInstanceId(), "init", "");
                 }else{
                     taskService.addComment(task.getId(), processInstance.getId(), "草稿");
@@ -913,6 +909,7 @@ public class ProcessController {
                     taskService.setAssignee(task.getId(),loginUser.getName());
                     runtimeService.setVariable(processInstance.getProcessInstanceId(), "pmApprove", pm);
                 }
+                contractCirculationService.insert(oaContractCirculationWithBLOBs);
             } catch (Exception e) {
                 LOGGER.error("异常",e);
                 result.put("result", "failed");

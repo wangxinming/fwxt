@@ -1518,7 +1518,7 @@
             }, true);
 
         }])
-        .controller('order.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster','$filter',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster,$filter) {
+        .controller('order.controller', ['$scope', '$location','$rootScope','user.loader','Util','Tools','Loading','toaster','$filter','$timeout',function($scope, $location,$rootScope,loader,Util,Tools,Loading,toaster,$filter,$timeout) {
 
             // $("#orderFormInfo").ajaxForm(function(data){
             //     var html = '<i style="margin-top: 25px;" class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.file+'</i>'
@@ -1699,6 +1699,7 @@
                     $('#processInstanceId').val($scope.search.processInstanceId);
                     $('#orderForm').html(data.data.templateHtml);
                     $('#contract').val(data.data.templateId);
+                    // if(data.data.contractStatus )
                     $scope.pms = data.pms;
                     $scope.pm = data.pm;
                     if(data.pm)
@@ -1941,6 +1942,12 @@
                     if(data.result == "success"){
                         // window.open("/index.html#/myProcess");
                         window.close();
+                    }else if(data.result == "duplicate"){
+                        toaster.pop('failed', "", "重复提交，3s后关闭页面，请刷新页面！");
+                        $timeout(function(){
+                            window.close()
+                        },3000);
+
                     }else{
 
                     }
