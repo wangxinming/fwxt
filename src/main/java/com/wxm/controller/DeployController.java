@@ -431,7 +431,9 @@ public class DeployController {
             String sid = mapSid.get("提交任务");
             sid = map.get(sid);
             String res = mapUserTask.get(sid);
-
+            if(null != res && res.contains("法务")){
+                res = "法务";
+            }
             LOGGER.info("loginUser.getEnterpriseId:{}",loginUser.getEnterpriseId());
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
             Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
@@ -449,6 +451,7 @@ public class DeployController {
                     map1.put(oaEnterprise1.getEnterpriseId(), oaEnterprise1);
                 }
             }
+
             List<OAUser> oaUserList = userService.listUserLeader(null,res);
             List<OAUser> oaUserListRes = new LinkedList<>();
             for(OAUser oaUser:oaUserList){
@@ -907,7 +910,7 @@ public class DeployController {
             result.put("approve_last",false);
             if(processInstance != null) {
                 ActivityImpl activity = ((ProcessDefinitionEntity) repositoryService.getProcessDefinition(task.getProcessDefinitionId())).findActivity(processInstance.getActivityId());
-                if (null != activity && activity.getProperty("name").toString().contains("核对")) {
+                if (null != activity && activity.getProperty("name").toString().contains("法务归档")) {
                     result.put("approve_last",true);
                 }
             }

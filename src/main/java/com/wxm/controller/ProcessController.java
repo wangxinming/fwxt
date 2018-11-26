@@ -171,7 +171,8 @@ public class ProcessController {
                 result.put("myComplete", size);
             }else {
                 historicProcessInstanceQuery.parameter("assign","%"+loginUser.getName()+"%");
-                sb.append("and H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+                sb.append("and ( H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+                sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
                 size = historicProcessInstanceQuery.sql(String.format("%s%s","select count(*) ",sb.toString())).count();
 //                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
 //                        .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
@@ -1004,9 +1005,9 @@ public class ProcessController {
                 .singleResult();
 //        task = taskService.createTaskQuery().processInstanceId(processInstancesId).singleResult();
         OAContractCirculationWithBLOBs oaContractCirculationWithBLOBs = contractCirculationService.selectByProcessInstanceId(processInstancesId);
-        if(pi != null) {
-            ActivityImpl activity = ((ProcessDefinitionEntity) repositoryService.getProcessDefinition(task.getProcessDefinitionId())).findActivity(pi.getActivityId());
-            if (null != activity && activity.getProperty("name").toString().contains("归档")) {
+        if(pi == null) {
+//            ActivityImpl activity = ((ProcessDefinitionEntity) repositoryService.getProcessDefinition(task.getProcessDefinitionId())).findActivity(pi.getActivityId());
+//            if (null != activity && activity.getProperty("name").toString().contains("归档")) {
                 OAContractCirculationWithBLOBs tmp = new OAContractCirculationWithBLOBs();
                 tmp.setContractId(oaContractCirculationWithBLOBs.getContractId());
                 //归档后 用户可以查
@@ -1017,15 +1018,15 @@ public class ProcessController {
                     Integer serial = Integer.parseInt(oaContractCirculationWithBLOBs.getContractSerialNumber().substring("yyyyMMdd".length()));
                     tmp.setArchiveSerialNumber(date.format(new Date())+String.format("%02d", serial));
                 }
-                contractCirculationService.update(tmp);
-            }
-            if (null != activity && activity.getProperty("name").toString().contains("核对")) {
-                OAContractCirculationWithBLOBs tmp = new OAContractCirculationWithBLOBs();
-                tmp.setContractId(oaContractCirculationWithBLOBs.getContractId());
+//                contractCirculationService.update(tmp);
+//            }
+//            if (null != activity && activity.getProperty("name").toString().contains("核对")) {
+//                OAContractCirculationWithBLOBs tmp = new OAContractCirculationWithBLOBs();
+//                tmp.setContractId(oaContractCirculationWithBLOBs.getContractId());
                 tmp.setProcessInstanceId(oaContractCirculationWithBLOBs.getProcessInstanceId());
-                auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 核对合同",loginUser.getName())));
+                auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 归档合同",loginUser.getName())));
             //归档后 用户可以查
-                runtimeService.setVariable(processInstancesId,"instanceStatus","completed");
+//                runtimeService.setVariable(processInstancesId,"instanceStatus","completed");
                 HistoricVariableInstance historicVariableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstancesId).variableName("title").singleResult();
 //            VariableInstance variableInstance = runtimeService.getVariableInstance(processInstancesId,"title");
 //                String html = oaContractCirculationWithBLOBs.getContractHtml();
@@ -1076,13 +1077,14 @@ public class ProcessController {
 //                } catch (FileNotFoundException e) {
 //                    e.printStackTrace();
 //                }
-            }
-        }else{
-            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 完成任务审批",loginUser.getName())));
-            //合同状态 为完成状态
-//            oaContractCirculationWithBLOBs.setContractStatus("completed");
-//            contractCirculationService.update(oaContractCirculationWithBLOBs);
+//            }
         }
+//        else{
+//            auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 完成任务审批",loginUser.getName())));
+//            //合同状态 为完成状态
+////            oaContractCirculationWithBLOBs.setContractStatus("completed");
+////            contractCirculationService.update(oaContractCirculationWithBLOBs);
+//        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
@@ -1313,7 +1315,8 @@ public class ProcessController {
         if(loginUser.getName().equals("admin")){
             if(StringUtils.isNotBlank(user)){
                 historicProcessInstanceQuery.parameter("assign","%"+StringUtils.trim(user)+"%");
-                sb.append("and H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+                sb.append("and (H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+                sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
 //                historicProcessInstanceQuery =historicProcessInstanceQuery.involvedUser(user);
             }
             size = historicProcessInstanceQuery
@@ -1332,7 +1335,9 @@ public class ProcessController {
 
         }else{
             historicProcessInstanceQuery.parameter("assign","%"+loginUser.getName()+"%");
-            sb.append("and H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+
+            sb.append("and ( H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+            sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
 //            sb.append("order by H.START_TIME_ desc");
             size = historicProcessInstanceQuery
                     .sql(String.format("%s%s","select count(*) ",sb.toString()))

@@ -121,39 +121,43 @@ public class Html2PdfTask implements Runnable {
     public void doRun(){
         try {
             LOGGER.info("begin create pdf");
+            try {
+                String data = fillValue(processInstancesId, html,linkedHashMap);
+    //                String path = PropertyUtil.getValue("contract.template.path");
+                String fileHtml = contractPath + ".html";
+                String filePf = contractPath + ".pdf";
 
-            String data = fillValue(processInstancesId, html,linkedHashMap);
-//                String path = PropertyUtil.getValue("contract.template.path");
-            String fileHtml = contractPath + ".html";
-            String filePf = contractPath + ".pdf";
+    //                OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(fileHtml),"UTF-8");
+    //                BufferedWriter writer=new BufferedWriter(write);
+    //                writer.write(data);
+    //                writer.close();
+                PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
+                printStream.println(data);
+                //转换成pdf文件
+                synchronized (object) {
+                    File htmlFile = Word2Html.html2pdf(fileHtml, openoffice);
+                }
 
-//                OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(fileHtml),"UTF-8");
-//                BufferedWriter writer=new BufferedWriter(write);
-//                writer.write(data);
-//                writer.close();
-            PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
-            printStream.println(data);
-            //转换成pdf文件
-            synchronized (object) {
-                File htmlFile = Word2Html.html2pdf(fileHtml, openoffice);
+            //            InputStream input = new ByteArrayInputStream(bytesDB);
+                PDFMergerUtility mergePdf = new PDFMergerUtility();
+                mergePdf.addSource(filePf);
+                List<OAAttachment> oaAttachmentList = oaAttachmentService.listBlobByProcessId(tmp.getProcessInstanceId());
+                for (OAAttachment oaAttachment : oaAttachmentList) {
+                    if (oaAttachment.getFileContent() != null)
+                        mergePdf.addSource(new ByteArrayInputStream(oaAttachment.getFileContent()));
+                }
+                mergePdf.setDestinationFileName(contractPath + "new.pdf");
+                mergePdf.mergeDocuments();
+
+                // 获取pdf文件流
+                byte[] pdf = FileByte.getByte(contractPath + "new.pdf");
+
+                // HTML文件字符串
+                tmp.setContractPdf(pdf);
+            }catch (Exception ex){
+                LOGGER.error("异常",ex);
             }
-
-//            InputStream input = new ByteArrayInputStream(bytesDB);
-            PDFMergerUtility mergePdf = new PDFMergerUtility();
-            mergePdf.addSource(filePf);
-            List<OAAttachment> oaAttachmentList = oaAttachmentService.listBlobByProcessId(tmp.getProcessInstanceId());
-            for(OAAttachment oaAttachment:oaAttachmentList){
-                if(oaAttachment.getFileContent() != null)
-                    mergePdf.addSource(new ByteArrayInputStream(oaAttachment.getFileContent()));
-            }
-            mergePdf.setDestinationFileName(contractPath+"new.pdf");
-            mergePdf.mergeDocuments();
-
-            // 获取pdf文件流
-            byte[] pdf = FileByte.getByte(contractPath+"new.pdf");
             tmp.setContractStatus("completed");
-            // HTML文件字符串
-            tmp.setContractPdf(pdf);
             contractCirculationService.update(tmp);
             LOGGER.info("end create pdf");
         } catch (Exception e) {
