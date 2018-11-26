@@ -64,7 +64,7 @@
     oa_user.USER_POSITION, oa_user.USER_ADDRESS, oa_user.USER_POSTCODE, oa_user.USER_WEIXIN, oa_user.USER_STATUS, oa_user.USER_CREATETIME
     from OA_USER oa_user,OA_ENTERPRISE enterprise where oa_user.ENTERPRISE_ID=enterprise.ENTERPRISE_ID
     <if test="position != null">
-      AND oa_user.USER_POSITION = #{position}
+      AND oa_user.USER_POSITION like CONCAT('%',#{position},'%' )
     </if>
     <if test='company != null and company != ""'>
       AND enterprise.COMPANY_NAME = #{company}
@@ -78,7 +78,7 @@
     oa_user.USER_POSITION, oa_user.USER_ADDRESS, oa_user.USER_POSTCODE, oa_user.USER_WEIXIN, oa_user.USER_STATUS, oa_user.USER_CREATETIME
     from OA_USER oa_user where 1=1
     <if test="position != null">
-      AND oa_user.USER_POSITION = #{position}
+      AND oa_user.USER_POSITION like CONCAT('%',#{position},'%' )
     </if>
     <if test='company != null and company != ""'>
       AND oa_user.ENTERPRISE_ID = #{company}
