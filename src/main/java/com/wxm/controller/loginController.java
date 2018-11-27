@@ -56,6 +56,13 @@ public class loginController {
                 oaUserUpdate.setUserId(oaUser.getUserId());
                 oaUserUpdate.setParentId(random);
                 userService.update(oaUserUpdate);
+                org.activiti.engine.identity.User userOa = identityService.createUserQuery().userId(oaUser.getUserName()).singleResult();
+                if(null == userOa) {
+                    org.activiti.engine.identity.User userNew = identityService.newUser(oaUser.getUserName());
+                    userNew.setFirstName(oaUser.getUserId().toString());
+                    userNew.setPassword(oaUser.getUserPwd());
+                    identityService.saveUser(userNew);
+                }
             } else if (user == null) {
                 result.put("result", "fail");
                 result.put("msg", "用户不存在");
