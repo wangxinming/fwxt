@@ -4,16 +4,15 @@ import com.wxm.common.ExportExcelUtil;
 import com.wxm.entity.ReportEntity;
 import com.wxm.entity.ReportItem;
 import com.wxm.entity.ReportResult;
-import com.wxm.model.OAAudit;
-import com.wxm.model.OAContractTemplate;
-import com.wxm.model.OAEnterprise;
-import com.wxm.model.OAUser;
+import com.wxm.model.*;
 import com.wxm.service.*;
 import com.wxm.util.exception.OAException;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
@@ -33,11 +32,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("report/")
 public class ReportController {
-
+    @Autowired
+    private RuntimeService runtimeService;
     @Autowired
     private HistoryService historyService;
     @Autowired
     private ContractCirculationService contractCirculationService;
+    @Autowired
+    private OAAttachmentService oaAttachmentService;
     @Autowired
     private ConcactTemplateService concactTemplateService;
     @Autowired
@@ -48,7 +50,36 @@ public class ReportController {
     private ReportService reportService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportController.class);
-
+    @RequestMapping(value = "/deleteTask",method = {RequestMethod.DELETE},produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public Object deleteTask(HttpServletRequest request,
+                             @RequestParam(value = "id", required = true) String id){
+        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+        if(null == loginUser) {
+            LOGGER.error("用户未登录");
+            throw new OAException(1101,"用户未登录");
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("result","success");
+        try{
+            OAContractCirculation oaContractCirculation =  contractCirculationService.selectBySerialNumber(id);
+            String processInstanceId = oaContractCirculation.getProcessInstanceId();
+            ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            if(pi==null){
+                //该流程实例已经完成了
+                historyService.deleteHistoricProcessInstance(processInstanceId);
+            }else{
+                //该流程实例未结束的
+                runtimeService.deleteProcessInstance(processInstanceId,"");
+                historyService.deleteHistoricProcessInstance(processInstanceId);//(顺序不能换)
+            }
+            oaAttachmentService.deleteByProcessId(processInstanceId);
+            contractCirculationService.delete(oaContractCirculation.getContractId());
+        }catch (Exception ex){
+            result.put("result","failed");
+        }
+        return result;
+    }
     //获取公司部门列表，合同类别，
     @RequestMapping(value = "/parentEnterpriseList",method = {RequestMethod.GET},produces="application/json;charset=UTF-8")
     @ResponseBody

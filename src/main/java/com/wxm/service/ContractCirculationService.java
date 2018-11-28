@@ -19,6 +19,7 @@ public interface ContractCirculationService {
     Integer insert(OAContractCirculationWithBLOBs oaContractTemplate);
     Integer update(OAContractCirculationWithBLOBs oaContractTemplate);
     Integer delete(int id);
+    OAContractCirculation selectBySerialNumber(String contractSerialNumber);
     List<ReportItem> count(Date startTime, Date endTime);
     ReportItem total(String contractStatus,Integer templateId,Integer contractReopen,String contractType,Date startTime, Date endTime);
     Integer groupCount(Date startTime, Date endTime);

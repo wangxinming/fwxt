@@ -36,17 +36,31 @@ public class ProcessTest {
 
     @Before
     public void setUp() {
-//        processEngine = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
-//                .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
-//                .setJdbcUrl("jdbc:sqlserver://127.0.0.1:1433;DatabaseName=oa")
-//                .setJdbcDriver("com.microsoft.sqlserver.jdbc.SQLServerDriver")
-//                .setJdbcUsername("sa")
-//                .setJdbcPassword("123456")
-//                .setDatabaseSchemaUpdate("true")
-//                .setJobExecutorActivate(false)
-//                .buildProcessEngine();
+        processEngine = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
+                .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
+                .setJdbcUrl("jdbc:sqlserver://127.0.0.1:1433;DatabaseName=oa")
+                .setJdbcDriver("com.microsoft.sqlserver.jdbc.SQLServerDriver")
+                .setJdbcUsername("sa")
+                .setJdbcPassword("1qaz@WSX")
+                .setDatabaseSchemaUpdate("true")
+                .setJobExecutorActivate(false)
+                .buildProcessEngine();
     }
 
+    @Test
+    public void deleteTask(){
+        String processInstanceId = "107512";
+        ProcessInstance pi = processEngine.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        if(pi==null){
+             //该流程实例已经完成了
+                processEngine.getHistoryService().deleteHistoricProcessInstance(processInstanceId);
+        }else{
+        //该流程实例未结束的
+            processEngine.getRuntimeService().deleteProcessInstance(processInstanceId,"");
+            processEngine.getHistoryService().deleteHistoricProcessInstance(processInstanceId);//(顺序不能换)
+        }
+
+    }
     //5.1、查询历史记录ACT_HI_PROCINST
     @Test
     public void queryProcessTaskHistory() throws Exception {

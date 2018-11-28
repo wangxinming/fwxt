@@ -1,31 +1,17 @@
 <div class="row" style="margin: 15px 0px 0px 0px;">
-
     <form name="queryForm" role="form" w5c-form-validate novalidate>
         <div class="row">
             <div class="col-md-4 form-group">
-                <label for="fromDateEx" class="col-lg-4 control-label">开始时间<code>*</code></label>
+                <label class="col-lg-4 control-label">流程编号</label>
                 <div class="col-lg-8">
-                    <input type="text" placeholder="开始时间" value="" ng-model="searchPage.data.startTime" required
-                           id="fromDateEx" name="fromDateEx" datepicker class="form-control"
-                           onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate:'#F{$dp.$D(\'toDateEx\')}'})"/>
-                </div>
-            </div>
-
-            <div class="col-md-4 form-group">
-                <label for="toDateEx" class="col-lg-4 control-label">结束时间<code>*</code></label>
-                <div class="col-lg-8">
-                    <input type="text" placeholder="结束时间" value=""
-                           id="toDateEx" name="toDateEx" ng-model="searchPage.data.endTime"
-                           datepicker class="form-control"
-                           onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'fromDateEx\')}',maxDate:'%y-%M-%d'})"
-                           required/>
+                    <input type="text"  ng-model="searchPage.data.process" />
                 </div>
             </div>
             <div class="col-md-4 form-group">
                 <div class="list_button" >
                     <div class="input-group">
                         <span class="input-group-btn">
-						    <button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>
+						    <button class="btn blue" ng-click="searchPage.action.delete()" type="button">删除流程</button>
                         </span>
                     </div>
                 </div>
@@ -33,23 +19,56 @@
 
         </div>
     </form>
+    <!--<form name="queryForm" role="form" w5c-form-validate novalidate>-->
+        <!--<div class="row">-->
+            <!--<div class="col-md-4 form-group">-->
+                <!--<label for="fromDateEx" class="col-lg-4 control-label">开始时间<code>*</code></label>-->
+                <!--<div class="col-lg-8">-->
+                    <!--<input type="text" placeholder="开始时间" value="" ng-model="searchPage.data.startTime" required-->
+                           <!--id="fromDateEx" name="fromDateEx" datepicker class="form-control"-->
+                           <!--onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate:'#F{$dp.$D(\'toDateEx\')}'})"/>-->
+                <!--</div>-->
+            <!--</div>-->
 
-    <form  action="user/excel" target="" id="excelForm" method="post" enctype="multipart/form-data" class="ng-pristine ng-valid">
-        <div class="row">
-            <div class="col-md-6">
-                <input id="file" type="file" accept=".xls,.xlsx" name="file" class="" style="" value="选择excel档">
-            </div>
-            <div class="col-md-6">
-                　　<input type="submit" name="submit" id="submit"  value="保存" class="btn btn-primary btn-lg" >
-            </div>
-        </div>
-    </form>
-    <div class="col-sm-5">
-        <!--<div id="container" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"> </div>-->
-        <highchart id="chartPie" config="chartConfigPie" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></highchart>
-    </div>
+            <!--<div class="col-md-4 form-group">-->
+                <!--<label for="toDateEx" class="col-lg-4 control-label">结束时间<code>*</code></label>-->
+                <!--<div class="col-lg-8">-->
+                    <!--<input type="text" placeholder="结束时间" value=""-->
+                           <!--id="toDateEx" name="toDateEx" ng-model="searchPage.data.endTime"-->
+                           <!--datepicker class="form-control"-->
+                           <!--onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'fromDateEx\')}',maxDate:'%y-%M-%d'})"-->
+                           <!--required/>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="col-md-4 form-group">-->
+                <!--<div class="list_button" >-->
+                    <!--<div class="input-group">-->
+                        <!--<span class="input-group-btn">-->
+						    <!--<button class="btn blue" ng-click="searchPage.action.search()" type="button">查询</button>-->
+                        <!--</span>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
 
-    <div class="col-sm-7">
-        <highchart id="chartColumn" config="chartConfigColumn" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></highchart>
-    </div>
+        <!--</div>-->
+    <!--</form>-->
+
+    <!--<form  action="user/excel" target="" id="excelForm" method="post" enctype="multipart/form-data" class="ng-pristine ng-valid">-->
+        <!--<div class="row">-->
+            <!--<div class="col-md-6">-->
+                <!--<input id="file" type="file" accept=".xls,.xlsx" name="file" class="" style="" value="选择excel档">-->
+            <!--</div>-->
+            <!--<div class="col-md-6">-->
+                <!--　　<input type="submit" name="submit" id="submit"  value="保存" class="btn btn-primary btn-lg" >-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</form>-->
+    <!--<div class="col-sm-5">-->
+        <!--&lt;!&ndash;<div id="container" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"> </div>&ndash;&gt;-->
+        <!--<highchart id="chartPie" config="chartConfigPie" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></highchart>-->
+    <!--</div>-->
+
+    <!--<div class="col-sm-7">-->
+        <!--<highchart id="chartColumn" config="chartConfigColumn" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></highchart>-->
+    <!--</div>-->
 </div>

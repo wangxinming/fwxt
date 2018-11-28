@@ -368,6 +368,8 @@
                 createGroup: {method:'PUT',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
                 //更新组
                 updateGroup: {method:'POST',url:"/user/group", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
+                //删除任务实例
+                deleteTask: {method:'DELETE',url:"/report/deleteTask", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},
 
                 //更新组状态
                 userUpdateStatus: {method:'POST',url:"/user/updateStatus", isArray:false,contentType:'application/json; charset=UTF-8',dataType:'json'},

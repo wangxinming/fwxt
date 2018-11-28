@@ -5628,10 +5628,24 @@
             var current = new Date();
             $scope.searchPage = {
                 data:{
+                    process:"",
                     startTime: $filter('date')(new Date(current.getTime() - 30 * 60 * 1000), 'yyyy-MM-dd HH:mm:ss'),
                     endTime: $filter('date')(current, 'yyyy-MM-dd HH:mm:ss')
                 },
                 action:{
+                    delete: function () {
+                        Loading.show();
+                        loader.deleteTask({'id': $scope.searchPage.data.process}, {}, function (data) {
+                            if (data.result == "success") {
+                                toaster.pop("success", "删除成功");
+                            }else{
+                                toaster.pop('warning', "删除失败");
+                            }
+                            Loading.hide();
+                        }, function (error) {
+                            Loading.hide();
+                        });
+                    },
                     search:function () {
 
                         //TODO

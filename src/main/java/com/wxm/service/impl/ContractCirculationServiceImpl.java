@@ -58,6 +58,11 @@ public class ContractCirculationServiceImpl implements ContractCirculationServic
     }
 
     @Override
+    public OAContractCirculation selectBySerialNumber(String contractSerialNumber) {
+        return oaContractCirculationMapper.selectBySerialNumber(contractSerialNumber);
+    }
+
+    @Override
     public List<ReportItem> count(Date startTime, Date endTime) {
         return oaContractCirculationMapper.count(startTime,endTime);
     }

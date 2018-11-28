@@ -205,11 +205,17 @@
     from OA_CONTRACT_CIRCULATION
     where PROCESSINSTANCE_ID = #{processInstanceId,jdbcType=NVARCHAR}
   </select>
-
+  <select id="selectBySerialNumber" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from OA_CONTRACT_CIRCULATION
+    where CONTRACT_SERIAL_NUMBER = #{contractSerialNumber,jdbcType=NVARCHAR}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from OA_CONTRACT_CIRCULATION
     where CONTRACT_ID = #{contractId,jdbcType=INTEGER}
   </delete>
+
   <insert id="insert" parameterType="com.wxm.model.OAContractCirculationWithBLOBs" useGeneratedKeys="true"  keyProperty = "contractId" keyColumn = "CONTRACT_ID">
     insert into OA_CONTRACT_CIRCULATION (CONTRACT_ID, TEMPLATE_ID,CONTRACT_REOPEN, PROCESSINSTANCE_ID,CONTRACT_NAME,
     CONTRACT_BUYER,CONTRACT_SELLER,CONTRACT_MONEY,ATTACHMENT_NAME,WORK_STATUS

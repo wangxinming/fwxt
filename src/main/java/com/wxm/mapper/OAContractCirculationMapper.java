@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface OAContractCirculationMapper {
     int deleteByPrimaryKey(Integer contractId);
+    OAContractCirculation selectBySerialNumber(@Param("contractSerialNumber")String contractSerialNumber);
 
     int insert(OAContractCirculationWithBLOBs record);
 
