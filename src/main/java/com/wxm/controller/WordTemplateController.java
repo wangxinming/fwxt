@@ -262,7 +262,8 @@ public class WordTemplateController {
         }
         result.put("result", "success");
         try{
-            String contract = request.getParameter("processInstanceId");
+//            String contract = request.getParameter("processInstanceId");
+            String contract = request.getParameter("id");
             if(StringUtils.isBlank(contract)){
                 contract =  request.getSession().getId();
             }

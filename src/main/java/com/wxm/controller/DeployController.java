@@ -317,7 +317,9 @@ public class DeployController {
             String sid = mapSid.get("提交任务");
             sid = map.get(sid);
             String res = mapUserTask.get(sid);
-
+            if(null != res && res.contains("法务")){
+                res = "法务";
+            }
 
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
 //            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
