@@ -1,6 +1,4 @@
 use oa;
-delete  from ACT_GE_BYTEARRAY;
-
 delete  from ACT_HI_ACTINST;
 delete  from ACT_HI_ATTACHMENT;
 delete  from ACT_HI_COMMENT;
