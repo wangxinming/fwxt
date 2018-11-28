@@ -266,6 +266,18 @@ public class WordTemplateController {
             String contract = request.getParameter("id");
             if(StringUtils.isBlank(contract)){
                 contract =  request.getSession().getId();
+
+            }
+            List<OAAttachment> oaAttachmentList = oaAttachmentService.listByProcessId(contract);
+            if(null != oaAttachmentList && oaAttachmentList.size()> 5){
+                result.put("result", "failed");
+                return result;
+            }
+            for(OAAttachment oaAttachment: oaAttachmentList){
+                if(oaAttachment.getFileName().contains(file.getOriginalFilename())){
+                    result.put("result", "failed");
+                    return result;
+                }
             }
             String docName =  String.format("%s_%s",new Date().getTime(),file.getOriginalFilename());
             OAAttachment oaAttachment = new OAAttachment();

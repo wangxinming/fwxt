@@ -1626,13 +1626,17 @@
                     fileElementId:"fileAttachment1",                        //文件选择框的id属性
                     data:{id:$('#processInstanceId').val()},
                     success: function(data,s, status){
-                        // $('#sendStatus').text("上传成功");
-                        toaster.pop('success', "","上传成功");
-                        // var html = '<i class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.displayName+'</i>';
-                        var html = '<a href="javascript:void(0);" class="fa fa-download" title="查看" onclick=\'javascript:window.open(\"template/downloadPdf?fileName='+data.file + '\");\'>'+data.displayName+'</a>';
-                        var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(\''+data.file+'\');"  class="btn btn-primary btn-lg" />';
-                        $('#download'+uploadAttachment).html('<div>'+html+deleteHtml+'</div>');
-                        $('#custom').val(data.uid);
+                        if(data.result == "success") {
+                            // $('#sendStatus').text("上传成功");
+                            toaster.pop('success', "", "上传成功");
+                            // var html = '<i class="fa fa-download" title="下载" ng-click="download(\''+data.file+'\')">'+data.displayName+'</i>';
+                            var html = '<a href="javascript:void(0);" class="fa fa-download" title="查看" onclick=\'javascript:window.open(\"template/downloadPdf?fileName=' + data.file + '\");\'>' + data.displayName + '</a>';
+                            var deleteHtml = ' <input type="submit" value="删除"  onclick="deleteFile(\'' + data.file + '\');"  class="btn btn-primary btn-lg" />';
+                            $('#download' + uploadAttachment).html('<div>' + html + deleteHtml + '</div>');
+                            $('#custom').val(data.uid);
+                        }else{
+                            toaster.pop('failed', "","上传失败");
+                        }
                     },error: function (data, status, e){
                         toaster.pop('failed', "","上传失败");
                         // $('#sendStatus').text("上传失败");
