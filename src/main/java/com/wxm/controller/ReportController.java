@@ -54,11 +54,11 @@ public class ReportController {
     @ResponseBody
     public Object deleteTask(HttpServletRequest request,
                              @RequestParam(value = "id", required = true) String id){
-        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
-        if(null == loginUser) {
-            LOGGER.error("用户未登录");
-            throw new OAException(1101,"用户未登录");
-        }
+//        com.wxm.entity.User loginUser=(com.wxm.entity.User)request.getSession().getAttribute("loginUser");
+//        if(null == loginUser) {
+//            LOGGER.error("用户未登录");
+//            throw new OAException(1101,"用户未登录");
+//        }
         Map<String, Object> result = new HashMap<>();
         result.put("result","success");
         try{

@@ -1673,8 +1673,8 @@
                         mData:"positionRelationId",
                         //class="fa fa-info"  class="fa fa-pencil"  class="fa fa-user" class="+(full.userStatus==1?'fa fa-stop':'fa fa-play')+'" '
                         mRender:function(mData,type,full) {
-                            return'<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.edit(\'' + mData +'\')">编辑</a></i>' +
-                                    '<i><a title="删除" ng-disabled="loginUserMenuMap[currentView]" ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>';
+                            return'<i><a title="编辑" ng-hide="loginUserMenuMap[currentView]" ng-click="listPage.action.edit(\'' + mData +'\')">编辑</a></i>' ;
+                                    // '<i><a title="删除" ng-disabled="loginUserMenuMap[currentView]" ng-click="listPage.action.remove(\'' + mData + '\')">删除</a></i>';
                         }
                     }
 

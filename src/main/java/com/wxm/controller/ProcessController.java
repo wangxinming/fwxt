@@ -162,25 +162,16 @@ public class ProcessController {
             NativeHistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createNativeHistoricProcessInstanceQuery();
             StringBuilder sb = new StringBuilder("from (ACT_HI_PROCINST H LEFT OUTER JOIN OA_CONTRACT_CIRCULATION contract on H.PROC_INST_ID_ = contract.PROCESSINSTANCE_ID)  where contract.CONTRACT_STATUS='completed' ");
 
-            if(loginUser.getName().equals("admin")){
-//                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
-//                        .variableValueEquals("instanceStatus","completed")
-//                        .count();
+//            if(loginUser.getName().equals("admin") || loginUser.getPosition().contains("后台管理")){
                 size = historicProcessInstanceQuery.sql(String.format("%s%s","select count(*) ",sb.toString())).count();
-//                ReportItem reportItem = contractCirculationService.total("completed",null,null,null,null,null);
                 result.put("myComplete", size);
-            }else {
-                historicProcessInstanceQuery.parameter("assign","%"+loginUser.getName()+"%");
-                sb.append("and ( H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
-                sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
-                size = historicProcessInstanceQuery.sql(String.format("%s%s","select count(*) ",sb.toString())).count();
-//                size = historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc()
-//                        .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
-//                        .count();
-                result.put("myComplete", size);
-
-
-            }
+//            }else {
+//                historicProcessInstanceQuery.parameter("assign","%"+loginUser.getName()+"%");
+//                sb.append("and ( H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+//                sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
+//                size = historicProcessInstanceQuery.sql(String.format("%s%s","select count(*) ",sb.toString())).count();
+//                result.put("myComplete", size);
+//            }
             List<OANotify> oaNotifyList = oaNotifyService.list(null,0,5,null,null);
             result.put("notify",oaNotifyList);
             size = historyService.createHistoricProcessInstanceQuery().variableValueNotEquals("init","start").startedBy(loginUser.getName()).count();
@@ -1139,12 +1130,22 @@ public class ProcessController {
         }else{
             taskQuery.processVariableValueNotEquals("init","start");
         }
-        List<Task> list = taskQuery
-                .orderByTaskCreateTime().desc()
-                .taskAssignee(loginUser.getName())// 指定个人认为查询，指定办理人
-                .listPage(offset,limit);
+        List<Task> list = null;
+        long size = 0L;
+        if("admin".equals(loginUser.getName())){
+            list = taskQuery
+                    .orderByTaskCreateTime().desc()
+                    .listPage(offset, limit);
 
-        long size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
+            size = taskService.createTaskQuery().count();
+        }else {
+            list = taskQuery
+                    .orderByTaskCreateTime().desc()
+                    .taskAssignee(loginUser.getName())// 指定个人认为查询，指定办理人
+                    .listPage(offset, limit);
+
+            size = taskService.createTaskQuery().taskAssignee(loginUser.getName()).count();
+        }
         auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 获取待办任务",loginUser.getName())));
         if (list != null && list.size() > 0) {
             for (Task task : list) {
@@ -1312,47 +1313,34 @@ public class ProcessController {
 //                    .variableValueLike("title", "%"+title+"%")
 //                    .variableValueEquals("","");
         }
-        if(loginUser.getName().equals("admin")){
+//        if(loginUser.getName().equals("admin") || loginUser.getPosition().contains("后台管理")){
             if(StringUtils.isNotBlank(user)){
                 historicProcessInstanceQuery.parameter("assign","%"+StringUtils.trim(user)+"%");
                 sb.append("and (H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
                 sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
-//                historicProcessInstanceQuery =historicProcessInstanceQuery.involvedUser(user);
             }
             size = historicProcessInstanceQuery
                     .sql(String.format("%s%s","select count(*) ",sb.toString()))
-//                    .variableValueEquals("instanceStatus","completed")
-//                .variableValueEquals("user",loginUser.getName())
-                    .count();
-            historicProcessInstanceQuery.parameter("orderBy","START_TIME_ desc");
-//            sb.append("order by H.START_TIME_ desc");
-            listProcess = historicProcessInstanceQuery
-                    .sql(String.format("%s%s%s","select top 100 percent H.* ",sb.toString(),"order by H.START_TIME_ desc"))
-//                    .variableValueEquals("instanceStatus","completed")
-//                .variableValueEquals("user",loginUser.getName())
-//                    .orderByProcessInstanceStartTime().desc()
-                    .listPage(offset,limit);
-
-        }else{
-            historicProcessInstanceQuery.parameter("assign","%"+loginUser.getName()+"%");
-
-            sb.append("and ( H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
-            sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
-//            sb.append("order by H.START_TIME_ desc");
-            size = historicProcessInstanceQuery
-                    .sql(String.format("%s%s","select count(*) ",sb.toString()))
-//                    .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
-//                .variableValueEquals("user",loginUser.getName())
                     .count();
             historicProcessInstanceQuery.parameter("orderBy","START_TIME_ desc");
             listProcess = historicProcessInstanceQuery
                     .sql(String.format("%s%s%s","select top 100 percent H.* ",sb.toString(),"order by H.START_TIME_ desc"))
-//                    .involvedUser(loginUser.getName()).variableValueEquals("instanceStatus","completed")
-//                .variableValueEquals("user",loginUser.getName())
-//                    .orderByProcessInstanceStartTime().desc()
                     .listPage(offset,limit);
-
-        }
+//
+//        }else{
+//            historicProcessInstanceQuery.parameter("assign","%"+loginUser.getName()+"%");
+//
+//            sb.append("and ( H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
+//            sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
+//            size = historicProcessInstanceQuery
+//                    .sql(String.format("%s%s","select count(*) ",sb.toString()))
+//                    .count();
+//            historicProcessInstanceQuery.parameter("orderBy","START_TIME_ desc");
+//            listProcess = historicProcessInstanceQuery
+//                    .sql(String.format("%s%s%s","select top 100 percent H.* ",sb.toString(),"order by H.START_TIME_ desc"))
+//                    .listPage(offset,limit);
+//
+//        }
 
         for(HistoricProcessInstance historicProcessInstance : listProcess){
             historicProcessInstance.getStartTime();

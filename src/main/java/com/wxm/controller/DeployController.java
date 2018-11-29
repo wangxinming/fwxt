@@ -457,7 +457,7 @@ public class DeployController {
             List<OAUser> oaUserList = userService.listUserLeader(null,res);
             List<OAUser> oaUserListRes = new LinkedList<>();
             for(OAUser oaUser:oaUserList){
-                if(map1.containsKey(oaUser.getEnterpriseId())){
+                if(map1.containsKey(oaUser.getEnterpriseId()) || ("法务".equals(res)&& oaUser.getUserPosition().contains("法务"))){
                     oaUserListRes.add(oaUser);
                 }
             }
@@ -917,7 +917,16 @@ public class DeployController {
                 }
             }
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
-            List<OAPositionRelation> oaPositionRelations = oaPositionRelationService.getByCompanyPosition(null,loginUser.getPosition());
+            String[] positions = loginUser.getPosition().split(",");
+            Map<Integer,OAPositionRelation> oaPositionRelations = new LinkedHashMap();
+            for(String position :positions ) {
+                List<OAPositionRelation> oaPositionRelations1 = oaPositionRelationService.getByCompanyPosition(null, position);
+                for(OAPositionRelation oaPositionRelation:oaPositionRelations1){
+                    if(!oaPositionRelations.containsKey(oaPositionRelation.getPositionRelationId())){
+                        oaPositionRelations.put(oaPositionRelation.getPositionRelationId(),oaPositionRelation);
+                    }
+                }
+            }
 //            List<OAPositionRelation> oaPositionRelations = oaPositionRelationService.getByCompanyPosition(oaEnterprise.getCompanyName(),loginUser.getPosition());
 //
 //            if(oaPositionRelations.size() == 1){
@@ -987,7 +996,7 @@ public class DeployController {
 //                }
 //            }
 
-            for(OAPositionRelation oaPositionRelation:oaPositionRelations) {
+            for(OAPositionRelation oaPositionRelation:oaPositionRelations.values()) {
                 LOGGER.info("OAPositionRelation:{} {}",oaPositionRelation.getHighCompany(),oaPositionRelation.getHighPositionName());
                 LOGGER.info("res:{}",res);
                 if (null == res || res.contains("法务")) {
