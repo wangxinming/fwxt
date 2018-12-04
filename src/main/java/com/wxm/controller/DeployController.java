@@ -322,6 +322,8 @@ public class DeployController {
             }
 
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
+//            res = res.trim();
+            LOGGER.info("loginUser.getEnterpriseId:{}   res:{}",loginUser.getEnterpriseId(),res);
 //            List<OAEnterprise> oaEnterpriseList = oaEnterpriseService.getEnterpriseByParentId(oaEnterprise.getCompanyParent());
 //            Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
 //            for(OAEnterprise oaEnterprise1:oaEnterpriseList){
@@ -346,6 +348,7 @@ public class DeployController {
 
 
             List<OAUser> oaUserList = userService.listUserLeader(null,res);
+            LOGGER.info("oaUserList size:{}",oaUserList.size());
             List<OAUser> oaUserListRes = new LinkedList<>();
             for(OAUser oaUser:oaUserList){
                 if(map1.containsKey(oaUser.getEnterpriseId())){
@@ -436,7 +439,8 @@ public class DeployController {
             if(null != res && res.contains("法务")){
                 res = "法务";
             }
-            LOGGER.info("loginUser.getEnterpriseId:{}",loginUser.getEnterpriseId());
+//            res = res.trim();
+            LOGGER.info("loginUser.getEnterpriseId:{}   res:{}",loginUser.getEnterpriseId(),res);
             OAEnterprise oaEnterprise = oaEnterpriseService.getEnterpriseById(loginUser.getEnterpriseId());
             Map<Integer,OAEnterprise> map1 = new LinkedHashMap<>();
             if(oaEnterprise.getCompanyParent() == 0){
@@ -455,6 +459,7 @@ public class DeployController {
             }
 
             List<OAUser> oaUserList = userService.listUserLeader(null,res);
+            LOGGER.info("oaUserList:{}",oaUserList.size());
             List<OAUser> oaUserListRes = new LinkedList<>();
             for(OAUser oaUser:oaUserList){
                 if(map1.containsKey(oaUser.getEnterpriseId()) || ("法务".equals(res)&& oaUser.getUserPosition().contains("法务"))){
