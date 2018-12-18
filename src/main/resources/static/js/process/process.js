@@ -2167,6 +2167,7 @@
                             $scope.pageDialogDetail.show();
                         }else{
                             window.open("/index.html#/order?state=update&id="+deployId+"&processInstanceId="+processId,"_blank");
+                            $scope.listPage.settings.reload(true);
                         }
                     },
                     update:function (id) {
@@ -2729,8 +2730,10 @@
                         $scope.pageDialog.show();
                     },
                     start:function () {
-                            // window.open("/index.html#/order?state=create&id=" + id + "&contract=" + $scope.row.rID, "_blank");
-                            window.open("/index.html#/order?state=create&id=" + $scope.row.dID + "&contract=" + $scope.row.rID, "_blank");
+                        // window.open("/index.html#/order?state=create&id=" + id + "&contract=" + $scope.row.rID, "_blank");
+                        window.open("/index.html#/order?state=create&id=" + $scope.row.dID + "&contract=" + $scope.row.rID, "_blank");
+                        $scope.listPage.settings.reload(true);
+
                     },
                     edit: function (id) {
                     },

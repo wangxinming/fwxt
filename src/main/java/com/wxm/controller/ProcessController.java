@@ -682,11 +682,12 @@ public class ProcessController {
 
                 String index = map.get("index");
                 ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+                if(StringUtils.isNotBlank(oaContractCirculation.getContractStatus()) && oaContractCirculation.getContractStatus().equals("start")){
+                    result.put("result", "duplicate");
+                    return result;
+                }
                 if(index.equals("1")){
-                    if(StringUtils.isNotBlank(oaContractCirculation.getContractStatus()) && oaContractCirculation.getContractStatus().equals("start")){
-                        result.put("result", "duplicate");
-                        return result;
-                    }
+
                     auditService.audit(new OAAudit(loginUser.getName(),String.format("%s 提交合同工单",loginUser.getName())));
 //                    Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(deploymentID).singleResult();
 //                    Date nowTime = new Date();
@@ -1423,7 +1424,7 @@ public class ProcessController {
                 .orderByProcessInstanceStartTime().desc()
                 .startedBy(loginUser.getName())
                 .listPage(offset,limit);
-        long count = historyService.createHistoricProcessInstanceQuery().startedBy(loginUser.getName()).count();
+        long count = historyService.createHistoricProcessInstanceQuery().variableValueNotEquals("init","start").startedBy(loginUser.getName()).count();
         for(HistoricProcessInstance processInstance : historicProcessInstanceList){
             //此处并联
             ProInstance proInstance = new ProInstance();
