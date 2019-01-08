@@ -1316,9 +1316,10 @@ public class ProcessController {
         }
         if(loginUser.getName().equals("admin") || loginUser.getPosition().contains("后台管理")){
             if(StringUtils.isNotBlank(user)){
+                OAUser oaUser = userService.selectByName(user);
                 historicProcessInstanceQuery.parameter("assign","%"+StringUtils.trim(user)+"%");
                 sb.append("and (H.PROC_INST_ID_ in (SELECT DISTINCT PROC_INST_ID_ from ACT_HI_TASKINST where ASSIGNEE_ like #{assign}) ");
-                sb.append("or contract.USER_ID="+loginUser.getId()+ ") ");
+                sb.append("or contract.USER_ID="+oaUser.getUserId()+ ") ");
             }
 //            size = historicProcessInstanceQuery
 //                    .sql(String.format("%s%s","select count(*) ",sb.toString()))
