@@ -268,6 +268,7 @@ public class WordTemplateController {
                 contract =  request.getSession().getId();
 
             }
+            LOGGER.info("contract id: {}",contract);
             List<OAAttachment> oaAttachmentList = oaAttachmentService.listByProcessId(contract);
             if(null != oaAttachmentList && oaAttachmentList.size()> 5){
                 result.put("result", "failed");
