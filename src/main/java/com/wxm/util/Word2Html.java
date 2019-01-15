@@ -1,10 +1,16 @@
 package com.wxm.util;
 
+import com.artofsolving.jodconverter.DocumentConverter;
+import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
+import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
+import com.artofsolving.jodconverter.openoffice.converter.OpenOfficeDocumentConverter;
+import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocumentConverter;
 import org.artofsolving.jodconverter.OfficeDocumentConverter;
 import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
 import org.artofsolving.jodconverter.office.OfficeManager;
 
 import java.io.*;
+import java.net.ConnectException;
 
 public class Word2Html {
     /**
@@ -34,7 +40,6 @@ public class Word2Html {
      */
     public static OfficeManager getOfficeManager(String path) {
         DefaultOfficeManagerConfiguration config = new DefaultOfficeManagerConfiguration();
-
         // 设置OpenOffice.org 4的安装目录
         config.setOfficeHome(path);
         config.setTaskExecutionTimeout(1000 * 60 * 25L);

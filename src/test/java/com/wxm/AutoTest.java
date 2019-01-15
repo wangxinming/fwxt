@@ -9,13 +9,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AutoTest {
 
     public static ProcessEngine processEngine;
-
+    public static void test111(){
+        System.out.print("rrrrr");
+    }
     public static void main(String[] args) {
         try {
+            new AutoTest().test111();
             PDFMergerUtility mergePdf = new PDFMergerUtility();
             mergePdf.addSource(new File("C:\\Users\\Administrator\\Desktop\\technology-en.pdf"));
             mergePdf.addSource(new File("C:\\Users\\Administrator\\Desktop\\微服务框架.pdf"));

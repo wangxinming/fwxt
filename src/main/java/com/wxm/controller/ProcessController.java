@@ -937,8 +937,8 @@ public class ProcessController {
             sb.append("<title>");
             sb.append(historicVariableInstance.getValue().toString());
             sb.append("</title>");
-            sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
-//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
+//            sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
+            sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
             sb.append("<body>");
             sb.append(html);
             sb.append("</body></html>");
@@ -1031,8 +1031,8 @@ public class ProcessController {
                 sb.append("<title>");
                 sb.append(historicVariableInstance.getValue().toString());
                 sb.append("</title>");
-                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
-//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
+//                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=gb2312\"> ");
+                sb.append(" <META HTTP-EQUIV=\"CONTENT-TYPE\" CONTENT=\"text/html; charset=utf-8\"> ");
                 sb.append("<body>");
                 sb.append(html);
                 sb.append("</body></html>");

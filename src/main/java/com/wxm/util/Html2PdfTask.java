@@ -131,7 +131,7 @@ public class Html2PdfTask implements Runnable {
     //                BufferedWriter writer=new BufferedWriter(write);
     //                writer.write(data);
     //                writer.close();
-                PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml));
+                PrintStream printStream = new PrintStream(new FileOutputStream(fileHtml),false,"utf-8");
                 printStream.println(data);
                 //转换成pdf文件
                 synchronized (object) {

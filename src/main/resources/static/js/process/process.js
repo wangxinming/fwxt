@@ -1617,7 +1617,7 @@
                         toaster.pop('failed', "", "只能上传5个附件！");
                         return;
                       }
-                if(!$('#'+"fileAttachment1")[0].value)
+                if(!$('#'+"fileAttachment1")[0].value || $('#'+"fileAttachment1")[0].value.indexOf("'") != -1)
                     return;
                 $.ajaxFileUpload({
                     method:"POST",

@@ -4,6 +4,7 @@ import com.wxm.mapper.OAAuditMapper;
 import com.wxm.mapper.OAUserMapper;
 import com.wxm.model.OAAudit;
 import com.wxm.model.OAUser;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +51,14 @@ public class UserMapperTest {
 
     @Test
     public void testUpdate() throws Exception {
+
+
+        OAUser oaUser = UserMapper.selectByName("admin");
+        OAUser oaUser4=oaUser;
+        oaUser.setUserMobile("456");
+        UserMapper.updateByPrimaryKeySelective(oaUser);
+        OAUser oaUser11 = UserMapper.selectByName("admin");
+        OAUser oaUser12 = UserMapper.selectByName("admin");
 //        UserTestEntity user = UserMapper.getOne(4);
 //        System.out.println(user.toString());
 //        user.setAge(100);

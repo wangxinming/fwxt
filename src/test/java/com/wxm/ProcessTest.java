@@ -217,23 +217,27 @@ public class ProcessTest {
     }
     @Test
     public void testHtml2Pdf(){
-        File htmlFile = Word2Html.html2pdf("F:\\project\\html\\test\\tr-00001.html","C:/Program Files (x86)/OpenOffice 4");
+//        File htmlFile = Word2Html.html2pdf("F:\\project\\html\\test\\tr-00001.html","C:/Program Files (x86)/OpenOffice 4");
 
+
+        File htmlFile = Word2Html.html2pdf("F:\\project\\html\\test\\管线搬迁及恢复合同111.html", "C:/Program Files (x86)/OpenOffice 4");
+//
+//
         DocumentFormat stw = new DocumentFormat("OpenOffice.org 1.0 Template", DocumentFamily.TEXT, "application/vnd.sun.xml.writer", "stw");
-        DefaultDocumentFormatRegistry formatReg = new DefaultDocumentFormatRegistry();
-        DocumentFormat pdf = formatReg.getFormatByFileExtension("pdf");
-        File inputFile = new File("F:\\project\\html\\test\\tr-00001.html");
-        File outputFile = new File("F:\\project\\html\\test\\tr-00001.pdf");
-        OpenOfficeConnection connection = new SocketOpenOfficeConnection(8100);
-        try {
-            connection.connect();
-            DocumentConverter converter = new OpenOfficeDocumentConverter(connection);
-            converter.convert(inputFile, stw, outputFile, pdf);
-        } catch(Exception e) {
-            e.printStackTrace();
-        } finally {
-            try{ if(connection != null){connection.disconnect(); connection = null;}}catch(Exception e){}
-        }
+//        DefaultDocumentFormatRegistry formatReg = new DefaultDocumentFormatRegistry();
+//        DocumentFormat pdf = formatReg.getFormatByFileExtension("pdf");
+//        File inputFile = new File("F:\\project\\html\\test\\管线搬迁及恢复合同111.html");
+//        File outputFile = new File("F:\\project\\html\\test\\管线搬迁及恢复合同111.pdf");
+//        OpenOfficeConnection connection = new SocketOpenOfficeConnection(8100);
+//        try {
+//            connection.connect();
+//            DocumentConverter converter = new OpenOfficeDocumentConverter(connection);
+//            converter.convert(inputFile, stw, outputFile, pdf);
+//        } catch(Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            try{ if(connection != null){connection.disconnect(); connection = null;}}catch(Exception e){}
+//        }
 
 //        File htmlFile = Word2Html.html2pdf("F:\\project\\html\\test\\1.html","C:/Program Files (x86)/OpenOffice 4");
     }
