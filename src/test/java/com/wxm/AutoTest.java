@@ -15,6 +15,10 @@ public class AutoTest {
 
     public static ProcessEngine processEngine;
     public static void test111(){
+        String str = "<input type=\"checkbox\" name=\"name_750C6E3C4EAB34A2F328D9A893F2172D\" id=\"name_750C6E3C4EAB34A2F328D9A893F2172D\"/>";
+        String name = str.substring(str.indexOf("id=")+4);
+        name = name.substring(0,name.indexOf("\""));
+        int yy = str.length();
         System.out.print("rrrrr");
     }
     public static void main(String[] args) {

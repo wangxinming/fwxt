@@ -86,14 +86,17 @@ public class Html2PdfTask implements Runnable {
         Map<String,String> stringStringMap = new LinkedHashMap<>();
         for(HistoricVariableInstance historicVariableInstance : historicVariableInstanceList){
             if(historicVariableInstance.getVariableName().contains("name_") && historicVariableInstance.getValue() != null && StringUtils.isNotBlank(historicVariableInstance.getValue().toString()) ) {
+                LOGGER.info("historicVariableInstance：{}  {}",historicVariableInstance.getVariableName(),historicVariableInstance.getValue().toString());
                 stringStringMap.put(historicVariableInstance.getVariableName(), historicVariableInstance.getValue().toString());
             }
         }
         for(String str:stringList){
             if(null == str) continue;
+
             String name = str.substring(str.indexOf("id=")+4);
             name = name.substring(0,name.indexOf("\""));
             int start = text.indexOf(str);
+            LOGGER.info("str：{} start:{}",str ,start);
             String value;
             if(stringStringMap.containsKey(name)){
                 value =  stringStringMap.get(name).toString();
@@ -102,7 +105,9 @@ public class Html2PdfTask implements Runnable {
                 value= "无";
             }
             if(linkedHashMap.containsKey(name)) {
+
                 if(str.contains("checkbox")){
+                    LOGGER.info("name  checkbox：{}, value: {}",name,value);
                     if(!value.equals("无")) {
                         text.replace(start, start + str.length(), "<span>√</span>");
 //                        text.insert(start + 6, "<span style=\"font-family:'Wingdings 2'; font-size:12pt\">\uF052</span>");
@@ -111,6 +116,7 @@ public class Html2PdfTask implements Runnable {
                         text.replace(start, start + str.length(), "<span style=\"font-family:宋体; font-size:12pt\">□</span>");
                     }
                 }else {
+                    LOGGER.info("name：{}, value",name,value);
                     value = completeWithBlank(value, linkedHashMap.get(name));
                     text.replace(start, start + str.length(), String.format("<u>%s</u>", value));
                 }
