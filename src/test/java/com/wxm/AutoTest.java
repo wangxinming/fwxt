@@ -7,6 +7,7 @@ import org.activiti.engine.task.Task;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 
 import java.io.File;
 import java.util.concurrent.locks.ReentrantLock;

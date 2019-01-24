@@ -1634,6 +1634,7 @@
                             var deleteHtml = ' <input type="submit" value="删除"  onclick="deleteFile(\'' + data.file + '\');"  class="btn btn-primary btn-lg" />';
                             $('#download' + uploadAttachment).html('<div>' + html + deleteHtml + '</div>');
                             $('#custom').val(data.uid);
+                            $scope.attachFlag = true;
                         }else{
                             toaster.pop('failed', "","上传失败");
                         }
@@ -1663,6 +1664,7 @@
             $scope.search = $location.search();
             $scope.workStatus = false;
             $scope.showCommit = true;
+            $scope.attachFlag = false;
             //deployment id
 
             $scope.isNumberText = function(val) {
@@ -1729,6 +1731,7 @@
                     $scope.dateStartwork = data.workDate;
                     $scope.showCommit =  data.showCommit;
                     $('#refuseCause').text(data.refuse);
+
                     if(data.download){
                         // var uploadAttachment = 1;
                         // if(!$("#download1")[0].innerText)         uploadAttachment = 1;
@@ -1739,7 +1742,7 @@
                         // var html = '<a href="javascript:void(0);" class="fa fa-download" title="下载" onclick=\'javascript:window.open(\"template/download?fileName='+data.file + '\");\'>'+data.displayName+'</a>';
                         // var deleteHtml =' <input type="submit" value="删除"  onclick="deleteFile(this);"  class="btn btn-primary btn-lg" />';
                         // $('#download'+uploadAttachment).html('<div>'+html+deleteHtml+'</div>');
-
+                        $scope.attachFlag = true;
                         // var tal = "";
                         for(var i=0;i<data.download.length;i++){
                             var uploadAttachment= i+1;
@@ -1881,7 +1884,7 @@
                     $('#money').focus();
                     return;
                 }
-                if($scope.workStatus == true){
+                if($scope.workStatus == true && $scope.attachFlag != true){
                     if( $('#custom').val() == ""){
                         $('#fileAttachment').focus();
                         toaster.pop('failed', "","已开工项目必须上传附件！");
@@ -1900,25 +1903,25 @@
                             return;
                         }
 
-                        switch ($scope.fields[i].fieldType.substring(0, 2)) {
-                            case 'DD':
-                                if (!$scope.isNumberText($('#' + $scope.fields[i].fieldMd5).val())) {
-                                    toaster.pop('failed', "", $scope.fields[i].fieldName + "格式不正确");
-                                    $('#' + $scope.fields[i].fieldMd5).focus();
-                                    return;
-                                }
-                                break;
+                        switch ($scope.fields[i].fieldValid != null && $scope.fields[i].fieldValid.substring(0, 2)) {
+                            // case 'DD':
+                            //     if (!$scope.isNumberText($('#' + $scope.fields[i].fieldMd5).val())) {
+                            //         toaster.pop('failed', "", $scope.fields[i].fieldName + "格式不正确");
+                            //         $('#' + $scope.fields[i].fieldMd5).focus();
+                            //         return;
+                            //     }
+                            //     break;
                             case 'CC':
                             case 'SS':
                                 break;
-                            case 'TT'://YYYYMMDD
-                                var r = text.match(/^(\d{4})(\d{2})(\d{2})$/);
-                                if (r == null) {
-                                    toaster.pop('failed', "", $scope.fields[i].fieldName + "格式不正确");
-                                    $('#' + $scope.fields[i].fieldMd5).focus();
-                                    return;
-                                }
-                                break;
+                            // case 'TT'://YYYYMMDD
+                            //     var r = text.match(/^(\d{4})(\d{2})(\d{2})$/);
+                            //     if (r == null) {
+                            //         toaster.pop('failed', "", $scope.fields[i].fieldName + "格式不正确");
+                            //         $('#' + $scope.fields[i].fieldMd5).focus();
+                            //         return;
+                            //     }
+                            //     break;
                             default:
                                 break;
                         }

@@ -181,7 +181,7 @@
 <script type="application/javascript">
     function deleteFile(file){
         var parentNode = this.event.target.parentNode;
-        $.get("/template/deleteAttachment?fileName="+file,function (data,status) {
+        $.get("/template/deleteAttachment?fileName="+encodeURIComponent(file), function (data,status) {
             if(data.result == "success"){
                 if (parentNode != null)
                     parentNode.parentNode.removeChild(parentNode);
