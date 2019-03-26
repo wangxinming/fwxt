@@ -1719,7 +1719,12 @@
                     $scope.dateStartwork = data.workDate;
                     if(data.rows) {
                         for (var j = 0; j < data.rows.length; j++) {
-                            $('#'+data.rows[j].key).val(data.rows[j].value);
+                            if(data.rows[j].value == 'on'){
+                                $('#' + data.rows[j].key).attr("checked",true);
+                            }else {
+                                $('#' + data.rows[j].key).val(data.rows[j].value);
+                            }
+                            // $('#'+data.rows[j].key).val(data.rows[j].value);
                         }
                     }
                     for(var i=0;i<data.fields.length;i++){
@@ -1814,39 +1819,39 @@
                         $('#'+$scope.fields[i].fieldMd5).focus();
                         return;
                     }
-                    switch($scope.fields[i].fieldValid.substring(0,2)){
-                        case 'RR':
-                        case 'DD':
-                            if (!$scope.isNumberText( $('#'+$scope.fields[i].fieldMd5).val())){
-                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                                $('#'+$scope.fields[i].fieldMd5).focus();
-                                return;
-                            }
-                            break;
-                        case 'CC':
-                        case 'TT':
-
-                        case 'SS':
-                            break;
-                        // case 'RR':
-                        //     var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
-                        //     if(r==null){
-                        //         toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                        //         $('#'+$scope.fields[i].fieldMd5).focus();
-                        //         return;
-                        //     }
-                        //     break;
-                        case 'YY'://YYYYMMDD
-                            var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
-                            if(r==null){
-                                toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
-                                $('#'+$scope.fields[i].fieldMd5).focus();
-                                return;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    // switch($scope.fields[i].fieldValid.substring(0,2)){
+                    //     case 'RR':
+                    //     case 'DD':
+                    //         if (!$scope.isNumberText( $('#'+$scope.fields[i].fieldMd5).val())){
+                    //             toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                    //             $('#'+$scope.fields[i].fieldMd5).focus();
+                    //             return;
+                    //         }
+                    //         break;
+                    //     case 'CC':
+                    //     case 'TT':
+                    //
+                    //     case 'SS':
+                    //         break;
+                    //     // case 'RR':
+                    //     //     var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
+                    //     //     if(r==null){
+                    //     //         toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                    //     //         $('#'+$scope.fields[i].fieldMd5).focus();
+                    //     //         return;
+                    //     //     }
+                    //     //     break;
+                    //     case 'YY'://YYYYMMDD
+                    //         var r = text.match( /^(\d{4})(\d{2})(\d{2})$/);
+                    //         if(r==null){
+                    //             toaster.pop('failed', "",$scope.fields[i].fieldName+"格式不正确");
+                    //             $('#'+$scope.fields[i].fieldMd5).focus();
+                    //             return;
+                    //         }
+                    //         break;
+                    //     default:
+                    //         break;
+                    // }
                 }
                 var params = $("#orderFormInfo").serializeArray();
                 var values = {workStatus:$('#workStatus').val()};
